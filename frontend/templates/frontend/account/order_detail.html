@@ -1,0 +1,71 @@
+{% extends "frontend/account/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block account_title %}Order {{ order.order_number }}{% endblock %}
+{% block account_lede %}<p class="lede">Placed {{ order.date }} · {{ order.status_label }}</p>{% endblock %}
+
+{% block account_content %}
+<p style="margin-bottom:var(--gap)">
+  <a class="link" href="{% url 'account_orders' %}">{% icon "chevron-left" 16 %} {% translate "All orders" %}</a>
+</p>
+
+<div class="panel">
+  <div class="panel__head">
+    <h3>{% translate "Progress" %}</h3>
+    <span class="status status--{{ order.status }}">{{ order.status_label }}</span>
+  </div>
+  <ul class="timeline">
+    {% for step in order.timeline %}
+      <li class="{% if step.done %}is-done{% endif %}">
+        <span class="mark">{% icon "check" 12 %}</span>
+        <span>{{ step.label }}<br><span class="when">{{ step.date }}</span></span>
+      </li>
+    {% endfor %}
+  </ul>
+  {% if order.tracking_number %}
+    <p class="muted" style="margin-top:1.2rem">{{ order.carrier }} · Tracking {{ order.tracking_number }}</p>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <div class="panel__head"><h3>{% translate "Items" %}</h3></div>
+  {% for item in order.items.all %}
+    <div class="line-item">
+      <a class="media" href="{% url 'product_detail' item.product_slug %}">
+        <img src="{% placeholder item.image %}" alt="" loading="lazy">
+      </a>
+      <div>
+        <a class="line-item__name" href="{% url 'product_detail' item.product_slug %}">{{ item.product_name }}</a>
+        <div class="line-item__meta">
+          {% if item.variant_name %}{{ item.variant_name }} · {% endif %}Quantity {{ item.quantity }}
+        </div>
+      </div>
+      <div class="line-item__price">{{ item.line_total|money }}</div>
+    </div>
+  {% endfor %}
+
+  <div style="margin-top:var(--gap);max-width:320px;margin-left:auto">
+    <div class="summary__row"><span>{% translate "Subtotal" %}</span><span>{{ order.subtotal|money }}</span></div>
+    <div class="summary__row">
+      <span>{% translate "Delivery" %}</span>
+      <span>{% if order.shipping_amount %}{{ order.shipping_amount|money }}{% else %}Complimentary{% endif %}</span>
+    </div>
+    <div class="summary__row summary__row--total"><span>{% translate "Total" %}</span><span>{{ order.total|money }}</span></div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel__head"><h3>{% translate "Delivery" %}</h3></div>
+  <address style="font-style:normal;color:var(--ink-soft)">
+    {{ order.address.name }}<br>
+    {{ order.address.line1 }}{% if order.address.line2 %}<br>{{ order.address.line2 }}{% endif %}<br>
+    {{ order.address.city }} {{ order.address.postcode }}<br>
+    {{ order.address.country }}
+  </address>
+  <p class="muted" style="margin-top:0.9rem">{{ order.delivery_method }} · {{ order.estimated }}</p>
+</div>
+
+<p class="form-note">
+  {% translate "Something wrong with this order?" %} <a class="text-link" href="{% url 'contact' %}">{% translate "Email the studio" %}</a> and quote {{ order.order_number }}.
+</p>
+{% endblock %}

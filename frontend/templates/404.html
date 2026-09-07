@@ -1,0 +1,19 @@
+{% extends "frontend/base.html" %}
+{% load i18n %}
+
+{% block title %}Page not found — {{ site.brand }}{% endblock %}
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell" style="padding-block:calc(var(--section) * 1.2);text-align:center">
+  <p class="eyebrow">404</p>
+  <h1 style="font-size:var(--step-3);max-width:18ch;margin-inline:auto">{% translate "This page has been taken off the shelf." %}</h1>
+  <p class="lede" style="margin:1.2rem auto 0">
+    {% translate "The link may be old, or a piece may have sold out and been retired. Everything we currently make is one click away." %}
+  </p>
+  <p style="margin-top:2rem;display:flex;gap:0.7rem;justify-content:center;flex-wrap:wrap">
+    <a class="btn" href="{% url 'shop' %}">{% translate "Browse the shop" %}</a>
+    <a class="btn btn--quiet" href="{% url 'home' %}">{% translate "Back to home" %}</a>
+  </p>
+</div>
+{% endblock %}

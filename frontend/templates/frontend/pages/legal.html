@@ -1,0 +1,44 @@
+{% extends "frontend/base.html" %}
+{% load i18n %}
+
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell page-head">
+  <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+    <a href="{% url 'home' %}">{% translate "Home" %}</a><span class="sep">/</span><span aria-current="page">{{ title }}</span>
+  </nav>
+  <h1 style="font-size:var(--step-3)">{{ title }}</h1>
+  <p class="lede">
+    {% translate "Placeholder wording for the prototype. Real policy text needs to be written and reviewed before this site is put in front of customers." %}
+  </p>
+</div>
+
+<div class="shell shell--text" style="padding-bottom:var(--section)">
+  <div class="flow" style="color:var(--ink-soft)">
+    {% if slug == "privacy" %}
+      <h2 style="font-size:var(--step-2)">{% translate "What we collect" %}</h2>
+      <p>{% translate "Your name, email address, delivery address and phone number, so that an order can be packed and sent. Payment details are handled by the payment provider and never reach our servers." %}</p>
+      <h2 style="font-size:var(--step-2)">{% translate "How it is used" %}</h2>
+      <p>{% translate "To fulfil orders, answer questions about them, and — only if you asked for it — to send the studio newsletter. We do not sell or share customer data with advertisers." %}</p>
+      <h2 style="font-size:var(--step-2)">{% translate "What this prototype stores" %}</h2>
+      <p>{% translate "The prototype database stores account details, saved addresses, server-side bags, orders, newsletter subscriptions and contact messages. Signed-in wishlists are stored with the account; guest wishlists and recently viewed pieces remain in this browser." %}</p>
+      <h2 style="font-size:var(--step-2)">{% translate "Your rights" %}</h2>
+      <p>{% translate "You can ask for a copy of your data or ask for it to be deleted by emailing the studio. Requests are answered within thirty days." %}</p>
+    {% else %}
+      <h2 style="font-size:var(--step-2)">{% translate "Ordering" %}</h2>
+      <p>{% translate "Placing an order is an offer to buy. A contract is formed when the studio confirms dispatch. Prices are shown inclusive of applicable tax and exclusive of any import duties, which are payable by the recipient." %}</p>
+      <h2 style="font-size:var(--step-2)">{% translate "Handmade variation" %}</h2>
+      <p>{% translate "Every piece is made individually. Colour, glaze and dimensions vary within a normal range, and that variation is not a defect. Product photography shows a representative piece rather than the exact one you will receive." %}</p>
+      <h2 style="font-size:var(--step-2)">{% translate "Returns" %}</h2>
+      <p>{% translate "Thirty days from delivery for unused pieces in their original packaging. Made-to-order and commissioned pieces can only be returned if faulty. See the" %}
+        <a class="text-link" href="{% url 'shipping_returns' %}">{% translate "shipping and returns page" %}</a>
+        {% translate "for the detail." %}</p>
+      <h2 style="font-size:var(--step-2)">{% translate "This prototype" %}</h2>
+      <p>{% translate "This site is a university project. No orders are fulfilled, no payments are taken and nothing here forms a real contract." %}</p>
+    {% endif %}
+
+    <p class="form-note" style="margin-top:var(--section)">{% translate "Last reviewed:" %} {% now "F Y" %}</p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block content %}
+<div class="shell page-head">
+  <p class="eyebrow">{% translate "Search" %}</p>
+  {% if query %}
+    <h1 style="font-size:var(--step-3)">Results for “{{ query }}”</h1>
+    <p class="lede">{{ total }} result{{ total|pluralize }} across products, collections, makers and the journal.</p>
+  {% else %}
+    <h1 style="font-size:var(--step-3)">{% translate "Search" %}</h1>
+    <p class="lede">{% translate "Look for a material, a maker, a room or a piece by name." %}</p>
+  {% endif %}
+
+  <form class="search-form" action="{% url 'search' %}" method="get" role="search" style="max-width:640px;margin-top:2rem">
+    {% icon "search" 22 %}
+    <label class="sr-only" for="page-search">{% translate "Search" %}</label>
+    <input id="page-search" type="search" name="q" value="{{ query }}" placeholder="{% translate "Search" %}"
+           style="font-size:var(--step-2)">
+    <button class="btn btn--sm" type="submit">{% translate "Search" %}</button>
+  </form>
+</div>
+
+<div class="shell" style="padding-bottom:var(--section)">
+  {% if not query %}
+    <h4 class="eyebrow">{% translate "Popular searches" %}</h4>
+    <div class="search-suggestions">
+      {% for term in popular %}<a class="chip" href="{% url 'search' %}?q={{ term|urlencode }}">{{ term }}</a>{% endfor %}
+    </div>
+  {% elif total == 0 %}
+    <div class="empty-state">
+      <h3>Nothing matched “{{ query }}”</h3>
+      <p class="muted">{% translate "The catalogue is small — around twenty pieces — so specific searches often come up short. Try a material or a category." %}</p>
+      <div class="search-suggestions" style="justify-content:center;margin-top:1.4rem">
+        {% for term in popular %}<a class="chip" href="{% url 'search' %}?q={{ term|urlencode }}">{{ term }}</a>{% endfor %}
+      </div>
+    </div>
+  {% else %}
+    {% if results.products %}
+      <section class="section--tight" style="padding-top:0">
+        <div class="section-head"><h2 style="font-size:var(--step-2)">{% translate "Products" %}</h2></div>
+        <div class="grid grid--4">
+          {% for product in results.products %}{% include "frontend/partials/product_card.html" %}{% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if results.collections %}
+      <section class="section--tight">
+        <div class="section-head"><h2 style="font-size:var(--step-2)">{% translate "Collections" %}</h2></div>
+        <div class="grid grid--3">
+          {% for collection in results.collections %}
+            <a class="card" href="{% url 'collection_detail' collection.slug %}">
+              <div class="media media--hover card__media" style="aspect-ratio:3/2">
+                <img src="{% placeholder collection.hero %}" alt="" loading="lazy">
+              </div>
+              <h3 class="card__name">{{ collection.title }}</h3>
+              <p class="card__meta">{{ collection.tagline }}</p>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if results.makers %}
+      <section class="section--tight">
+        <div class="section-head"><h2 style="font-size:var(--step-2)">{% translate "Makers" %}</h2></div>
+        <div class="grid grid--4">
+          {% for maker in results.makers %}
+            <a class="card maker-card" href="{% url 'maker_detail' maker.slug %}">
+              <div class="media media--hover"><img src="{% placeholder maker.portrait %}" alt="" loading="lazy"></div>
+              <h3>{{ maker.name }}</h3>
+              <p class="meta">{{ maker.discipline }} · {{ maker.location }}</p>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if results.articles %}
+      <section class="section--tight">
+        <div class="section-head"><h2 style="font-size:var(--step-2)">{% translate "Journal" %}</h2></div>
+        <div class="grid grid--3">
+          {% for article in results.articles %}
+            <a class="card article-card" href="{% url 'journal_detail' article.slug %}">
+              <div class="media media--hover"><img src="{% placeholder article.image %}" alt="" loading="lazy"></div>
+              <p class="meta">{{ article.category }} · {{ article.read_time }}</p>
+              <h3>{{ article.title }}</h3>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

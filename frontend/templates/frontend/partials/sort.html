@@ -1,0 +1,7 @@
+{% load i18n frontend_extras %}
+<label class="sr-only" for="sort-select">{% translate "Sort products" %}</label>
+<select class="select select--quiet" id="sort-select" data-sort>
+  {% for value, label in sort_options %}
+    <option value="{% query_replace sort=value %}" {% if sort == value %}selected{% endif %}>{{ label }}</option>
+  {% endfor %}
+</select>

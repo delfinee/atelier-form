@@ -1,0 +1,221 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block body_attrs %} data-product-slug="{{ product.slug }}"{% endblock %}
+
+{% block description %}{{ product.short_description }} — {{ product.description|truncatewords:24 }}{% endblock %}
+
+{% block content %}
+<div class="shell" style="padding-block:calc(var(--gap) * 1.5) var(--section)">
+  <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+    <a href="{% url 'home' %}">{% translate "Home" %}</a><span class="sep">/</span>
+    <a href="{% url 'shop' %}">{% translate "Shop" %}</a><span class="sep">/</span>
+    <a href="{% url 'collection_detail' product.category.slug %}">{{ product.category.name }}</a><span class="sep">/</span>
+    <span aria-current="page">{{ product.name }}</span>
+  </nav>
+
+  <div class="pdp" data-product-scope>
+    <div class="pdp__gallery" data-gallery>
+      <div class="media pdp__main" data-gallery-zoom>
+        <img src="{% placeholder product.images.0 %}" alt="{{ product.name }}"
+             data-gallery-main width="800" height="1000" fetchpriority="high">
+        <button class="icon-btn" type="button" data-gallery-zoom
+                style="position:absolute;bottom:0.7rem;right:0.7rem;background:var(--paper)"
+                aria-label="{% translate "Enlarge image" %}">{% icon "zoom" 18 %}</button>
+      </div>
+      <div class="pdp__thumbs" role="tablist" aria-label="{% translate "Product images" %}">
+        {% for image in product.images %}
+          <button type="button" role="tab" data-gallery-thumb data-full="{% placeholder image %}"
+                  aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                  aria-label="Image {{ forloop.counter }} of {{ product.images|length }}">
+            <img src="{% placeholder image %}" alt="" loading="lazy">
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="pdp__info">
+      <p class="eyebrow">{{ product.short_description }}</p>
+      <h1 style="font-size:var(--step-3)">{{ product.name }}</h1>
+      <p class="pdp__price">{{ product.price|money }}</p>
+
+      {% if maker %}
+        <a class="pdp__maker" href="{% url 'maker_detail' maker.slug %}">
+          <img src="{% placeholder maker.portrait %}" alt="">
+          <span>{% translate "Made by" %} <span class="text-link">{{ maker.name }}</span> · {{ maker.location }}</span>
+        </a>
+      {% endif %}
+
+      <p style="margin-top:1.4rem;color:var(--ink-soft)">{{ product.description }}</p>
+
+      {% with colours=product.variants|colour_variants sizes=product.variants|size_variants %}
+        {% if colours %}
+          <div class="variant-group" data-variant-group>
+            <div class="variant-group__label">
+              <span class="label">{% translate "Colour" %}</span>
+              <span class="value" data-variant-value>{{ colours.0.label }}</span>
+            </div>
+            <div class="variants">
+              {% for v in colours %}
+                <button class="variant variant--swatch" type="button" data-variant="{{ v.label }}"
+                        aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+                        {% if not v.available %}disabled{% endif %}
+                        aria-label="{{ v.label }}{% if not v.available %} — sold out{% endif %}">
+                  <span style="background:{{ v.swatch }}"></span>
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if sizes %}
+          <div class="variant-group" data-variant-group>
+            <div class="variant-group__label">
+              <span class="label">{% translate "Size" %}</span>
+              <span class="value" data-variant-value>{{ sizes.0.label }}</span>
+            </div>
+            <div class="variants">
+              {% for v in sizes %}
+                <button class="variant" type="button" data-variant="{{ v.label }}"
+                        aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+                        {% if not v.available %}disabled{% endif %}>{{ v.label }}</button>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <div class="pdp__buy">
+        <div class="qty" data-qty>
+          <button type="button" data-step="-1" aria-label="{% translate "Decrease quantity" %}">{% icon "minus" 16 %}</button>
+          <label class="sr-only" for="pdp-qty">{% translate "Quantity" %}</label>
+          <input id="pdp-qty" type="number" min="1" max="99" value="1">
+          <button type="button" data-step="1" aria-label="{% translate "Increase quantity" %}">{% icon "plus" 16 %}</button>
+        </div>
+        <button class="btn" type="button" data-add-to-cart data-slug="{{ product.slug }}">{% translate "Add to bag" %}</button>
+        <button class="btn btn--quiet{% if in_wishlist %} is-active{% endif %}" type="button"
+                data-wish-toggle data-slug="{{ product.slug }}"
+                aria-pressed="{% if in_wishlist %}true{% else %}false{% endif %}"
+                aria-label="Save {{ product.name }} to wishlist">{% icon "heart" 18 %}</button>
+      </div>
+
+      <p class="pdp__stock">
+        <span class="dot {% if product.stock_status == 'low-stock' %}dot--low{% elif product.stock_status == 'made-to-order' %}dot--order{% endif %}"></span>
+        {% stock_label product.stock_status %} · {{ product.dispatch }}
+      </p>
+      <p class="form-note" style="margin-top:0.5rem">
+        Complimentary delivery over {{ site.free_shipping_threshold|money }} · Thirty-day returns
+      </p>
+
+      <div class="accordion" data-accordion>
+        <div class="accordion__item">
+          <button class="accordion__head" type="button" aria-expanded="true">
+            {% translate "Details &amp; materials" %} {% icon "chevron-down" 18 %}
+          </button>
+          <div class="accordion__body">
+            <p><strong>{% translate "Materials." %}</strong> {{ product.materials|join:", " }}</p>
+            <p><strong>{% translate "Dimensions." %}</strong> {{ product.dimensions }}</p>
+            <p style="margin-bottom:0"><strong>{% translate "Made by." %}</strong> {{ maker.name }}, {{ maker.location }}</p>
+          </div>
+        </div>
+        <div class="accordion__item">
+          <button class="accordion__head" type="button" aria-expanded="false">{% translate "Care" %} {% icon "chevron-down" 18 %}</button>
+          <div class="accordion__body">
+            <p>{{ product.care }}</p>
+            <p style="margin-bottom:0"><a class="text-link" href="{% url 'care_guide' %}">{% translate "Read the full care guide" %}</a></p>
+          </div>
+        </div>
+        <div class="accordion__item">
+          <button class="accordion__head" type="button" aria-expanded="false">
+            {% translate "Shipping &amp; returns" %} {% icon "chevron-down" 18 %}
+          </button>
+          <div class="accordion__body">
+            <p>{{ product.dispatch }}. Standard delivery is {{ site.shipping_standard|money }}, complimentary above {{ site.free_shipping_threshold|money }}.</p>
+            <p style="margin-bottom:0">{% translate "Thirty days to return an unused piece." %}
+              <a class="text-link" href="{% url 'shipping_returns' %}">{% translate "Full policy" %}</a>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if product.story %}
+<section class="section" style="background:var(--sand)">
+  <div class="shell split">
+    <div class="media" data-reveal>
+      <img src="{% placeholder 'story-'|add:product.slug %}" alt="" loading="lazy" width="1400" height="933">
+    </div>
+    <div data-reveal>
+      <p class="eyebrow">{% translate "The story" %}</p>
+      <blockquote class="quote" style="border:0;padding:0">{{ product.story }}</blockquote>
+      {% if maker %}
+        <p style="margin-top:1.6rem">
+          <a class="link" href="{% url 'maker_detail' maker.slug %}">More from {{ maker.name }} {% icon "arrow-right" 16 %}</a>
+        </p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section--tight shell" style="padding-top:var(--section)">
+  <div class="section-head">
+    <div><p class="eyebrow">{% translate "Verified buyers" %}</p><h2>{% translate "Reviews" %}</h2></div>
+  </div>
+  <div style="display:grid;gap:1rem">
+    {% for review in reviews %}
+      <article class="panel">
+        <p aria-label="{{ review.rating }} out of 5 stars"><strong>{{ review.rating }} / 5</strong>
+          {% if review.is_verified_purchase %}<span class="muted"> {% translate "· Verified purchase" %}</span>{% endif %}</p>
+        {% if review.title %}<h3 style="margin-top:.5rem">{{ review.title }}</h3>{% endif %}
+        {% if review.body %}<p style="margin-top:.5rem">{{ review.body }}</p>{% endif %}
+        <p class="muted" style="margin-top:.5rem">{{ review.user.full_name }}</p>
+      </article>
+    {% empty %}
+      <p class="muted">{% translate "No reviews yet." %}</p>
+    {% endfor %}
+
+    {% if can_review %}
+      <form method="post" class="panel" novalidate>
+        {% csrf_token %}
+        <h3>{% translate "Review your purchase" %}</h3>
+        <div class="field"><label class="label" for="review-rating">{% translate "Rating" %}</label>
+          <select class="select" id="review-rating" name="rating" required>
+            <option value="">{% translate "Choose" %}</option><option value="5">{% translate "5 — Excellent" %}</option>
+            <option value="4">{% translate "4 — Good" %}</option><option value="3">{% translate "3 — Fair" %}</option>
+            <option value="2">{% translate "2 — Poor" %}</option><option value="1">{% translate "1 — Very poor" %}</option>
+          </select></div>
+        <div class="field"><label class="label" for="review-title">{% translate "Title" %}</label>
+          <input class="input" id="review-title" name="title" maxlength="160"></div>
+        <div class="field"><label class="label" for="review-body">{% translate "Review" %}</label>
+          <textarea class="textarea" id="review-body" name="body" rows="4"></textarea></div>
+        <button class="btn" type="submit">{% translate "Publish review" %}</button>
+      </form>
+    {% endif %}
+  </div>
+</section>
+
+{% if related %}
+<section class="section--tight shell" style="padding-top:var(--section)">
+  <div class="section-head">
+    <div><p class="eyebrow">{% translate "You may also like" %}</p><h2>{% translate "Goes with this" %}</h2></div>
+  </div>
+  <div class="grid grid--4">
+    {% for product in related %}{% include "frontend/partials/product_card.html" %}{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="section--tight shell" data-recent-section>
+  <div class="section-head">
+    <div><p class="eyebrow">{% translate "Recently viewed" %}</p><h2>{% translate "Where you have been" %}</h2></div>
+  </div>
+  <div class="grid grid--4" data-recent-grid data-exclude="{{ product.slug }}"></div>
+</section>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="{% translate "Enlarged product image" %}">
+  <button class="icon-btn lightbox__close" type="button" data-lightbox-close aria-label="{% translate "Close" %}">{% icon "close" 22 %}</button>
+  <img src="" alt="{{ product.name }}">
+</div>
+{% endblock %}

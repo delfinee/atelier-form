@@ -1,0 +1,28 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block content %}
+<div class="shell page-head">
+  <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+    <a href="{% url 'home' %}">{% translate "Home" %}</a><span class="sep">/</span><span aria-current="page">{% translate "Makers" %}</span>
+  </nav>
+  <p class="eyebrow">{% translate "The people" %}</p>
+  <h1>{% translate "Five makers, all known by name." %}</h1>
+  <p class="lede">{% translate "We do not commission from factories or buy through agents. Everything on this site was made by one of these five people, in their own studio." %}</p>
+</div>
+
+<div class="shell" style="padding-bottom:var(--section)">
+  <div class="grid grid--3">
+    {% for maker in makers %}
+      <a class="card maker-card" href="{% url 'maker_detail' maker.slug %}" data-reveal>
+        <div class="media media--hover">
+          <img src="{% placeholder maker.portrait %}" alt="{{ maker.name }}" loading="lazy" width="750" height="1000">
+        </div>
+        <p class="meta">{{ maker.discipline }} · {{ maker.location }}</p>
+        <h3>{{ maker.name }}</h3>
+        <p class="muted" style="margin-top:0.5rem">{{ maker.tagline }}</p>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

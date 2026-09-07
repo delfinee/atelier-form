@@ -1,0 +1,21 @@
+{% load i18n frontend_extras %}
+<div class="mobile-nav" id="mobile-nav" role="dialog" aria-modal="true" aria-label="{% translate "Menu" %}">
+  <div class="mobile-nav__head">
+    <span class="brand">{{ site.brand }}</span>
+    <button class="icon-btn" type="button" data-nav-close aria-label="{% translate "Close menu" %}">{% icon "close" %}</button>
+  </div>
+  <nav class="mobile-nav__links" aria-label="{% translate "Mobile" %}">
+    <a href="{% url 'shop' %}">{% translate "Shop" %}</a>
+    <a href="{% url 'collections' %}">{% translate "Collections" %}</a>
+    <a href="{% url 'makers' %}">{% translate "Makers" %}</a>
+    <a href="{% url 'our_story' %}">{% translate "Our Story" %}</a>
+    <a href="{% url 'journal' %}">{% translate "Journal" %}</a>
+    <a href="{% url 'contact' %}">{% translate "Contact" %}</a>
+  </nav>
+  <div class="mobile-nav__meta">
+    <a class="text-link" href="{% url 'account_overview' %}">{% translate "Account" %}</a>
+    <a class="text-link" href="{% url 'account_wishlist' %}">{% translate "Wishlist" %}</a>
+    <a class="text-link" href="{% url 'cart' %}">{% translate "Bag" %}</a>
+    <p class="muted">{{ site.hours }}</p>
+  </div>
+</div>

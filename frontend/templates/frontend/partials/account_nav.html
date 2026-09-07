@@ -1,0 +1,18 @@
+{% load i18n %}
+{% url 'account_overview' as u_overview %}
+{% url 'account_orders' as u_orders %}
+{% url 'account_wishlist' as u_wishlist %}
+{% url 'account_addresses' as u_addresses %}
+{% url 'account_profile' as u_profile %}
+<nav class="account-nav" aria-label="{% translate "Account" %}">
+  <a href="{{ u_overview }}"{% if current_path == u_overview %} aria-current="page"{% endif %}>{% translate "Overview" %}</a>
+  <a href="{{ u_orders }}"{% if current_path == u_orders %} aria-current="page"{% endif %}>{% translate "Orders" %}</a>
+  <a href="{{ u_wishlist }}"{% if current_path == u_wishlist %} aria-current="page"{% endif %}>{% translate "Wishlist" %}</a>
+  <a href="{{ u_addresses }}"{% if current_path == u_addresses %} aria-current="page"{% endif %}>{% translate "Addresses" %}</a>
+  <a href="{{ u_profile }}"{% if current_path == u_profile %} aria-current="page"{% endif %}>{% translate "Profile" %}</a>
+  {% if user.is_seller %}<a href="{% url 'seller_dashboard' %}">{% translate "Seller dashboard" %}</a>{% endif %}
+</nav>
+<form method="post" action="{% url 'logout' %}" style="margin-top:0.6rem">
+  {% csrf_token %}
+  <button class="btn btn--quiet btn--sm account-signout" type="submit">{% translate "Sign out" %}</button>
+</form>

@@ -1,0 +1,38 @@
+{% load i18n frontend_extras %}
+{% comment %}Expects `product`. The second image is preloaded as a hover swap,
+which is why every product carries at least two images in the catalogue.{% endcomment %}
+<article class="card" data-reveal>
+  <div class="media media--hover card__media">
+    <img src="{% placeholder product.images.0 %}" alt="{{ product.name }}" loading="lazy" width="800" height="1000">
+    {% if product.images|length > 1 %}
+      <img class="swap" src="{% placeholder product.images.1 %}" alt="" aria-hidden="true" loading="lazy">
+    {% endif %}
+
+    <div class="card__badges">
+      {% if product.new_arrival %}<span class="badge">{% translate "New" %}</span>{% endif %}
+      {% if product.stock_status == "low-stock" %}<span class="badge badge--accent">{% translate "Low stock" %}</span>
+      {% elif product.stock_status == "made-to-order" %}<span class="badge badge--quiet">{% translate "Made to order" %}</span>{% endif %}
+    </div>
+
+    <button class="card__wish" type="button" data-wish-toggle data-slug="{{ product.slug }}"
+            aria-pressed="false" aria-label="Save {{ product.name }} to wishlist">
+      {% icon "heart" 18 %}
+    </button>
+
+    <div class="card__quick">
+      <button class="btn btn--sm btn--block" type="button"
+              data-add-to-cart data-slug="{{ product.slug }}">{% translate "Add to bag" %}</button>
+    </div>
+  </div>
+
+  <h3 class="card__name"><a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a></h3>
+  <p class="card__meta">{{ product.short_description }}</p>
+  <div class="card__price">{{ product.price|money }}</div>
+  {% with colours=product.variants|colour_variants %}
+    {% if colours %}
+      <div class="card__swatches" aria-label="{{ colours|length }} colours available">
+        {% for v in colours %}<span class="swatch" style="background:{{ v.swatch }}" title="{{ v.label }}"></span>{% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+</article>

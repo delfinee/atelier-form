@@ -1,0 +1,23 @@
+{% extends "frontend/account/base.html" %}
+{% load i18n %}
+
+{% block account_title %}Wishlist{% endblock %}
+{% block account_lede %}
+  <p class="lede">{% translate "Saved to your account. Nothing here is reserved — small batches sell out." %}</p>
+{% endblock %}
+
+{% block account_content %}
+{% if wishlist_products %}
+  <div class="grid grid--3">
+    {% for product in wishlist_products %}
+      {% include "frontend/partials/product_card.html" %}
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">
+    <h3>{% translate "Nothing saved yet" %}</h3>
+    <p class="muted">{% translate "Tap the heart on any piece and it will wait for you here." %}</p>
+    <p style="margin-top:1.4rem"><a class="btn" href="{% url 'shop' %}">{% translate "Browse the shop" %}</a></p>
+  </div>
+{% endif %}
+{% endblock %}

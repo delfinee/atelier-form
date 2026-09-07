@@ -1,0 +1,40 @@
+{% extends "frontend/account/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block account_title %}Orders{% endblock %}
+{% block account_lede %}<p class="lede">{% translate "Everything you have ordered, newest first." %}</p>{% endblock %}
+
+{% block account_content %}
+{% for order in orders %}
+  <div class="panel">
+    <div class="panel__head">
+      <div>
+        <h3 style="font-size:var(--step-1)">{{ order.order_number }}</h3>
+        <p class="muted" style="margin:0.25rem 0 0">
+          Placed {{ order.date }} · {{ order.items|length }} item{{ order.items|length|pluralize }} · {{ order.total|money }}
+        </p>
+      </div>
+      <span class="status status--{{ order.status }}">{{ order.status_label }}</span>
+    </div>
+
+    <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem">
+      {% for item in order.items.all %}
+        <div class="media" style="width:64px;aspect-ratio:4/5">
+          <img src="{% placeholder item.image %}" alt="{{ item.product_name }}" loading="lazy">
+        </div>
+      {% endfor %}
+    </div>
+
+    <p class="muted" style="margin:0">{{ order.estimated }}</p>
+    <p style="margin-top:1rem">
+      <a class="btn btn--quiet btn--sm" href="{% url 'account_order_detail' order.order_number %}">{% translate "View order" %}</a>
+    </p>
+  </div>
+{% empty %}
+  <div class="empty-state">
+    <h3>{% translate "No orders yet" %}</h3>
+    <p class="muted">{% translate "When you order something it will appear here with its tracking." %}</p>
+    <p style="margin-top:1.4rem"><a class="btn" href="{% url 'shop' %}">{% translate "Browse the shop" %}</a></p>
+  </div>
+{% endfor %}
+{% endblock %}

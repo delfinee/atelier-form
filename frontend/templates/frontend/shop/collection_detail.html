@@ -1,0 +1,44 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block content %}
+<section class="hero">
+  <div class="media hero__media" style="min-height:46vh">
+    <img src="{% placeholder collection.hero %}" alt="{{ collection.title }}" width="1600" height="900" fetchpriority="high">
+  </div>
+  <div class="hero__copy">
+    <div class="shell">
+      <p class="eyebrow">{% if collection.kind == "editorial" %}Collection{% else %}Category{% endif %}</p>
+      <h1 style="font-size:var(--step-3)">{{ collection.title }}</h1>
+      <p>{{ collection.tagline }}</p>
+    </div>
+  </div>
+</section>
+
+<div class="shell" style="padding-block:var(--section)">
+  <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+    <a href="{% url 'home' %}">{% translate "Home" %}</a><span class="sep">/</span>
+    <a href="{% url 'collections' %}">{% translate "Collections" %}</a><span class="sep">/</span>
+    <span aria-current="page">{{ collection.title }}</span>
+  </nav>
+
+  <p class="lede" style="max-width:62ch">{{ collection.description }}</p>
+
+  <div class="shop-toolbar" style="margin-top:var(--section)">
+    <span class="count">{{ products|length }} piece{{ products|length|pluralize }}</span>
+    {% include "frontend/partials/sort.html" %}
+  </div>
+
+  {% if products %}
+    <div class="grid grid--4">
+      {% for product in products %}{% include "frontend/partials/product_card.html" %}{% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h3>{% translate "Nothing here just yet" %}</h3>
+      <p class="muted">{% translate "This collection is between batches. The shop has everything else." %}</p>
+      <p style="margin-top:1.4rem"><a class="btn btn--outline" href="{% url 'shop' %}">{% translate "Browse the shop" %}</a></p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

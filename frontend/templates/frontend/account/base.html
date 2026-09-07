@@ -1,0 +1,19 @@
+{% extends "frontend/base.html" %}
+{% load i18n %}
+
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell page-head">
+  <p class="eyebrow">{% translate "Account" %}</p>
+  <h1 style="font-size:var(--step-3)">{% block account_title %}{% endblock %}</h1>
+  {% block account_lede %}{% endblock %}
+</div>
+
+<div class="shell account-layout" style="padding-bottom:var(--section)">
+  <aside class="account-sidebar">
+    {% include "frontend/partials/account_nav.html" %}
+  </aside>
+  <div>{% block account_content %}{% endblock %}</div>
+</div>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell page-head">
+  <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+    <a href="{% url 'cart' %}">{% translate "Bag" %}</a><span class="sep">/</span><span aria-current="page">{% translate "Checkout" %}</span>
+  </nav>
+  <h1 style="font-size:var(--step-3)">{% translate "Checkout" %}</h1>
+  <ol class="steps" style="margin-top:1.6rem">
+    <li class="is-done"><span class="num">{% icon "check" 12 %}</span> {% translate "Bag" %}</li>
+    <li class="is-active"><span class="num">2</span> {% translate "Details &amp; delivery" %}</li>
+    <li><span class="num">3</span> {% translate "Payment" %}</li>
+  </ol>
+</div>
+
+<div class="shell" style="padding-bottom:var(--section)">
+  <div class="empty-state" data-checkout-empty hidden>
+    <h3>{% translate "There is nothing to check out" %}</h3>
+    <p class="muted">{% translate "Your bag is empty. Add a piece and this page will fill itself in." %}</p>
+    <p style="margin-top:1.4rem"><a class="btn" href="{% url 'shop' %}">{% translate "Browse the shop" %}</a></p>
+  </div>
+
+  <div class="checkout-layout" data-checkout-form-wrap>
+    <form data-checkout-form novalidate>
+      {% csrf_token %}
+
+      <section class="checkout-step">
+        <h3>{% translate "Contact" %}</h3>
+        {% if not user.is_authenticated %}
+          <p class="form-note" style="margin-bottom:1rem">
+            {% translate "Checking out as a guest." %} <a class="text-link" href="{% url 'login' %}?next={% url 'checkout' %}">{% translate "Sign in" %}</a>
+            {% translate "to use a saved address and keep this order in your account." %}
+          </p>
+        {% endif %}
+        <div class="field">
+          <label class="label" for="co-email">{% translate "Email" %}</label>
+          <input class="input" id="co-email" name="email" type="email" required
+                 value="{{ customer.email|default:'' }}" autocomplete="email">
+        </div>
+        <div class="field">
+          <label class="label" for="co-phone">{% translate "Phone" %}</label>
+          <input class="input" id="co-phone" name="phone" type="tel"
+                 value="{{ customer.phone|default:'' }}" autocomplete="tel">
+        </div>
+      </section>
+
+      <section class="checkout-step">
+        <h3>{% translate "Delivery address" %}</h3>
+        {% if addresses %}
+          <div class="option-cards" style="margin-bottom:1.4rem">
+            {% for address in addresses %}
+              <label class="option-card">
+                <input type="radio" name="address" value="{{ address.uuid }}"
+                       {% if address.is_default %}checked{% endif %} data-saved-address>
+                <span style="flex:1">
+                  <span class="option-card__title"><strong>{{ address.label }}</strong>
+                    {% if address.is_default %}<span class="status">{% translate "Default" %}</span>{% endif %}</span>
+                  <span class="option-card__meta">
+                    {{ address.full_name }} · {{ address.address_line_1 }}{% if address.address_line_2 %}, {{ address.address_line_2 }}{% endif %},
+                    {{ address.city }} {{ address.postal_code }}, {{ address.country }}
+                  </span>
+                </span>
+              </label>
+            {% endfor %}
+            <label class="option-card">
+              <input type="radio" name="address" value="new" data-new-address>
+              <span style="flex:1"><span class="option-card__title"><strong>{% translate "Use a different address" %}</strong></span>
+                <span class="option-card__meta">{% translate "Enter a new delivery address below" %}</span></span>
+            </label>
+          </div>
+        {% endif %}
+
+        <div data-new-address-fields {% if addresses %}hidden{% endif %}>
+          <div class="field-row">
+            <div class="field">
+              <label class="label" for="co-first">{% translate "First name" %}</label>
+              <input class="input" id="co-first" name="first_name"
+                     value="{{ customer.first_name|default:'' }}" autocomplete="given-name">
+            </div>
+            <div class="field">
+              <label class="label" for="co-last">{% translate "Last name" %}</label>
+              <input class="input" id="co-last" name="last_name"
+                     value="{{ customer.last_name|default:'' }}" autocomplete="family-name">
+            </div>
+          </div>
+          <div class="field">
+            <label class="label" for="co-line1">{% translate "Address" %}</label>
+            <input class="input" id="co-line1" name="address_line_1" autocomplete="address-line1">
+          </div>
+          <div class="field">
+            <label class="label" for="co-line2">{% translate "Apartment, unit" %} <span class="muted">{% translate "(optional)" %}</span></label>
+            <input class="input" id="co-line2" name="address_line_2" autocomplete="address-line2">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="label" for="co-city">{% translate "City" %}</label>
+              <input class="input" id="co-city" name="city" autocomplete="address-level2">
+            </div>
+            <div class="field">
+              <label class="label" for="co-post">{% translate "Postcode" %}</label>
+              <input class="input" id="co-post" name="postal_code" autocomplete="postal-code">
+            </div>
+            <div class="field">
+              <label class="label" for="co-country">{% translate "Country" %}</label>
+              <select class="select" id="co-country" name="country">
+                <option selected>{% translate "China" %}</option><option>{% translate "Hong Kong SAR" %}</option><option>{% translate "Singapore" %}</option>
+                <option>{% translate "Malaysia" %}</option>
+              </select>
+            </div>
+          </div>
+          {% if user.is_authenticated %}
+            <div class="field">
+              <label class="checkbox"><input type="checkbox" name="save_address" checked>
+                {% translate "Save this address to my account" %}</label>
+            </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="checkout-step">
+        <h3>{% translate "Delivery method" %}</h3>
+        <div class="option-cards">
+          <label class="option-card">
+            <input type="radio" name="delivery" value="standard" checked>
+            <span style="flex:1">
+              <span class="option-card__title"><strong>{% translate "Standard delivery" %}</strong>
+                <span>{{ site.shipping_standard|money }}</span></span>
+              <span class="option-card__meta">3–6 working days · complimentary above {{ site.free_shipping_threshold|money }}</span>
+            </span>
+          </label>
+          <label class="option-card">
+            <input type="radio" name="delivery" value="express">
+            <span style="flex:1">
+              <span class="option-card__title"><strong>{% translate "Express delivery" %}</strong>
+                <span>{{ site.shipping_express|money }}</span></span>
+              <span class="option-card__meta">{% translate "Next working day dispatch where stock allows" %}</span>
+            </span>
+          </label>
+        </div>
+      </section>
+
+      <section class="checkout-step">
+        <h3>{% translate "Payment" %}</h3>
+        <div class="option-cards">
+          <label class="option-card">
+            <input type="radio" name="payment" value="wechat" checked>
+            <span style="flex:1">
+              <span class="option-card__title"><strong>{% translate "WeChat Pay" %}</strong></span>
+              <span class="option-card__meta">{% translate "You will be shown a QR code to scan in the WeChat app." %}</span>
+            </span>
+          </label>
+        </div>
+        <p class="form-note" style="margin-top:1rem;display:flex;gap:0.5rem;align-items:flex-start">
+          {% icon "alert" 16 %}
+          <span>{% translate "Development mode: a mock payment provider is configured. An order is created and left" %} <strong>{% translate "unpaid" %}</strong> {% translate "— no card details are collected and no money moves." %}</span>
+        </p>
+      </section>
+
+      <section class="checkout-step">
+        <div class="field">
+          <label class="label" for="co-note">{% translate "Gift note (optional)" %}</label>
+          <textarea class="textarea" id="co-note" name="gift_note" rows="3"
+                    placeholder="{% translate "Written by hand onto a card and packed with the order" %}"></textarea>
+        </div>
+        <p class="field-error" data-checkout-error role="alert" hidden></p>
+        <button class="btn btn--lg btn--block" type="submit" style="margin-top:1.4rem">{% translate "Place order" %}</button>
+      </section>
+    </form>
+
+    <div class="summary">
+      <h3>{% translate "Order summary" %}</h3>
+      <div data-checkout-summary></div>
+      <div class="summary__row" style="border-top:1px solid var(--line);margin-top:0.8rem;padding-top:0.9rem">
+        <span>{% translate "Subtotal" %}</span><span data-subtotal>—</span>
+      </div>
+      <div class="summary__row"><span>{% translate "Delivery" %}</span><span data-shipping>—</span></div>
+      <div class="summary__row summary__row--total"><span>{% translate "Total" %}</span><span data-total>—</span></div>
+      <p class="form-note" style="margin-top:1rem"><a class="text-link" href="{% url 'cart' %}">{% translate "Edit your bag" %}</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

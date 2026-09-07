@@ -1,0 +1,53 @@
+{% extends "frontend/account/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block account_title %}Hello, {{ customer.first_name }}{% endblock %}
+{% block account_lede %}<p class="lede">A member since {{ customer.joined }}.</p>{% endblock %}
+
+{% block account_content %}
+<div class="grid grid--3" style="margin-bottom:var(--gap)">
+  <div class="panel">
+    <span class="stat__value">{{ order_count }}</span>
+    <span class="stat__label">Order{{ order_count|pluralize }} placed</span>
+  </div>
+  <div class="panel">
+    <span class="stat__value">{{ wishlist_count }}</span>
+    <span class="stat__label">{% translate "Pieces saved" %}</span>
+  </div>
+  <div class="panel">
+    <span class="stat__value">{{ address_count }}</span>
+    <span class="stat__label">Saved address{{ address_count|pluralize:"es" }}</span>
+  </div>
+</div>
+
+{% if recent_order %}
+<div class="panel">
+  <div class="panel__head">
+    <h3>{% translate "Latest order" %}</h3>
+    <a class="link" href="{% url 'account_orders' %}">{% translate "All orders" %} {% icon "arrow-right" 16 %}</a>
+  </div>
+  <div class="panel__head" style="margin-bottom:0.6rem">
+    <div>
+      <strong>{{ recent_order.order_number }}</strong>
+      <p class="muted" style="margin:0.2rem 0 0">Placed {{ recent_order.date }} · {{ recent_order.total|money }}</p>
+    </div>
+    <span class="status status--{{ recent_order.status }}">{{ recent_order.status_label }}</span>
+  </div>
+  <p class="muted">{{ recent_order.estimated }} · {{ recent_order.carrier }} {{ recent_order.tracking_number }}</p>
+  <p style="margin-top:1rem">
+    <a class="btn btn--quiet btn--sm" href="{% url 'account_order_detail' recent_order.order_number %}">{% translate "View order" %}</a>
+  </p>
+</div>
+{% endif %}
+
+<div class="panel">
+  <div class="panel__head">
+    <h3>{% translate "Details" %}</h3>
+    <a class="link" href="{% url 'account_profile' %}">{% translate "Edit" %} {% icon "arrow-right" 16 %}</a>
+  </div>
+  <p class="muted" style="margin:0">
+    {{ customer.first_name }} {{ customer.last_name }}<br>
+    {{ customer.email }}<br>{{ customer.phone }}
+  </p>
+</div>
+{% endblock %}

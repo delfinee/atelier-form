@@ -1,0 +1,75 @@
+{% load i18n frontend_extras %}
+{% comment %}Facet UI. Every option is a plain link built by `query_toggle`, so
+filtering works with JavaScript switched off; the JS only opens the drawer on mobile.{% endcomment %}
+<aside class="filters" data-filter-panel aria-label="{% translate "Filter products" %}">
+  <div class="filters__head">
+    <h2 style="font-size:var(--step-1)">{% translate "Filters" %}</h2>
+    <button class="icon-btn" type="button" data-filter-close aria-label="{% translate "Close filters" %}">{% icon "close" %}</button>
+  </div>
+
+  <div class="filter-group">
+    <button class="filter-group__head" type="button" aria-expanded="true">{% translate "Category" %} {% icon "chevron-down" 16 %}</button>
+    <div class="filter-group__body">
+      {% for option in facets.categories %}
+        <a class="filter-option {% if option.value in selected.categories %}is-on{% endif %}"
+           href="{% query_toggle 'category' option.value %}">
+          <span class="box">{% icon "check" 11 %}</span>{{ option.label }}
+          <span class="count">{{ option.count }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <button class="filter-group__head" type="button" aria-expanded="true">{% translate "Material" %} {% icon "chevron-down" 16 %}</button>
+    <div class="filter-group__body">
+      {% for option in facets.materials %}
+        <a class="filter-option {% if option.value in selected.materials %}is-on{% endif %}"
+           href="{% query_toggle 'material' option.value %}">
+          <span class="box">{% icon "check" 11 %}</span>{{ option.label }}
+          <span class="count">{{ option.count }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <button class="filter-group__head" type="button" aria-expanded="true">{% translate "Colour" %} {% icon "chevron-down" 16 %}</button>
+    <div class="filter-group__body">
+      {% for option in facets.colours %}
+        <a class="filter-option {% if option.value in selected.colours %}is-on{% endif %}"
+           href="{% query_toggle 'colour' option.value %}">
+          <span class="swatch" style="background:{{ option.swatch }}"></span>{{ option.label }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <button class="filter-group__head" type="button" aria-expanded="true">{% translate "Price" %} {% icon "chevron-down" 16 %}</button>
+    <div class="filter-group__body">
+      {% for option in facets.price_bands %}
+        <a class="filter-option {% if option.value in selected.price_bands %}is-on{% endif %}"
+           href="{% query_toggle 'price' option.value %}">
+          <span class="box">{% icon "check" 11 %}</span>{{ option.label }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <button class="filter-group__head" type="button" aria-expanded="true">{% translate "Availability" %} {% icon "chevron-down" 16 %}</button>
+    <div class="filter-group__body">
+      {% for option in facets.availability %}
+        <a class="filter-option {% if option.value in selected.availability %}is-on{% endif %}"
+           href="{% query_toggle 'availability' option.value %}">
+          <span class="box">{% icon "check" 11 %}</span>{{ option.label }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if active_filter_count %}
+    <p style="margin-top:1.2rem"><a class="btn btn--quiet btn--sm btn--block" href="{% url 'shop' %}">{% translate "Clear all filters" %}</a></p>
+  {% endif %}
+</aside>

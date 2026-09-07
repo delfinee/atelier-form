@@ -1,0 +1,19 @@
+{% load i18n %}
+<section class="newsletter section--tight" aria-labelledby="newsletter-title">
+  <div class="shell section--tight newsletter__inner">
+    <div>
+      <p class="eyebrow">{% translate "Studio notes" %}</p>
+      <h2 id="newsletter-title">{% translate "A note when something new comes out of the kiln." %}</h2>
+    </div>
+    <div>
+      <form data-newsletter novalidate>
+        <label class="sr-only" for="newsletter-email">{% translate "Email address" %}</label>
+        <input class="input" id="newsletter-email" type="email" name="email" required
+               placeholder="{% translate "you@example.com" %}" autocomplete="email">
+        <button class="btn" type="submit">{% translate "Subscribe" %}</button>
+      </form>
+      <p class="newsletter__status" data-newsletter-status role="status"></p>
+      <p class="form-note">{% translate "About one email a month. Unsubscribe whenever you like." %}</p>
+    </div>
+  </div>
+</section>

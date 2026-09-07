@@ -1,0 +1,54 @@
+{% extends "frontend/account/base.html" %}
+{% load i18n %}
+
+{% block account_title %}Profile{% endblock %}
+{% block account_lede %}<p class="lede">{% translate "Your details and what we send you." %}</p>{% endblock %}
+
+{% block account_content %}
+{% if messages %}
+  {% for message in messages %}<p class="form-note" role="status">{{ message }}</p>{% endfor %}
+{% endif %}
+
+<form class="panel" method="post" action="{% url 'account_profile' %}" novalidate>
+  {% csrf_token %}
+  <div class="panel__head"><h3>{% translate "Your details" %}</h3></div>
+  <div class="field-row">
+    <div class="field">
+      <label class="label" for="p-first">{% translate "First name" %}</label>
+      <input class="input" id="p-first" name="first_name" required
+             value="{{ customer.first_name }}" autocomplete="given-name">
+    </div>
+    <div class="field">
+      <label class="label" for="p-last">{% translate "Last name" %}</label>
+      <input class="input" id="p-last" name="last_name" required
+             value="{{ customer.last_name }}" autocomplete="family-name">
+    </div>
+  </div>
+  <div class="field">
+    <label class="label" for="p-email">{% translate "Email" %}</label>
+    <input class="input" id="p-email" type="email" value="{{ customer.email }}" disabled>
+    <p class="form-note" style="margin-top:0.4rem">
+      {% translate "Your email is your sign-in and cannot be changed here." %}
+    </p>
+  </div>
+  <div class="field">
+    <label class="label" for="p-phone">{% translate "Phone" %}</label>
+    <input class="input" id="p-phone" name="phone" type="tel" value="{{ customer.phone }}" autocomplete="tel">
+  </div>
+  <div class="field">
+    <label class="checkbox">
+      <input type="checkbox" name="accepts_marketing" {% if customer.accepts_marketing %}checked{% endif %}>
+      {% translate "Studio notes — roughly monthly" %}
+    </label>
+  </div>
+  <p style="margin-top:1.4rem"><button class="btn" type="submit">{% translate "Save changes" %}</button></p>
+</form>
+
+<div class="panel">
+  <div class="panel__head"><h3>{% translate "Password" %}</h3></div>
+  <p class="muted">
+    {% translate "Change your password through the API endpoint" %}
+    <code>{% translate "POST /api/auth/change-password/" %}</code>{% translate ". A frontend form for this is not built yet." %}
+  </p>
+</div>
+{% endblock %}

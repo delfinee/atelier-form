@@ -1,0 +1,39 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell page-head">
+  <p class="eyebrow">{% translate "Seller dashboard" %}</p>
+  <h1 style="font-size:var(--step-3)">{{ maker.name }}</h1>
+  <p class="lede">{% translate "Manage your catalogue through the protected seller API and monitor incoming lines here." %}</p>
+  <a class="btn btn--sm" href="/api/docs/">{% translate "Open API workspace" %}</a>
+</div>
+
+<div class="shell" style="padding-bottom:var(--section);display:grid;gap:2rem">
+  <section class="panel">
+    <div class="panel__head"><h2>{% translate "Your products" %}</h2><span>{{ products|length }}</span></div>
+    {% for product in products %}
+      <div class="summary__row">
+        <a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a>
+        <span>{{ product.stock_status }} · {{ product.price|money }}</span>
+      </div>
+    {% empty %}
+      <p class="muted">{% translate "No products yet." %}</p>
+    {% endfor %}
+  </section>
+
+  <section class="panel">
+    <div class="panel__head"><h2>{% translate "Incoming order lines" %}</h2></div>
+    {% for item in seller_items %}
+      <div class="summary__row">
+        <span><strong>{{ item.order.order_number }}</strong><br>{{ item.quantity }} × {{ item.product_name }}</span>
+        <span>{{ item.line_total|money }} · {{ item.order.get_status_display }}</span>
+      </div>
+    {% empty %}
+      <p class="muted">{% translate "No incoming orders yet." %}</p>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}

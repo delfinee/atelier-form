@@ -1,0 +1,45 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block content %}
+<div class="shell page-head">
+  <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+    <a href="{% url 'home' %}">{% translate "Home" %}</a><span class="sep">/</span><span aria-current="page">{% translate "Journal" %}</span>
+  </nav>
+  <p class="eyebrow">{% translate "Writing" %}</p>
+  <h1>{% translate "The journal" %}</h1>
+  <p class="lede">{% translate "Notes on making, materials and the people behind the pieces. Published when there is something worth saying." %}</p>
+</div>
+
+{% if lead %}
+<section class="shell section--tight" style="padding-top:0">
+  <a class="article-lead" href="{% url 'journal_detail' lead.slug %}" data-reveal>
+    <div class="media media--hover">
+      <img src="{% placeholder lead.image %}" alt="" width="1400" height="933" fetchpriority="high">
+    </div>
+    <div>
+      <p class="eyebrow">{{ lead.category }} · {{ lead.read_time }} read</p>
+      <h2>{{ lead.title }}</h2>
+      <p class="lede" style="margin-top:1rem">{{ lead.standfirst }}</p>
+      <p class="muted" style="margin-top:1rem">{{ lead.author }} · {{ lead.date }}</p>
+      <span class="link" style="margin-top:1.4rem">{% translate "Read the piece" %} {% icon "arrow-right" 16 %}</span>
+    </div>
+  </a>
+</section>
+{% endif %}
+
+<section class="shell" style="padding-bottom:var(--section)">
+  <div class="grid grid--3">
+    {% for article in articles %}
+      <a class="card article-card" href="{% url 'journal_detail' article.slug %}" data-reveal>
+        <div class="media media--hover">
+          <img src="{% placeholder article.image %}" alt="" loading="lazy" width="1400" height="933">
+        </div>
+        <p class="meta">{{ article.category }} · {{ article.read_time }} read</p>
+        <h3>{{ article.title }}</h3>
+        <p class="muted" style="margin-top:0.5rem">{{ article.standfirst|truncatewords:24 }}</p>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

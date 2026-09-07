@@ -1,0 +1,30 @@
+{% extends "frontend/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="shell page-head">
+  <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+    <a href="{% url 'home' %}">{% translate "Home" %}</a><span class="sep">/</span><span aria-current="page">{{ page.title }}</span>
+  </nav>
+  <h1>{{ page.title }}</h1>
+  <p class="lede">{{ page.standfirst }}</p>
+</div>
+
+<div class="shell doc-layout" style="padding-bottom:var(--section)">
+  <nav class="toc" data-toc aria-label="{% translate "On this page" %}">
+    {% for section in page.sections %}<a href="#{{ section.id }}">{{ section.heading }}</a>{% endfor %}
+  </nav>
+
+  <div>
+    {% for section in page.sections %}
+      <section id="{{ section.id }}" style="margin-bottom:var(--section)">
+        <h2 style="font-size:var(--step-2)">{{ section.heading }}</h2>
+        <p class="muted" style="margin-top:0.6rem">{{ section.intro }}</p>
+        <ul class="stack" style="--gap:0.8rem;margin-top:1.4rem;padding-left:1.1rem;color:var(--ink-soft);max-width:var(--readable)">
+          {% for point in section.points %}<li>{{ point }}</li>{% endfor %}
+        </ul>
+      </section>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

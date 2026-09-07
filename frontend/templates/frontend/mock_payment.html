@@ -1,0 +1,33 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell shell--text" style="padding-block:var(--section)">
+  <p class="eyebrow">{% translate "WeChat Pay sandbox" %}</p>
+  <h1 style="font-size:var(--step-3)">{% translate "Scan to pay" %}</h1>
+  <p class="lede">{% translate "This is a no-money simulator for the project demo. It exercises the same provider callback and order-state flow as a real payment." %}</p>
+
+  <div class="panel" style="margin-top:2rem;text-align:center">
+    <div aria-label="{% translate "Simulated WeChat Pay QR code" %}" style="width:220px;height:220px;margin:0 auto 1.5rem;
+      background:repeating-conic-gradient(#111 0 25%,#fff 0 50%) 0/22px 22px;border:16px solid white;
+      box-shadow:0 0 0 1px var(--line)"></div>
+    <p><strong>{{ order.order_number }}</strong></p>
+    <p style="font-size:var(--step-2);margin-top:.4rem">{{ order.total|money }}</p>
+    <p class="muted">{% translate "No account is charged." %}</p>
+
+    {% if payment.state == "created" or payment.state == "requires_action" %}
+      <form method="post" style="margin-top:1.5rem">
+        {% csrf_token %}
+        <button class="btn btn--block" name="result" value="succeeded">{% translate "Simulate successful payment" %}</button>
+        <button class="btn btn--quiet btn--block" name="result" value="failed" style="margin-top:.5rem">
+          {% translate "Simulate declined payment" %}
+        </button>
+      </form>
+    {% else %}
+      <a class="btn btn--block" href="{% url 'order_confirmation' order.uuid %}">{% translate "View order" %}</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

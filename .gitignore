@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Environments — never commit secrets (charter: env vars only)
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+media/
+*.log
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Cached Openverse search responses (manage.py fetch_images)
+.imagery-cache/
+.vercel
+.env*.local

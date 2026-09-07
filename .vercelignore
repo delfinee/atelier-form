@@ -1,0 +1,16 @@
+# Keep the function bundle under Vercel's size limit and free of local state.
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.git/
+.github/
+.imagery-cache/
+db.sqlite3
+locale/*/LC_MESSAGES/*.po
+*.pdf
+*.jpeg
+*.jpg

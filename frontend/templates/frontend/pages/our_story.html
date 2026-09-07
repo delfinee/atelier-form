@@ -1,0 +1,84 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block content %}
+<section class="hero">
+  <div class="media hero__media" style="min-height:56vh">
+    <img src="{% placeholder 'story-hero' %}" alt="" width="1600" height="900" fetchpriority="high">
+  </div>
+  <div class="hero__copy">
+    <div class="shell">
+      <p class="eyebrow">{{ page.eyebrow }}</p>
+      <h1 style="font-size:var(--step-3)">{{ page.title }}</h1>
+    </div>
+  </div>
+</section>
+
+<div class="shell section--tight">
+  <p class="lede" style="max-width:60ch">{{ page.standfirst }}</p>
+</div>
+
+{% for section in page.sections %}
+  <section class="section--tight shell" id="{{ section.id }}">
+    <div class="split {% if section.layout == 'text-right' %}split--reverse{% endif %}">
+      <div class="media media--hover" data-reveal>
+        <img src="{% placeholder section.image %}" alt="" loading="lazy" width="1400" height="933">
+      </div>
+      <div data-reveal>
+        <h2>{{ section.heading }}</h2>
+        <div class="flow" style="margin-top:1.2rem;color:var(--ink-soft)">
+          {% for para in section.paragraphs %}<p>{{ para }}</p>{% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+{% endfor %}
+
+<section class="section" style="background:var(--sand)">
+  <div class="shell">
+    <div class="section-head">
+      <div><p class="eyebrow">{% translate "By the numbers" %}</p><h2>{% translate "Where things stand" %}</h2></div>
+    </div>
+    <div class="stats">
+      {% for stat in page.stats %}
+        <div class="stat" data-reveal>
+          <span class="stat__value">{{ stat.value }}</span>
+          <span class="stat__label">{{ stat.label }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section shell">
+  <div class="section-head">
+    <div><p class="eyebrow">{% translate "How it is made" %}</p><h2>{% translate "Three steps, none of them quick." %}</h2></div>
+  </div>
+  <div class="process">
+    {% for step in process_steps %}
+      <div class="process__step" data-reveal>
+        <div class="media"><img src="{% placeholder step.image %}" alt="" loading="lazy"></div>
+        <span class="process__num">{{ step.number }}</span>
+        <h3>{{ step.title }}</h3>
+        <p class="muted" style="margin-top:0.6rem">{{ step.text }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section--tight shell" style="padding-bottom:var(--section)">
+  <div class="section-head">
+    <div><p class="eyebrow">{% translate "The people" %}</p><h2>{% translate "Makers" %}</h2></div>
+    <a class="link" href="{% url 'makers' %}">{% translate "All makers" %} {% icon "arrow-right" 16 %}</a>
+  </div>
+  <div class="grid grid--3">
+    {% for maker in makers %}
+      <a class="card maker-card" href="{% url 'maker_detail' maker.slug %}" data-reveal>
+        <div class="media media--hover"><img src="{% placeholder maker.portrait %}" alt="{{ maker.name }}" loading="lazy"></div>
+        <p class="meta">{{ maker.discipline }} · {{ maker.location }}</p>
+        <h3>{{ maker.name }}</h3>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

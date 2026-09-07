@@ -1,0 +1,88 @@
+{% extends "frontend/account/base.html" %}
+{% load i18n %}
+
+{% block account_title %}Addresses{% endblock %}
+{% block account_lede %}<p class="lede">{% translate "Where we send things." %}</p>{% endblock %}
+
+{% block account_content %}
+{% if messages %}
+  {% for message in messages %}<p class="form-note" role="status">{{ message }}</p>{% endfor %}
+{% endif %}
+
+<div class="grid grid--2" style="margin-bottom:var(--gap)">
+  {% for address in addresses %}
+    <div class="address-card {% if address.is_default %}is-default{% endif %}">
+      <div class="panel__head" style="margin-bottom:0.7rem">
+        <strong>{{ address.label }}</strong>
+        {% if address.is_default %}<span class="status">{% translate "Default" %}</span>{% endif %}
+      </div>
+      <address>
+        {{ address.full_name }}<br>
+        {{ address.address_line_1 }}{% if address.address_line_2 %}<br>{{ address.address_line_2 }}{% endif %}<br>
+        {{ address.city }} {{ address.postal_code }}<br>
+        {{ address.country }}{% if address.phone %}<br>{{ address.phone }}{% endif %}
+      </address>
+      <div class="address-card__actions">
+        <form method="post" action="{% url 'account_address_delete' address.uuid %}">
+          {% csrf_token %}
+          <button class="remove" type="submit">{% translate "Delete" %}</button>
+        </form>
+      </div>
+    </div>
+  {% empty %}
+    <p class="muted">{% translate "No addresses saved yet." %}</p>
+  {% endfor %}
+</div>
+
+<form class="panel" id="address-form" method="post" action="{% url 'account_addresses' %}" novalidate>
+  {% csrf_token %}
+  <div class="panel__head"><h3>{% translate "Add an address" %}</h3></div>
+  <div class="field">
+    <label class="label" for="a-label">{% translate "Label" %}</label>
+    <input class="input" id="a-label" name="label" required placeholder="{% translate "Home, studio, parents'" %}">
+  </div>
+  <div class="field-row">
+    <div class="field">
+      <label class="label" for="a-first">{% translate "First name" %}</label>
+      <input class="input" id="a-first" name="first_name" required autocomplete="given-name">
+    </div>
+    <div class="field">
+      <label class="label" for="a-last">{% translate "Last name" %}</label>
+      <input class="input" id="a-last" name="last_name" required autocomplete="family-name">
+    </div>
+  </div>
+  <div class="field">
+    <label class="label" for="a-line1">{% translate "Address line 1" %}</label>
+    <input class="input" id="a-line1" name="address_line_1" required autocomplete="address-line1">
+  </div>
+  <div class="field">
+    <label class="label" for="a-line2">{% translate "Address line 2" %} <span class="muted">{% translate "(optional)" %}</span></label>
+    <input class="input" id="a-line2" name="address_line_2" autocomplete="address-line2">
+  </div>
+  <div class="field-row">
+    <div class="field">
+      <label class="label" for="a-city">{% translate "City" %}</label>
+      <input class="input" id="a-city" name="city" required autocomplete="address-level2">
+    </div>
+    <div class="field">
+      <label class="label" for="a-post">{% translate "Postcode" %}</label>
+      <input class="input" id="a-post" name="postal_code" required autocomplete="postal-code">
+    </div>
+    <div class="field">
+      <label class="label" for="a-country">{% translate "Country" %}</label>
+      <select class="select" id="a-country" name="country" required>
+        <option selected>{% translate "China" %}</option><option>{% translate "Hong Kong SAR" %}</option><option>{% translate "Singapore" %}</option>
+        <option>{% translate "Malaysia" %}</option><option>{% translate "Other" %}</option>
+      </select>
+    </div>
+  </div>
+  <div class="field">
+    <label class="label" for="a-phone">{% translate "Phone" %}</label>
+    <input class="input" id="a-phone" name="phone" type="tel" autocomplete="tel">
+  </div>
+  <div class="field">
+    <label class="checkbox"><input type="checkbox" name="is_default"> {% translate "Make this my default delivery address" %}</label>
+  </div>
+  <p style="margin-top:1.4rem"><button class="btn" type="submit">{% translate "Save address" %}</button></p>
+</form>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block content %}
+<div class="shell page-head">
+  <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+    <a href="{% url 'home' %}">{% translate "Home" %}</a><span class="sep">/</span><span aria-current="page">{% translate "Collections" %}</span>
+  </nav>
+  <p class="eyebrow">{% translate "Browse" %}</p>
+  <h1>{% translate "Collections" %}</h1>
+  <p class="lede">{% translate "Four categories and one editorial grouping. Each one is small on purpose." %}</p>
+</div>
+
+<div class="shell" style="padding-bottom:var(--section)">
+  <div class="stack">
+    {% for collection in collections %}
+      <a class="split {% cycle '' 'split--reverse' %}" href="{% url 'collection_detail' collection.slug %}"
+         data-reveal style="padding-block:var(--gap)">
+        <div class="media media--hover">
+          <img src="{% placeholder collection.hero %}" alt="{{ collection.title }}" loading="lazy" width="1600" height="900">
+        </div>
+        <div>
+          <p class="eyebrow">{% if collection.kind == "editorial" %}Collection{% else %}Category{% endif %}</p>
+          <h2>{{ collection.title }}</h2>
+          <p class="lede" style="margin-top:0.8rem">{{ collection.tagline }}</p>
+          <p class="muted" style="margin-top:1rem">{{ collection.description|truncatewords:38 }}</p>
+          <span class="link" style="margin-top:1.4rem">Shop {{ collection.title }} {% icon "arrow-right" 16 %}</span>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

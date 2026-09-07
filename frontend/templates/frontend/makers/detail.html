@@ -1,0 +1,73 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block content %}
+<div class="shell" style="padding-block:calc(var(--gap) * 1.5) 0">
+  <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+    <a href="{% url 'home' %}">{% translate "Home" %}</a><span class="sep">/</span>
+    <a href="{% url 'makers' %}">{% translate "Makers" %}</a><span class="sep">/</span>
+    <span aria-current="page">{{ maker.name }}</span>
+  </nav>
+</div>
+
+<section class="shell section--tight" style="padding-top:var(--gap)">
+  <div class="split">
+    <div class="media" data-reveal style="aspect-ratio:3/4">
+      <img src="{% placeholder maker.portrait %}" alt="{{ maker.name }}" width="750" height="1000" fetchpriority="high">
+    </div>
+    <div data-reveal>
+      <p class="eyebrow">{{ maker.discipline }}</p>
+      <h1 style="font-size:var(--step-3)">{{ maker.name }}</h1>
+      <p class="lede" style="margin-top:1rem">{{ maker.tagline }}</p>
+      <p class="muted" style="margin-top:1rem">{{ maker.location }} · Working since {{ maker.since }}</p>
+      <div class="flow" style="margin-top:1.6rem;color:var(--ink-soft)">
+        {% for para in maker.biography %}<p>{{ para }}</p>{% endfor %}
+      </div>
+      {% if products %}
+        <p style="margin-top:1.8rem">
+          <a class="btn btn--outline" href="#pieces">See {{ products|length }} piece{{ products|length|pluralize }}</a>
+        </p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--sand)">
+  <div class="shell split">
+    <div data-reveal>
+      <p class="eyebrow">{% translate "In the studio" %}</p>
+      <h2>How {{ maker.name }} works</h2>
+      <ol class="stack" style="--gap:0.9rem;margin-top:1.6rem;padding-left:1.1rem;color:var(--ink-soft)">
+        {% for step in maker.process %}<li>{{ step }}</li>{% endfor %}
+      </ol>
+    </div>
+    <div class="grid" style="gap:0.6rem" data-reveal>
+      {% for image in maker.images %}
+        <div class="media media--hover" style="aspect-ratio:3/2">
+          <img src="{% placeholder image %}" alt="" loading="lazy" width="1400" height="933">
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section shell" id="pieces">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">{% translate "Available now" %}</p>
+      <h2>Made by {{ maker.name }}</h2>
+    </div>
+    <a class="link" href="{% url 'shop' %}">{% translate "All pieces" %} {% icon "arrow-right" 16 %}</a>
+  </div>
+  {% if products %}
+    <div class="grid grid--4">
+      {% for product in products %}{% include "frontend/partials/product_card.html" %}{% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h3>{% translate "Between batches" %}</h3>
+      <p class="muted">Nothing from {{ maker.name }} is in stock right now. The next firing usually lands within a month.</p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

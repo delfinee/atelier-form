@@ -1,0 +1,58 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block description %}{{ article.standfirst }}{% endblock %}
+
+{% block content %}
+<article>
+  <div class="shell" style="padding-block:calc(var(--gap) * 1.5) 0">
+    <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+      <a href="{% url 'home' %}">{% translate "Home" %}</a><span class="sep">/</span>
+      <a href="{% url 'journal' %}">{% translate "Journal" %}</a><span class="sep">/</span>
+      <span aria-current="page">{{ article.title }}</span>
+    </nav>
+  </div>
+
+  <header class="shell article-head" style="padding-block:calc(var(--section) * 0.4)">
+    <p class="eyebrow">{{ article.category }}</p>
+    <h1>{{ article.title }}</h1>
+    <p class="lede" style="margin:1.2rem auto 0">{{ article.standfirst }}</p>
+    <p class="meta">{{ article.author }} · {{ article.date }} · {{ article.read_time }} read</p>
+  </header>
+
+  <div class="media article-hero">
+    <img src="{% placeholder article.image %}" alt="" width="1800" height="760" fetchpriority="high">
+  </div>
+
+  <div class="shell" style="padding-block:var(--section)">
+    <div class="prose" style="margin-inline:auto">
+      {% for block in article.body %}
+        {% if block.type == "heading" %}<h2>{{ block.text }}</h2>
+        {% elif block.type == "quote" %}<blockquote><p>{{ block.text }}</p></blockquote>
+        {% else %}<p>{{ block.text }}</p>{% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="rule" style="max-width:var(--readable);margin:var(--section) auto var(--gap)"></div>
+    <p class="muted center">Written by {{ article.author }}</p>
+  </div>
+</article>
+
+{% if related %}
+<section class="section--tight shell" style="padding-bottom:var(--section)">
+  <div class="section-head">
+    <div><p class="eyebrow">{% translate "Keep reading" %}</p><h2>{% translate "More from the journal" %}</h2></div>
+    <a class="link" href="{% url 'journal' %}">{% translate "All articles" %} {% icon "arrow-right" 16 %}</a>
+  </div>
+  <div class="grid grid--2">
+    {% for item in related %}
+      <a class="card article-card" href="{% url 'journal_detail' item.slug %}">
+        <div class="media media--hover"><img src="{% placeholder item.image %}" alt="" loading="lazy"></div>
+        <p class="meta">{{ item.category }} · {{ item.read_time }} read</p>
+        <h3>{{ item.title }}</h3>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell page-head">
+  <p class="eyebrow">{% translate "Order placed" %}</p>
+  <h1 style="font-size:var(--step-3)">{% translate "Thank you." %}</h1>
+  <p class="lede">
+    {% translate "Your order is" %} <strong>{{ order.order_number }}</strong>. A confirmation would be sent to
+    {{ order.customer_email }}.
+  </p>
+</div>
+
+<div class="shell bag-layout" style="padding-bottom:var(--section)">
+  <div>
+    <div class="panel">
+      <div class="panel__head">
+        <h3>{% translate "What you ordered" %}</h3>
+        <span class="status status--{{ order.status }}">{{ order.status_label }}</span>
+      </div>
+      {% for item in order.items.all %}
+        <div class="line-item">
+          <a class="media" href="{% url 'product_detail' item.product_slug %}">
+            <img src="{% placeholder item.image %}" alt="" loading="lazy">
+          </a>
+          <div>
+            <a class="line-item__name" href="{% url 'product_detail' item.product_slug %}">{{ item.product_name }}</a>
+            <div class="line-item__meta">
+              {% if item.variant_name %}{{ item.variant_name }} · {% endif %}Quantity {{ item.quantity }}
+            </div>
+          </div>
+          <div class="line-item__price">{{ item.line_total|money }}</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="panel">
+      <div class="panel__head"><h3>{% translate "Delivery" %}</h3></div>
+      <address style="font-style:normal;color:var(--ink-soft)">
+        {{ order.address.name }}<br>
+        {{ order.address.line1 }}{% if order.address.line2 %}<br>{{ order.address.line2 }}{% endif %}<br>
+        {{ order.address.city }} {{ order.address.postcode }}<br>
+        {{ order.address.country }}
+      </address>
+      <p class="muted" style="margin-top:0.9rem">{{ order.get_delivery_method_display }} · {{ order.estimated }}</p>
+    </div>
+
+    <p class="form-note">
+      {% translate "Payment status:" %} <strong>{{ order.get_payment_status_display }}</strong>{% translate ". This prototype uses a mock payment provider — an order is only marked paid by a verified provider webhook." %}
+    </p>
+  </div>
+
+  <div class="summary">
+    <h3>{% translate "Summary" %}</h3>
+    <div class="summary__row"><span>{% translate "Subtotal" %}</span><span>{{ order.subtotal|money }}</span></div>
+    <div class="summary__row">
+      <span>{% translate "Delivery" %}</span>
+      <span>{% if order.shipping_amount %}{{ order.shipping_amount|money }}{% else %}Complimentary{% endif %}</span>
+    </div>
+    <div class="summary__row summary__row--total"><span>{% translate "Total" %}</span><span>{{ order.total|money }}</span></div>
+    {% if user.is_authenticated %}
+      <a class="btn btn--block" href="{% url 'account_order_detail' order.order_number %}" style="margin-top:1.2rem">
+        {% translate "Track this order" %}
+      </a>
+    {% endif %}
+    <a class="btn btn--quiet btn--block" href="{% url 'shop' %}" style="margin-top:0.5rem">{% translate "Keep shopping" %}</a>
+  </div>
+</div>
+{% endblock %}

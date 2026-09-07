@@ -1,0 +1,65 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block content %}
+<div class="shell page-head">
+  <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+    <a href="{% url 'home' %}">{% translate "Home" %}</a><span class="sep">/</span><span aria-current="page">{% translate "Shop" %}</span>
+  </nav>
+  <p class="eyebrow">{% translate "Everything" %}</p>
+  <h1>{% translate "The shop" %}</h1>
+  <p class="lede">{% translate "Every piece we currently make, from all five makers. Filter by material, colour or what is ready to ship today." %}</p>
+</div>
+
+<div class="shell shop-layout" style="padding-bottom:var(--section)">
+  {% include "frontend/partials/filters.html" %}
+
+  <div>
+    <div class="shop-toolbar">
+      <div style="display:flex;align-items:center;gap:0.8rem">
+        <button class="btn btn--quiet btn--sm filter-trigger" type="button" data-filter-open>
+          {% icon "filter" 16 %} Filters{% if active_filter_count %} ({{ active_filter_count }}){% endif %}
+        </button>
+        <span class="count">{{ products|length }} piece{{ products|length|pluralize }}</span>
+      </div>
+      {% include "frontend/partials/sort.html" %}
+    </div>
+
+    {% if active_filter_count %}
+      {% comment %}Chips read their labels off the facets rather than off the
+      querystring, so a price band shows "Under ¥40" and not "under-40".{% endcomment %}
+      <div class="chips" aria-label="{% translate "Active filters" %}">
+        {% for option in facets.categories %}{% if option.value in selected.categories %}
+          <a class="chip" href="{% query_toggle 'category' option.value %}">{{ option.label }} {% icon "close" 12 %}</a>
+        {% endif %}{% endfor %}
+        {% for option in facets.materials %}{% if option.value in selected.materials %}
+          <a class="chip" href="{% query_toggle 'material' option.value %}">{{ option.label }} {% icon "close" 12 %}</a>
+        {% endif %}{% endfor %}
+        {% for option in facets.colours %}{% if option.value in selected.colours %}
+          <a class="chip" href="{% query_toggle 'colour' option.value %}">
+            <span class="swatch" style="background:{{ option.swatch }}"></span>{{ option.label }} {% icon "close" 12 %}</a>
+        {% endif %}{% endfor %}
+        {% for option in facets.price_bands %}{% if option.value in selected.price_bands %}
+          <a class="chip" href="{% query_toggle 'price' option.value %}">{{ option.label }} {% icon "close" 12 %}</a>
+        {% endif %}{% endfor %}
+        {% for option in facets.availability %}{% if option.value in selected.availability %}
+          <a class="chip" href="{% query_toggle 'availability' option.value %}">{{ option.label }} {% icon "close" 12 %}</a>
+        {% endif %}{% endfor %}
+        <a class="chip" href="{% url 'shop' %}" style="background:transparent">{% translate "Clear all" %}</a>
+      </div>
+    {% endif %}
+
+    {% if products %}
+      <div class="grid grid--4">
+        {% for product in products %}{% include "frontend/partials/product_card.html" %}{% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <h3>{% translate "Nothing matches that combination" %}</h3>
+        <p class="muted">{% translate "Try loosening one filter — the range is deliberately small, so narrow searches run out quickly." %}</p>
+        <p style="margin-top:1.4rem"><a class="btn btn--outline" href="{% url 'shop' %}">{% translate "Clear all filters" %}</a></p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

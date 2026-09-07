@@ -1,0 +1,42 @@
+{% load i18n frontend_extras %}
+<div class="announcement">{{ site.announcement }}</div>
+<header class="site-header">
+  <div class="shell header-inner">
+    <nav class="nav nav--primary" aria-label="{% translate "Primary" %}">
+      {% for item in primary_nav %}
+        {% url item.url_name as item_url %}
+        <a href="{{ item_url }}"{% if current_path == item_url %} aria-current="page"{% endif %}>{% translate item.label %}</a>
+      {% endfor %}
+    </nav>
+    <button class="icon-btn nav-toggle" type="button" data-nav-open aria-label="{% translate "Open menu" %}" aria-controls="mobile-nav">
+      {% icon "menu" %}
+    </button>
+
+    <a class="brand" href="{% url 'home' %}">{{ site.brand }}</a>
+
+    <div class="header-actions">
+      {% language_toggle as lang %}
+      <form action="{% url 'set_language' %}" method="post" class="lang-toggle">
+        {% csrf_token %}
+        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+        {# Two languages, so the header switches rather than offers a menu. #}
+        <input name="language" type="hidden" value="{{ lang.target_code }}">
+        <button type="submit" class="lang-toggle__btn" lang="{{ lang.current_tag }}"
+                title="{{ lang.action }}" aria-label="{{ lang.action }}">{{ lang.current_label }}</button>
+      </form>
+      <button class="icon-btn" type="button" data-search-open aria-label="{% translate "Search" %}" aria-controls="search-overlay">
+        {% icon "search" %}
+      </button>
+      <a class="icon-btn" href="{% url 'account_wishlist' %}" aria-label="{% translate "Wishlist" %}">
+        {% icon "heart" %}<span class="count" data-wish-count>0</span>
+      </a>
+      <a class="icon-btn" href="{% if user.is_authenticated %}{% url 'account_overview' %}{% else %}{% url 'login' %}{% endif %}"
+         aria-label="{% if user.is_authenticated %}Your account{% else %}Sign in{% endif %}">
+        {% icon "user" %}
+      </a>
+      <a class="icon-btn" href="{% url 'cart' %}" data-cart-open aria-label="{% translate "Bag" %}">
+        {% icon "bag" %}<span class="count" data-cart-count>0</span>
+      </a>
+    </div>
+  </div>
+</header>

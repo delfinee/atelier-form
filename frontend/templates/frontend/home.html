@@ -1,0 +1,140 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block content %}
+<section class="hero">
+  <div class="media hero__media">
+    <img src="{% placeholder 'hero-studio-table' %}" alt="{% translate "A studio table set with handmade ceramics" %}" width="1600" height="900" fetchpriority="high">
+  </div>
+  <div class="hero__copy">
+    <div class="shell">
+      <p class="eyebrow">{% translate "Small-batch homeware" %}</p>
+      <h1>{{ site.tagline }}</h1>
+      <p>{% translate "Ceramics, textiles and objects made one at a time by five makers we know by name." %}</p>
+      <div class="hero__actions">
+        <a class="btn" href="{% url 'shop' %}">{% translate "Shop everything" %}</a>
+        <a class="btn btn--outline" href="{% url 'our_story' %}">{% translate "Our story" %}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section shell">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">{% translate "Browse" %}</p>
+      <h2>{% translate "Four things we make well." %}</h2>
+    </div>
+    <a class="link" href="{% url 'collections' %}">{% translate "All collections" %} {% icon "arrow-right" 16 %}</a>
+  </div>
+  <div class="grid grid--4">
+    {% for category in categories %}
+      <a class="category-tile" href="{% url 'collection_detail' category.slug %}" data-reveal>
+        <div class="media media--hover">
+          <img src="{% placeholder category.tile %}" alt="{{ category.title }}" loading="lazy" width="800" height="1000">
+        </div>
+        <div class="category-tile__label">
+          <h3>{{ category.title }}</h3>
+          <span>{{ category.tagline }}</span>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section--tight shell">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">{% translate "Just finished" %}</p>
+      <h2>{% translate "New arrivals" %}</h2>
+    </div>
+    <a class="link" href="{% url 'shop' %}?sort=newest">{% translate "See all new" %} {% icon "arrow-right" 16 %}</a>
+  </div>
+  <div class="grid grid--4">
+    {% for product in new_arrivals %}{% include "frontend/partials/product_card.html" %}{% endfor %}
+  </div>
+</section>
+
+{% if featured_collection %}
+<section class="section shell">
+  <div class="split">
+    <div class="media media--hover" data-reveal>
+      <img src="{% placeholder featured_collection.hero %}" alt="{{ featured_collection.title }}" loading="lazy" width="1600" height="900">
+    </div>
+    <div data-reveal>
+      <p class="eyebrow">{% translate "Featured collection" %}</p>
+      <h2>{{ featured_collection.title }}</h2>
+      <p class="lede" style="margin-top:1rem">{{ featured_collection.description }}</p>
+      <p style="margin-top:1.6rem">
+        <a class="btn btn--outline" href="{% url 'collection_detail' featured_collection.slug %}">{% translate "Explore the collection" %}</a>
+      </p>
+    </div>
+  </div>
+  {% if featured_collection_products %}
+    <div class="grid grid--3" style="margin-top:calc(var(--gap) * 2)">
+      {% for product in featured_collection_products %}{% include "frontend/partials/product_card.html" %}{% endfor %}
+    </div>
+  {% endif %}
+</section>
+{% endif %}
+
+<section class="section shell">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">{% translate "How it is made" %}</p>
+      <h2>{% translate "Three steps, none of them quick." %}</h2>
+    </div>
+  </div>
+  <div class="process">
+    {% for step in process_steps %}
+      <div class="process__step" data-reveal>
+        <div class="media"><img src="{% placeholder step.image %}" alt="" loading="lazy" width="800" height="1000"></div>
+        <span class="process__num">{{ step.number }}</span>
+        <h3>{{ step.title }}</h3>
+        <p class="muted" style="margin-top:0.6rem">{{ step.text }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section--tight shell">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">{% translate "The people" %}</p>
+      <h2>{% translate "Makers" %}</h2>
+    </div>
+    <a class="link" href="{% url 'makers' %}">{% translate "Meet everyone" %} {% icon "arrow-right" 16 %}</a>
+  </div>
+  <div class="grid grid--2">
+    {% for maker in makers %}
+      <a class="split" href="{% url 'maker_detail' maker.slug %}" data-reveal style="gap:var(--gap)">
+        <div class="media media--hover" style="aspect-ratio:3/4">
+          <img src="{% placeholder maker.portrait %}" alt="{{ maker.name }}" loading="lazy" width="750" height="1000">
+        </div>
+        <div>
+          <p class="eyebrow">{{ maker.discipline }}</p>
+          <h3>{{ maker.name }}</h3>
+          <p class="muted" style="margin-top:0.7rem">{{ maker.tagline }}</p>
+          <p class="muted" style="margin-top:0.7rem">{{ maker.location }} · Since {{ maker.since }}</p>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section--tight">
+  <div class="shell">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">{% translate "From the studio" %}</p>
+        <h2>{% translate "In use, everywhere" %}</h2>
+      </div>
+    </div>
+  </div>
+  <div class="gallery">
+    {% for tile in gallery %}
+      <div class="media media--hover"><img src="{% placeholder tile %}" alt="" loading="lazy" width="1000" height="1000"></div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

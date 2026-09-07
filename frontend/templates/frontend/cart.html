@@ -1,0 +1,49 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block content %}
+<div class="shell page-head">
+  <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+    <a href="{% url 'home' %}">{% translate "Home" %}</a><span class="sep">/</span><span aria-current="page">{% translate "Bag" %}</span>
+  </nav>
+  <h1>{% translate "Your bag" %}</h1>
+  <p class="lede" data-item-count></p>
+</div>
+
+<div class="shell" style="padding-bottom:var(--section)">
+  <div class="empty-state" data-cart-empty hidden>
+    <h3>{% translate "Your bag is empty" %}</h3>
+    <p class="muted">{% translate "Nothing saved here yet. Everything we currently make is one page away." %}</p>
+    <p style="margin-top:1.4rem">
+      <a class="btn" href="{% url 'shop' %}">{% translate "Browse the shop" %}</a>
+      <a class="btn btn--quiet" href="{% url 'account_wishlist' %}">{% translate "View wishlist" %}</a>
+    </p>
+  </div>
+
+  <div class="bag-layout" data-cart-filled hidden>
+    <div>
+      <div data-cart-lines></div>
+      <p style="margin-top:var(--gap)">
+        <a class="link" href="{% url 'shop' %}">{% icon "chevron-left" 16 %} {% translate "Continue shopping" %}</a>
+      </p>
+    </div>
+
+    <div class="summary">
+      <h3>{% translate "Summary" %}</h3>
+      <div class="summary__row"><span>{% translate "Subtotal" %}</span><span data-subtotal>—</span></div>
+      <div class="summary__row"><span>{% translate "Delivery" %}</span><span data-shipping>—</span></div>
+      <div class="summary__row summary__row--total"><span>{% translate "Total" %}</span><span data-total>—</span></div>
+
+      <div class="progress">
+        <div class="progress__bar"><div class="progress__fill" data-progress-fill></div></div>
+        <p class="progress__label" data-progress-label></p>
+      </div>
+
+      <a class="btn btn--block" href="{% url 'checkout' %}">{% translate "Checkout" %}</a>
+      <p class="form-note" style="margin-top:0.9rem">
+        {% translate "Taxes calculated at checkout. This is a prototype — no payment is taken." %}
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

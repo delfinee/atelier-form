@@ -1,15 +1,29 @@
 # Outstanding Tasks
 
-Last reviewed: 6 September 2026.
+Last reviewed: 7 September 2026.
 
 ## Recommended delivery order
 
-2. Finish the seller dashboard and per-seller fulfilment workflow.
-3. Add a complete browser end-to-end buyer-to-seller test.
-4. Complete Simplified Chinese localisation.
-5. Deploy and verify a staging build.
-6. Complete account workflow and production polish.
-7. Attempt Could-tier features only if the earlier items pass.
+1. Finish the seller dashboard and per-seller fulfilment workflow.
+2. Add a complete browser end-to-end buyer-to-seller test.
+3. Complete Simplified Chinese localisation.
+4. Deploy and verify a separate staging build.
+5. Complete account workflow and production polish.
+6. Attempt Could-tier features only if the earlier items pass.
+
+## Completed infrastructure work
+
+- [x] Deploy and verify the production application on Vercel:
+  - [x] Production URL: <https://dip-new-repo.vercel.app>.
+  - [x] Homepage returns HTTP 200.
+  - [x] `/api/health/` returns HTTP 200 with database status `ok`.
+- [x] Provision and connect a pooled Neon Postgres database in Singapore.
+- [x] Apply migrations and load the seed catalogue into production.
+- [x] Fetch and store all 130 openly licensed image slots in Postgres.
+- [x] Verify live JPEG delivery and the image-credits page.
+
+Production deployment does not replace the outstanding requirement for a
+separate staging deployment and a tested local fallback.
 
 ### P1 — Required product work
 
@@ -70,7 +84,6 @@ These cannot be completed independently from the current workspace.
 | Real Stripe WeChat Pay               | Eligible Stripe/merchant account, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` and an approved settlement design                                                                                             |
 | Transactional email delivery         | Resend, SendGrid or SES account, API key and preferably a verified sending domain                                                                                                                            |
 | Cloud image storage                  | S3, Cloudinary or equivalent account, bucket/configuration and credentials. Only needed once `imagery_siteimage` makes `pg_dump` unwieldy.                                                                   |
-| Public staging/production deployment | A Vercel account and a Neon (or equivalent pooled) Postgres. Config is committed — `vercel.json`, `api/index.py` and the Deployment section of the README. Both free tiers, so no budget approval is needed. |
 | Custom domain                        | Purchased/approved domain and DNS access                                                                                                                                                                     |
 | Commissioned product photography     | Supplied and licensed studio assets. Openly licensed stand-ins are in place and legally usable, but they photograph other people's pieces, not ours.                                                         |
 | Production legal/regulatory review   | Team/business decisions and qualified legal review                                                                                                                                                           |
@@ -85,11 +98,16 @@ unavailable.
 - [ ] Identify the TA and complete the stakeholder register.
 - [ ] Assign requirement, milestone, risk and RACI owners.
 - [ ] Confirm the cost estimates, contingency and review cadence.
-- [ ] Supply the PyShop baseline repository URL, licence and baseline feature list.
+- [ ] Document the supplied PyShop baseline repository, its licence status and
+      baseline feature list. Candidate baseline:
+      <https://github.com/caijunix-droid/PyShopDIP.git>.
 - [ ] Record the approved web-platform deviation date and rationale.
 - [ ] Obtain the supervisor's approval/signature.
-- [ ] Supply the editable charter source so the official document can be revised
-      cleanly; only the PDF is currently present.
+
+The charter is intentionally maintained and distributed separately to the
+group. Its absence from this code repository is not a blocker. Charter edits,
+approvals and signatures must be coordinated against the separately shared
+source document.
 
 ## Charter/report work that can be drafted now
 

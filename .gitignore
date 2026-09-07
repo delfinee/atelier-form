@@ -27,3 +27,6 @@ media/
 .imagery-cache/
 .vercel
 .env*.local
+
+.vercel
+.env*

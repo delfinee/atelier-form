@@ -92,42 +92,6 @@ The local mock payment provider, console notification sender and the generated S
 fallbacks keep the application fully runnable while these integrations remain
 unavailable.
 
-## Blocked on official team or supervisor input
-
-- [ ] Supply every member's full name and matriculation number.
-- [ ] Identify the TA and complete the stakeholder register.
-- [ ] Assign requirement, milestone, risk and RACI owners.
-- [ ] Confirm the cost estimates, contingency and review cadence.
-- [ ] Document the supplied PyShop baseline repository, its licence status and
-      baseline feature list. Candidate baseline:
-      <https://github.com/caijunix-droid/PyShopDIP.git>.
-- [ ] Record the approved web-platform deviation date and rationale.
-- [ ] Obtain the supervisor's approval/signature.
-
-The charter is intentionally maintained and distributed separately to the
-group. Its absence from this code repository is not a blocker. Charter edits,
-approvals and signatures must be coordinated against the separately shared
-source document.
-
-## Charter/report work that can be drafted now
-
-- [ ] Add the Deviation from Original Project Brief section.
-- [ ] Add Out of Scope and Assumptions & Constraints sections.
-- [ ] Add MoSCoW priority and acceptance-criterion columns to the requirements.
-- [ ] Repair the RACI structure so every activity has exactly one Accountable
-      person; insert final owners when the team supplies them.
-- [ ] Draft the stakeholder register and approval/sign-off block.
-- [ ] Rebuild the risk register with likelihood, impact, owner, mitigation,
-      contingency and status columns.
-- [ ] Draft a numerical cost table, including approximately 15% contingency.
-- [ ] Add owners, definitions of done, dependencies and slack to the milestones.
-- [ ] Add a table of contents, version history, architecture diagram and ERD.
-- [ ] Standardise payment terminology, rename "chatbot" to buyer-seller messaging,
-      and consistently use British spelling for "fulfilment".
-
-Drafts can be prepared without external services, but names, ownership, costs,
-approval claims and signatures must not be invented.
-
 ## Definition of project-ready
 
 The project is ready for its assessed demonstration when:

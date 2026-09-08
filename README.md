@@ -12,6 +12,11 @@ The stack follows the **Project Charter**, which is authoritative for this proje
 
 ## Quick start
 
+**New to coding or setting up a teammate's laptop?** Start with the
+[beginner setup and team coding guide](BEGINNER_SETUP.md). It includes Windows
+installation steps, copy-and-paste Codex prompts, local database setup,
+troubleshooting, and a checklist to complete before the team meeting.
+
 Requires **Python 3.12** (pinned in `.python-version`) and **PostgreSQL 14+**. Nothing else — no third-party
 API key is needed to run the whole application.
 

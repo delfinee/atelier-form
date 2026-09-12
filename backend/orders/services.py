@@ -14,15 +14,17 @@ from __future__ import annotations
 import logging
 from decimal import Decimal
 
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models import F
+from django.utils import timezone
 
 from config.exceptions import EmptyCart, InsufficientStock
-from products.models import Product, ProductVariant
+from products.models import Maker, Product, ProductVariant
 
 from .models import (
-    Cart, CartItem, DeliveryMethod, Order, OrderItem, OrderNumberSequence,
-    OrderStatus, PaymentStatus, ZERO,
+    Cart, CartItem, DeliveryMethod, FulfillmentStatus, Order, OrderItem, OrderNumberSequence,
+    OrderStatus, PaymentStatus, SellerFulfillment, ZERO,
 )
 
 logger = logging.getLogger(__name__)
@@ -327,9 +329,131 @@ def create_order(
         product.refresh_from_db(fields=["stock_quantity"])
         product.refresh_stock_status()
 
+    create_seller_fulfillments(order)
+
     cart.items.all().delete()
     cart.is_active = False
     cart.save(update_fields=["is_active", "updated_at"])
 
     logger.info("Order %s created with %d lines", order.order_number, len(items))
     return order
+
+
+# -- per-seller fulfilment --------------------------------------------------
+
+def create_seller_fulfillments(order: Order) -> list[SellerFulfillment]:
+    """One SellerFulfillment per distinct maker among the order's line items.
+
+    Reads the makers back off the OrderItems that were just written, rather
+    than from the cart/product data that produced them, so this stays correct
+    even if called separately from checkout later.
+
+    Idempotent: calling this again for the same order creates no duplicate
+    (order, maker) row -- `get_or_create` is the first line of defence, the
+    database's own unique constraint is the backstop. Grouping is by distinct
+    maker id, so an order with many lines from few makers still does one
+    get_or_create per maker, not one per line.
+
+    An OrderItem with no maker is skipped -- there is no seller to hold
+    responsible. CONFIRMED impossible via today's create_order(): it copies
+    `product.maker`, and Product.maker is a required, PROTECTed field, so a
+    freshly created OrderItem always has one. It can only arise from a
+    historical OrderItem whose Maker was later deleted (SET_NULL); this
+    handles that case defensively without inventing a fulfilment with no
+    seller.
+    """
+    # .order_by() clears OrderItem's default ordering before .distinct(): left
+    # in place, PostgreSQL folds the ORDER BY column into the DISTINCT set,
+    # making every row "distinct" by (maker_id, id) instead of by maker_id alone.
+    maker_ids = (order.items.filter(maker__isnull=False)
+                 .order_by().values_list("maker_id", flat=True).distinct())
+    return [SellerFulfillment.objects.get_or_create(order=order, maker_id=maker_id)[0]
+            for maker_id in maker_ids]
+
+
+def fulfillment_items(fulfillment: SellerFulfillment):
+    """The purchased lines this fulfilment's seller is responsible for."""
+    return fulfillment.items
+
+
+@transaction.atomic
+def sync_order_fulfillment_status(order: Order) -> str:
+    """Recompute Order.fulfillment_status from its SellerFulfillment children.
+
+    all UNFULFILLED -> UNFULFILLED
+    all FULFILLED   -> FULFILLED
+    anything else   -> PARTIAL (covers any mix, including a PARTIAL child, and
+                                 any number of sellers)
+
+    An order with no SellerFulfillment rows -- none currently exist, or every
+    line lacked a maker -- has nothing to aggregate over, so its existing
+    fulfillment_status is left untouched rather than guessed.
+    """
+    statuses = set(order.seller_fulfillments.values_list("status", flat=True))
+    if not statuses:
+        return order.fulfillment_status
+
+    if statuses == {FulfillmentStatus.UNFULFILLED}:
+        new_status = FulfillmentStatus.UNFULFILLED
+    elif statuses == {FulfillmentStatus.FULFILLED}:
+        new_status = FulfillmentStatus.FULFILLED
+    else:
+        new_status = FulfillmentStatus.PARTIAL
+
+    if new_status != order.fulfillment_status:
+        order.fulfillment_status = new_status
+        order.save(update_fields=["fulfillment_status", "updated_at"])
+    return new_status
+
+
+@transaction.atomic
+def update_seller_fulfillment(
+    fulfillment: SellerFulfillment,
+    *,
+    acting_maker: Maker,
+    status: str | None = None,
+    carrier: str | None = None,
+    tracking_number: str | None = None,
+) -> SellerFulfillment:
+    """Update one seller's fulfilment record, enforcing ownership.
+
+    `acting_maker` is who is making the change -- resolved by the caller from
+    the same seller-identity path used elsewhere in this codebase
+    (`request.user.maker_profile`; see accounts.permissions.IsSeller and
+    SellerOrderViewSet.get_queryset). A mismatch raises PermissionDenied
+    rather than returning quietly or 404ing: the fulfilment id is real, the
+    caller is simply not allowed to touch it, and this check does not rely on
+    a queryset already being scoped to the caller as the only line of defence
+    -- it holds even if a fulfilment id belonging to another seller is passed
+    in directly.
+
+    Parent Order.fulfillment_status is re-synced as part of the same
+    transaction as the update, never left stale.
+
+    `choices=` on the model field is display/form metadata only -- Django
+    does not run full_clean() on save(), so an invalid `status` is rejected
+    here explicitly rather than trusted to a future API-layer serializer.
+    """
+    if fulfillment.maker_id != acting_maker.id:
+        raise PermissionDenied("You do not have access to this seller fulfilment.")
+
+    if status is not None and status not in FulfillmentStatus.values:
+        raise ValidationError({"status": "Invalid fulfilment status."})
+
+    update_fields = ["updated_at"]
+    if status is not None and status != fulfillment.status:
+        fulfillment.status = status
+        update_fields.append("status")
+        if status == FulfillmentStatus.FULFILLED and fulfillment.shipped_at is None:
+            fulfillment.shipped_at = timezone.now()
+            update_fields.append("shipped_at")
+    if carrier is not None:
+        fulfillment.carrier = carrier
+        update_fields.append("carrier")
+    if tracking_number is not None:
+        fulfillment.tracking_number = tracking_number
+        update_fields.append("tracking_number")
+
+    fulfillment.save(update_fields=update_fields)
+    sync_order_fulfillment_status(fulfillment.order)
+    return fulfillment

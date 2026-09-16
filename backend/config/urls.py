@@ -43,6 +43,7 @@ urlpatterns = [
     path("account/orders/", views.account_orders, name="account_orders"),
     path("account/orders/<str:order_id>/", views.account_order_detail, name="account_order_detail"),
     path("account/profile/", views.account_profile, name="account_profile"),
+    path("account/change-password/", views.account_change_password, name="account_change_password"),
     path("account/addresses/", views.account_addresses, name="account_addresses"),
     path("account/wishlist/", views.account_wishlist, name="account_wishlist"),
     path("account/addresses/<uuid:uuid>/delete/", views.account_address_delete,

@@ -1,4 +1,4 @@
-{% load i18n static frontend_extras %}<!doctype html>
+{% load i18n static frontend_extras recommendations %}<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -21,6 +21,7 @@
 
 <main id="main">
   {% block content %}{% endblock %}
+  {% recommendation_block 4 %}
 </main>
 
 {% block newsletter %}{% include "frontend/partials/newsletter.html" %}{% endblock %}

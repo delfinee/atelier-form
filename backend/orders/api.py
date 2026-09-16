@@ -1,6 +1,7 @@
 """Cart, checkout and order endpoints."""
 
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -17,7 +18,8 @@ from . import services
 from .models import Order
 from .serializers import (
     AddToCartSerializer, AdminOrderUpdateSerializer, CartSerializer,
-    CheckoutSerializer, OrderSerializer, SellerOrderSerializer, UpdateCartItemSerializer,
+    CheckoutSerializer, OrderSerializer, SellerFulfillmentUpdateSerializer,
+    SellerOrderSerializer, UpdateCartItemSerializer,
 )
 
 
@@ -188,7 +190,37 @@ class SellerOrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         if getattr(self, "swagger_fake_view", False) or not self.request.user.is_authenticated:
             return Order.objects.none()
         return (Order.objects.filter(items__maker__owner=self.request.user)
-                .distinct().prefetch_related("items", "items__maker"))
+                .distinct().prefetch_related("items", "items__maker", "seller_fulfillments"))
+
+    @extend_schema(
+        summary="Update your fulfilment status and tracking for this order",
+        request=SellerFulfillmentUpdateSerializer,
+        responses=SellerOrderSerializer,
+    )
+    @action(detail=True, methods=["patch"], url_path="fulfilment")
+    def fulfilment(self, request, uuid=None):
+        """Allow the seller to update their own carrier, tracking number and status.
+
+        Only the SellerFulfillment that belongs to this seller can be changed.
+        Samuel's service function enforces ownership and syncs the parent order.
+        """
+        order = self.get_object()  # 404s if seller has no items in this order
+        maker = request.user.maker_profile
+        fulfillment = get_object_or_404(order.seller_fulfillments, maker=maker)
+
+        serializer = SellerFulfillmentUpdateSerializer(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+
+        services.update_seller_fulfillment(
+            fulfillment,
+            acting_maker=maker,
+            status=serializer.validated_data.get("status"),
+            carrier=serializer.validated_data.get("carrier"),
+            tracking_number=serializer.validated_data.get("tracking_number"),
+        )
+        # Refresh the order so the serializer sees the updated fulfillment values.
+        order.refresh_from_db()
+        return Response(SellerOrderSerializer(order, context={"request": request}).data)
 
 
 class AdminOrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,

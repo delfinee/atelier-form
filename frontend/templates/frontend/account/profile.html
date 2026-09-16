@@ -44,11 +44,45 @@
   <p style="margin-top:1.4rem"><button class="btn" type="submit">{% translate "Save changes" %}</button></p>
 </form>
 
-<div class="panel">
+<form class="panel" method="post" action="{% url 'account_change_password' %}">
+  {% csrf_token %}
   <div class="panel__head"><h3>{% translate "Password" %}</h3></div>
-  <p class="muted">
-    {% translate "Change your password through the API endpoint" %}
-    <code>{% translate "POST /api/auth/change-password/" %}</code>{% translate ". A frontend form for this is not built yet." %}
-  </p>
-</div>
+  {% for error in password_form.non_field_errors %}
+    <p class="field-error" role="alert">{{ error }}</p>
+  {% endfor %}
+  <div class="field">
+    <label class="label" for="p-current-password">{% translate "Current password" %}</label>
+    <input class="input {% if password_form.old_password.errors %}is-invalid{% endif %}"
+           id="p-current-password" name="old_password" type="password" required autocomplete="current-password"
+           {% if password_form.old_password.errors %}aria-invalid="true" aria-describedby="p-current-password-errors"{% endif %}>
+    {% if password_form.old_password.errors %}
+      <div id="p-current-password-errors" role="alert">
+        {% for error in password_form.old_password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+      </div>
+    {% endif %}
+  </div>
+  <div class="field">
+    <label class="label" for="p-new-password">{% translate "New password" %}</label>
+    <input class="input {% if password_form.new_password1.errors %}is-invalid{% endif %}"
+           id="p-new-password" name="new_password1" type="password" required autocomplete="new-password"
+           {% if password_form.new_password1.errors %}aria-invalid="true" aria-describedby="p-new-password-errors"{% endif %}>
+    {% if password_form.new_password1.errors %}
+      <div id="p-new-password-errors" role="alert">
+        {% for error in password_form.new_password1.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+      </div>
+    {% endif %}
+  </div>
+  <div class="field">
+    <label class="label" for="p-confirm-password">{% translate "Confirm new password" %}</label>
+    <input class="input {% if password_form.new_password2.errors %}is-invalid{% endif %}"
+           id="p-confirm-password" name="new_password2" type="password" required autocomplete="new-password"
+           {% if password_form.new_password2.errors %}aria-invalid="true" aria-describedby="p-confirm-password-errors"{% endif %}>
+    {% if password_form.new_password2.errors %}
+      <div id="p-confirm-password-errors" role="alert">
+        {% for error in password_form.new_password2.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+      </div>
+    {% endif %}
+  </div>
+  <p style="margin-top:1.4rem"><button class="btn" type="submit">{% translate "Change password" %}</button></p>
+</form>
 {% endblock %}

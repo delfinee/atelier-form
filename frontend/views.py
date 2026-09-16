@@ -12,13 +12,16 @@ import json
 import re
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from accounts.models import Address, User, WishlistItem
@@ -294,6 +297,15 @@ def account_order_detail(request, order_id):
     })
 
 
+def _render_account_profile(request, password_form=None):
+    return render(request, "frontend/account/profile.html", {
+        "customer": request.user, "meta_title": f"Profile — {SITE['brand']}",
+        "current_path": reverse("account_profile"),
+        "password_form": (password_form if password_form is not None
+                          else PasswordChangeForm(request.user)),
+    })
+
+
 @login_required
 def account_profile(request):
     if request.method == "POST":
@@ -307,9 +319,19 @@ def account_profile(request):
         messages.success(request, "Your details have been saved.")
         return redirect("account_profile")
 
-    return render(request, "frontend/account/profile.html", {
-        "customer": request.user, "meta_title": f"Profile — {SITE['brand']}",
-    })
+    return _render_account_profile(request)
+
+
+@login_required
+@require_POST
+def account_change_password(request):
+    form = PasswordChangeForm(request.user, request.POST)
+    if form.is_valid():
+        user = form.save()
+        update_session_auth_hash(request, user)
+        messages.success(request, _("Your password has been changed."))
+        return redirect("account_profile")
+    return _render_account_profile(request, password_form=form)
 
 
 @login_required
@@ -359,14 +381,13 @@ def account_wishlist(request):
 
 
 def auth_page(request, mode):
-    """Sign in, register and password reset.
+    """Sign in and register.
 
     Uses Django's session authentication -- the frontend is server-rendered,
     so a session cookie is the right mechanism. The JWT endpoints under
     /api/auth/ exist for non-browser clients.
     """
-    titles = {"login": "Sign in", "register": "Create an account",
-              "forgot": "Reset your password"}
+    titles = {"login": "Sign in", "register": "Create an account"}
     if request.user.is_authenticated and mode in {"login", "register"}:
         return redirect("account_overview")
 
@@ -412,11 +433,6 @@ def auth_page(request, mode):
                 login(request, user)
                 messages.success(request, "Your account is ready.")
                 return redirect("account_overview")
-
-        else:  # forgot
-            # Always the same response, whether or not the address is known.
-            messages.success(request, "If that address has an account, a reset link is on its way.")
-            return redirect("login")
 
     return render(request, "frontend/account/auth.html", {
         "mode": mode, "heading": titles[mode], "errors": errors, "values": values,

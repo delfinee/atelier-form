@@ -30,3 +30,4 @@ media/
 
 .vercel
 .env*
+.env.example

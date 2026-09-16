@@ -41,6 +41,7 @@ env = environ.Env(
     SECURE_HSTS_SECONDS=(int, 60 * 60 * 24 * 30),
 )
 
+# Read .env if present. Never committed -- see .env.example.
 environ.Env.read_env(BASE_DIR / ".env")
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or get_random_secret_key()
@@ -51,6 +52,9 @@ if not DEBUG and not os.environ.get("DJANGO_SECRET_KEY"):
     from django.core.exceptions import ImproperlyConfigured
     raise ImproperlyConfigured("DJANGO_SECRET_KEY is required when DJANGO_DEBUG=0.")
 
+
+# -- Applications ---------------------------------------------------------
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -59,11 +63,15 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.postgres",
+
+    # Third party
     "rest_framework",
     "rest_framework_simplejwt",
     "django_filters",
     "drf_spectacular",
     "corsheaders",
+
+    # Charter's modular apps
     "accounts",
     "products",
     "orders",
@@ -71,7 +79,11 @@ INSTALLED_APPS = [
     "reviews",
     "content",
     "recommendations",
+
+    # Photography held in PostgreSQL, shared by every surface
     "imagery",
+
+    # Presentation layer (server-rendered buyer frontend)
     "frontend",
 ]
 
@@ -108,11 +120,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-DATABASES = {"default": env.db("DATABASE_URL")}
+
+# -- Database -------------------------------------------------------------
+# PostgreSQL is required because the schema uses PostgreSQL-native types.
+
+DATABASES = {
+    "default": env.db("DATABASE_URL")
+}
+# Disable persistent connections on serverless deployments.
 DATABASES["default"].setdefault("CONN_MAX_AGE", env.int("DJANGO_CONN_MAX_AGE"))
+
+# -- Authentication -------------------------------------------------------
 
 AUTH_USER_MODEL = "accounts.User"
 
+# Prefer Argon2 while keeping older hashers available for migration.
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.Argon2PasswordHasher",
     "django.contrib.auth.hashers.PBKDF2PasswordHasher",
@@ -132,8 +154,12 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "account_overview"
 LOGOUT_REDIRECT_URL = "home"
 
+
+# -- REST framework -------------------------------------------------------
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
+        # Use sessions for the frontend and JWT for API clients.
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ),
@@ -143,7 +169,9 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 20,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "EXCEPTION_HANDLER": "config.exceptions.api_exception_handler",
-    "DEFAULT_THROTTLE_CLASSES": ("rest_framework.throttling.ScopedRateThrottle",),
+    "DEFAULT_THROTTLE_CLASSES": (
+        "rest_framework.throttling.ScopedRateThrottle",
+    ),
     "DEFAULT_THROTTLE_RATES": {
         "auth": "20/min",
         "contact": "10/hour",
@@ -152,8 +180,12 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=cast(int, env.int("ACCESS_TOKEN_LIFETIME_MINUTES"))),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=cast(int, env.int("REFRESH_TOKEN_LIFETIME_DAYS"))),
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        minutes=cast(int, env.int("ACCESS_TOKEN_LIFETIME_MINUTES"))
+    ),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        days=cast(int, env.int("REFRESH_TOKEN_LIFETIME_DAYS"))
+    ),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": True,
@@ -172,8 +204,16 @@ SPECTACULAR_SETTINGS = {
     "SCHEMA_PATH_PREFIX": "/api",
 }
 
+
+# -- CORS -----------------------------------------------------------------
+# Allow credentials only for explicitly configured client origins.
+
 CORS_ALLOWED_ORIGINS = cast(list[str], env.list("CORS_ALLOWED_ORIGINS"))
 CORS_ALLOW_CREDENTIALS = True
+
+
+# -- Internationalisation -------------------------------------------------
+# Enable incremental Simplified Chinese translation support.
 
 LANGUAGE_CODE = env.str("DJANGO_LANGUAGE_CODE")
 LANGUAGES = [("en", "English"), ("zh-hans", "简体中文")]
@@ -182,17 +222,28 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
+
+# -- Static files ---------------------------------------------------------
+
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
+# -- Storefront / commerce configuration ---------------------------------
+# Convert money strings to Decimal without using floats.
+
 CURRENCY = env.str("CURRENCY")
+
+# Read the currency symbol directly to avoid django-environ's dollar expansion.
 CURRENCY_SYMBOLS = {"SGD": "$", "USD": "$", "CNY": "¥", "RMB": "¥", "EUR": "€"}
 CURRENCY_SYMBOL = os.environ.get("CURRENCY_SYMBOL") or CURRENCY_SYMBOLS.get(str(CURRENCY), "$")
 
@@ -210,11 +261,16 @@ PAYMENT_BACKEND = env("PAYMENT_BACKEND")
 PAYMENT_RESERVATION_MINUTES = env("PAYMENT_RESERVATION_MINUTES")
 EMAIL_SENDER_CLASS = env("EMAIL_BACKEND_CLASS")
 
+
+# -- Security -------------------------------------------------------------
+# Apply secure cookie and transport settings when DEBUG is disabled.
+
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
 X_FRAME_OPTIONS = "DENY"
 
+# Trust the deployment origin for form POSTs behind a TLS proxy.
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS") if os.environ.get(
     "CSRF_TRUSTED_ORIGINS"
 ) else [origin for origin in CORS_ALLOWED_ORIGINS if origin.startswith("http")]
@@ -228,6 +284,10 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+
+# -- Logging --------------------------------------------------------------
+# Keep credentials out of logs and expose only server-error references.
 
 LOGGING = {
     "version": 1,

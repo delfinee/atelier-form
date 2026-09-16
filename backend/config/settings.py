@@ -261,6 +261,24 @@ PAYMENT_RESERVATION_MINUTES = env("PAYMENT_RESERVATION_MINUTES")
 EMAIL_SENDER_CLASS = env("EMAIL_BACKEND_CLASS")
 
 
+# -- Django password-reset email -----------------------------------------
+# Separate from the existing notification sender above. Console delivery is
+# for local development only; deployed environments must configure SMTP.
+EMAIL_BACKEND = env.str("EMAIL_BACKEND", default=(
+    "django.core.mail.backends.console.EmailBackend" if DEBUG
+    else "django.core.mail.backends.smtp.EmailBackend"
+))
+DEFAULT_FROM_EMAIL = env.str("DEFAULT_FROM_EMAIL", default="Atelier Form <noreply@atelierform.test>")
+EMAIL_HOST = env.str("EMAIL_HOST", default="localhost")
+EMAIL_PORT = env.int("EMAIL_PORT", default=25)
+EMAIL_HOST_USER = env.str("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env.str("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=False)
+EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
+EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=10)
+PASSWORD_RESET_TIMEOUT = env.int("PASSWORD_RESET_TIMEOUT", default=259200)
+
+
 # -- Security -------------------------------------------------------------
 # Apply secure cookie and transport settings when DEBUG is disabled.
 

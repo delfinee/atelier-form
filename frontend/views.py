@@ -381,14 +381,13 @@ def account_wishlist(request):
 
 
 def auth_page(request, mode):
-    """Sign in, register and password reset.
+    """Sign in and register.
 
     Uses Django's session authentication -- the frontend is server-rendered,
     so a session cookie is the right mechanism. The JWT endpoints under
     /api/auth/ exist for non-browser clients.
     """
-    titles = {"login": "Sign in", "register": "Create an account",
-              "forgot": "Reset your password"}
+    titles = {"login": "Sign in", "register": "Create an account"}
     if request.user.is_authenticated and mode in {"login", "register"}:
         return redirect("account_overview")
 
@@ -434,11 +433,6 @@ def auth_page(request, mode):
                 login(request, user)
                 messages.success(request, "Your account is ready.")
                 return redirect("account_overview")
-
-        else:  # forgot
-            # Always the same response, whether or not the address is known.
-            messages.success(request, "If that address has an account, a reset link is on its way.")
-            return redirect("login")
 
     return render(request, "frontend/account/auth.html", {
         "mode": mode, "heading": titles[mode], "errors": errors, "values": values,

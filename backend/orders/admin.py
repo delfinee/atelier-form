@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Cart, CartItem, Order, OrderItem, OrderNumberSequence
+from .models import Cart, CartItem, Order, OrderItem, OrderNumberSequence, SellerFulfillment
 
 
 class OrderItemInline(admin.TabularInline):
@@ -38,3 +38,12 @@ class CartAdmin(admin.ModelAdmin):
 
 
 admin.site.register(OrderNumberSequence)
+
+
+@admin.register(SellerFulfillment)
+class SellerFulfillmentAdmin(admin.ModelAdmin):
+    list_display = ["order", "maker", "status", "carrier", "tracking_number", "shipped_at"]
+    list_filter = ["status"]
+    search_fields = ["order__order_number", "maker__name", "tracking_number"]
+    readonly_fields = ["uuid", "created_at", "updated_at"]
+    date_hierarchy = "created_at"

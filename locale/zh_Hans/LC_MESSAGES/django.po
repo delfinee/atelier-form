@@ -12,10 +12,6 @@ msgid "Handmade for everyday moments."
 msgstr "手作之物，日常之用。"
 
 #: frontend/mockdata/content.py:16
-#, fuzzy
-#| msgid ""
-#| "Ceramics, textiles and objects made one at a time by five makers we know "
-#| "by name."
 msgid ""
 "Small-batch ceramics, textiles and homeware, made by hand by a short list of "
 "makers we know by name."
@@ -63,8 +59,6 @@ msgid "Journal"
 msgstr "日志"
 
 #: frontend/mockdata/content.py:40
-#, fuzzy
-#| msgid "New arrivals"
 msgid "New Arrivals"
 msgstr "新品"
 
@@ -77,8 +71,6 @@ msgid "Textiles"
 msgstr "织物"
 
 #: frontend/mockdata/content.py:45
-#, fuzzy
-#| msgid "Home"
 msgctxt "category"
 msgid "Home"
 msgstr "家居"
@@ -102,8 +94,6 @@ msgid "Makers"
 msgstr "匠人"
 
 #: frontend/mockdata/content.py:51
-#, fuzzy
-#| msgid "Materials."
 msgid "Materials"
 msgstr "材质。"
 
@@ -167,8 +157,6 @@ msgstr ""
 "在织机上花去将近三天。这件事没有更快的做法。"
 
 #: frontend/mockdata/content.py:75
-#, fuzzy
-#| msgid "Just finished"
 msgid "Finished"
 msgstr "刚刚完成"
 
@@ -183,8 +171,6 @@ msgstr ""
 
 #: frontend/mockdata/content.py:83
 #: frontend/templates/frontend/home.html:16
-#, fuzzy
-#| msgid "Our Story"
 msgid "Our story"
 msgstr "品牌故事"
 
@@ -202,8 +188,6 @@ msgstr ""
 "常使用的器物，值得比通常得到的更多用心。"
 
 #: frontend/mockdata/content.py:89
-#, fuzzy
-#| msgid "How it is made"
 msgid "How it started"
 msgstr "制作过程"
 
@@ -267,8 +251,6 @@ msgid ""
 msgstr "这个取舍是真实的，我们宁愿直说：东西会售罄，补货要等上数周，而订制就是真的现做。"
 
 #: frontend/mockdata/content.py:122
-#, fuzzy
-#| msgid "Five makers, all known by name."
 msgid "makers, all known by name"
 msgstr "五位匠人，每一位我们都叫得出名字。"
 
@@ -285,8 +267,6 @@ msgid "pieces made in a factory"
 msgstr "由工厂制造的件数"
 
 #: frontend/mockdata/content.py:130
-#, fuzzy
-#| msgid "Shipping &amp; Returns"
 msgid "Shipping & Returns"
 msgstr "配送与退货"
 
@@ -341,11 +321,6 @@ msgid ""
 msgstr "织物经折叠后以本色纸包裹，并以棉绳系好。这层包装本身就是礼品包装——无需另行付费升级。"
 
 #: frontend/mockdata/content.py:154
-#, fuzzy
-#| msgid ""
-#| "Thirty days from delivery for unused pieces in their original packaging. "
-#| "Made-to-order and commissioned pieces can only be returned if faulty. See "
-#| "the"
 msgid ""
 "You have thirty days from delivery to return an unused piece in its original "
 "packaging. Email the studio first and we will send you a return reference."
@@ -575,8 +550,6 @@ msgid "No addresses saved yet."
 msgstr "尚未保存任何地址。"
 
 #: frontend/templates/frontend/account/addresses.html:39
-#, fuzzy
-#| msgid "Addresses"
 msgid "Add an address"
 msgstr "地址"
 
@@ -603,14 +576,10 @@ msgid "Last name"
 msgstr "姓氏"
 
 #: frontend/templates/frontend/account/addresses.html:55
-#, fuzzy
-#| msgid "Addresses"
 msgid "Address line 1"
 msgstr "地址"
 
 #: frontend/templates/frontend/account/addresses.html:59
-#, fuzzy
-#| msgid "Addresses"
 msgid "Address line 2"
 msgstr "地址"
 
@@ -705,8 +674,6 @@ msgstr "忘记密码？"
 #: frontend/templates/frontend/account/auth.html:41
 #: frontend/templates/frontend/account/auth.html:87
 #: frontend/templates/frontend/checkout.html:34
-#, fuzzy
-#| msgid "Sign out"
 msgid "Sign in"
 msgstr "退出登录"
 
@@ -764,8 +731,6 @@ msgstr "账户"
 
 #: frontend/templates/frontend/account/order_detail.html:9
 #: frontend/templates/frontend/account/overview.html:27
-#, fuzzy
-#| msgid "Place order"
 msgid "All orders"
 msgstr "提交订单"
 
@@ -951,14 +916,10 @@ msgid "Nothing saved here yet. Everything we currently make is one page away."
 msgstr "这里还是空的。我们目前在售的全部作品，一页之隔。"
 
 #: frontend/templates/frontend/cart.html:19
-#, fuzzy
-#| msgid "Wishlist"
 msgid "View wishlist"
 msgstr "心愿单"
 
 #: frontend/templates/frontend/cart.html:27
-#, fuzzy
-#| msgid "Keep shopping"
 msgid "Continue shopping"
 msgstr "继续购物"
 
@@ -1017,8 +978,6 @@ msgid "Enter a new delivery address below"
 msgstr "在下方填写新的收货地址"
 
 #: frontend/templates/frontend/checkout.html:90
-#, fuzzy
-#| msgid "Addresses"
 msgid "Address"
 msgstr "地址"
 
@@ -1081,8 +1040,6 @@ msgid "Place order"
 msgstr "提交订单"
 
 #: frontend/templates/frontend/checkout.html:174
-#, fuzzy
-#| msgid "Orders"
 msgid "Order summary"
 msgstr "订单"
 
@@ -1118,8 +1075,6 @@ msgid "Four things we make well."
 msgstr "我们擅长的四个门类。"
 
 #: frontend/templates/frontend/home.html:28
-#, fuzzy
-#| msgid "Collections"
 msgid "All collections"
 msgstr "系列"
 
@@ -1136,8 +1091,6 @@ msgid "See all new"
 msgstr "查看全部新品"
 
 #: frontend/templates/frontend/home.html:65
-#, fuzzy
-#| msgid "Collections"
 msgid "Featured collection"
 msgstr "系列"
 
@@ -1190,8 +1143,6 @@ msgid "Writing"
 msgstr "文章"
 
 #: frontend/templates/frontend/journal/index.html:10
-#, fuzzy
-#| msgid "Journal"
 msgid "The journal"
 msgstr "日志"
 
@@ -1202,8 +1153,6 @@ msgid ""
 msgstr "关于制作、材质与作品背后之人的札记。有值得一说的内容时才发布。"
 
 #: frontend/templates/frontend/journal/index.html:25
-#, fuzzy
-#| msgid "Search the site"
 msgid "Read the piece"
 msgstr "站内搜索"
 
@@ -1478,8 +1427,6 @@ msgid ""
 msgstr "您可致信工作室，索取您的数据副本或要求删除。我们将在三十天内答复。"
 
 #: frontend/templates/frontend/pages/legal.html:29
-#, fuzzy
-#| msgid "Orders"
 msgid "Ordering"
 msgstr "订单"
 
@@ -1554,8 +1501,6 @@ msgid "Where things stand"
 msgstr "当前状况"
 
 #: frontend/templates/frontend/pages/our_story.html:72
-#, fuzzy
-#| msgid "Makers"
 msgid "All makers"
 msgstr "匠人"
 
@@ -1615,8 +1560,6 @@ msgid "Category"
 msgstr "品类"
 
 #: frontend/templates/frontend/partials/filters.html:25
-#, fuzzy
-#| msgid "Materials."
 msgid "Material"
 msgstr "材质。"
 
@@ -1630,8 +1573,6 @@ msgid "Price"
 msgstr "价格"
 
 #: frontend/templates/frontend/partials/filters.html:62
-#, fuzzy
-#| msgid "Available now"
 msgid "Availability"
 msgstr "现货供应"
 
@@ -1789,8 +1730,6 @@ msgid "Increase quantity"
 msgstr "增加数量"
 
 #: frontend/templates/frontend/product/detail.html:113
-#, fuzzy
-#| msgid "Details &amp; delivery"
 msgid "Details &amp; materials"
 msgstr "资料与配送"
 
@@ -1815,8 +1754,6 @@ msgid "Read the full care guide"
 msgstr "阅读完整保养指南"
 
 #: frontend/templates/frontend/product/detail.html:130
-#, fuzzy
-#| msgid "Shipping &amp; Returns"
 msgid "Shipping &amp; returns"
 msgstr "配送与退货"
 
@@ -1837,8 +1774,6 @@ msgid "Verified buyers"
 msgstr "已验证买家"
 
 #: frontend/templates/frontend/product/detail.html:164
-#, fuzzy
-#| msgid "Overview"
 msgid "Reviews"
 msgstr "概览"
 
@@ -1887,8 +1822,6 @@ msgid "Title"
 msgstr "标题"
 
 #: frontend/templates/frontend/product/detail.html:191
-#, fuzzy
-#| msgid "Overview"
 msgid "Review"
 msgstr "概览"
 

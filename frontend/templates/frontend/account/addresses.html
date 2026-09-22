@@ -5,10 +5,6 @@
 {% block account_lede %}<p class="lede">{% translate "Where we send things." %}</p>{% endblock %}
 
 {% block account_content %}
-{% if messages %}
-  {% for message in messages %}<p class="form-note" role="status">{{ message }}</p>{% endfor %}
-{% endif %}
-
 <div class="grid grid--2" style="margin-bottom:var(--gap)">
   {% for address in addresses %}
     <div class="address-card {% if address.is_default %}is-default{% endif %}">

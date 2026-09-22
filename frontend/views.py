@@ -10,21 +10,22 @@ from __future__ import annotations
 
 import json
 import re
+from urllib.parse import urlsplit
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
+from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from accounts.models import Address, User, WishlistItem
+from accounts.models import Address, WishlistItem
 from content.models import FAQGroup, NewsletterSubscriber
 from orders.models import Order, OrderItem
 from orders.services import get_cart, merge_session_cart
@@ -33,6 +34,7 @@ from payments.services import MockPaymentProvider
 from reviews.models import Review
 
 from . import services
+from .forms import ProfileForm, RegistrationForm
 from .mockdata.content import CARE_PAGE, PROCESS_STEPS, SHIPPING_PAGE, SITE, STORY_PAGE
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$")
@@ -293,14 +295,17 @@ def account_order_detail(request, order_id):
         raise Http404("Unknown order")
     return render(request, "frontend/account/order_detail.html", {
         "customer": request.user, "order": order,
+        "current_path": reverse("account_orders"),
         "meta_title": f"Order {order.order_number} — {SITE['brand']}",
     })
 
 
-def _render_account_profile(request, password_form=None):
+def _render_account_profile(request, password_form=None, profile_form=None):
     return render(request, "frontend/account/profile.html", {
         "customer": request.user, "meta_title": f"Profile — {SITE['brand']}",
         "current_path": reverse("account_profile"),
+        "profile_form": (profile_form if profile_form is not None
+                         else ProfileForm(user=request.user)),
         "password_form": (password_form if password_form is not None
                           else PasswordChangeForm(request.user)),
     })
@@ -309,22 +314,21 @@ def _render_account_profile(request, password_form=None):
 @login_required
 def account_profile(request):
     if request.method == "POST":
-        user = request.user
-        user.first_name = request.POST.get("first_name", user.first_name).strip()
-        user.last_name = request.POST.get("last_name", user.last_name).strip()
-        user.phone = request.POST.get("phone", user.phone).strip()
-        user.accepts_marketing = bool(request.POST.get("accepts_marketing"))
-        user.save(update_fields=["first_name", "last_name", "phone",
-                                 "accepts_marketing", "updated_at"])
-        messages.success(request, "Your details have been saved.")
-        return redirect("account_profile")
+        form = ProfileForm(request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your details have been saved.")
+            return redirect("account_profile")
+        return _render_account_profile(request, profile_form=form)
 
     return _render_account_profile(request)
 
 
-@login_required
 @require_POST
 def account_change_password(request):
+    if not request.user.is_authenticated:
+        # Login must return to the form, not GET this POST-only action.
+        return redirect_to_login(reverse("account_profile"))
     form = PasswordChangeForm(request.user, request.POST)
     if form.is_valid():
         user = form.save()
@@ -393,6 +397,10 @@ def auth_page(request, mode):
 
     errors: dict[str, str] = {}
     values: dict[str, str] = {}
+    registration_form = (
+        RegistrationForm(request.POST if request.method == "POST" else None)
+        if mode == "register" else None
+    )
 
     if request.method == "POST":
         values = {k: v.strip() for k, v in request.POST.items() if k != "password"}
@@ -408,42 +416,34 @@ def auth_page(request, mode):
                 merge_session_cart(request, user)      # keep the guest's bag
                 login(request, user)
                 messages.success(request, f"Welcome back, {user.first_name or 'there'}.")
-                return redirect(request.GET.get("next") or "account_overview")
+                next_url = request.GET.get("next", "").strip()
+                if (url_has_allowed_host_and_scheme(
+                    next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure(),
+                ) and urlsplit(next_url).path.startswith("/")):
+                    return redirect(next_url)
+                return redirect("account_overview")
 
-        elif mode == "register":
-            email = request.POST.get("email", "").strip().lower()
-            password = request.POST.get("password", "")
-            if not EMAIL_RE.match(email):
-                errors["email"] = "Enter a valid email address."
-            elif User.objects.filter(email=email).exists():
-                errors["email"] = "An account with this email already exists."
-            try:
-                validate_password(password)
-            except ValidationError as exc:
-                errors["password"] = " ".join(exc.messages)
-
-            if not errors:
-                user = User.objects.create_user(
-                    email=email, password=password,
-                    first_name=request.POST.get("first_name", "").strip(),
-                    last_name=request.POST.get("last_name", "").strip(),
-                    accepts_marketing=bool(request.POST.get("accepts_marketing")),
-                )
+        elif mode == "register" and registration_form is not None:
+            if registration_form.is_valid():
+                user = registration_form.save()
                 merge_session_cart(request, user)
                 login(request, user)
                 messages.success(request, "Your account is ready.")
                 return redirect("account_overview")
+            errors = {field: " ".join(field_errors)
+                      for field, field_errors in registration_form.errors.items()}
 
     return render(request, "frontend/account/auth.html", {
         "mode": mode, "heading": titles[mode], "errors": errors, "values": values,
+        "registration_form": registration_form,
         "meta_title": f"{titles[mode]} — {SITE['brand']}",
     })
 
 
+@require_POST
 def account_logout(request):
-    if request.method == "POST" or request.user.is_authenticated:
-        logout(request)
-        messages.success(request, "You have been signed out.")
+    logout(request)
+    messages.success(request, "You have been signed out.")
     return redirect("home")
 
 

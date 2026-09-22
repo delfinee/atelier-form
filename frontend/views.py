@@ -33,7 +33,7 @@ from payments.services import MockPaymentProvider
 from reviews.models import Review
 
 from . import services
-from .forms import RegistrationForm
+from .forms import ProfileForm, RegistrationForm
 from .mockdata.content import CARE_PAGE, PROCESS_STEPS, SHIPPING_PAGE, SITE, STORY_PAGE
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$")
@@ -294,14 +294,17 @@ def account_order_detail(request, order_id):
         raise Http404("Unknown order")
     return render(request, "frontend/account/order_detail.html", {
         "customer": request.user, "order": order,
+        "current_path": reverse("account_orders"),
         "meta_title": f"Order {order.order_number} — {SITE['brand']}",
     })
 
 
-def _render_account_profile(request, password_form=None):
+def _render_account_profile(request, password_form=None, profile_form=None):
     return render(request, "frontend/account/profile.html", {
         "customer": request.user, "meta_title": f"Profile — {SITE['brand']}",
         "current_path": reverse("account_profile"),
+        "profile_form": (profile_form if profile_form is not None
+                         else ProfileForm(user=request.user)),
         "password_form": (password_form if password_form is not None
                           else PasswordChangeForm(request.user)),
     })
@@ -310,15 +313,12 @@ def _render_account_profile(request, password_form=None):
 @login_required
 def account_profile(request):
     if request.method == "POST":
-        user = request.user
-        user.first_name = request.POST.get("first_name", user.first_name).strip()
-        user.last_name = request.POST.get("last_name", user.last_name).strip()
-        user.phone = request.POST.get("phone", user.phone).strip()
-        user.accepts_marketing = bool(request.POST.get("accepts_marketing"))
-        user.save(update_fields=["first_name", "last_name", "phone",
-                                 "accepts_marketing", "updated_at"])
-        messages.success(request, "Your details have been saved.")
-        return redirect("account_profile")
+        form = ProfileForm(request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your details have been saved.")
+            return redirect("account_profile")
+        return _render_account_profile(request, profile_form=form)
 
     return _render_account_profile(request)
 

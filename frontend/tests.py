@@ -4,10 +4,10 @@ import json
 import re
 import shutil
 import subprocess
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest import skipUnless
-from unittest.mock import patch
+from unittest.mock import PropertyMock, patch
 from urllib.parse import urlencode, urlsplit
 
 from django.conf import settings
@@ -19,8 +19,11 @@ from django.contrib.messages import get_messages
 from django.core import mail
 from django.test import Client, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
+from django.utils.html import escape
 
-from .forms import RegistrationForm
+from orders.models import Order
+
+from .forms import ProfileForm, RegistrationForm
 
 
 @override_settings(
@@ -758,3 +761,302 @@ class AccountPasswordResetTests(TestCase):
         self.assertContains(response, self.confirmation)
         self.assertNotContains(response, self.user.email)
         self.assert_password_unchanged()
+
+
+@override_settings(
+    LANGUAGE_CODE="en", SECURE_SSL_REDIRECT=False,
+    STORAGES={
+        **settings.STORAGES,
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    },
+)
+class AccountProfileEditingTests(TestCase):
+    password = "Original-studio-57!"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(
+            email="profile-edit@example.com", password=cls.password,
+            first_name="Alex", last_name="Potter", phone="12345678", accepts_marketing=True,
+        )
+
+    def setUp(self):
+        self.url = reverse("account_profile")
+        self.client.force_login(self.user)
+
+    def data(self, **overrides):
+        return {"first_name": "Sam", "last_name": "Clay", "phone": "+65 1234 5678",
+                "accepts_marketing": "on", **overrides}
+
+    def saved_data(self):
+        return get_user_model().objects.filter(pk=self.user.pk).values().get()
+
+    def assert_invalid(self, data, field, code):
+        before = self.saved_data()
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, 200)
+        form = response.context["profile_form"]
+        self.assertTrue(form.is_bound)
+        self.assertIn(code, [error.code for error in form.errors.as_data()[field]])
+        for error in form.errors[field]:
+            self.assertContains(response, escape(error))
+        error_id = {"first_name": "p-first-errors", "last_name": "p-last-errors",
+                    "phone": "p-phone-errors"}[field]
+        self.assertContains(response, f'aria-describedby="{error_id}"')
+        self.assertContains(response, f'id="{error_id}" role="alert"')
+        self.assertEqual(self.saved_data(), before)
+        self.assertEqual(response.context["customer"].first_name, before["first_name"])
+        self.assertEqual(response.context["customer"].last_name, before["last_name"])
+        self.assertFalse(response.context["password_form"].is_bound)
+        self.assertNotContains(response, "Your details have been saved.")
+        self.assertContains(response, f'href="{self.url}" aria-current="page"')
+        return response
+
+    def test_get_uses_saved_details_and_read_only_email(self):
+        response = self.client.get(self.url)
+        form = response.context["profile_form"]
+        self.assertIsInstance(form, ProfileForm)
+        self.assertFalse(form.is_bound)
+        self.assertNotIn("email", form.fields)
+        for field in ("first_name", "last_name", "phone", "accepts_marketing"):
+            self.assertEqual(form[field].value(), getattr(self.user, field))
+        self.assertContains(response, 'maxlength="80"', count=2)
+        self.assertContains(response, 'maxlength="32"')
+        self.assertContains(response, 'name="accepts_marketing" checked')
+        self.assertContains(response, f'id="p-email" type="email" value="{self.user.email}" disabled')
+        self.assertNotContains(response, 'name="email"')
+
+    def test_valid_update_trims_details_and_preserves_authentication(self):
+        response = self.client.post(self.url, self.data(
+            first_name="  Sam  ", last_name="  Clay  ", phone="  +65 1234 5678  ",
+        ), follow=True)
+        self.assertRedirects(response, self.url)
+        self.user.refresh_from_db()
+        self.assertEqual((self.user.first_name, self.user.last_name, self.user.phone),
+                         ("Sam", "Clay", "+65 1234 5678"))
+        self.assertTrue(self.user.accepts_marketing)
+        self.assertTrue(self.user.check_password(self.password))
+        self.assertEqual(self.client.session[SESSION_KEY], str(self.user.pk))
+        self.assertContains(response, "Your details have been saved.", count=1)
+        self.assertContains(response, 'value="Sam"')
+        self.assertFalse(response.context["profile_form"].is_bound)
+        self.assertNotContains(self.client.get(self.url), "Your details have been saved.")
+
+    def test_missing_empty_and_whitespace_names_are_rejected(self):
+        for field in ("first_name", "last_name"):
+            for value in (None, "", "   "):
+                with self.subTest(field=field, value=value):
+                    data = self.data(**{field: value})
+                    if value is None:
+                        data.pop(field)
+                    self.assert_invalid(data, field, "required")
+
+    def test_overlong_names_and_phone_are_rejected_without_saving(self):
+        for field, length in (("first_name", 81), ("last_name", 81), ("phone", 33)):
+            with self.subTest(field=field):
+                self.assert_invalid(self.data(**{field: "X" * length}), field, "max_length")
+
+    def test_exact_length_boundaries_are_allowed_after_trimming(self):
+        response = self.client.post(self.url, self.data(
+            first_name=" " + "A" * 80 + " ", last_name=" " + "B" * 80 + " ",
+            phone=" " + "1" * 32 + " ",
+        ))
+        self.assertRedirects(response, self.url)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, "A" * 80)
+        self.assertEqual(self.user.last_name, "B" * 80)
+        self.assertEqual(self.user.phone, "1" * 32)
+
+    def test_optional_phone_can_be_omitted_empty_or_whitespace(self):
+        for value in (None, "", "   "):
+            with self.subTest(value=value):
+                data = self.data(phone=value)
+                if value is None:
+                    data.pop("phone")
+                self.assertRedirects(self.client.post(self.url, data), self.url)
+                self.user.refresh_from_db()
+                self.assertEqual(self.user.phone, "")
+
+    def test_invalid_submission_retains_values_and_checkbox_state(self):
+        for checked in (False, True):
+            with self.subTest(checked=checked):
+                data = self.data(first_name="", last_name="  Sam & <Clay>  ", phone="  98765  ")
+                if not checked:
+                    data.pop("accepts_marketing")
+                response = self.assert_invalid(data, "first_name", "required")
+                self.assertContains(response, 'value="  Sam &amp; &lt;Clay&gt;  "')
+                self.assertContains(response, 'value="  98765  "')
+                self.assertNotContains(response, 'value="Alex"')
+                self.assertEqual(response.context["profile_form"]["first_name"].value(), "")
+                checkbox = re.search(r'<input[^>]*name="accepts_marketing"[^>]*>', response.content.decode()).group()
+                self.assertEqual("checked" in checkbox, checked)
+
+    def test_marketing_preference_can_be_unchecked_and_checked(self):
+        data = self.data()
+        data.pop("accepts_marketing")
+        self.assertRedirects(self.client.post(self.url, data), self.url)
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.accepts_marketing)
+        self.assertRedirects(self.client.post(self.url, self.data()), self.url)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.accepts_marketing)
+
+    def test_email_tampering_is_ignored(self):
+        get_user_model().objects.create_user(email="taken@example.com", password=self.password)
+        original_email = self.user.email
+        for email in ("new@example.com", "invalid", "taken@example.com"):
+            with self.subTest(email=email):
+                response = self.client.post(self.url, self.data(email=email), follow=True)
+                self.assertRedirects(response, self.url)
+                self.user.refresh_from_db()
+                self.assertEqual(self.user.email, original_email)
+                self.assertContains(response, f'value="{original_email}" disabled')
+
+    def test_get_and_post_require_login(self):
+        client = Client()
+        before = self.saved_data()
+        for response in (client.get(self.url), client.post(self.url, self.data())):
+            self.assertRedirects(response, f'{reverse("login")}?next={self.url}', fetch_redirect_response=False)
+        self.assertEqual(self.saved_data(), before)
+
+    def test_csrf_required_for_profile_update(self):
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.user)
+        before = self.saved_data()
+        self.assertEqual(client.post(self.url, self.data()).status_code, 403)
+        self.assertEqual(self.saved_data(), before)
+        page = client.get(self.url)
+        response = client.post(self.url, {
+            **self.data(), "csrfmiddlewaretoken": str(page.context["csrf_token"]),
+        })
+        self.assertRedirects(response, self.url)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, "Sam")
+
+    def test_profile_error_does_not_bind_or_change_password(self):
+        response = self.assert_invalid(self.data(
+            first_name="", old_password=self.password,
+            new_password1="Updated-pottery-92!", new_password2="Updated-pottery-92!",
+        ), "first_name", "required")
+        self.assertFalse(response.context["password_form"].is_bound)
+        self.assertNotContains(response, self.password)
+        self.assertNotContains(response, "Updated-pottery-92!")
+
+    def test_password_error_uses_unbound_profile_with_saved_preferences(self):
+        before = self.saved_data()
+        response = self.client.post(reverse("account_change_password"), {
+            "old_password": "Wrong-password-77!", "new_password1": "Updated-pottery-92!",
+            "new_password2": "Updated-pottery-92!", "first_name": "", "accepts_marketing": "",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.saved_data(), before)
+        self.assertFalse(response.context["profile_form"].is_bound)
+        self.assertFalse(response.context["profile_form"].errors)
+        self.assertContains(response, 'value="Alex"')
+        self.assertContains(response, 'name="accepts_marketing" checked')
+        self.assertContains(response, 'id="p-current-password-errors" role="alert"')
+
+
+@override_settings(
+    LANGUAGE_CODE="en", SECURE_SSL_REDIRECT=False, TIME_ZONE="UTC",
+    STORAGES={
+        **settings.STORAGES,
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    },
+)
+class AccountNavigationTests(TestCase):
+    password = "Original-studio-57!"
+    page_names = ("account_overview", "account_profile", "account_orders",
+                  "account_addresses", "account_wishlist")
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(
+            email="navigation@example.com", password=cls.password,
+            first_name="Alex", last_name="Potter",
+            date_joined=datetime(2024, 1, 2, 12, tzinfo=timezone.utc),
+        )
+
+    def setUp(self):
+        self.client.force_login(self.user)
+
+    def assert_active_section(self, response, name):
+        self.assertEqual(response.status_code, 200)
+        nav = re.search(r'<nav class="account-nav".*?</nav>', response.content.decode(), re.S).group()
+        self.assertEqual(nav.count('aria-current="page"'), 1)
+        self.assertIn(f'href="{reverse(name)}" aria-current="page"', nav)
+        for page in self.page_names:
+            self.assertIn(f'href="{reverse(page)}"', nav)
+
+    def test_account_links_and_active_sections(self):
+        for name in self.page_names:
+            with self.subTest(page=name):
+                self.assert_active_section(self.client.get(reverse(name) + "?page=1"), name)
+
+    def test_logged_out_navigation_returns_through_login(self):
+        for name in self.page_names:
+            with self.subTest(page=name):
+                client = Client()
+                url = reverse(name)
+                response = client.get(url)
+                self.assertRedirects(response, f'{reverse("login")}?next={url}', fetch_redirect_response=False)
+                response = client.post(response.url, {"email": self.user.email, "password": self.password}, follow=True)
+                self.assertRedirects(response, url)
+                self.assert_active_section(response, name)
+                self.assertContains(response, "Welcome back, Alex.", count=1)
+
+    def test_membership_date_uses_date_joined(self):
+        response = self.client.get(reverse("account_overview"))
+        self.assertContains(response, "A member since 2 January 2024.")
+        self.assertNotContains(response, "A member since .")
+
+    def make_order(self):
+        return Order.objects.create(order_number="NAV-0001", user=self.user,
+                                    customer_email=self.user.email)
+
+    def test_order_detail_keeps_orders_highlighted(self):
+        order = self.make_order()
+        # Isolate navigation from the explicitly deferred Windows strftime bug.
+        # These scoped test doubles do not change production order formatting.
+        with patch.object(Order, "date", new_callable=PropertyMock, return_value="2 January 2024"), \
+             patch.object(Order, "timeline", new_callable=PropertyMock, return_value=[]):
+            response = self.client.get(reverse("account_order_detail", args=[order.order_number]))
+        self.assert_active_section(response, "account_orders")
+        self.assertContains(response, order.order_number)
+        self.assertContains(response, "All orders")
+
+    def test_order_detail_still_rejects_other_users_orders(self):
+        other = get_user_model().objects.create_user(email="other@example.com", password=self.password)
+        order = self.make_order()
+        self.client.force_login(other)
+        self.assertEqual(self.client.get(reverse("account_order_detail", args=[order.order_number])).status_code, 404)
+
+    def test_messages_appear_once_on_each_account_page(self):
+        order = self.make_order()
+        paths = [reverse(name) for name in self.page_names]
+        paths.append(reverse("account_order_detail", args=[order.order_number]))
+        queued = ((messages.SUCCESS, "Account success.", "status"),
+                  (messages.INFO, "Account information.", "status"),
+                  (messages.ERROR, "Account error <example>.", "alert"))
+
+        def queue_messages(request, text):
+            for level, message, _ in queued:
+                messages.add_message(request, level, message)
+
+        # Order-containing pages need the same narrowly scoped date-display doubles.
+        with patch.object(Order, "date", new_callable=PropertyMock, return_value="2 January 2024"), \
+             patch.object(Order, "timeline", new_callable=PropertyMock, return_value=[]):
+            for path in paths:
+                with self.subTest(path=path):
+                    with patch("frontend.views.messages.success", side_effect=queue_messages):
+                        response = self.client.post(reverse("account_profile"), {
+                            "first_name": "Alex", "last_name": "Potter", "phone": "",
+                        })
+                    self.assertEqual(response.status_code, 302)
+                    response = self.client.get(path)
+                    for _, message, role in queued:
+                        self.assertContains(response, escape(message), count=1)
+                        self.assertContains(response, f'role="{role}">{escape(message)}</p>')
+                    next_page = self.client.get(reverse("account_profile"))
+                    for _, message, _ in queued:
+                        self.assertNotContains(next_page, escape(message))

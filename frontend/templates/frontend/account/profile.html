@@ -5,23 +5,36 @@
 {% block account_lede %}<p class="lede">{% translate "Your details and what we send you." %}</p>{% endblock %}
 
 {% block account_content %}
-{% if messages %}
-  {% for message in messages %}<p class="form-note" role="status">{{ message }}</p>{% endfor %}
-{% endif %}
-
 <form class="panel" method="post" action="{% url 'account_profile' %}" novalidate>
   {% csrf_token %}
   <div class="panel__head"><h3>{% translate "Your details" %}</h3></div>
+  {% for error in profile_form.non_field_errors %}
+    <p class="field-error" role="alert">{{ error }}</p>
+  {% endfor %}
   <div class="field-row">
     <div class="field">
       <label class="label" for="p-first">{% translate "First name" %}</label>
-      <input class="input" id="p-first" name="first_name" required
-             value="{{ customer.first_name }}" autocomplete="given-name">
+      <input class="input {% if profile_form.first_name.errors %}is-invalid{% endif %}" id="p-first" name="first_name" required
+             maxlength="{{ profile_form.fields.first_name.max_length }}"
+             {% if profile_form.first_name.errors %}aria-invalid="true" aria-describedby="p-first-errors"{% endif %}
+             value="{{ profile_form.first_name.value|default_if_none:'' }}" autocomplete="given-name">
+      {% if profile_form.first_name.errors %}
+        <div id="p-first-errors" role="alert">
+          {% for error in profile_form.first_name.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+        </div>
+      {% endif %}
     </div>
     <div class="field">
       <label class="label" for="p-last">{% translate "Last name" %}</label>
-      <input class="input" id="p-last" name="last_name" required
-             value="{{ customer.last_name }}" autocomplete="family-name">
+      <input class="input {% if profile_form.last_name.errors %}is-invalid{% endif %}" id="p-last" name="last_name" required
+             maxlength="{{ profile_form.fields.last_name.max_length }}"
+             {% if profile_form.last_name.errors %}aria-invalid="true" aria-describedby="p-last-errors"{% endif %}
+             value="{{ profile_form.last_name.value|default_if_none:'' }}" autocomplete="family-name">
+      {% if profile_form.last_name.errors %}
+        <div id="p-last-errors" role="alert">
+          {% for error in profile_form.last_name.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+        </div>
+      {% endif %}
     </div>
   </div>
   <div class="field">
@@ -33,11 +46,19 @@
   </div>
   <div class="field">
     <label class="label" for="p-phone">{% translate "Phone" %}</label>
-    <input class="input" id="p-phone" name="phone" type="tel" value="{{ customer.phone }}" autocomplete="tel">
+    <input class="input {% if profile_form.phone.errors %}is-invalid{% endif %}" id="p-phone" name="phone" type="tel"
+           maxlength="{{ profile_form.fields.phone.max_length }}"
+           {% if profile_form.phone.errors %}aria-invalid="true" aria-describedby="p-phone-errors"{% endif %}
+           value="{{ profile_form.phone.value|default_if_none:'' }}" autocomplete="tel">
+    {% if profile_form.phone.errors %}
+      <div id="p-phone-errors" role="alert">
+        {% for error in profile_form.phone.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+      </div>
+    {% endif %}
   </div>
   <div class="field">
     <label class="checkbox">
-      <input type="checkbox" name="accepts_marketing" {% if customer.accepts_marketing %}checked{% endif %}>
+      <input type="checkbox" name="accepts_marketing" {% if profile_form.accepts_marketing.value %}checked{% endif %}>
       {% translate "Studio notes — roughly monthly" %}
     </label>
   </div>

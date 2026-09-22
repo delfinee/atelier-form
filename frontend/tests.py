@@ -1,18 +1,311 @@
-"""Browser account profile, password-change and password-reset tests."""
+"""Browser account registration, login, profile and password tests."""
 
+import json
 import re
+import shutil
+import subprocess
 from datetime import timedelta
+from pathlib import Path
+from unittest import skipUnless
 from unittest.mock import patch
-from urllib.parse import urlsplit
+from urllib.parse import urlencode, urlsplit
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import HASH_SESSION_KEY, SESSION_KEY, get_user_model
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.messages import get_messages
 from django.core import mail
-from django.test import Client, TestCase, override_settings
+from django.test import Client, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
+
+from .forms import RegistrationForm
+
+
+@override_settings(
+    LANGUAGE_CODE="en", SECURE_SSL_REDIRECT=False,
+    STORAGES={
+        **settings.STORAGES,
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    },
+)
+class AccountRegistrationTests(TestCase):
+    def data(self, **overrides):
+        return {
+            "first_name": "Alex", "last_name": "Potter", "email": "alex@example.com",
+            "password": "Ceramic-violet-83!", **overrides,
+        }
+
+    def assert_invalid(self, data, field, code):
+        count = get_user_model().objects.count()
+        response = self.client.post(reverse("register"), data)
+        self.assertEqual(response.status_code, 200)
+        form = response.context["registration_form"]
+        self.assertIn(code, [error.code for error in form.errors.as_data()[field]])
+        self.assertContains(response, response.context["errors"][field])
+        error_id = {
+            "first_name": "au-first-errors", "last_name": "au-last-errors",
+            "email": "au-remail-errors", "password": "au-rpass-errors",
+        }[field]
+        self.assertContains(response, f'aria-describedby="{error_id}"')
+        self.assertContains(response, f'id="{error_id}" role="alert"')
+        self.assertEqual(get_user_model().objects.count(), count)
+        self.assertNotIn(SESSION_KEY, self.client.session)
+        self.assertNotContains(response, self.data()["password"])
+        return response
+
+    def test_valid_registration_normalizes_details_and_signs_in(self):
+        response = self.client.post(reverse("register"), self.data(
+            first_name="  Alex  ", last_name="  Potter  ", email="  ALEX@EXAMPLE.COM  ",
+            accepts_marketing="on",
+        ), follow=True)
+        self.assertRedirects(response, reverse("account_overview"))
+        user = get_user_model().objects.get(email="alex@example.com")
+        self.assertEqual((user.first_name, user.last_name), ("Alex", "Potter"))
+        self.assertTrue(user.accepts_marketing)
+        self.assertTrue(user.check_password(self.data()["password"]))
+        self.assertNotEqual(user.password, self.data()["password"])
+        self.assertEqual(self.client.session[SESSION_KEY], str(user.pk))
+        self.assertContains(response, "Your account is ready.", count=1)
+        self.assertNotContains(self.client.get(reverse("account_overview")), "Your account is ready.")
+        self.assertNotContains(self.client.get(reverse("account_profile")), "Your account is ready.")
+
+    def test_names_required_when_omitted_empty_or_whitespace(self):
+        for field in ("first_name", "last_name"):
+            for value in (None, "", "   "):
+                with self.subTest(field=field, value=value):
+                    data = self.data(**{field: value})
+                    if value is None:
+                        data.pop(field)
+                    self.assert_invalid(data, field, "required")
+
+    def test_name_length_limits_and_boundaries(self):
+        for field in ("first_name", "last_name"):
+            with self.subTest(field=field):
+                self.assert_invalid(self.data(**{field: "A" * 81}), field, "max_length")
+                form = RegistrationForm(self.data(**{field: " " + "A" * 80 + " "}))
+                self.assertTrue(form.is_valid(), form.errors)
+                self.assertEqual(len(getattr(form.save(), field)), 80)
+                get_user_model().objects.all().delete()
+
+    def test_email_required_and_validated_by_django(self):
+        for email, code in (("", "required"), ("not-an-email", "invalid"),
+                            ("alex@example..com", "invalid"),
+                            ("a" * 243 + "@example.com", "max_length")):
+            with self.subTest(email=email):
+                self.assert_invalid(self.data(email=email), "email", code)
+
+    def test_duplicate_email_is_case_and_whitespace_insensitive(self):
+        get_user_model().objects.create_user(email="alex@example.com", password="Existing-94!")
+        response = self.assert_invalid(self.data(email=" ALEX@EXAMPLE.COM "), "email", "duplicate")
+        self.assertContains(response, "An account with this email already exists.")
+
+    def test_required_password_and_all_configured_validators(self):
+        for password, code in (
+            ("", "required"), ("Ab9!", "password_too_short"),
+            ("password", "password_too_common"), ("839261740582", "password_entirely_numeric"),
+            ("alex@example.com", "password_too_similar"),
+            ("Alexanderson", "password_too_similar"), ("Potterington", "password_too_similar"),
+        ):
+            with self.subTest(code=code, password=password):
+                self.assert_invalid(self.data(
+                    password=password, first_name="Alexanderson", last_name="Potterington",
+                ), "password", code)
+
+    def test_password_whitespace_is_preserved(self):
+        password = " K9!zQ2 "  # Eight characters; trimming would change it and make it too short.
+        response = self.client.post(reverse("register"), self.data(password=password))
+        self.assertRedirects(response, reverse("account_overview"))
+        user = get_user_model().objects.get()
+        self.assertTrue(user.check_password(password))
+        self.assertFalse(user.check_password(password.strip()))
+
+    def test_invalid_form_preserves_nonsecret_fields(self):
+        response = self.assert_invalid(self.data(first_name="  Alex  ", password="short"),
+                                       "password", "password_too_short")
+        self.assertContains(response, 'value="Alex"')
+        self.assertContains(response, 'value="Potter"')
+        self.assertContains(response, 'value="alex@example.com"')
+        self.assertNotContains(response, 'value="short"')
+
+    def test_registration_fields_keep_single_password_and_length_limits(self):
+        response = self.client.get(reverse("register"))
+        self.assertContains(response, 'type="password"', count=1)
+        self.assertContains(response, 'maxlength="80"', count=2)
+        self.assertContains(response, 'maxlength="254"')
+        self.assertContains(response, 'autocomplete="new-password"')
+
+    def test_registration_csrf_is_enforced(self):
+        client = Client(enforce_csrf_checks=True)
+        self.assertEqual(client.post(reverse("register"), self.data()).status_code, 403)
+        self.assertFalse(get_user_model().objects.exists())
+        page = client.get(reverse("register"))
+        response = client.post(reverse("register"), {
+            **self.data(), "csrfmiddlewaretoken": str(page.context["csrf_token"]),
+        })
+        self.assertRedirects(response, reverse("account_overview"))
+
+
+@override_settings(
+    LANGUAGE_CODE="en", SECURE_SSL_REDIRECT=False,
+    STORAGES={
+        **settings.STORAGES,
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    },
+)
+class AccountLoginLogoutTests(TestCase):
+    password = "Original-studio-57!"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(
+            email="login@example.com", password=cls.password, first_name="Alex",
+        )
+
+    def login_data(self, **overrides):
+        return {"email": self.user.email, "password": self.password, **overrides}
+
+    def test_success_signs_in_and_shows_message_once(self):
+        response = self.client.post(reverse("login"), self.login_data(email=" LOGIN@EXAMPLE.COM "), follow=True)
+        self.assertRedirects(response, reverse("account_overview"))
+        self.assertEqual(self.client.session[SESSION_KEY], str(self.user.pk))
+        self.assertContains(response, "Welcome back, Alex.", count=1)
+        self.assertNotContains(self.client.get(reverse("account_overview")), "Welcome back, Alex.")
+
+    def test_wrong_unknown_and_inactive_accounts_have_same_error(self):
+        get_user_model().objects.create_user(email="inactive@example.com", password=self.password, is_active=False)
+        for data in (self.login_data(password="Wrong-88!"), self.login_data(email="unknown@example.com"),
+                     self.login_data(email="inactive@example.com")):
+            with self.subTest(email=data["email"]):
+                response = self.client.post(reverse("login"), data)
+                self.assertContains(response, "Invalid email or password.")
+                self.assertNotIn(SESSION_KEY, self.client.session)
+
+    def test_valid_short_and_whitespace_passwords_are_accepted(self):
+        for password in ("old", " K9!zQ2 "):
+            with self.subTest(password=password):
+                self.user.set_password(password)
+                self.user.save()
+                client = Client()
+                response = client.post(reverse("login"), self.login_data(password=password))
+                self.assertRedirects(response, reverse("account_overview"))
+                self.assertEqual(client.session[SESSION_KEY], str(self.user.pk))
+
+    def test_safe_internal_next_is_followed(self):
+        for destination in ("/account/orders/", "/account/orders/?page=2", "http://testserver/account/orders/"):
+            with self.subTest(destination=destination):
+                response = Client().post(reverse("login") + "?" + urlencode({"next": destination}), self.login_data())
+                self.assertRedirects(response, destination, fetch_redirect_response=False)
+
+    def test_unsafe_or_malformed_next_falls_back_to_account(self):
+        for destination in (
+            "https://example.invalid/phish", "//example.invalid/phish", "///example.invalid/phish",
+            "/\\example.invalid/phish", "javascript:alert(1)", "http:///example.invalid",
+            "https://testserver@example.invalid/", "http://[broken", "not-a-route", "", "   ",
+        ):
+            with self.subTest(destination=destination):
+                response = Client().post(reverse("login") + "?" + urlencode({"next": destination}), self.login_data())
+                self.assertRedirects(response, reverse("account_overview"))
+
+    def test_https_next_cannot_downgrade_to_http(self):
+        for destination, expected in (("http://testserver/account/orders/", reverse("account_overview")),
+                                      ("https://testserver/account/orders/", "https://testserver/account/orders/")):
+            with self.subTest(destination=destination):
+                response = Client().post(reverse("login") + "?" + urlencode({"next": destination}),
+                                         self.login_data(), secure=True)
+                self.assertRedirects(response, expected, fetch_redirect_response=False)
+
+    def test_authenticated_auth_pages_still_redirect_to_account(self):
+        self.client.force_login(self.user)
+        for name in ("login", "register"):
+            self.assertRedirects(self.client.get(reverse(name)), reverse("account_overview"))
+
+    def test_overview_displays_queued_error_messages(self):
+        def queue_error(request, text):
+            messages.error(request, "Account test error.")
+
+        with patch("frontend.views.messages.success", side_effect=queue_error):
+            response = self.client.post(reverse("login"), self.login_data(), follow=True)
+        self.assertContains(response, 'role="alert">Account test error.</p>', count=1)
+        self.assertNotContains(self.client.get(reverse("account_overview")), "Account test error.")
+
+    def test_login_copy_does_not_promise_indefinite_sessions(self):
+        response = self.client.get(reverse("login"))
+        self.assertNotContains(response, "Sessions last until you sign out.")
+        self.assertContains(response, "For your privacy, sign out on shared devices.")
+
+    def test_login_csrf_is_enforced(self):
+        client = Client(enforce_csrf_checks=True)
+        self.assertEqual(client.post(reverse("login"), self.login_data()).status_code, 403)
+        self.assertNotIn(SESSION_KEY, client.session)
+        page = client.get(reverse("login"))
+        response = client.post(reverse("login"), {
+            **self.login_data(), "csrfmiddlewaretoken": str(page.context["csrf_token"]),
+        })
+        self.assertRedirects(response, reverse("account_overview"))
+
+    def test_logout_rejects_get_and_head_without_clearing_session(self):
+        self.client.force_login(self.user)
+        for method in (self.client.get, self.client.head):
+            response = method(reverse("logout"))
+            self.assertEqual(response.status_code, 405)
+            self.assertEqual(response.headers["Allow"], "POST")
+            self.assertEqual(self.client.session[SESSION_KEY], str(self.user.pk))
+        self.assertEqual(Client().get(reverse("logout")).status_code, 405)
+
+    def test_logout_requires_csrf_and_post_clears_session(self):
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.user)
+        self.assertEqual(client.post(reverse("logout")).status_code, 403)
+        self.assertEqual(client.session[SESSION_KEY], str(self.user.pk))
+        page = client.get(reverse("account_overview"))
+        response = client.post(reverse("logout"), {"csrfmiddlewaretoken": str(page.context["csrf_token"])})
+        self.assertRedirects(response, reverse("home"), fetch_redirect_response=False)
+        self.assertNotIn(SESSION_KEY, client.session)
+
+
+@skipUnless(shutil.which("node"), "Node.js is needed to execute browser validation regression checks.")
+class AccountClientValidationTests(SimpleTestCase):
+    def test_account_validation_uses_exact_password_and_only_checks_new_password_strength(self):
+        # Execute the production validator; minimal DOM doubles record its visible errors.
+        script_path = Path(__file__).parent / "static" / "frontend" / "js" / "site.js"
+        script = r'''
+const fs = require("fs"), vm = require("vm"), assert = require("node:assert/strict");
+const source = fs.readFileSync(SCRIPT_PATH, "utf8");
+const start = source.indexOf("  function validateForm(form)");
+const end = source.indexOf("\n  function initForms()", start);
+assert.ok(start >= 0 && end > start);
+const context = {
+  $$: (_selector, form) => form.inputs,
+  fieldError: (input, message) => { input.error = message; },
+};
+vm.createContext(context);
+vm.runInContext(source.split("\n").find(line => line.includes("const EMAIL =")) +
+                "\n" + source.slice(start, end), context);
+for (const [label, type, autocomplete, value, maxLength, expected] of [
+  ["short existing password", "password", "current-password", "old", -1, true],
+  ["spaces in existing password", "password", "current-password", "   ", -1, true],
+  ["empty login password", "password", "current-password", "", -1, false],
+  ["short new password", "password", "new-password", "short", -1, false],
+  ["new password with outer spaces", "password", "new-password", " K9!zQ2 ", -1, true],
+  ["empty first name", "text", "given-name", "", 80, false],
+  ["whitespace last name", "text", "family-name", "   ", 80, false],
+  ["trimmed name at limit", "text", "given-name", " " + "A".repeat(80) + " ", 80, true],
+  ["overlong name", "text", "family-name", "A".repeat(81), 80, false],
+  ["malformed email", "email", "email", "not-an-email", 254, false],
+  ["normal email", "email", "email", "user@example.com", 254, true],
+]) {
+  const input = { type, autocomplete, value, maxLength, focus() { this.focused = true; } };
+  assert.equal(context.validateForm({ inputs: [input] }), expected, label);
+  assert.equal(input.value, value, label + " must not mutate input");
+  assert.equal(Boolean(input.error), !expected, label + " error feedback");
+  assert.equal(Boolean(input.focused), !expected, label + " focus");
+}
+'''.replace("SCRIPT_PATH", json.dumps(str(script_path)))
+        result = subprocess.run([shutil.which("node"), "-"], input=script, text=True,
+                                capture_output=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 @override_settings(

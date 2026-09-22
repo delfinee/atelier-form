@@ -10,21 +10,21 @@ from __future__ import annotations
 
 import json
 import re
+from urllib.parse import urlsplit
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from accounts.models import Address, User, WishlistItem
+from accounts.models import Address, WishlistItem
 from content.models import FAQGroup, NewsletterSubscriber
 from orders.models import Order, OrderItem
 from orders.services import get_cart, merge_session_cart
@@ -33,6 +33,7 @@ from payments.services import MockPaymentProvider
 from reviews.models import Review
 
 from . import services
+from .forms import RegistrationForm
 from .mockdata.content import CARE_PAGE, PROCESS_STEPS, SHIPPING_PAGE, SITE, STORY_PAGE
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$")
@@ -393,6 +394,10 @@ def auth_page(request, mode):
 
     errors: dict[str, str] = {}
     values: dict[str, str] = {}
+    registration_form = (
+        RegistrationForm(request.POST if request.method == "POST" else None)
+        if mode == "register" else None
+    )
 
     if request.method == "POST":
         values = {k: v.strip() for k, v in request.POST.items() if k != "password"}
@@ -408,42 +413,34 @@ def auth_page(request, mode):
                 merge_session_cart(request, user)      # keep the guest's bag
                 login(request, user)
                 messages.success(request, f"Welcome back, {user.first_name or 'there'}.")
-                return redirect(request.GET.get("next") or "account_overview")
+                next_url = request.GET.get("next", "").strip()
+                if (url_has_allowed_host_and_scheme(
+                    next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure(),
+                ) and urlsplit(next_url).path.startswith("/")):
+                    return redirect(next_url)
+                return redirect("account_overview")
 
-        elif mode == "register":
-            email = request.POST.get("email", "").strip().lower()
-            password = request.POST.get("password", "")
-            if not EMAIL_RE.match(email):
-                errors["email"] = "Enter a valid email address."
-            elif User.objects.filter(email=email).exists():
-                errors["email"] = "An account with this email already exists."
-            try:
-                validate_password(password)
-            except ValidationError as exc:
-                errors["password"] = " ".join(exc.messages)
-
-            if not errors:
-                user = User.objects.create_user(
-                    email=email, password=password,
-                    first_name=request.POST.get("first_name", "").strip(),
-                    last_name=request.POST.get("last_name", "").strip(),
-                    accepts_marketing=bool(request.POST.get("accepts_marketing")),
-                )
+        elif mode == "register" and registration_form is not None:
+            if registration_form.is_valid():
+                user = registration_form.save()
                 merge_session_cart(request, user)
                 login(request, user)
                 messages.success(request, "Your account is ready.")
                 return redirect("account_overview")
+            errors = {field: " ".join(field_errors)
+                      for field, field_errors in registration_form.errors.items()}
 
     return render(request, "frontend/account/auth.html", {
         "mode": mode, "heading": titles[mode], "errors": errors, "values": values,
+        "registration_form": registration_form,
         "meta_title": f"{titles[mode]} — {SITE['brand']}",
     })
 
 
+@require_POST
 def account_logout(request):
-    if request.method == "POST" or request.user.is_authenticated:
-        logout(request)
-        messages.success(request, "You have been signed out.")
+    logout(request)
+    messages.success(request, "You have been signed out.")
     return redirect("home")
 
 

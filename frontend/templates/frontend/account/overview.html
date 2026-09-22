@@ -5,6 +5,10 @@
 {% block account_lede %}<p class="lede">A member since {{ customer.joined }}.</p>{% endblock %}
 
 {% block account_content %}
+{% for message in messages %}
+  <p class="{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}field-error{% else %}form-note{% endif %}"
+     role="{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}alert{% else %}status{% endif %}">{{ message }}</p>
+{% endfor %}
 <div class="grid grid--3" style="margin-bottom:var(--gap)">
   <div class="panel">
     <span class="stat__value">{{ order_count }}</span>

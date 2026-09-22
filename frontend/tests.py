@@ -16,6 +16,7 @@ from django.contrib.auth import HASH_SESSION_KEY, SESSION_KEY, get_user_model
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.messages import get_messages
+from django.contrib.sessions.models import Session
 from django.core import mail
 from django.test import Client, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
@@ -268,6 +269,49 @@ class AccountLoginLogoutTests(TestCase):
         self.assertNotIn(SESSION_KEY, client.session)
 
 
+    def test_logout_feedback_is_consumed_on_home_before_next_login(self):
+        self.client.force_login(self.user)
+        response = self.client.post(reverse("logout"), follow=True)
+        self.assertRedirects(response, reverse("home"))
+        self.assertContains(response, 'role="status">You have been signed out.</p>', count=1)
+        self.assertNotIn(SESSION_KEY, self.client.session)
+        self.assertNotContains(self.client.get(reverse("home")), "You have been signed out.")
+        response = self.client.post(reverse("login"), self.login_data(), follow=True)
+        self.assertContains(response, "Welcome back, Alex.", count=1)
+        self.assertNotContains(response, "You have been signed out.")
+        self.assertNotContains(self.client.get(reverse("account_profile")), "You have been signed out.")
+
+    def test_login_feedback_is_consumed_on_shop_before_profile(self):
+        response = self.client.post(
+            reverse("login") + "?" + urlencode({"next": reverse("shop")}),
+            self.login_data(), follow=True,
+        )
+        self.assertRedirects(response, reverse("shop"))
+        self.assertContains(response, 'role="status">Welcome back, Alex.</p>', count=1)
+        self.assertNotContains(self.client.get(reverse("shop")), "Welcome back, Alex.")
+        self.assertNotContains(self.client.get(reverse("account_profile")), "Welcome back, Alex.")
+
+    def test_storefront_info_and_error_messages_keep_accessible_semantics(self):
+        def queue_messages(request, text):
+            messages.info(request, "Storefront information.")
+            messages.error(request, "Storefront error <example>.")
+
+        for name in ("home", "shop"):
+            with self.subTest(page=name):
+                client = Client()
+                with patch("frontend.views.messages.success", side_effect=queue_messages):
+                    response = client.post(
+                        reverse("login") + "?" + urlencode({"next": reverse(name)}),
+                        self.login_data(), follow=True,
+                    )
+                self.assertRedirects(response, reverse(name))
+                self.assertContains(response, 'role="status">Storefront information.</p>', count=1)
+                self.assertContains(response, 'role="alert">Storefront error &lt;example&gt;.</p>', count=1)
+                later = client.get(reverse("account_profile"))
+                self.assertNotContains(later, "Storefront information.")
+                self.assertNotContains(later, "Storefront error")
+
+
 @skipUnless(shutil.which("node"), "Node.js is needed to execute browser validation regression checks.")
 class AccountClientValidationTests(SimpleTestCase):
     def test_account_validation_uses_exact_password_and_only_checks_new_password_strength(self):
@@ -480,14 +524,50 @@ class AccountPasswordChangeTests(TestCase):
         self.client.logout()
         response = self.client.post(self.password_url, self.password_data())
         self.assertRedirects(
-            response, f'{reverse("login")}?next={self.password_url}', fetch_redirect_response=False,
+            response, f'{reverse("login")}?next={self.profile_url}', fetch_redirect_response=False,
         )
+        self.assert_password_unchanged()
+        response = self.client.post(response.url, {
+            "email": self.user.email, "password": self.old_password,
+        }, follow=True)
+        self.assertRedirects(response, self.profile_url)
+        self.assertFalse(response.context["password_form"].is_bound)
         self.assert_password_unchanged()
 
     def test_password_change_requires_post(self):
-        response = self.client.get(self.password_url)
-        self.assertEqual(response.status_code, 405)
-        self.assertEqual(response.headers["Allow"], "POST")
+        for client in (self.client, Client()):
+            for method in (client.get, client.head):
+                response = method(self.password_url)
+                self.assertEqual(response.status_code, 405)
+                self.assertEqual(response.headers["Allow"], "POST")
+        self.assert_password_unchanged()
+
+    def test_expired_session_password_submission_returns_to_profile_after_login(self):
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.user)
+        page = client.get(self.profile_url)
+        # Expire the server-side session while the browser still holds the password form.
+        Session.objects.filter(session_key=client.session.session_key).update(
+            expire_date=datetime.now(timezone.utc) - timedelta(seconds=1),
+        )
+        response = client.post(self.password_url, {
+            **self.password_data(), "csrfmiddlewaretoken": str(page.context["csrf_token"]),
+        })
+        self.assertRedirects(
+            response, f'{reverse("login")}?next={self.profile_url}', fetch_redirect_response=False,
+        )
+        self.assertNotIn(SESSION_KEY, client.session)
+        self.assert_password_unchanged()
+        login_page = client.get(response.url)
+        response = client.post(response.url, {
+            "email": self.user.email, "password": self.old_password,
+            "csrfmiddlewaretoken": str(login_page.context["csrf_token"]),
+        }, follow=True)
+        self.assertRedirects(response, self.profile_url)
+        self.assertEqual(client.session[SESSION_KEY], str(self.user.pk))
+        self.assertFalse(response.context["password_form"].is_bound)
+        self.assertNotContains(response, "Your password has been changed.")
+        self.assertNotContains(response, self.new_password)
         self.assert_password_unchanged()
 
     def test_password_change_enforces_csrf(self):

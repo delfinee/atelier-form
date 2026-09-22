@@ -15,10 +15,6 @@
     {% include "frontend/partials/account_nav.html" %}
   </aside>
   <div>
-    {% for message in messages %}
-      <p class="{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}field-error{% else %}form-note{% endif %}"
-         role="{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}alert{% else %}status{% endif %}">{{ message }}</p>
-    {% endfor %}
     {% block account_content %}{% endblock %}
   </div>
 </div>

@@ -16,6 +16,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -323,9 +324,11 @@ def account_profile(request):
     return _render_account_profile(request)
 
 
-@login_required
 @require_POST
 def account_change_password(request):
+    if not request.user.is_authenticated:
+        # Login must return to the form, not GET this POST-only action.
+        return redirect_to_login(reverse("account_profile"))
     form = PasswordChangeForm(request.user, request.POST)
     if form.is_valid():
         user = form.save()

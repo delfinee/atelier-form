@@ -19,6 +19,10 @@ from typing import Any, Iterable, cast
 from django.db.models import Case, IntegerField, Q, When
 
 from content.models import Article, ArticleQuerySet
+from .catalogue_i18n import (
+    COLOUR_TRANSLATIONS, MATERIAL_TRANSLATIONS, is_chinese,
+    localize_article, localize_collection, localize_maker, localize_product,
+)
 from products.models import (
     MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product,
     ProductQuerySet, ProductVariant,
@@ -54,6 +58,29 @@ _SORT_FIELDS = {
 }
 
 
+def localized_sort_options() -> list[tuple[str, str]]:
+    labels = {
+        "Featured": "精选", "Newest": "最新上架",
+        "Price: Low to High": "价格：从低到高",
+        "Price: High to Low": "价格：从高到低",
+    }
+    return [(value, labels.get(label, label) if is_chinese() else label)
+            for value, label in SORT_OPTIONS]
+
+
+def _price_label(label: str) -> str:
+    if not is_chinese():
+        return label
+    return {"Under ¥40": "低于 ¥40", "Over ¥100": "高于 ¥100"}.get(label, label)
+
+
+def _availability_label(label: str) -> str:
+    if not is_chinese():
+        return label
+    return {"In stock": "现货供应", "Low stock": "库存紧张",
+            "Made to order": "订制生产"}.get(label, label)
+
+
 def _base_queryset():
     manager = cast(ProductQuerySet, Product.objects)
     return manager.active().with_related()
@@ -75,8 +102,9 @@ def featured_products(limit: int | None = None) -> list[Product]:
 
 
 def new_arrivals(limit: int = 8) -> list[Product]:
-    return list(_base_queryset().filter(is_new_arrival=True)
-                .order_by("-sort_weight", "-created_at")[:limit])
+    products = list(_base_queryset().filter(is_new_arrival=True)
+                    .order_by("-sort_weight", "-created_at")[:limit])
+    return [localize_product(product) for product in products]
 
 
 def products_by_maker(maker_slug: str) -> list[Product]:
@@ -146,7 +174,8 @@ def filter_products(
             clause |= Q(price__gte=Decimal(low), price__lte=Decimal(high))
         queryset = queryset.filter(clause)
 
-    return list(queryset.distinct().order_by(*_SORT_FIELDS.get(sort, _SORT_FIELDS["featured"])))
+    products = list(queryset.distinct().order_by(*_SORT_FIELDS.get(sort, _SORT_FIELDS["featured"])))
+    return [localize_product(product) for product in products]
 
 
 def sort_products(items: list[Product], sort: str) -> list[Product]:
@@ -177,7 +206,10 @@ def shop_facets() -> dict[str, Any]:
             clause |= Q(search_blob__icontains=alias)
         count = _base_queryset().filter(clause).count()
         if count:
-            material_rows.append({"value": family, "label": family, "count": count})
+            material_rows.append({"value": family,
+                                  "label": MATERIAL_TRANSLATIONS.get(family, family)
+                                  if is_chinese() else family,
+                                  "count": count})
 
     colour_rows = (ProductVariant.objects
                    .filter(group="colour", is_active=True, product__is_active=True)
@@ -186,13 +218,18 @@ def shop_facets() -> dict[str, Any]:
     price_max = _base_queryset().order_by("-price").values_list("price", flat=True).first()
 
     return {
-        "categories": [{"value": c.slug, "label": c.name, "count": getattr(c, "count", 0)}
+        "categories": [{"value": c.slug, "label": localize_collection(c).name,
+                "count": getattr(c, "count", 0)}
                    for c in category_rows],
         "materials": material_rows,
-        "colours": [{"value": r["label"], "label": r["label"], "swatch": r["swatch"]}
+        "colours": [{"value": r["label"],
+                 "label": COLOUR_TRANSLATIONS.get(r["label"], r["label"])
+                 if is_chinese() else r["label"], "swatch": r["swatch"]}
                     for r in colour_rows],
-        "price_bands": [{"value": v, "label": lbl} for v, lbl, _, _ in PRICE_BANDS],
-        "availability": [{"value": v, "label": lbl} for v, lbl in AVAILABILITY_OPTIONS],
+        "price_bands": [{"value": v, "label": _price_label(lbl)}
+                for v, lbl, _, _ in PRICE_BANDS],
+        "availability": [{"value": v, "label": _availability_label(lbl)}
+                  for v, lbl in AVAILABILITY_OPTIONS],
         "price_max": price_max or 0,
     }
 
@@ -201,17 +238,20 @@ def shop_facets() -> dict[str, Any]:
 
 def all_collections() -> list:
     """Categories and editorial collections together, as the index page shows."""
-    return list(Category.objects.filter(is_active=True)) + \
+    collections = list(Category.objects.filter(is_active=True)) + \
         list(Collection.objects.filter(is_active=True))
+    return [localize_collection(collection) for collection in collections]
 
 
 def categories() -> list[Category]:
-    return list(Category.objects.filter(is_active=True))
+        return [localize_collection(category)
+            for category in Category.objects.filter(is_active=True)]
 
 
 def get_collection(slug: str):
-    return (Collection.objects.filter(slug=slug, is_active=True).first()
-            or Category.objects.filter(slug=slug, is_active=True).first())
+    collection = (Collection.objects.filter(slug=slug, is_active=True).first()
+                  or Category.objects.filter(slug=slug, is_active=True).first())
+    return localize_collection(collection) if collection else None
 
 
 def products_in_collection(slug: str, sort: str = "featured") -> list[Product]:
@@ -232,17 +272,18 @@ def get_maker(slug: str) -> Maker | None:
 
 def all_articles() -> list[Article]:
     manager = cast(ArticleQuerySet, Article.objects)
-    return list(manager.published())
+    return [localize_article(article) for article in manager.published()]
 
 
 def get_article(slug: str) -> Article | None:
     manager = cast(ArticleQuerySet, Article.objects)
-    return manager.published().filter(slug=slug).first()
+    article = manager.published().filter(slug=slug).first()
+    return localize_article(article) if article else None
 
 
 def related_articles(article: Article, limit: int = 2) -> list[Article]:
     manager = cast(ArticleQuerySet, Article.objects)
-    return list(manager.published().exclude(pk=article.pk)[:limit])
+    return [localize_article(item) for item in manager.published().exclude(pk=article.pk)[:limit]]
 
 
 # -- Search --------------------------------------------------------------

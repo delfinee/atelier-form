@@ -338,11 +338,18 @@
     const body = $("[data-drawer-body]");
     if (!body) return;
     const items = cartItems();
+    const drawer = $("#cart-drawer");
+    const emptyTitle = drawer?.dataset.emptyTitle || "Your bag is empty";
+    const emptyNote = drawer?.dataset.emptyNote || "Nothing in here yet. The shop is a good place to start.";
+    const browseShop = drawer?.dataset.browseShop || "Browse the shop";
 
     if (!items.length) {
       body.innerHTML = `<div class="empty-state"><h3>Your bag is empty</h3>
         <p class="muted">Nothing in here yet. The shop is a good place to start.</p>
         <a class="btn btn--outline" href="/shop/" style="margin-top:1.2rem">Browse the shop</a></div>`;
+      body.innerHTML = `<div class="empty-state"><h3>${emptyTitle}</h3>
+        <p class="muted">${emptyNote}</p>
+        <a class="btn btn--outline" href="/shop/" style="margin-top:1.2rem">${browseShop}</a></div>`;
     } else {
       body.innerHTML = items.map(lineItemHTML).join("");
       bindLineControls(body);

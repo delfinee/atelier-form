@@ -12,7 +12,7 @@
   <div class="auth-panel">
     <div class="auth-panel__inner">
       <p class="eyebrow">{{ site.brand }}</p>
-      <h1 style="font-size:var(--step-3)">{{ heading }}</h1>
+      <h1 style="font-size:var(--step-3)">{% if mode == "login" %}{% translate "Sign in" %}{% else %}{% translate "Create an account" %}{% endif %}</h1>
 
       {% if errors.form %}
         <p class="field-error" role="alert" style="margin-top:1rem">{{ errors.form }}</p>

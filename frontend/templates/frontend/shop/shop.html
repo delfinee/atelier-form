@@ -18,9 +18,9 @@
     <div class="shop-toolbar">
       <div style="display:flex;align-items:center;gap:0.8rem">
         <button class="btn btn--quiet btn--sm filter-trigger" type="button" data-filter-open>
-          {% icon "filter" 16 %} Filters{% if active_filter_count %} ({{ active_filter_count }}){% endif %}
+          {% icon "filter" 16 %} {% translate "Filters" %}{% if active_filter_count %} ({{ active_filter_count }}){% endif %}
         </button>
-        <span class="count">{{ products|length }} piece{{ products|length|pluralize }}</span>
+        <span class="count">{% blocktranslate count n=products|length %}{{ n }} piece{% plural %}{{ n }} pieces{% endblocktranslate %}</span>
       </div>
       {% include "frontend/partials/sort.html" %}
     </div>

@@ -15,7 +15,7 @@ which is why every product carries at least two images in the catalogue.{% endco
     </div>
 
     <button class="card__wish" type="button" data-wish-toggle data-slug="{{ product.slug }}"
-            aria-pressed="false" aria-label="Save {{ product.name }} to wishlist">
+            aria-pressed="false" aria-label="{% blocktranslate with name=product.name %}Save {{ name }} to wishlist{% endblocktranslate %}">
       {% icon "heart" 18 %}
     </button>
 
@@ -30,7 +30,7 @@ which is why every product carries at least two images in the catalogue.{% endco
   <div class="card__price">{{ product.price|money }}</div>
   {% with colours=product.variants|colour_variants %}
     {% if colours %}
-      <div class="card__swatches" aria-label="{{ colours|length }} colours available">
+      <div class="card__swatches" aria-label="{% blocktranslate count n=colours|length %}{{ n }} colour available{% plural %}{{ n }} colours available{% endblocktranslate %}">
         {% for v in colours %}<span class="swatch" style="background:{{ v.swatch }}" title="{{ v.label }}"></span>{% endfor %}
       </div>
     {% endif %}

@@ -56,7 +56,7 @@ msgstr "品牌故事"
 #: frontend/templates/frontend/partials/mobile_nav.html:12
 #: frontend/templates/frontend/search/results.html:82
 msgid "Journal"
-msgstr "日志"
+msgstr "日记"
 
 #: frontend/mockdata/content.py:40
 msgid "New Arrivals"
@@ -95,7 +95,7 @@ msgstr "匠人"
 
 #: frontend/mockdata/content.py:51
 msgid "Materials"
-msgstr "材质。"
+msgstr "材质"
 
 #: frontend/mockdata/content.py:54
 msgid "Help"
@@ -129,6 +129,42 @@ msgstr "常见问题"
 #: frontend/mockdata/content.py:60
 msgid "Image Credits"
 msgstr "图片来源"
+
+msgid "read"
+msgstr "阅读"
+
+msgid "Written by %(author)s"
+msgstr "撰文：%(author)s"
+
+msgid "The photography on this prototype is openly licensed work found through"
+msgstr "本原型中的摄影图片均通过以下平台获取并采用开放许可："
+
+msgid "It stands in"
+msgstr "这些图片暂代"
+
+msgid "for studio photography that has not been commissioned yet, and it is credited here because most of these licences require it."
+msgstr "尚未委托拍摄的工作室照片，并因多数许可协议要求而在此列出来源。"
+
+msgid "Creative Commons"
+msgstr "知识共享"
+
+msgid "Each of these is used under a licence permitting commercial use and modification. Images have been cropped and resized to fit the layout."
+msgstr "这些图片均依据允许商业使用与修改的许可协议使用，并已裁剪和调整尺寸以适应页面布局。"
+
+msgid "Public domain"
+msgstr "公有领域"
+
+msgid "Used under CC0 or a public domain mark. No attribution is required; it is given anyway."
+msgstr "依据 CC0 或公有领域标记使用。虽然无需署名，我们仍在此注明来源。"
+
+msgid "No photography has been fetched yet — every image on the site is still a generated placeholder. Run"
+msgstr "尚未获取摄影图片——网站上的所有图片仍是生成的占位图。请运行"
+
+msgid "to populate them."
+msgstr "以填充图片。"
+
+msgid "Generated illustrations remain in place wherever no photograph could be found."
+msgstr "在找不到摄影图片的地方，将继续使用生成的插图。"
 
 #: frontend/mockdata/content.py:65
 msgid "Designed"
@@ -667,6 +703,10 @@ msgstr "密码"
 msgid "Sessions last until you sign out."
 msgstr "登录状态将保持至您退出为止。"
 
+#: frontend/templates/frontend/account/auth.html:38
+msgid "For your privacy, sign out on shared devices."
+msgstr "为了您的隐私，请在共享设备上退出登录。"
+
 #: frontend/templates/frontend/account/auth.html:39
 msgid "Forgot password?"
 msgstr "忘记密码？"
@@ -675,7 +715,7 @@ msgstr "忘记密码？"
 #: frontend/templates/frontend/account/auth.html:87
 #: frontend/templates/frontend/checkout.html:34
 msgid "Sign in"
-msgstr "退出登录"
+msgstr "登录"
 
 #: frontend/templates/frontend/account/auth.html:43
 msgid "New here?"
@@ -910,6 +950,10 @@ msgstr "您的购物袋"
 #: frontend/templates/frontend/cart.html:15
 msgid "Your bag is empty"
 msgstr "购物袋是空的"
+
+#: frontend/templates/frontend/partials/cart_drawer.html:5
+msgid "Nothing in here yet. The shop is a good place to start."
+msgstr "这里还没有商品。不妨先去逛逛商店。"
 
 #: frontend/templates/frontend/cart.html:16
 msgid "Nothing saved here yet. Everything we currently make is one page away."

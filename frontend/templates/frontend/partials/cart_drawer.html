@@ -1,6 +1,9 @@
 {% load i18n frontend_extras %}
 <div class="drawer-backdrop" id="drawer-backdrop"></div>
-<aside class="drawer" id="cart-drawer" role="dialog" aria-modal="true" aria-label="{% translate "Your bag" %}">
+<aside class="drawer" id="cart-drawer" role="dialog" aria-modal="true" aria-label="{% translate "Your bag" %}"
+  data-empty-title="{% translate 'Your bag is empty' %}"
+  data-empty-note="{% translate 'Nothing in here yet. The shop is a good place to start.' %}"
+  data-browse-shop="{% translate 'Browse the shop' %}">
   <div class="drawer__head">
     <h2>{% translate "Your bag" %}</h2>
     <button class="icon-btn" type="button" data-cart-close aria-label="{% translate "Close bag" %}">{% icon "close" %}</button>

@@ -18,7 +18,7 @@
       <img src="{% placeholder lead.image %}" alt="" width="1400" height="933" fetchpriority="high">
     </div>
     <div>
-      <p class="eyebrow">{{ lead.category }} · {{ lead.read_time }} read</p>
+      <p class="eyebrow">{{ lead.category }} · {{ lead.read_time }} {% translate "read" %}</p>
       <h2>{{ lead.title }}</h2>
       <p class="lede" style="margin-top:1rem">{{ lead.standfirst }}</p>
       <p class="muted" style="margin-top:1rem">{{ lead.author }} · {{ lead.date }}</p>
@@ -35,7 +35,7 @@
         <div class="media media--hover">
           <img src="{% placeholder article.image %}" alt="" loading="lazy" width="1400" height="933">
         </div>
-        <p class="meta">{{ article.category }} · {{ article.read_time }} read</p>
+        <p class="meta">{{ article.category }} · {{ article.read_time }} {% translate "read" %}</p>
         <h3>{{ article.title }}</h3>
         <p class="muted" style="margin-top:0.5rem">{{ article.standfirst|truncatewords:24 }}</p>
       </a>

@@ -80,7 +80,7 @@ def shop(request):
         "selected": selected,
         "active_filter_count": active_count,
         "sort": sort,
-        "sort_options": services.SORT_OPTIONS,
+        "sort_options": services.localized_sort_options(),
         "meta_title": f"Shop — {SITE['brand']}",
     })
 
@@ -105,7 +105,7 @@ def collection_detail(request, slug):
         "collection": collection,
         "products": services.products_in_collection(slug, sort=sort),
         "sort": sort,
-        "sort_options": services.SORT_OPTIONS,
+        "sort_options": services.localized_sort_options(),
         "meta_title": f"{collection.title} — {SITE['brand']}",
     })
 
@@ -509,7 +509,9 @@ def journal_detail(request, slug):
 
 
 def _faq_groups():
-    return FAQGroup.objects.filter(is_active=True).prefetch_related("faqs")
+    from .catalogue_i18n import localize_faq_group
+    return [localize_faq_group(group) for group in
+            FAQGroup.objects.filter(is_active=True).prefetch_related("faqs")]
 
 
 def contact(request):

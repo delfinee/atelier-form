@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from django.http import Http404, HttpResponse, HttpResponseNotModified
 from django.shortcuts import render
+from django.utils.translation import gettext
 from django.views.decorators.http import require_safe
 
 from .models import SiteImage
@@ -58,6 +59,6 @@ def credits(request):
     return render(request, "imagery/credits.html", {
         "credited": credited,
         "public_domain": public_domain,
-        "title": "Image Credits",
-        "meta_title": "Image Credits — Atelier Form",
+        "title": gettext("Image Credits"),
+        "meta_title": f"{gettext('Image Credits')} — Atelier Form",
     })

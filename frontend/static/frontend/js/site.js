@@ -344,9 +344,6 @@
     const browseShop = drawer?.dataset.browseShop || "Browse the shop";
 
     if (!items.length) {
-      body.innerHTML = `<div class="empty-state"><h3>Your bag is empty</h3>
-        <p class="muted">Nothing in here yet. The shop is a good place to start.</p>
-        <a class="btn btn--outline" href="/shop/" style="margin-top:1.2rem">Browse the shop</a></div>`;
       body.innerHTML = `<div class="empty-state"><h3>${emptyTitle}</h3>
         <p class="muted">${emptyNote}</p>
         <a class="btn btn--outline" href="/shop/" style="margin-top:1.2rem">${browseShop}</a></div>`;

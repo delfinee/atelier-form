@@ -548,11 +548,12 @@
   function validateForm(form) {
     let ok = true, firstBad = null;
     $$("input[required], select[required], textarea[required]", form).forEach((input) => {
-      const value = input.value.trim();
+      const value = input.type === "password" ? input.value : input.value.trim();
       let message = "";
       if (!value) message = "This field is required.";
       else if (input.type === "email" && !EMAIL.test(value)) message = "Enter a valid email address.";
-      else if (input.type === "password" && value.length < 8) message = "Use at least 8 characters.";
+      else if (input.type === "password" && input.autocomplete === "new-password" && value.length < 8) message = "Use at least 8 characters.";
+      else if (input.maxLength > 0 && value.length > input.maxLength) message = `Use at most ${input.maxLength} characters.`;
       fieldError(input, message);
       if (message) { ok = false; firstBad = firstBad || input; }
     });

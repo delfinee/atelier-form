@@ -31,7 +31,7 @@
         {% icon "heart" %}<span class="count" data-wish-count>0</span>
       </a>
       <a class="icon-btn" href="{% if user.is_authenticated %}{% url 'account_overview' %}{% else %}{% url 'login' %}{% endif %}"
-         aria-label="{% if user.is_authenticated %}Your account{% else %}Sign in{% endif %}">
+         aria-label="{% if user.is_authenticated %}{% translate "Your account" %}{% else %}{% translate "Sign in" %}{% endif %}">
         {% icon "user" %}
       </a>
       <a class="icon-btn" href="{% url 'cart' %}" data-cart-open aria-label="{% translate "Bag" %}">

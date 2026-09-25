@@ -19,13 +19,13 @@
       <p class="eyebrow">{{ maker.discipline }}</p>
       <h1 style="font-size:var(--step-3)">{{ maker.name }}</h1>
       <p class="lede" style="margin-top:1rem">{{ maker.tagline }}</p>
-      <p class="muted" style="margin-top:1rem">{{ maker.location }} · Working since {{ maker.since }}</p>
+      <p class="muted" style="margin-top:1rem">{% blocktranslate with location=maker.location since=maker.since %}{{ location }} · Working since {{ since }}{% endblocktranslate %}</p>
       <div class="flow" style="margin-top:1.6rem;color:var(--ink-soft)">
         {% for para in maker.biography %}<p>{{ para }}</p>{% endfor %}
       </div>
       {% if products %}
         <p style="margin-top:1.8rem">
-          <a class="btn btn--outline" href="#pieces">See {{ products|length }} piece{{ products|length|pluralize }}</a>
+          <a class="btn btn--outline" href="#pieces">{% blocktranslate count n=products|length %}See {{ n }} piece{% plural %}See {{ n }} pieces{% endblocktranslate %}</a>
         </p>
       {% endif %}
     </div>
@@ -36,7 +36,7 @@
   <div class="shell split">
     <div data-reveal>
       <p class="eyebrow">{% translate "In the studio" %}</p>
-      <h2>How {{ maker.name }} works</h2>
+      <h2>{% blocktranslate with name=maker.name %}How {{ name }} works{% endblocktranslate %}</h2>
       <ol class="stack" style="--gap:0.9rem;margin-top:1.6rem;padding-left:1.1rem;color:var(--ink-soft)">
         {% for step in maker.process %}<li>{{ step }}</li>{% endfor %}
       </ol>
@@ -55,7 +55,7 @@
   <div class="section-head">
     <div>
       <p class="eyebrow">{% translate "Available now" %}</p>
-      <h2>Made by {{ maker.name }}</h2>
+      <h2>{% blocktranslate with name=maker.name %}Made by {{ name }}{% endblocktranslate %}</h2>
     </div>
     <a class="link" href="{% url 'shop' %}">{% translate "All pieces" %} {% icon "arrow-right" 16 %}</a>
   </div>
@@ -66,7 +66,7 @@
   {% else %}
     <div class="empty-state">
       <h3>{% translate "Between batches" %}</h3>
-      <p class="muted">Nothing from {{ maker.name }} is in stock right now. The next firing usually lands within a month.</p>
+      <p class="muted">{% blocktranslate with name=maker.name %}Nothing from {{ name }} is in stock right now. The next firing usually lands within a month.{% endblocktranslate %}</p>
     </div>
   {% endif %}
 </section>

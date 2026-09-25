@@ -9,6 +9,8 @@ from decimal import Decimal
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from frontend.catalogue_i18n import COLOUR_TRANSLATIONS, localize_product
+
 from .models import (
     Cart, CartItem, DeliveryMethod, FulfillmentStatus, Order, OrderItem, SellerFulfillment,
 )
@@ -16,8 +18,8 @@ from .models import (
 
 class CartItemSerializer(serializers.ModelSerializer):
     product_slug = serializers.CharField(source="product.slug", read_only=True)
-    product_name = serializers.CharField(source="product.name", read_only=True)
-    variant_label = serializers.CharField(source="variant.label", read_only=True, default="")
+    product_name = serializers.SerializerMethodField()
+    variant_label = serializers.SerializerMethodField()
     variant_uuid = serializers.UUIDField(source="variant.uuid", read_only=True, default=None)
     image = serializers.SerializerMethodField()
     unit_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
@@ -33,6 +35,16 @@ class CartItemSerializer(serializers.ModelSerializer):
     def get_image(self, obj) -> str:
         first = obj.product.product_images.all()[:1]
         return first[0].url if first else ""
+
+    def get_product_name(self, obj) -> str:
+        return localize_product(obj.product).name
+
+    def get_variant_label(self, obj) -> str:
+        label = obj.variant.label if obj.variant else ""
+        request = self.context.get("request")
+        if label and request and request.LANGUAGE_CODE.startswith("zh"):
+            return COLOUR_TRANSLATIONS.get(label, label)
+        return label
 
 
 class CartSerializer(serializers.ModelSerializer):

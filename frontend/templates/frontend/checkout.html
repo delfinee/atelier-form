@@ -128,7 +128,7 @@
             <span style="flex:1">
               <span class="option-card__title"><strong>{% translate "Standard delivery" %}</strong>
                 <span>{{ site.shipping_standard|money }}</span></span>
-              <span class="option-card__meta">3–6 working days · complimentary above {{ site.free_shipping_threshold|money }}</span>
+              <span class="option-card__meta">{% blocktranslate with threshold=site.free_shipping_threshold|money %}3–6 working days · complimentary above {{ threshold }}{% endblocktranslate %}</span>
             </span>
           </label>
           <label class="option-card">

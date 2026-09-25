@@ -5,8 +5,8 @@
 <div class="shell page-head">
   <p class="eyebrow">{% translate "Search" %}</p>
   {% if query %}
-    <h1 style="font-size:var(--step-3)">Results for “{{ query }}”</h1>
-    <p class="lede">{{ total }} result{{ total|pluralize }} across products, collections, makers and the journal.</p>
+    <h1 style="font-size:var(--step-3)">{% blocktranslate with term=query %}Results for “{{ term }}”{% endblocktranslate %}</h1>
+    <p class="lede">{% blocktranslate count n=total %}{{ n }} result across products, collections, makers and the journal.{% plural %}{{ n }} results across products, collections, makers and the journal.{% endblocktranslate %}</p>
   {% else %}
     <h1 style="font-size:var(--step-3)">{% translate "Search" %}</h1>
     <p class="lede">{% translate "Look for a material, a maker, a room or a piece by name." %}</p>
@@ -29,7 +29,7 @@
     </div>
   {% elif total == 0 %}
     <div class="empty-state">
-      <h3>Nothing matched “{{ query }}”</h3>
+      <h3>{% blocktranslate with term=query %}Nothing matched “{{ term }}”{% endblocktranslate %}</h3>
       <p class="muted">{% translate "The catalogue is small — around twenty pieces — so specific searches often come up short. Try a material or a category." %}</p>
       <div class="search-suggestions" style="justify-content:center;margin-top:1.4rem">
         {% for term in popular %}<a class="chip" href="{% url 'search' %}?q={{ term|urlencode }}">{{ term }}</a>{% endfor %}

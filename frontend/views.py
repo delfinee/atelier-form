@@ -154,7 +154,7 @@ def product_detail(request, slug):
 
     return render(request, "frontend/product/detail.html", {
         "product": product,
-        "maker": product.maker,
+        "maker": services.get_maker(product.maker.slug),
         "related": services.related_products(product),
         "reviews": reviews,
         "can_review": can_review,
@@ -379,7 +379,7 @@ def account_wishlist(request):
              .prefetch_related("product__product_images"))
     return render(request, "frontend/account/wishlist.html", {
         "customer": request.user,
-        "wishlist_products": [item.product for item in items],
+        "wishlist_products": [services.localize_product(item.product) for item in items],
         "meta_title": f"Wishlist — {SITE['brand']}",
     })
 

@@ -1,8 +1,8 @@
 {% extends "frontend/account/base.html" %}
 {% load i18n frontend_extras %}
 
-{% block account_title %}Order {{ order.order_number }}{% endblock %}
-{% block account_lede %}<p class="lede">Placed {{ order.date }} · {{ order.status_label }}</p>{% endblock %}
+{% block account_title %}{% blocktranslate with number=order.order_number %}Order {{ number }}{% endblocktranslate %}{% endblock %}
+{% block account_lede %}<p class="lede">{% blocktranslate with date=order.date status=order.status_label %}Placed {{ date }} · {{ status }}{% endblocktranslate %}</p>{% endblock %}
 
 {% block account_content %}
 <p style="margin-bottom:var(--gap)">
@@ -23,7 +23,7 @@
     {% endfor %}
   </ul>
   {% if order.tracking_number %}
-    <p class="muted" style="margin-top:1.2rem">{{ order.carrier }} · Tracking {{ order.tracking_number }}</p>
+    <p class="muted" style="margin-top:1.2rem">{% blocktranslate with carrier=order.carrier number=order.tracking_number %}{{ carrier }} · Tracking {{ number }}{% endblocktranslate %}</p>
   {% endif %}
 </div>
 
@@ -37,7 +37,7 @@
       <div>
         <a class="line-item__name" href="{% url 'product_detail' item.product_slug %}">{{ item.product_name }}</a>
         <div class="line-item__meta">
-          {% if item.variant_name %}{{ item.variant_name }} · {% endif %}Quantity {{ item.quantity }}
+          {% if item.variant_name %}{{ item.variant_name }} · {% endif %}{% blocktranslate with n=item.quantity %}Quantity {{ n }}{% endblocktranslate %}
         </div>
       </div>
       <div class="line-item__price">{{ item.line_total|money }}</div>
@@ -48,7 +48,7 @@
     <div class="summary__row"><span>{% translate "Subtotal" %}</span><span>{{ order.subtotal|money }}</span></div>
     <div class="summary__row">
       <span>{% translate "Delivery" %}</span>
-      <span>{% if order.shipping_amount %}{{ order.shipping_amount|money }}{% else %}Complimentary{% endif %}</span>
+      <span>{% if order.shipping_amount %}{{ order.shipping_amount|money }}{% else %}{% translate "Complimentary" %}{% endif %}</span>
     </div>
     <div class="summary__row summary__row--total"><span>{% translate "Total" %}</span><span>{{ order.total|money }}</span></div>
   </div>
@@ -66,6 +66,6 @@
 </div>
 
 <p class="form-note">
-  {% translate "Something wrong with this order?" %} <a class="text-link" href="{% url 'contact' %}">{% translate "Email the studio" %}</a> and quote {{ order.order_number }}.
+  {% translate "Something wrong with this order?" %} <a class="text-link" href="{% url 'contact' %}">{% translate "Email the studio" %}</a> {% blocktranslate with number=order.order_number %}and quote {{ number }}.{% endblocktranslate %}
 </p>
 {% endblock %}

@@ -225,7 +225,7 @@ class Order(UUIDModel, TimeStampedModel):
 
     @property
     def date(self) -> str:
-        return self.placed_at.strftime("%-d %B %Y")
+        return f"{self.placed_at.day} {self.placed_at.strftime('%B %Y')}"
 
     @property
     def address(self) -> dict:
@@ -245,7 +245,7 @@ class Order(UUIDModel, TimeStampedModel):
     @property
     def estimated(self) -> str:
         if self.status == OrderStatus.DELIVERED:
-            return f"Delivered {self.placed_at.strftime('%-d %B')}"
+            return f"Delivered {self.placed_at.day} {self.placed_at.strftime('%B')}"
         return "Arriving within 3–6 working days"
 
     @property
@@ -255,10 +255,12 @@ class Order(UUIDModel, TimeStampedModel):
                  OrderStatus.SHIPPED, OrderStatus.DELIVERED]
         if self.status == OrderStatus.CANCELLED:
             return [{"label": "Order placed", "date": self.date, "done": True},
-                    {"label": "Cancelled", "date": self.updated_at.strftime("%-d %b"), "done": True}]
+                    {"label": "Cancelled", "date": f"{self.updated_at.day} {self.updated_at.strftime('%b')}",
+                     "done": True}]
         reached = order.index(self.status) if self.status in order else 0
         labels = ["Order placed", "Confirmed", "Made & packed", "Dispatched", "Delivered"]
-        return [{"label": label, "date": self.placed_at.strftime("%-d %b") if i <= reached else "Expected",
+        return [{"label": label,
+                 "date": f"{self.placed_at.day} {self.placed_at.strftime('%b')}" if i <= reached else "Expected",
                  "done": i <= reached}
                 for i, label in enumerate(labels)]
 

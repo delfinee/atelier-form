@@ -18,6 +18,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
+from django.db import IntegrityError, transaction
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -32,6 +33,7 @@ from orders.services import get_cart, merge_session_cart
 from payments.models import Payment, PaymentProviderChoices
 from payments.services import MockPaymentProvider
 from reviews.models import Review
+from reviews.errors import is_duplicate_review_error
 
 from . import services
 from .forms import ProfileForm, RegistrationForm
@@ -141,11 +143,18 @@ def product_detail(request, slug):
                            "Only verified buyers can review this product.")
             return redirect("product_detail", slug=product.slug)
         if review_form.is_valid():
-            Review.objects.create(
-                user=request.user, product=product, order_item=order_item,
-                **review_form.cleaned_data,
-            )
-            messages.success(request, "Thank you for reviewing this piece.")
+            try:
+                with transaction.atomic():
+                    Review.objects.create(
+                        user=request.user, product=product, order_item=order_item,
+                        **review_form.cleaned_data,
+                    )
+            except IntegrityError as exc:
+                if not is_duplicate_review_error(exc):
+                    raise
+                messages.error(request, "You have already reviewed this product.")
+            else:
+                messages.success(request, "Thank you for reviewing this piece.")
             return redirect("product_detail", slug=product.slug)
 
     reviews = getattr(product, "reviews").filter(is_published=True).select_related("user")

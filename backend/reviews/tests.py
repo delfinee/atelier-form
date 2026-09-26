@@ -1,8 +1,11 @@
 """Storefront review UX and shared public API permission regressions."""
 
 from datetime import datetime, timezone
+from unittest.mock import patch
 
 from django.conf import settings
+from django.db import IntegrityError
+from django.db.models.query import QuerySet
 from django.test import Client, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from rest_framework.test import APIClient
@@ -263,8 +266,11 @@ class ReviewFlowTests(TestCase):
         self.assertNotContains(response, "<script>bad</script>")
 
     def test_review_display_excludes_other_products_and_unpublished_reviews(self):
-        Review.objects.create(user=self.buyer, product=self.product, rating=4, title="First public")
-        Review.objects.create(user=self.other, product=self.product, rating=5, title="Latest public")
+        first = Review.objects.create(user=self.buyer, product=self.product, rating=4, title="First public")
+        latest = Review.objects.create(user=self.other, product=self.product, rating=5, title="Latest public")
+        # Explicit dates avoid ties when the system clock has coarse resolution.
+        Review.objects.filter(pk=first.pk).update(created_at=datetime(2026, 9, 8, tzinfo=timezone.utc))
+        Review.objects.filter(pk=latest.pk).update(created_at=datetime(2026, 9, 9, tzinfo=timezone.utc))
         Review.objects.create(user=self.buyer, product=self.other_product, rating=2, title="Other product")
         response = self.client.get(self.url)
         self.assertEqual(list(response.context["reviews"].values_list("title", flat=True)),
@@ -356,3 +362,168 @@ class ReviewFlowTests(TestCase):
         self.assertTrue(self.client.get(self.url).context["can_review"])
         self.assertEqual(self.client.post(self.url, self.data).status_code, 302)
         self.assertEqual(Review.objects.count(), 1)
+
+    def test_api_post_rejects_controls_before_trimming(self):
+        self.purchase()
+        for field in ("title", "body"):
+            for control in ("\x00", "\x01", "\x1f", "\x7f", "\x85"):
+                for value in (control + "Text", "Text" + control, "A" + control + "B", control):
+                    with self.subTest(field=field, value=repr(value)):
+                        response = self.api_submit(**{field: value})
+                        self.assertEqual(response.status_code, 400)
+                        self.assertEqual(response.data["errors"][field][0].code, "invalid_characters")
+                        self.assertFalse(Review.objects.exists())
+                        form = ReviewForm({**self.data, field: value})
+                        self.assertFalse(form.is_valid())
+                        self.assertIn(field, form.errors)
+
+    def test_api_patch_rejects_controls_without_changing_saved_review(self):
+        self.purchase()
+        self.api_submit()
+        review = Review.objects.get()
+        url = reverse("review-detail", args=[review.uuid])
+        for field in ("title", "body"):
+            for control in ("\x00", "\x01", "\x1f", "\x7f", "\x85"):
+                for value in (control + "Text", "Text" + control, "A" + control + "B", control):
+                    with self.subTest(field=field, value=repr(value)):
+                        response = self.api.patch(url, {field: value}, format="json")
+                        self.assertEqual(response.status_code, 400)
+                        self.assertEqual(response.data["errors"][field][0].code, "invalid_characters")
+                        review.refresh_from_db()
+                        self.assertEqual(getattr(review, field), self.data[field])
+
+    def test_api_body_whitespace_and_optional_text_remain_valid_on_post_and_patch(self):
+        self.purchase()
+        body = "  First\r\n\tSecond\n\nThird  "
+        self.assertEqual(self.api_submit(body=body, title="  Title  ").status_code, 201)
+        review = Review.objects.get()
+        self.assertEqual((review.title, review.body), ("Title", body.strip()))
+        url = reverse("review-detail", args=[review.uuid])
+        for text in ("\t Updated\n\tBody\r\n", "", " \t\r\n "):
+            response = self.api.patch(url, {"body": text, "title": "   "}, format="json")
+            self.assertEqual(response.status_code, 200)
+            review.refresh_from_db()
+            self.assertEqual((review.title, review.body), ("", text.strip()))
+        for control in ("\t", "\n", "\r"):
+            response = self.api.patch(url, {"title": control}, format="json")
+            self.assertEqual(response.status_code, 400)
+            self.assertIn("title", response.data["errors"])
+        Review.objects.all().delete()
+        response = self.api.post(self.api_url, {"product": self.product.slug, "rating": 5}, format="json")
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual((Review.objects.get().title, Review.objects.get().body), ("", ""))
+
+    def test_api_title_length_and_partial_update_behaviour_remain(self):
+        self.purchase()
+        self.assertEqual(self.api_submit(title=" " + "T" * 160 + " ").status_code, 201)
+        review = Review.objects.get()
+        url = reverse("review-detail", args=[review.uuid])
+        response = self.api.patch(url, {"title": "T" * 161}, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("title", response.data["errors"])
+        self.assertEqual(self.api.patch(url, {"rating": 5}, format="json").status_code, 200)
+        review.refresh_from_db()
+        self.assertEqual((review.title, review.body), ("T" * 160, self.data["body"]))
+
+    def test_api_text_types_and_surrogates_still_receive_field_errors(self):
+        import json
+
+        self.purchase()
+        for field in ("title", "body"):
+            for value in (None, True, [], {}, "bad\ud800text"):
+                with self.subTest(field=field, value=repr(value)):
+                    data = {"product": self.product.slug, **self.data, field: value}
+                    response = self.api.post(self.api_url, json.dumps(data), content_type="application/json")
+                    self.assertEqual(response.status_code, 400)
+                    self.assertIn(field, response.data["errors"])
+                    self.assertFalse(Review.objects.exists())
+
+    def test_payment_state_is_rechecked_after_displaying_form(self):
+        item = self.purchase()
+        for state in ("unpaid", "pending", "failed", "refunded"):
+            with self.subTest(state=state):
+                item.order.payment_status = "paid"
+                item.order.save()
+                self.assertTrue(self.client.get(self.url).context["can_review"])
+                item.order.payment_status = state
+                item.order.save()
+                response = self.client.post(self.url, self.data, follow=True)
+                self.assertContains(response, "Only verified buyers can review this product.")
+                self.assertEqual(self.api_submit().status_code, 403)
+                self.assertFalse(Review.objects.exists())
+
+    def test_refund_preserves_owner_edit_delete_but_blocks_recreation(self):
+        item = self.purchase()
+        self.api_submit()
+        url = reverse("review-detail", args=[Review.objects.get().uuid])
+        item.order.payment_status = "refunded"
+        item.order.save()
+        self.assertEqual(self.api.patch(url, {"body": "After refund"}, format="json").status_code, 200)
+        response = self.client.get(self.url)
+        self.assertContains(response, "After refund")
+        self.assertContains(response, "Verified purchase")
+        self.assertEqual(self.api.delete(url).status_code, 204)
+        self.assertEqual(self.api_submit().status_code, 403)
+        self.client.post(self.url, self.data)
+        self.assertFalse(Review.objects.exists())
+
+    def corrupt_review_insert(self, fields):
+        original = QuerySet.create
+
+        def create(queryset, **kwargs):
+            if queryset.model is Review:
+                kwargs.update(fields)
+            return original(queryset, **kwargs)
+
+        return patch.object(QuerySet, "create", create)
+
+    def test_duplicate_conflict_preserves_outer_transaction_on_both_paths(self):
+        self.purchase()
+        review = Review.objects.create(user=self.buyer, product=self.product, rating=5)
+        original = QuerySet.exists
+
+        def missed_concurrent_insert(queryset):
+            return False if queryset.model is Review else original(queryset)
+
+        # Force a stale pre-check, then exercise a real PostgreSQL uniqueness
+        # failure inside TestCase's outer transaction on each endpoint.
+        with patch.object(QuerySet, "exists", missed_concurrent_insert):
+            response = self.client.post(self.url, self.data)
+            self.assertEqual(response.status_code, 302)
+            self.assertEqual(response.url, self.url)
+            self.assertEqual(Review.objects.get().pk, review.pk)
+            response = self.api_submit()
+            self.assertEqual(response.status_code, 400)
+            self.assertIn("You have already reviewed this product.", str(response.data))
+            self.assertEqual(Review.objects.get().pk, review.pk)
+            Review.objects.filter(pk=review.pk).update(body="Outer transaction remains usable")
+        response = self.client.get(self.url)
+        self.assertContains(response, "You have already reviewed this product.")
+        self.assertContains(response, "Outer transaction remains usable")
+        self.assertFalse(response.context["can_review"])
+
+    def test_storefront_reraises_unrelated_integrity_errors_and_recovers_transaction(self):
+        self.purchase()
+        other_review = Review.objects.create(user=self.other, product=self.product, rating=5)
+        for fields in ({"rating": None}, {"uuid": other_review.uuid}):
+            with self.subTest(fields=fields), self.corrupt_review_insert(fields):
+                with self.assertRaises(IntegrityError) as caught:
+                    self.client.post(self.url, self.data)
+                self.assertNotEqual(caught.exception.__cause__.diag.constraint_name,
+                                    "one_review_per_product_per_user")
+            # TestCase supplies an outer transaction; the failed savepoint must not poison it.
+            self.assertEqual(Review.objects.get().pk, other_review.pk)
+
+    def test_api_unrelated_integrity_errors_reach_normal_exception_handler(self):
+        self.purchase()
+        other_review = Review.objects.create(user=self.other, product=self.product, rating=5)
+        for fields in ({"rating": None}, {"uuid": other_review.uuid}):
+            with self.subTest(fields=fields), self.corrupt_review_insert(fields):
+                with self.assertLogs("config.exceptions", level="ERROR") as captured:
+                    response = self.api_submit()
+                self.assertEqual(response.status_code, 500)
+                self.assertEqual(response.data["detail"], "An unexpected error occurred.")
+                error = captured.records[0].exc_info[1]
+                self.assertIsInstance(error, IntegrityError)
+                self.assertNotEqual(error.__cause__.diag.constraint_name, "one_review_per_product_per_user")
+            self.assertEqual(Review.objects.get().pk, other_review.pk)

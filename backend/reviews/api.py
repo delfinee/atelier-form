@@ -1,14 +1,16 @@
 """Published reviews and verified-purchase review submission."""
 
+from django.db import IntegrityError, transaction
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 
 from accounts.permissions import IsOwner
 from orders.models import OrderItem, PaymentStatus
 
 from .models import Review
 from .serializers import ReviewSerializer
+from .errors import is_duplicate_review_error
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -41,4 +43,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
         ).order_by("-order__placed_at").first())
         if order_item is None:
             raise PermissionDenied("Only verified buyers can review this product.")
-        serializer.save(user=self.request.user, order_item=order_item, is_published=True)
+        try:
+            with transaction.atomic():
+                serializer.save(user=self.request.user, order_item=order_item, is_published=True)
+        except IntegrityError as exc:
+            if not is_duplicate_review_error(exc):
+                raise
+            raise ValidationError({"detail": "You have already reviewed this product."}) from exc

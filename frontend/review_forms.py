@@ -1,10 +1,9 @@
 """Validation and accessible widgets for storefront review submission."""
 
-import unicodedata
-
 from django import forms
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+
+from reviews.validators import validate_review_text
 
 
 class ReviewTextField(forms.CharField):
@@ -14,13 +13,7 @@ class ReviewTextField(forms.CharField):
 
     def to_python(self, value):
         value = super().to_python(value)
-        # Check before trimming: strip() would otherwise hide some controls.
-        allowed = "\t\r\n" if self.multiline else ""
-        if any(unicodedata.category(char) in {"Cc", "Cs"} and char not in allowed
-               for char in value):
-            raise ValidationError(
-                _("Remove invalid control characters from this field."), code="invalid_characters",
-            )
+        validate_review_text(value, multiline=self.multiline)
         return value.strip()
 
 

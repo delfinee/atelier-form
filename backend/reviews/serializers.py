@@ -9,7 +9,7 @@ from .models import Review
 
 class ReviewSerializer(serializers.ModelSerializer):
     product = serializers.SlugRelatedField(slug_field="slug", queryset=Product.objects.active())
-    author = serializers.CharField(source="user.full_name", read_only=True)
+    author = serializers.CharField(source="public_author", read_only=True)
     is_verified_purchase = serializers.BooleanField(read_only=True)
 
     class Meta:

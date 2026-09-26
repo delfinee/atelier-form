@@ -18,6 +18,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
+from django.db import IntegrityError, transaction
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -32,9 +33,11 @@ from orders.services import get_cart, merge_session_cart
 from payments.models import Payment, PaymentProviderChoices
 from payments.services import MockPaymentProvider
 from reviews.models import Review
+from reviews.errors import is_duplicate_review_error
 
 from . import services
 from .forms import ProfileForm, RegistrationForm
+from .review_forms import ReviewForm
 from .mockdata.content import CARE_PAGE, PROCESS_STEPS, SHIPPING_PAGE, SITE, STORY_PAGE
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$")
@@ -119,45 +122,51 @@ def product_detail(request, slug):
     if not product:
         raise Http404("Unknown product")
 
-    if request.method == "POST":
-        if not request.user.is_authenticated:
-            return redirect(f"/account/login/?next=/products/{product.slug}/")
+    review_state = "login_required"
+    order_item = None
+    if request.user.is_authenticated:
         order_item = (OrderItem.objects.filter(
             order__user=request.user, order__payment_status="paid", product=product,
         ).order_by("-order__placed_at").first())
-        if order_item is None:
-            messages.error(request, "Only verified buyers can review this product.")
-        elif Review.objects.filter(user=request.user, product=product).exists():
-            messages.error(request, "You have already reviewed this product.")
+        if Review.objects.filter(user=request.user, product=product).exists():
+            review_state = "already_reviewed"
         else:
+            review_state = "eligible" if order_item else "purchase_required"
+
+    review_form = ReviewForm(request.POST if request.method == "POST" else None)
+    if request.method == "POST":
+        if review_state == "login_required":
+            return redirect_to_login(request.path)
+        if review_state != "eligible":
+            messages.error(request, "You have already reviewed this product."
+                           if review_state == "already_reviewed" else
+                           "Only verified buyers can review this product.")
+            return redirect("product_detail", slug=product.slug)
+        if review_form.is_valid():
             try:
-                rating = int(request.POST.get("rating", ""))
-                if rating not in range(1, 6):
-                    raise ValueError
-                Review.objects.create(
-                    user=request.user, product=product, order_item=order_item,
-                    rating=rating, title=request.POST.get("title", "").strip()[:160],
-                    body=request.POST.get("body", "").strip(),
-                )
+                with transaction.atomic():
+                    Review.objects.create(
+                        user=request.user, product=product, order_item=order_item,
+                        **review_form.cleaned_data,
+                    )
+            except IntegrityError as exc:
+                if not is_duplicate_review_error(exc):
+                    raise
+                messages.error(request, "You have already reviewed this product.")
+            else:
                 messages.success(request, "Thank you for reviewing this piece.")
-            except ValueError:
-                messages.error(request, "Choose a rating from 1 to 5.")
-        return redirect("product_detail", slug=product.slug)
+            return redirect("product_detail", slug=product.slug)
 
     reviews = getattr(product, "reviews").filter(is_published=True).select_related("user")
-    can_review = False
-    if request.user.is_authenticated:
-        can_review = (not reviews.filter(user=request.user).exists() and
-                      OrderItem.objects.filter(order__user=request.user,
-                                               order__payment_status="paid",
-                                               product=product).exists())
 
     return render(request, "frontend/product/detail.html", {
         "product": product,
         "maker": services.get_maker(product.maker.slug),
         "related": services.related_products(product),
         "reviews": reviews,
-        "can_review": can_review,
+        "can_review": review_state == "eligible",
+        "review_state": review_state,
+        "review_form": review_form,
         "in_wishlist": (request.user.is_authenticated and
                         WishlistItem.objects.filter(user=request.user, product=product).exists()),
         "meta_title": f"{product.name} — {SITE['brand']}",

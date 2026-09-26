@@ -169,8 +169,8 @@
         <p aria-label="{% blocktranslate with n=review.rating %}{{ n }} out of 5 stars{% endblocktranslate %}"><strong>{{ review.rating }} / 5</strong>
           {% if review.is_verified_purchase %}<span class="muted"> {% translate "· Verified purchase" %}</span>{% endif %}</p>
         {% if review.title %}<h3 style="margin-top:.5rem">{{ review.title }}</h3>{% endif %}
-        {% if review.body %}<p style="margin-top:.5rem">{{ review.body }}</p>{% endif %}
-        <p class="muted" style="margin-top:.5rem">{{ review.user.full_name }}</p>
+        {% if review.body %}<p style="margin-top:.5rem">{{ review.body|linebreaksbr }}</p>{% endif %}
+        <p class="muted" style="margin-top:.5rem">{{ review.public_author }} · <time datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:"j M Y" }}</time></p>
       </article>
     {% empty %}
       <p class="muted">{% translate "No reviews yet." %}</p>
@@ -181,17 +181,22 @@
         {% csrf_token %}
         <h3>{% translate "Review your purchase" %}</h3>
         <div class="field"><label class="label" for="review-rating">{% translate "Rating" %}</label>
-          <select class="select" id="review-rating" name="rating" required>
-            <option value="">{% translate "Choose" %}</option><option value="5">{% translate "5 — Excellent" %}</option>
-            <option value="4">{% translate "4 — Good" %}</option><option value="3">{% translate "3 — Fair" %}</option>
-            <option value="2">{% translate "2 — Poor" %}</option><option value="1">{% translate "1 — Very poor" %}</option>
-          </select></div>
-        <div class="field"><label class="label" for="review-title">{% translate "Title" %}</label>
-          <input class="input" id="review-title" name="title" maxlength="160"></div>
-        <div class="field"><label class="label" for="review-body">{% translate "Review" %}</label>
-          <textarea class="textarea" id="review-body" name="body" rows="4"></textarea></div>
+          {{ review_form.rating }}
+          {% if review_form.rating.errors %}<div id="review-rating-errors" role="alert">{% for error in review_form.rating.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endif %}</div>
+        <div class="field"><label class="label" for="review-title">{% translate "Title (optional)" %}</label>
+          {{ review_form.title }}
+          {% if review_form.title.errors %}<div id="review-title-errors" role="alert">{% for error in review_form.title.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endif %}</div>
+        <div class="field"><label class="label" for="review-body">{% translate "Review (optional)" %}</label>
+          {{ review_form.body }}
+          {% if review_form.body.errors %}<div id="review-body-errors" role="alert">{% for error in review_form.body.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endif %}</div>
         <button class="btn" type="submit">{% translate "Publish review" %}</button>
       </form>
+    {% elif review_state == "login_required" %}
+      <p class="muted"><a class="link" href="{% url 'login' %}?next={{ request.path|urlencode }}">{% translate "Sign in" %}</a> {% translate "to review a product you have purchased. Reviews are available after payment." %}</p>
+    {% elif review_state == "already_reviewed" %}
+      <p class="muted">{% translate "You have already submitted a review for this product." %}</p>
+    {% else %}
+      <p class="muted">{% translate "You can review this product after purchasing it and completing payment." %}</p>
     {% endif %}
   </div>
 </section>

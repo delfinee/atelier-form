@@ -8,6 +8,7 @@ line for the product can create one.
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.translation import gettext as _
 
 from config.mixins import TimeStampedModel, UUIDModel
 
@@ -33,6 +34,13 @@ class Review(UUIDModel, TimeStampedModel):
 
     def __str__(self):
         return f"{self.rating}★ {self.product.name}"
+
+    @property
+    def public_author(self) -> str:
+        """Review attribution must never fall back to the user's email."""
+        name = f"{self.user.first_name} {self.user.last_name}".strip()
+        # Imported/legacy profiles may also have an email in a name field.
+        return name if name and "@" not in name else _("Customer")
 
     @property
     def is_verified_purchase(self) -> bool:

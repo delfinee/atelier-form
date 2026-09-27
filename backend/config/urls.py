@@ -87,6 +87,11 @@ urlpatterns = [
     path("privacy/", views.legal, {"slug": "privacy"}, name="privacy"),
     path("terms/", views.legal, {"slug": "terms"}, name="terms"),
 
+    # Crafty AI Concierge
+    path("chat/", views.chat_page, name="chat_page"),
+    path("concierge/", views.chat_page, name="concierge_page"),
+    path("api/chat/", views.chat_api, name="chat_api"),
+
     # Mock form endpoints
     path("api/newsletter/", views.newsletter_signup, name="newsletter_signup"),
 ]

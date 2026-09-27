@@ -117,6 +117,8 @@ def icon(name: str, size: int = 20) -> str:
         "trash": '<path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"/>',
         "zoom": '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M8.5 11h5M11 8.5v5"/>',
         "alert": '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.2v.3"/>',
+        "chat": '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+        "sparkles": '<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>',
     }
     return mark_safe(
         f'<svg class="icon" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" '

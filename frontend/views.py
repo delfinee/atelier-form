@@ -579,3 +579,56 @@ def newsletter_signup(request):
 
     # Identical response either way: never disclose who is already subscribed.
     return JsonResponse({"ok": True, "message": "You're on the list. Look out for the next note."})
+
+
+# -- Crafty AI Concierge -------------------------------------------------
+
+def chat_page(request):
+    """Full-page Crafty AI Concierge studio experience."""
+    return render(
+        request,
+        "frontend/chat.html",
+        {
+            "meta_title": "Crafty · Artisan AI Concierge | Atelier Form",
+            "meta_description": (
+                "Meet Crafty, your slow-craft concierge. Get personal gift recommendations, "
+                "custom order assistance, and bespoke artisan advice."
+            ),
+        },
+    )
+
+
+@require_POST
+def chat_api(request):
+    """API endpoint for Crafty chatbot.
+
+    Accepts JSON:
+      - 'message': str (required)
+      - 'history': list[dict] (optional)
+      - 'model': str (optional)
+      - 'apiKey': str (optional client override)
+    """
+    from .chatbot_service import call_gemini
+
+    try:
+        data = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        return JsonResponse({"status": "error", "error": "Invalid JSON body."}, status=400)
+
+    message = (data.get("message") or "").strip()
+    if not message:
+        return JsonResponse({"status": "error", "error": "Message is required."}, status=400)
+
+    history = data.get("history") or []
+    model = (data.get("model") or "").strip() or None
+    client_api_key = (data.get("apiKey") or "").strip() or None
+
+    result = call_gemini(
+        user_prompt=message,
+        history=history,
+        model=model,
+        api_key_override=client_api_key,
+    )
+
+    status_code = 200 if result.get("status") == "ok" else (200 if result.get("fallback") else 400)
+    return JsonResponse(result, status=status_code)

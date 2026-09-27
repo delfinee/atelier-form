@@ -55,6 +55,12 @@ def frontend(request) -> dict:
                 "catalogue": reverse("catalogue_api"),
                 "search": reverse("search_api"),
                 "newsletter": reverse("newsletter_signup"),
+                "chat": reverse("chat_page"),
+                "chatApi": reverse("chat_api"),
+            },
+            "chatbot": {
+                "hasServerKey": bool(getattr(settings, "GEMINI_API_KEY", "")),
+                "defaultModel": getattr(settings, "GEMINI_MODEL", "gemini-3.8-flash"),
             },
         },
     }

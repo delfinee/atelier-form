@@ -1,0 +1,579 @@
+/* ==========================================================================
+   Crafty AI Concierge - Scoped Styles for Atelier Form
+   Scoped strictly under #crafty-widget, #crafty-drawer, and .crafty-*
+   Does not conflict with or override any existing site.css rules.
+   ========================================================================== */
+
+:root {
+  --crafty-clay: #a65427;
+  --crafty-clay-hover: #8f441b;
+  --crafty-clay-soft: rgba(166, 84, 39, 0.12);
+  --crafty-sand: #efe7da;
+  --crafty-sand-light: #f7f3ec;
+  --crafty-line: #ded5c4;
+  --crafty-paper: #fffdf8;
+  --crafty-ink: #2e2a24;
+  --crafty-muted: #6b6357;
+  --crafty-font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+}
+
+/* --- Floating Launcher Button --- */
+#crafty-launcher {
+  position: fixed;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  z-index: 95;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1.15rem;
+  background: var(--crafty-clay);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  box-shadow: 0 4px 18px rgba(46, 42, 36, 0.22);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.22, 0.61, 0.36, 1), background-color 0.2s ease, box-shadow 0.22s ease;
+  user-select: none;
+}
+
+#crafty-launcher:hover {
+  background: var(--crafty-clay-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(46, 42, 36, 0.28);
+}
+
+#crafty-launcher:active {
+  transform: translateY(0);
+}
+
+.crafty-launcher-pulse {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #34d399;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+  animation: crafty-pulse 2s infinite;
+}
+
+@keyframes crafty-pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+/* --- Slide-Over Drawer --- */
+#crafty-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(46, 42, 36, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+#crafty-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#crafty-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: -520px;
+  width: 100%;
+  max-width: 480px;
+  background: var(--crafty-paper);
+  border-left: 1px solid var(--crafty-line);
+  box-shadow: -10px 0 35px rgba(46, 42, 36, 0.18);
+  z-index: 101;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.32s cubic-bezier(0.22, 0.61, 0.36, 1);
+  overflow: hidden;
+}
+
+#crafty-drawer.is-open {
+  right: 0;
+}
+
+/* --- Drawer Header --- */
+.crafty-head {
+  padding: 1rem 1.25rem;
+  background: var(--crafty-sand);
+  border-bottom: 1px solid var(--crafty-line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.crafty-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.crafty-avatar {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  background: #ffffff;
+  border: 1px solid var(--crafty-line);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  box-shadow: 0 1px 3px rgba(46, 42, 36, 0.08);
+}
+
+.crafty-online-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 11px;
+  height: 11px;
+  background: #10b981;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+}
+
+.crafty-meta h3 {
+  margin: 0;
+  font-size: 0.98rem;
+  font-family: var(--crafty-font-serif);
+  font-weight: 600;
+  color: var(--crafty-ink);
+  line-height: 1.2;
+}
+
+.crafty-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  color: var(--crafty-muted);
+}
+
+.crafty-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.crafty-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.crafty-btn-icon {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.35rem 0.5rem;
+  color: var(--crafty-muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crafty-btn-icon:hover {
+  background: rgba(46, 42, 36, 0.06);
+  color: var(--crafty-ink);
+  border-color: var(--crafty-line);
+}
+
+/* --- Scenario Chips Bar --- */
+.crafty-chips-bar {
+  padding: 0.75rem 1.15rem;
+  background: var(--crafty-sand-light);
+  border-bottom: 1px solid var(--crafty-line);
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+
+.crafty-chips-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.crafty-chip {
+  white-space: nowrap;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--crafty-line);
+  border-radius: 9999px;
+  background: #ffffff;
+  color: var(--crafty-ink);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.crafty-chip:hover {
+  border-color: var(--crafty-clay);
+  color: var(--crafty-clay);
+  background: #fffdf9;
+  transform: translateY(-1px);
+}
+
+/* --- Messages Container --- */
+.crafty-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--crafty-paper);
+}
+
+.crafty-msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 88%;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.crafty-msg--user {
+  align-self: flex-end;
+}
+
+.crafty-msg--bot {
+  align-self: flex-start;
+}
+
+.crafty-bubble {
+  padding: 0.85rem 1.05rem;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(46, 42, 36, 0.05);
+}
+
+.crafty-msg--user .crafty-bubble {
+  background: var(--crafty-clay);
+  color: #ffffff;
+  border-bottom-right-radius: 3px;
+}
+
+.crafty-msg--bot .crafty-bubble {
+  background: var(--crafty-sand-light);
+  color: var(--crafty-ink);
+  border: 1px solid var(--crafty-line);
+  border-bottom-left-radius: 3px;
+}
+
+.crafty-bubble p {
+  margin: 0 0 0.5rem 0;
+}
+
+.crafty-bubble p:last-child {
+  margin-bottom: 0;
+}
+
+.crafty-bubble ul, .crafty-bubble ol {
+  margin: 0.4rem 0;
+  padding-left: 1.25rem;
+}
+
+.crafty-bubble li {
+  margin-bottom: 0.25rem;
+}
+
+.crafty-bubble code {
+  font-family: monospace;
+  background: rgba(46, 42, 36, 0.08);
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.82em;
+}
+
+/* Interactive Cards inside Chat */
+.crafty-card {
+  margin-top: 0.75rem;
+  padding: 0.9rem;
+  background: #ffffff;
+  border: 1px solid var(--crafty-line);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(46, 42, 36, 0.06);
+}
+
+.crafty-card h4 {
+  margin: 0 0 0.4rem 0;
+  font-size: 0.86rem;
+  font-family: var(--crafty-font-serif);
+  color: var(--crafty-clay);
+}
+
+.crafty-card-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--crafty-muted);
+  padding: 0.25rem 0;
+  border-bottom: 1px dashed var(--crafty-line);
+}
+
+.crafty-card-row:last-child {
+  border-bottom: none;
+}
+
+/* Timeline Tracker */
+.crafty-timeline {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.crafty-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+}
+
+.crafty-step-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.crafty-step--done .crafty-step-dot {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.crafty-step--active .crafty-step-dot {
+  background: var(--crafty-clay);
+  color: #ffffff;
+  box-shadow: 0 0 0 3px var(--crafty-clay-soft);
+}
+
+.crafty-step--pending .crafty-step-dot {
+  background: var(--crafty-line);
+  color: var(--crafty-muted);
+}
+
+/* Thinking Indicator */
+.crafty-thinking {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 0.95rem;
+  background: var(--crafty-sand-light);
+  border: 1px solid var(--crafty-line);
+  border-radius: 14px;
+  border-bottom-left-radius: 3px;
+  color: var(--crafty-muted);
+  font-size: 0.82rem;
+  font-style: italic;
+}
+
+.crafty-dots span {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background: var(--crafty-muted);
+  border-radius: 50%;
+  animation: crafty-bounce 1.4s infinite ease-in-out both;
+}
+
+.crafty-dots span:nth-child(1) { animation-delay: -0.32s; }
+.crafty-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes crafty-bounce {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* --- Input Area --- */
+.crafty-foot {
+  padding: 0.85rem 1.15rem;
+  background: var(--crafty-sand);
+  border-top: 1px solid var(--crafty-line);
+  flex-shrink: 0;
+}
+
+.crafty-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  border: 1px solid var(--crafty-line);
+  border-radius: 24px;
+  padding: 0.35rem 0.45rem 0.35rem 1rem;
+  box-shadow: 0 1px 3px rgba(46, 42, 36, 0.05);
+  transition: border-color 0.2s ease;
+}
+
+.crafty-form:focus-within {
+  border-color: var(--crafty-clay);
+}
+
+.crafty-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.88rem;
+  color: var(--crafty-ink);
+  outline: none;
+  font-family: inherit;
+  resize: none;
+  max-height: 80px;
+}
+
+.crafty-input::placeholder {
+  color: var(--crafty-muted);
+}
+
+.crafty-send-btn {
+  background: var(--crafty-clay);
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.18s ease, transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.crafty-send-btn:hover {
+  background: var(--crafty-clay-hover);
+  transform: scale(1.05);
+}
+
+.crafty-send-btn:disabled {
+  background: var(--crafty-line);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.crafty-foot-note {
+  margin-top: 0.4rem;
+  font-size: 0.7rem;
+  color: var(--crafty-muted);
+  text-align: center;
+}
+
+/* --- Settings Modal --- */
+.crafty-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(46, 42, 36, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 110;
+  backdrop-filter: blur(2px);
+}
+
+.crafty-modal[hidden] {
+  display: none;
+}
+
+.crafty-modal-box {
+  background: #ffffff;
+  border: 1px solid var(--crafty-line);
+  border-radius: 14px;
+  padding: 1.25rem;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 10px 30px rgba(46, 42, 36, 0.2);
+}
+
+.crafty-modal-box h4 {
+  margin: 0 0 0.75rem 0;
+  font-family: var(--crafty-font-serif);
+  font-size: 1.05rem;
+  color: var(--crafty-ink);
+}
+
+.crafty-modal-field {
+  margin-bottom: 0.85rem;
+}
+
+.crafty-modal-field label {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--crafty-muted);
+  margin-bottom: 0.35rem;
+}
+
+.crafty-modal-field input, .crafty-modal-field select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--crafty-line);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: var(--crafty-ink);
+  outline: none;
+  background: var(--crafty-paper);
+}
+
+.crafty-modal-field input:focus, .crafty-modal-field select:focus {
+  border-color: var(--crafty-clay);
+}
+
+.crafty-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Full-Page Mode Adaptation */
+.crafty-fullpage {
+  max-width: 960px;
+  margin: 2rem auto;
+  border: 1px solid var(--crafty-line);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow, 0 4px 20px rgba(46, 42, 36, 0.08));
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 180px);
+  min-height: 540px;
+  background: var(--crafty-paper);
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  #crafty-drawer {
+    max-width: 100%;
+  }
+  #crafty-launcher {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.65rem 0.95rem;
+    font-size: 0.82rem;
+  }
+}

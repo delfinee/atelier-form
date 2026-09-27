@@ -24,6 +24,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from accounts.models import Address, WishlistItem
@@ -598,6 +599,7 @@ def chat_page(request):
     )
 
 
+@csrf_exempt
 @require_POST
 def chat_api(request):
     """API endpoint for Crafty chatbot.

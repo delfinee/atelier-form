@@ -9,13 +9,17 @@ from decimal import Decimal
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from .models import Cart, CartItem, DeliveryMethod, Order, OrderItem
+from frontend.catalogue_i18n import COLOUR_TRANSLATIONS, localize_product
+
+from .models import (
+    Cart, CartItem, DeliveryMethod, FulfillmentStatus, Order, OrderItem, SellerFulfillment,
+)
 
 
 class CartItemSerializer(serializers.ModelSerializer):
     product_slug = serializers.CharField(source="product.slug", read_only=True)
-    product_name = serializers.CharField(source="product.name", read_only=True)
-    variant_label = serializers.CharField(source="variant.label", read_only=True, default="")
+    product_name = serializers.SerializerMethodField()
+    variant_label = serializers.SerializerMethodField()
     variant_uuid = serializers.UUIDField(source="variant.uuid", read_only=True, default=None)
     image = serializers.SerializerMethodField()
     unit_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
@@ -31,6 +35,16 @@ class CartItemSerializer(serializers.ModelSerializer):
     def get_image(self, obj) -> str:
         first = obj.product.product_images.all()[:1]
         return first[0].url if first else ""
+
+    def get_product_name(self, obj) -> str:
+        return localize_product(obj.product).name
+
+    def get_variant_label(self, obj) -> str:
+        label = obj.variant.label if obj.variant else ""
+        request = self.context.get("request")
+        if label and request and request.LANGUAGE_CODE.startswith("zh"):
+            return COLOUR_TRANSLATIONS.get(label, label)
+        return label
 
 
 class CartSerializer(serializers.ModelSerializer):
@@ -133,19 +147,40 @@ class SellerOrderItemSerializer(OrderItemSerializer):
         fields = OrderItemSerializer.Meta.fields + ["maker_name"]
 
 
+class SellerFulfillmentSerializer(serializers.ModelSerializer):
+    """Exposes one seller's independent fulfilment state for an order."""
+
+    class Meta:
+        model = SellerFulfillment
+        fields = ["uuid", "status", "carrier", "tracking_number", "shipped_at"]
+        read_only_fields = fields
+
+
 class SellerOrderSerializer(serializers.ModelSerializer):
     items = serializers.SerializerMethodField()
     seller_subtotal = serializers.SerializerMethodField()
+    fulfillment = serializers.SerializerMethodField()
+    fulfillment_status = serializers.SerializerMethodField()
+    carrier = serializers.SerializerMethodField()
+    tracking_number = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = ["uuid", "order_number", "status", "payment_status", "fulfillment_status",
                   "customer_email", "customer_phone", "shipping_address_snapshot",
-                  "carrier", "tracking_number", "placed_at", "seller_subtotal", "items"]
+                  "carrier", "tracking_number", "placed_at", "seller_subtotal", "items",
+                  "fulfillment"]
         read_only_fields = fields
 
     def _seller_items(self, obj):
         return obj.items.filter(maker__owner=self.context["request"].user)
+
+    def _seller_fulfillment(self, obj):
+        user = self.context["request"].user
+        maker = getattr(user, "maker_profile", None)
+        if maker is None:
+            return None
+        return obj.seller_fulfillments.filter(maker=maker).first()
 
     @extend_schema_field(SellerOrderItemSerializer(many=True))
     def get_items(self, obj):
@@ -154,3 +189,35 @@ class SellerOrderSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.DecimalField(max_digits=10, decimal_places=2))
     def get_seller_subtotal(self, obj):
         return sum((item.line_total for item in self._seller_items(obj)), Decimal("0.00"))
+
+    @extend_schema_field(SellerFulfillmentSerializer)
+    def get_fulfillment(self, obj):
+        f = self._seller_fulfillment(obj)
+        return SellerFulfillmentSerializer(f).data if f else None
+
+    @extend_schema_field(serializers.CharField())
+    def get_fulfillment_status(self, obj):
+        f = self._seller_fulfillment(obj)
+        return f.status if f else obj.fulfillment_status
+
+    @extend_schema_field(serializers.CharField())
+    def get_carrier(self, obj):
+        f = self._seller_fulfillment(obj)
+        return f.carrier if f else obj.carrier
+
+    @extend_schema_field(serializers.CharField())
+    def get_tracking_number(self, obj):
+        f = self._seller_fulfillment(obj)
+        return f.tracking_number if f else obj.tracking_number
+
+
+class SellerFulfillmentUpdateSerializer(serializers.Serializer):
+    """Validates the data a seller sends when updating their parcel shipping info.
+
+    All three fields are optional so a seller can update just the carrier,
+    just the tracking number, or all three at once.
+    """
+
+    status = serializers.ChoiceField(choices=FulfillmentStatus.choices, required=False)
+    carrier = serializers.CharField(max_length=80, required=False, allow_blank=True)
+    tracking_number = serializers.CharField(max_length=80, required=False, allow_blank=True)

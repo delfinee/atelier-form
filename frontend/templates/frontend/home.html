@@ -115,7 +115,7 @@
           <p class="eyebrow">{{ maker.discipline }}</p>
           <h3>{{ maker.name }}</h3>
           <p class="muted" style="margin-top:0.7rem">{{ maker.tagline }}</p>
-          <p class="muted" style="margin-top:0.7rem">{{ maker.location }} · Since {{ maker.since }}</p>
+          <p class="muted" style="margin-top:0.7rem">{% blocktranslate with location=maker.location since=maker.since %}{{ location }} · Since {{ since }}{% endblocktranslate %}</p>
         </div>
       </a>
     {% endfor %}

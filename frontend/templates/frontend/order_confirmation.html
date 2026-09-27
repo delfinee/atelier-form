@@ -8,8 +8,7 @@
   <p class="eyebrow">{% translate "Order placed" %}</p>
   <h1 style="font-size:var(--step-3)">{% translate "Thank you." %}</h1>
   <p class="lede">
-    {% translate "Your order is" %} <strong>{{ order.order_number }}</strong>. A confirmation would be sent to
-    {{ order.customer_email }}.
+    {% translate "Your order is" %} <strong>{{ order.order_number }}</strong>{% blocktranslate with email=order.customer_email %}. A confirmation would be sent to {{ email }}.{% endblocktranslate %}
   </p>
 </div>
 
@@ -28,7 +27,7 @@
           <div>
             <a class="line-item__name" href="{% url 'product_detail' item.product_slug %}">{{ item.product_name }}</a>
             <div class="line-item__meta">
-              {% if item.variant_name %}{{ item.variant_name }} · {% endif %}Quantity {{ item.quantity }}
+              {% if item.variant_name %}{{ item.variant_name }} · {% endif %}{% blocktranslate with n=item.quantity %}Quantity {{ n }}{% endblocktranslate %}
             </div>
           </div>
           <div class="line-item__price">{{ item.line_total|money }}</div>
@@ -57,7 +56,7 @@
     <div class="summary__row"><span>{% translate "Subtotal" %}</span><span>{{ order.subtotal|money }}</span></div>
     <div class="summary__row">
       <span>{% translate "Delivery" %}</span>
-      <span>{% if order.shipping_amount %}{{ order.shipping_amount|money }}{% else %}Complimentary{% endif %}</span>
+      <span>{% if order.shipping_amount %}{{ order.shipping_amount|money }}{% else %}{% translate "Complimentary" %}{% endif %}</span>
     </div>
     <div class="summary__row summary__row--total"><span>{% translate "Total" %}</span><span>{{ order.total|money }}</span></div>
     {% if user.is_authenticated %}

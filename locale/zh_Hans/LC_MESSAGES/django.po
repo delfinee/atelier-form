@@ -2,149 +2,139 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Atelier Form 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-05 15:15+0000\n"
+"POT-Creation-Date: 2026-09-22 21:29+0800\n"
 "Language: zh_Hans\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: frontend/mockdata/content.py:15
+#: .\frontend\mockdata\content.py:15
 msgid "Handmade for everyday moments."
 msgstr "手作之物，日常之用。"
 
-#: frontend/mockdata/content.py:16
-#, fuzzy
-#| msgid ""
-#| "Ceramics, textiles and objects made one at a time by five makers we know "
-#| "by name."
+#: .\frontend\mockdata\content.py:16
 msgid ""
 "Small-batch ceramics, textiles and homeware, made by hand by a short list of "
 "makers we know by name."
 msgstr "陶器、织物与器物，由五位我们熟识的匠人一件一件手工制成。"
 
-#: frontend/mockdata/content.py:20
+#: .\frontend\mockdata\content.py:20
 msgid "Unit 4, Lane 210 Taikang Road, Huangpu, Shanghai"
 msgstr "上海市黄浦区泰康路210弄4号"
 
-#: frontend/mockdata/content.py:21
+#: .\frontend\mockdata\content.py:21
 msgid "Studio visits by appointment · Tuesday to Saturday, 10am–6pm"
 msgstr "到访需预约 · 周二至周六 10:00–18:00"
 
-#: frontend/mockdata/content.py:26
+#: .\frontend\mockdata\content.py:26
 msgid "Complimentary delivery on orders above ¥80"
 msgstr "订单满 ¥80 免运费"
 
-#: frontend/mockdata/content.py:32 frontend/mockdata/content.py:39
-#: frontend/templates/frontend/partials/mobile_nav.html:8
-#: frontend/templates/frontend/product/detail.html:12
-#: frontend/templates/frontend/shop/shop.html:7
+#: .\frontend\mockdata\content.py:32 .\frontend\mockdata\content.py:39
+#: .\frontend\templates\frontend\partials\mobile_nav.html:8
+#: .\frontend\templates\frontend\product\detail.html:12
+#: .\frontend\templates\frontend\shop\shop.html:7
 msgid "Shop"
 msgstr "商店"
 
-#: frontend/mockdata/content.py:33
-#: frontend/templates/frontend/partials/mobile_nav.html:9
-#: frontend/templates/frontend/search/results.html:50
-#: frontend/templates/frontend/shop/collection_detail.html:21
-#: frontend/templates/frontend/shop/collections.html:7
-#: frontend/templates/frontend/shop/collections.html:10
+#: .\frontend\mockdata\content.py:33
+#: .\frontend\templates\frontend\partials\mobile_nav.html:9
+#: .\frontend\templates\frontend\search\results.html:50
+#: .\frontend\templates\frontend\shop\collection_detail.html:21
+#: .\frontend\templates\frontend\shop\collections.html:7
+#: .\frontend\templates\frontend\shop\collections.html:10
 msgid "Collections"
 msgstr "系列"
 
-#: frontend/mockdata/content.py:34 frontend/mockdata/content.py:49
-#: frontend/templates/frontend/partials/mobile_nav.html:11
+#: .\frontend\mockdata\content.py:34 .\frontend\mockdata\content.py:49
+#: .\frontend\templates\frontend\partials\mobile_nav.html:11
 msgid "Our Story"
 msgstr "品牌故事"
 
-#: frontend/mockdata/content.py:35 frontend/mockdata/content.py:52
-#: frontend/templates/frontend/journal/detail.html:11
-#: frontend/templates/frontend/journal/index.html:7
-#: frontend/templates/frontend/partials/mobile_nav.html:12
-#: frontend/templates/frontend/search/results.html:82
+#: .\frontend\mockdata\content.py:35 .\frontend\mockdata\content.py:52
+#: .\frontend\templates\frontend\journal\detail.html:11
+#: .\frontend\templates\frontend\journal\index.html:7
+#: .\frontend\templates\frontend\partials\mobile_nav.html:12
+#: .\frontend\templates\frontend\search\results.html:82
 msgid "Journal"
 msgstr "日志"
 
-#: frontend/mockdata/content.py:40
-#, fuzzy
-#| msgid "New arrivals"
+#: .\frontend\mockdata\content.py:40
 msgid "New Arrivals"
 msgstr "新品"
 
-#: frontend/mockdata/content.py:41 frontend/mockdata/content.py:176
+#: .\frontend\mockdata\content.py:41 .\frontend\mockdata\content.py:176
 msgid "Ceramics"
 msgstr "陶器"
 
-#: frontend/mockdata/content.py:42 frontend/mockdata/content.py:190
+#: .\frontend\mockdata\content.py:42 .\frontend\mockdata\content.py:190
 msgid "Textiles"
 msgstr "织物"
 
-#: frontend/mockdata/content.py:45
-#, fuzzy
-#| msgid "Home"
+#: .\frontend\mockdata\content.py:45
 msgctxt "category"
 msgid "Home"
 msgstr "家居"
 
-#: frontend/mockdata/content.py:46
+#: .\frontend\mockdata\content.py:46
 msgid "Gifts"
 msgstr "礼品"
 
-#: frontend/mockdata/content.py:48
+#: .\frontend\mockdata\content.py:48
 msgid "About"
 msgstr "关于"
 
-#: frontend/mockdata/content.py:50
-#: frontend/templates/frontend/home.html:104
-#: frontend/templates/frontend/makers/detail.html:8
-#: frontend/templates/frontend/makers/index.html:7
-#: frontend/templates/frontend/pages/our_story.html:71
-#: frontend/templates/frontend/partials/mobile_nav.html:10
-#: frontend/templates/frontend/search/results.html:67
+#: .\frontend\mockdata\content.py:50
+#: .\frontend\templates\frontend\home.html:104
+#: .\frontend\templates\frontend\makers\detail.html:8
+#: .\frontend\templates\frontend\makers\index.html:7
+#: .\frontend\templates\frontend\pages\our_story.html:71
+#: .\frontend\templates\frontend\partials\mobile_nav.html:10
+#: .\frontend\templates\frontend\search\results.html:67
 msgid "Makers"
 msgstr "匠人"
 
-#: frontend/mockdata/content.py:51
-#, fuzzy
-#| msgid "Materials."
+#: .\frontend\mockdata\content.py:51
 msgid "Materials"
-msgstr "材质。"
+msgstr "材质"
 
-#: frontend/mockdata/content.py:54
+#: .\frontend\mockdata\content.py:54
 msgid "Help"
 msgstr "帮助"
 
-#: frontend/mockdata/content.py:55 frontend/mockdata/content.py:134
+#: .\frontend\mockdata\content.py:55 .\frontend\mockdata\content.py:134
 msgid "Shipping"
 msgstr "配送"
 
-#: frontend/mockdata/content.py:56 frontend/mockdata/content.py:153
-#: frontend/templates/frontend/pages/legal.html:33
+#: .\frontend\mockdata\content.py:56 .\frontend\mockdata\content.py:153
+#: .\frontend\templates\frontend\pages\legal.html:33
 msgid "Returns"
 msgstr "退货"
 
-#: frontend/mockdata/content.py:57 frontend/mockdata/content.py:172
+#: .\frontend\mockdata\content.py:57 .\frontend\mockdata\content.py:172
 msgid "Care Guide"
 msgstr "保养指南"
 
-#: frontend/mockdata/content.py:58
-#: frontend/templates/frontend/checkout.html:31
-#: frontend/templates/frontend/pages/contact.html:7
-#: frontend/templates/frontend/partials/mobile_nav.html:13
+#: .\frontend\mockdata\content.py:58
+#: .\frontend\templates\frontend\checkout.html:31
+#: .\frontend\templates\frontend\pages\contact.html:7
+#: .\frontend\templates\frontend\partials\mobile_nav.html:13
 msgid "Contact"
 msgstr "联系"
 
-#: frontend/mockdata/content.py:59
-#: frontend/templates/frontend/pages/faq.html:7
+#: .\frontend\mockdata\content.py:59
+#: .\frontend\templates\frontend\pages\faq.html:7
 msgid "FAQ"
 msgstr "常见问题"
 
-#: frontend/mockdata/content.py:60
+#: .\frontend\mockdata\content.py:60
 msgid "Image Credits"
 msgstr "图片来源"
 
-#: frontend/mockdata/content.py:65
+#: .\frontend\mockdata\content.py:65
 msgid "Designed"
 msgstr "设计"
 
-#: frontend/mockdata/content.py:66
+#: .\frontend\mockdata\content.py:66
 msgid ""
 "Each piece begins with an idea, a sketch or -- more often -- a material that "
 "turned up and suggested something. Nothing goes into production until the "
@@ -153,11 +143,11 @@ msgstr ""
 "每件作品都始于一个念头、一张草图，或者更常见的——一块偶然遇见、自己提出想法的"
 "材料。在匠人与样品共处一季之前，任何东西都不会投入制作。"
 
-#: frontend/mockdata/content.py:70
+#: .\frontend\mockdata\content.py:70
 msgid "Crafted"
 msgstr "制作"
 
-#: frontend/mockdata/content.py:71
+#: .\frontend\mockdata\content.py:71
 msgid ""
 "Made individually, on a wheel, a loom or a bench. A mug takes about forty "
 "minutes to throw and trim; a throw takes the better part of three days on "
@@ -166,13 +156,11 @@ msgstr ""
 "在拉坯机、织机或工作台上逐件完成。一只杯子拉坯与修坯约需四十分钟；一条盖毯要"
 "在织机上花去将近三天。这件事没有更快的做法。"
 
-#: frontend/mockdata/content.py:75
-#, fuzzy
-#| msgid "Just finished"
+#: .\frontend\mockdata\content.py:75
 msgid "Finished"
 msgstr "刚刚完成"
 
-#: frontend/mockdata/content.py:76
+#: .\frontend\mockdata\content.py:76
 msgid ""
 "Checked by hand, wrapped in unbleached paper, and packed with a card naming "
 "the person who made it. Anything that does not pass goes back to the studio "
@@ -181,18 +169,15 @@ msgstr ""
 "逐件手工检查，以本色纸包裹，并附上写有制作者姓名的卡片。未通过检查的作品会回"
 "到工作室的架子上，而不是装进箱子。"
 
-#: frontend/mockdata/content.py:83
-#: frontend/templates/frontend/home.html:16
-#, fuzzy
-#| msgid "Our Story"
+#: .\frontend\mockdata\content.py:83 .\frontend\templates\frontend\home.html:16
 msgid "Our story"
 msgstr "品牌故事"
 
-#: frontend/mockdata/content.py:84
+#: .\frontend\mockdata\content.py:84
 msgid "Made by hand, meant to be kept."
 msgstr "手工制成，值得长久留用。"
 
-#: frontend/mockdata/content.py:85
+#: .\frontend\mockdata\content.py:85
 msgid ""
 "Atelier Form began in 2019 with one kiln, one loom and a stubborn conviction "
 "that the objects people use every day deserve more attention than they "
@@ -201,151 +186,165 @@ msgstr ""
 "Atelier Form 始于 2019 年，起点是一座窑、一台织机，以及一个固执的信念：人们日"
 "常使用的器物，值得比通常得到的更多用心。"
 
-#: frontend/mockdata/content.py:89
-#, fuzzy
-#| msgid "How it is made"
+#: .\frontend\mockdata\content.py:89
 msgid "How it started"
 msgstr "制作过程"
 
-#: frontend/mockdata/content.py:91
+#: .\frontend\mockdata\content.py:91
 msgid ""
 "We started by buying a single firing from a ceramicist in Jingdezhen who was "
 "about to close her studio because wholesale prices had fallen below what the "
 "clay cost her. That firing sold out in nine days. She is still with us, and "
 "she now works with two apprentices."
-msgstr "我们的开始，是向景德镇一位陶艺师买下一整窑作品——当时批发价已低于她的泥料成本，工作室濒临关门。那一窑在九天内售罄。她至今仍与我们合作，如今还带着两名学徒。"
+msgstr ""
+"我们的开始，是向景德镇一位陶艺师买下一整窑作品——当时批发价已低于她的泥料成"
+"本，工作室濒临关门。那一窑在九天内售罄。她至今仍与我们合作，如今还带着两名学"
+"徒。"
 
-#: frontend/mockdata/content.py:95
+#: .\frontend\mockdata\content.py:95
 msgid ""
 "That set the shape of everything since. We do not commission from factories "
 "or buy from agents. We work with five makers, we know what each of them can "
 "produce in a month, and we build the range around that rather than the other "
 "way round."
-msgstr "此后的一切都由此定形。我们不向工厂下单，也不从中间商采购。我们与五位匠人合作，清楚每个人一个月能做多少，再据此安排产品线，而不是反过来。"
+msgstr ""
+"此后的一切都由此定形。我们不向工厂下单，也不从中间商采购。我们与五位匠人合"
+"作，清楚每个人一个月能做多少，再据此安排产品线，而不是反过来。"
 
-#: frontend/mockdata/content.py:100
+#: .\frontend\mockdata\content.py:100
 msgid "The materials we use"
 msgstr "我们使用的材料"
 
-#: frontend/mockdata/content.py:102
+#: .\frontend\mockdata\content.py:102
 msgid ""
 "Stoneware and porcelain from clay quarried within an hour of the studio that "
 "throws it. Flax linen from a single European mill. Cotton spun in Yunnan and "
 "dyed with indigo grown in the same valley. Timber reclaimed from Huizhou "
 "houses under restoration."
-msgstr "炻器与瓷器所用的泥料，采自距拉坯工作室一小时车程之内。亚麻来自欧洲的一家纺厂。棉纱在云南纺成，并以同一山谷种植的蓝靛染色。木料取自正在修缮的徽州老宅。"
+msgstr ""
+"炻器与瓷器所用的泥料，采自距拉坯工作室一小时车程之内。亚麻来自欧洲的一家纺"
+"厂。棉纱在云南纺成，并以同一山谷种植的蓝靛染色。木料取自正在修缮的徽州老宅。"
 
-#: frontend/mockdata/content.py:106
+#: .\frontend\mockdata\content.py:106
 msgid ""
 "The list is short on purpose. A short list means we can actually answer the "
 "question of where something came from, and it means the range holds together "
 "tonally without anyone having to art-direct it."
-msgstr "这份清单刻意保持简短。清单短，我们才真的答得出每样东西来自哪里；也正因如此，整个系列在色调上自然成立，无需刻意的视觉统筹。"
+msgstr ""
+"这份清单刻意保持简短。清单短，我们才真的答得出每样东西来自哪里；也正因如此，"
+"整个系列在色调上自然成立，无需刻意的视觉统筹。"
 
-#: frontend/mockdata/content.py:110
+#: .\frontend\mockdata\content.py:110
 msgid "Why small batches"
 msgstr "为何坚持小批量"
 
-#: frontend/mockdata/content.py:112
+#: .\frontend\mockdata\content.py:112
 msgid ""
 "We make roughly four hundred pieces a month across every category. That "
 "number has not changed much in three years, and we are not trying to change "
 "it."
-msgstr "我们各品类每月合计制作约四百件。这个数字三年来变化不大，我们也无意改变它。"
+msgstr ""
+"我们各品类每月合计制作约四百件。这个数字三年来变化不大，我们也无意改变它。"
 
-#: frontend/mockdata/content.py:114
+#: .\frontend\mockdata\content.py:114
 msgid ""
 "Volume would mean standardising the glazes, mechanising the finishing, and "
 "moving to a schedule the makers do not set. The pieces would survive that. "
 "The reason people like them would not."
-msgstr "扩大产量意味着釉色标准化、修整机械化，以及采用并非由匠人决定的排期。作品或许还能存续，但人们喜欢它们的理由会消失。"
+msgstr ""
+"扩大产量意味着釉色标准化、修整机械化，以及采用并非由匠人决定的排期。作品或许"
+"还能存续，但人们喜欢它们的理由会消失。"
 
-#: frontend/mockdata/content.py:117
+#: .\frontend\mockdata\content.py:117
 msgid ""
 "The trade-off is real and we would rather state it plainly: things sell out, "
 "restocks take weeks, and made-to-order means made to order."
-msgstr "这个取舍是真实的，我们宁愿直说：东西会售罄，补货要等上数周，而订制就是真的现做。"
+msgstr ""
+"这个取舍是真实的，我们宁愿直说：东西会售罄，补货要等上数周，而订制就是真的现"
+"做。"
 
-#: frontend/mockdata/content.py:122
-#, fuzzy
-#| msgid "Five makers, all known by name."
+#: .\frontend\mockdata\content.py:122
 msgid "makers, all known by name"
 msgstr "五位匠人，每一位我们都叫得出名字。"
 
-#: frontend/mockdata/content.py:123
+#: .\frontend\mockdata\content.py:123
 msgid "pieces made each month"
 msgstr "每月制成的件数"
 
-#: frontend/mockdata/content.py:124
+#: .\frontend\mockdata\content.py:124
 msgid "the year of the first firing"
 msgstr "第一次烧窑的年份"
 
-#: frontend/mockdata/content.py:125
+#: .\frontend\mockdata\content.py:125
 msgid "pieces made in a factory"
 msgstr "由工厂制造的件数"
 
-#: frontend/mockdata/content.py:130
-#, fuzzy
-#| msgid "Shipping &amp; Returns"
+#: .\frontend\mockdata\content.py:130
 msgid "Shipping & Returns"
 msgstr "配送与退货"
 
-#: frontend/mockdata/content.py:131
+#: .\frontend\mockdata\content.py:131
 msgid ""
 "Everything is packed by hand in the studio. Here is exactly what that means "
 "for timings, costs and sending something back."
 msgstr ""
 "所有商品均在工作室手工打包。以下说明这在时效、费用与退货方面究竟意味着什么。"
 
-#: frontend/mockdata/content.py:135
+#: .\frontend\mockdata\content.py:135
 msgid ""
 "In-stock orders are dispatched within 2–4 working days. Made-to-order pieces "
 "carry their own lead time, stated clearly on the product page before you buy."
-msgstr "现货订单在 2–4 个工作日内发出。订制作品有各自的制作周期，购买前会在商品页面明确标注。"
+msgstr ""
+"现货订单在 2–4 个工作日内发出。订制作品有各自的制作周期，购买前会在商品页面明"
+"确标注。"
 
-#: frontend/mockdata/content.py:137
+#: .\frontend\mockdata\content.py:137
 msgid ""
 "Standard delivery is ¥8 and takes 3–6 working days domestically. It is "
 "complimentary on orders above ¥80. Express delivery is ¥18 and dispatches "
 "the next working day where stock allows."
-msgstr "标准配送费用为 ¥8，国内需 3–6 个工作日。订单满 ¥80 免运费。加急配送为 ¥18，在有货情况下次个工作日发出。"
+msgstr ""
+"标准配送费用为 ¥8，国内需 3–6 个工作日。订单满 ¥80 免运费。加急配送为 ¥18，在"
+"有货情况下次个工作日发出。"
 
-#: frontend/mockdata/content.py:140
+#: .\frontend\mockdata\content.py:140
 msgid ""
 "International delivery is available to most countries at cost, calculated at "
 "checkout. Duties and import taxes are not included and are payable by the "
 "recipient on arrival."
-msgstr "我们按成本价寄送至大多数国家，运费在结算时计算。价格不含关税与进口税，由收件人在货物到达时承担。"
+msgstr ""
+"我们按成本价寄送至大多数国家，运费在结算时计算。价格不含关税与进口税，由收件"
+"人在货物到达时承担。"
 
-#: frontend/mockdata/content.py:143
+#: .\frontend\mockdata\content.py:143
 msgid ""
 "If an order contains both in-stock and made-to-order pieces, we ship them "
 "separately as they are ready and charge delivery only once."
-msgstr "若一笔订单同时包含现货与订制作品，我们会在各自备妥后分别寄出，运费只收一次。"
+msgstr ""
+"若一笔订单同时包含现货与订制作品，我们会在各自备妥后分别寄出，运费只收一次。"
 
-#: frontend/mockdata/content.py:146
+#: .\frontend\mockdata\content.py:146
 msgid "Packaging"
 msgstr "包装"
 
-#: frontend/mockdata/content.py:147
+#: .\frontend\mockdata\content.py:147
 msgid ""
 "Ceramics travel wrapped in recycled tissue inside moulded pulp, in a double-"
 "walled box. We do not use plastic film, bubble wrap or polystyrene anywhere "
 "in the studio."
-msgstr "陶器以再生纸包裹，置于纸浆模塑中，再装入双层瓦楞纸箱。工作室的任何环节都不使用塑料膜、气泡膜或泡沫塑料。"
+msgstr ""
+"陶器以再生纸包裹，置于纸浆模塑中，再装入双层瓦楞纸箱。工作室的任何环节都不使"
+"用塑料膜、气泡膜或泡沫塑料。"
 
-#: frontend/mockdata/content.py:150
+#: .\frontend\mockdata\content.py:150
 msgid ""
 "Textiles are folded, wrapped in unbleached paper and tied with cotton "
 "string. The wrapping is the gift wrapping -- there is no upgrade to buy."
-msgstr "织物经折叠后以本色纸包裹，并以棉绳系好。这层包装本身就是礼品包装——无需另行付费升级。"
+msgstr ""
+"织物经折叠后以本色纸包裹，并以棉绳系好。这层包装本身就是礼品包装——无需另行付"
+"费升级。"
 
-#: frontend/mockdata/content.py:154
-#, fuzzy
-#| msgid ""
-#| "Thirty days from delivery for unused pieces in their original packaging. "
-#| "Made-to-order and commissioned pieces can only be returned if faulty. See "
-#| "the"
+#: .\frontend\mockdata\content.py:154
 msgid ""
 "You have thirty days from delivery to return an unused piece in its original "
 "packaging. Email the studio first and we will send you a return reference."
@@ -353,881 +352,1102 @@ msgstr ""
 "自收货起三十天内，未使用且保持原包装的作品可退。定制与订制作品仅在存在瑕疵时"
 "可退。详见"
 
-#: frontend/mockdata/content.py:156
+#: .\frontend\mockdata\content.py:156
 msgid ""
 "Refunds are issued to the original payment method within five working days "
 "of the parcel reaching us. Return postage is ours if the piece is faulty or "
 "not what you ordered, and yours for a change of mind."
-msgstr "包裹送达我们处后五个工作日内，退款将原路退回。若作品存在瑕疵或与所订不符，退货运费由我们承担；若因个人改变主意，则由您承担。"
+msgstr ""
+"包裹送达我们处后五个工作日内，退款将原路退回。若作品存在瑕疵或与所订不符，退"
+"货运费由我们承担；若因个人改变主意，则由您承担。"
 
-#: frontend/mockdata/content.py:159
+#: .\frontend\mockdata\content.py:159
 msgid ""
 "Made-to-order and commissioned pieces can only be returned if faulty, since "
 "they were made specifically for you. This is stated on the product page."
-msgstr "订制与定制作品因专为您制作，仅在存在瑕疵时可退。商品页面对此有明确说明。"
+msgstr ""
+"订制与定制作品因专为您制作，仅在存在瑕疵时可退。商品页面对此有明确说明。"
 
-#: frontend/mockdata/content.py:162
+#: .\frontend\mockdata\content.py:162
 msgid "If something arrives broken"
 msgstr "如果收到时有破损"
 
-#: frontend/mockdata/content.py:163
+#: .\frontend\mockdata\content.py:163
 msgid ""
 "Send a photograph within 48 hours and we will replace the piece or refund "
 "you in full, whichever you prefer. You do not need to send the damaged piece "
 "back."
-msgstr "请在 48 小时内拍照发给我们，我们将按您的意愿补发或全额退款。破损的作品无需寄回。"
+msgstr ""
+"请在 48 小时内拍照发给我们，我们将按您的意愿补发或全额退款。破损的作品无需寄"
+"回。"
 
-#: frontend/mockdata/content.py:165
+#: .\frontend\mockdata\content.py:165
 msgid ""
 "This happens on roughly one order in two hundred. We would rather you told "
 "us than lived with it."
 msgstr "这种情况约每两百单发生一次。比起您将就着用，我们更希望您告诉我们。"
 
-#: frontend/mockdata/content.py:173
+#: .\frontend\mockdata\content.py:173
 msgid ""
 "Handmade pieces are more robust than most people expect. Nearly all of what "
 "shortens their life is heat, sunlight or impatience."
 msgstr ""
 "手作器物比多数人想象的更结实。真正缩短它们寿命的，几乎都是高温、日晒与急躁。"
 
-#: frontend/mockdata/content.py:177
+#: .\frontend\mockdata\content.py:177
 msgid "High-fired stoneware and porcelain, fully vitrified."
 msgstr "高温烧制的炻器与瓷器，完全瓷化。"
 
-#: frontend/mockdata/content.py:179
+#: .\frontend\mockdata\content.py:179
 msgid ""
 "Dishwasher safe. Hand washing keeps a matte glaze looking newer for longer, "
 "but the machine will not damage the piece."
 msgstr "可用洗碗机清洗。手洗能让哑光釉面更久保持如新，但机洗不会损坏作品。"
 
-#: frontend/mockdata/content.py:181
+#: .\frontend\mockdata\content.py:181
 msgid ""
 "Avoid thermal shock. Let a hot piece cool before rinsing, and never move a "
 "cold piece straight into a hot oven."
-msgstr "避免骤冷骤热。刚加热过的器物请先放凉再冲洗，也不要将冷的器物直接放入已预热的烤箱。"
+msgstr ""
+"避免骤冷骤热。刚加热过的器物请先放凉再冲洗，也不要将冷的器物直接放入已预热的"
+"烤箱。"
 
-#: frontend/mockdata/content.py:183
+#: .\frontend\mockdata\content.py:183
 msgid ""
 "Not suitable for direct flame or the microwave if the piece has any metallic "
 "detail. None of ours currently do."
-msgstr "不可直接明火加热；若器物带有金属装饰，则不可微波。我们目前的作品均无金属装饰。"
+msgstr ""
+"不可直接明火加热；若器物带有金属装饰，则不可微波。我们目前的作品均无金属装"
+"饰。"
 
-#: frontend/mockdata/content.py:185
+#: .\frontend\mockdata\content.py:185
 msgid ""
 "Unglazed feet may mark the table over time. A damp cloth with a little "
 "bicarbonate lifts most marks."
-msgstr "未施釉的底足日久可能在桌面留下痕迹。用湿布蘸少量小苏打即可去除大部分痕迹。"
+msgstr ""
+"未施釉的底足日久可能在桌面留下痕迹。用湿布蘸少量小苏打即可去除大部分痕迹。"
 
-#: frontend/mockdata/content.py:187
+#: .\frontend\mockdata\content.py:187
 msgid ""
 "Fine crazing in the glaze is cosmetic on a vitrified body and does not "
 "affect strength or water-tightness."
 msgstr "瓷化胎体上的细微开片属于外观特征，不影响强度与密封性。"
 
-#: frontend/mockdata/content.py:191
+#: .\frontend\mockdata\content.py:191
 msgid "Washed linen and handwoven, naturally dyed cotton."
 msgstr "水洗亚麻，以及手织的天然染色棉布。"
 
-#: frontend/mockdata/content.py:193
+#: .\frontend\mockdata\content.py:193
 msgid ""
 "Cool machine wash, gentle cycle, mild detergent. No fabric softener -- it "
 "coats the fibre and stops linen softening naturally."
-msgstr "冷水机洗，轻柔模式，使用温和洗涤剂。请勿使用柔顺剂——它会包覆纤维，妨碍亚麻自然变软。"
+msgstr ""
+"冷水机洗，轻柔模式，使用温和洗涤剂。请勿使用柔顺剂——它会包覆纤维，妨碍亚麻自"
+"然变软。"
 
-#: frontend/mockdata/content.py:195
+#: .\frontend\mockdata\content.py:195
 msgid ""
 "Line dry in shade. Direct sun will lift natural indigo faster than anything "
 "else you can do to it."
 msgstr "阴凉处晾干。相比其他任何因素，阳光直射都会更快使天然蓝靛褪色。"
 
-#: frontend/mockdata/content.py:197
+#: .\frontend\mockdata\content.py:197
 msgid ""
 "Wash naturally dyed pieces separately for the first two or three washes."
 msgstr "天然染色的织物，前两三次请单独清洗。"
 
-#: frontend/mockdata/content.py:198
+#: .\frontend\mockdata\content.py:198
 msgid ""
 "Warm iron while slightly damp if you want a crisper finish. Most pieces are "
 "designed to be left alone."
-msgstr "若想要更挺括的效果，可在略带潮气时以温熨斗熨烫。不过多数作品本就无需打理。"
+msgstr ""
+"若想要更挺括的效果，可在略带潮气时以温熨斗熨烫。不过多数作品本就无需打理。"
 
-#: frontend/mockdata/content.py:200
+#: .\frontend\mockdata\content.py:200
 msgid ""
 "Linen strengthens when wet, so it handles washing better than it looks like "
 "it should. It genuinely improves for the first fifty washes."
 msgstr "亚麻遇水会更结实，因此比看上去更耐洗。前五十次水洗，它确实会越用越好。"
 
-#: frontend/mockdata/content.py:203
+#: .\frontend\mockdata\content.py:203
 msgid "Candles"
 msgstr "蜡烛"
 
-#: frontend/mockdata/content.py:204
+#: .\frontend\mockdata\content.py:204
 msgid "Soy and rapeseed wax, cotton wick."
 msgstr "大豆蜡与菜籽蜡，棉质烛芯。"
 
-#: frontend/mockdata/content.py:206
+#: .\frontend\mockdata\content.py:206
 msgid ""
 "Let the first burn run two to three hours, until the melt pool reaches the "
 "edge. Wax has a memory and the first burn sets the pattern."
-msgstr "第一次点燃请持续两到三小时，直至烛池扩至边缘。蜡是有记忆的，第一次燃烧决定了此后的形态。"
+msgstr ""
+"第一次点燃请持续两到三小时，直至烛池扩至边缘。蜡是有记忆的，第一次燃烧决定了"
+"此后的形态。"
 
-#: frontend/mockdata/content.py:208
+#: .\frontend\mockdata\content.py:208
 msgid ""
 "Trim the wick to about 5 mm before every burn. This is the single thing that "
 "most affects how cleanly a candle burns."
-msgstr "每次点燃前将烛芯修剪至约 5 毫米。这是影响蜡烛燃烧是否洁净的最关键一点。"
+msgstr ""
+"每次点燃前将烛芯修剪至约 5 毫米。这是影响蜡烛燃烧是否洁净的最关键一点。"
 
-#: frontend/mockdata/content.py:210
+#: .\frontend\mockdata\content.py:210
 msgid ""
 "Never burn for more than four hours at a time, and never leave one "
 "unattended."
 msgstr "单次燃烧请勿超过四小时，也切勿在无人看管时点燃。"
 
-#: frontend/mockdata/content.py:211
+#: .\frontend\mockdata\content.py:211
 msgid ""
 "Stop burning when about 10 mm of wax remains, then wash the vessel in warm "
 "water and keep it."
 msgstr "当剩余蜡体约 10 毫米时请停止使用，用温水洗净容器后留作他用。"
 
-#: frontend/mockdata/content.py:214
+#: .\frontend\mockdata\content.py:214
 msgid "Wood & brass"
 msgstr "木料与黄铜"
 
-#: frontend/mockdata/content.py:215
+#: .\frontend\mockdata\content.py:215
 msgid "Reclaimed hardwood, oak and unlacquered brass."
 msgstr "再生硬木、橡木与未涂漆黄铜。"
 
-#: frontend/mockdata/content.py:217
+#: .\frontend\mockdata\content.py:217
 msgid ""
 "Hand wash wood in warm water and dry immediately. Never put a board in the "
 "dishwasher or leave it soaking."
 msgstr "木器请以温水手洗并立即擦干。切勿放入洗碗机，也不要长时间浸泡。"
 
-#: frontend/mockdata/content.py:219
+#: .\frontend\mockdata\content.py:219
 msgid ""
 "Re-oil with food-safe linseed or mineral oil two or three times a year, or "
 "whenever the surface looks dry."
 msgstr "每年用食品级亚麻籽油或矿物油保养两到三次，或在表面显干时随时补涂。"
 
-#: frontend/mockdata/content.py:221
+#: .\frontend\mockdata\content.py:221
 msgid "Unlacquered brass darkens with handling. That is the intended finish."
 msgstr "未涂漆的黄铜会随着使用而变深。这正是我们想要的质感。"
 
-#: frontend/mockdata/content.py:222
+#: .\frontend\mockdata\content.py:222
 msgid ""
 "If you want the shine back, lemon juice and bicarbonate will do it in a "
 "minute. It will darken again, which is fine."
-msgstr "若想恢复光泽，用柠檬汁加小苏打一分钟即可。它之后还会再变深，这没有关系。"
+msgstr ""
+"若想恢复光泽，用柠檬汁加小苏打一分钟即可。它之后还会再变深，这没有关系。"
 
-#: frontend/templates/404.html:10
+#: .\frontend\templates\404.html:4
+msgid "Page not found"
+msgstr "页面未找到"
+
+#: .\frontend\templates\404.html:10
 msgid "This page has been taken off the shelf."
 msgstr "此页面已下架。"
 
-#: frontend/templates/404.html:12
+#: .\frontend\templates\404.html:12
 msgid ""
 "The link may be old, or a piece may have sold out and been retired. "
 "Everything we currently make is one click away."
 msgstr ""
 "链接可能已失效，或该件作品已售罄下架。我们目前在售的全部作品，一键即可浏览。"
 
-#: frontend/templates/404.html:15
-#: frontend/templates/frontend/account/orders.html:37
-#: frontend/templates/frontend/account/wishlist.html:20
-#: frontend/templates/frontend/cart.html:18
-#: frontend/templates/frontend/checkout.html:23
-#: frontend/templates/frontend/shop/collection_detail.html:40
+#: .\frontend\templates\404.html:15
+#: .\frontend\templates\frontend\account\orders.html:37
+#: .\frontend\templates\frontend\account\wishlist.html:20
+#: .\frontend\templates\frontend\cart.html:18
+#: .\frontend\templates\frontend\checkout.html:23
+#: .\frontend\templates\frontend\shop\collection_detail.html:40
 msgid "Browse the shop"
 msgstr "浏览商店"
 
-#: frontend/templates/404.html:16 frontend/templates/500.html:20
+#: .\frontend\templates\404.html:16 .\frontend\templates\500.html:20
 msgid "Back to home"
 msgstr "返回首页"
 
-#: frontend/templates/500.html:7
+#: .\frontend\templates\500.html:7
 msgid "Something went wrong"
 msgstr "出错了"
 
-#: frontend/templates/500.html:18
+#: .\frontend\templates\500.html:18
 msgid "Something went wrong at our end."
 msgstr "我们这边出了点问题。"
 
-#: frontend/templates/500.html:19
+#: .\frontend\templates\500.html:19
 msgid ""
 "The studio has been notified. Try again in a moment, or head back to the "
 "homepage."
 msgstr "工作室已收到通知。请稍后重试，或返回首页。"
 
-#: frontend/templates/frontend/account/addresses.html:5
+#: .\frontend\templates\frontend\account\addresses.html:4
+#: .\frontend\templates\frontend\partials\account_nav.html:11
+msgid "Addresses"
+msgstr "地址"
+
+#: .\frontend\templates\frontend\account\addresses.html:5
 msgid "Where we send things."
 msgstr "我们的寄送地址。"
 
-#: frontend/templates/frontend/account/addresses.html:17
-#: frontend/templates/frontend/checkout.html:60
+#: .\frontend\templates\frontend\account\addresses.html:17
+#: .\frontend\templates\frontend\checkout.html:60
 msgid "Default"
 msgstr "默认"
 
-#: frontend/templates/frontend/account/addresses.html:28
+#: .\frontend\templates\frontend\account\addresses.html:28
 msgid "Delete"
 msgstr "删除"
 
-#: frontend/templates/frontend/account/addresses.html:33
+#: .\frontend\templates\frontend\account\addresses.html:33
 msgid "No addresses saved yet."
 msgstr "尚未保存任何地址。"
 
-#: frontend/templates/frontend/account/addresses.html:39
-#, fuzzy
-#| msgid "Addresses"
+#: .\frontend\templates\frontend\account\addresses.html:39
 msgid "Add an address"
 msgstr "地址"
 
-#: frontend/templates/frontend/account/addresses.html:41
+#: .\frontend\templates\frontend\account\addresses.html:41
 msgid "Label"
 msgstr "标签"
 
-#: frontend/templates/frontend/account/addresses.html:42
+#: .\frontend\templates\frontend\account\addresses.html:42
 msgid "Home, studio, parents'"
 msgstr "家、工作室、父母家"
 
-#: frontend/templates/frontend/account/addresses.html:46
-#: frontend/templates/frontend/account/auth.html:53
-#: frontend/templates/frontend/account/profile.html:17
-#: frontend/templates/frontend/checkout.html:79
+#: .\frontend\templates\frontend\account\addresses.html:46
+#: .\frontend\templates\frontend\account\auth.html:53
+#: .\frontend\templates\frontend\account\profile.html:17
+#: .\frontend\templates\frontend\checkout.html:79
 msgid "First name"
 msgstr "名字"
 
-#: frontend/templates/frontend/account/addresses.html:50
-#: frontend/templates/frontend/account/auth.html:58
-#: frontend/templates/frontend/account/profile.html:22
-#: frontend/templates/frontend/checkout.html:84
+#: .\frontend\templates\frontend\account\addresses.html:50
+#: .\frontend\templates\frontend\account\auth.html:58
+#: .\frontend\templates\frontend\account\profile.html:22
+#: .\frontend\templates\frontend\checkout.html:84
 msgid "Last name"
 msgstr "姓氏"
 
-#: frontend/templates/frontend/account/addresses.html:55
-#, fuzzy
-#| msgid "Addresses"
+#: .\frontend\templates\frontend\account\addresses.html:55
 msgid "Address line 1"
 msgstr "地址"
 
-#: frontend/templates/frontend/account/addresses.html:59
-#, fuzzy
-#| msgid "Addresses"
+#: .\frontend\templates\frontend\account\addresses.html:59
 msgid "Address line 2"
 msgstr "地址"
 
-#: frontend/templates/frontend/account/addresses.html:59
-#: frontend/templates/frontend/checkout.html:94
-#: frontend/templates/frontend/pages/contact.html:40
+#: .\frontend\templates\frontend\account\addresses.html:59
+#: .\frontend\templates\frontend\checkout.html:94
+#: .\frontend\templates\frontend\pages\contact.html:40
 msgid "(optional)"
 msgstr "（选填）"
 
-#: frontend/templates/frontend/account/addresses.html:64
-#: frontend/templates/frontend/checkout.html:99
+#: .\frontend\templates\frontend\account\addresses.html:64
+#: .\frontend\templates\frontend\checkout.html:99
 msgid "City"
 msgstr "城市"
 
-#: frontend/templates/frontend/account/addresses.html:68
-#: frontend/templates/frontend/checkout.html:103
+#: .\frontend\templates\frontend\account\addresses.html:68
+#: .\frontend\templates\frontend\checkout.html:103
 msgid "Postcode"
 msgstr "邮政编码"
 
-#: frontend/templates/frontend/account/addresses.html:72
-#: frontend/templates/frontend/checkout.html:107
+#: .\frontend\templates\frontend\account\addresses.html:72
+#: .\frontend\templates\frontend\checkout.html:107
 msgid "Country"
 msgstr "国家/地区"
 
-#: frontend/templates/frontend/account/addresses.html:74
-#: frontend/templates/frontend/checkout.html:109
+#: .\frontend\templates\frontend\account\addresses.html:74
+#: .\frontend\templates\frontend\checkout.html:109
 msgid "China"
 msgstr "中国"
 
-#: frontend/templates/frontend/account/addresses.html:74
-#: frontend/templates/frontend/checkout.html:109
+#: .\frontend\templates\frontend\account\addresses.html:74
+#: .\frontend\templates\frontend\checkout.html:109
 msgid "Hong Kong SAR"
 msgstr "中国香港特别行政区"
 
-#: frontend/templates/frontend/account/addresses.html:74
-#: frontend/templates/frontend/checkout.html:109
+#: .\frontend\templates\frontend\account\addresses.html:74
+#: .\frontend\templates\frontend\checkout.html:109
 msgid "Singapore"
 msgstr "新加坡"
 
-#: frontend/templates/frontend/account/addresses.html:75
-#: frontend/templates/frontend/checkout.html:110
+#: .\frontend\templates\frontend\account\addresses.html:75
+#: .\frontend\templates\frontend\checkout.html:110
 msgid "Malaysia"
 msgstr "马来西亚"
 
-#: frontend/templates/frontend/account/addresses.html:75
+#: .\frontend\templates\frontend\account\addresses.html:75
 msgid "Other"
 msgstr "其他"
 
-#: frontend/templates/frontend/account/addresses.html:80
-#: frontend/templates/frontend/account/profile.html:35
-#: frontend/templates/frontend/checkout.html:44
-#: frontend/templates/frontend/pages/contact.html:64
+#: .\frontend\templates\frontend\account\addresses.html:80
+#: .\frontend\templates\frontend\account\profile.html:35
+#: .\frontend\templates\frontend\checkout.html:44
+#: .\frontend\templates\frontend\pages\contact.html:64
 msgid "Phone"
 msgstr "电话"
 
-#: frontend/templates/frontend/account/addresses.html:84
+#: .\frontend\templates\frontend\account\addresses.html:84
 msgid "Make this my default delivery address"
 msgstr "设为我的默认收货地址"
 
-#: frontend/templates/frontend/account/addresses.html:86
+#: .\frontend\templates\frontend\account\addresses.html:86
 msgid "Save address"
 msgstr "保存地址"
 
-#: frontend/templates/frontend/account/auth.html:23
+#: .\frontend\templates\frontend\account\auth.html:23
 msgid "Sign in to see your orders and saved pieces."
 msgstr "登录以查看您的订单与收藏的作品。"
 
-#: frontend/templates/frontend/account/auth.html:28
-#: frontend/templates/frontend/account/auth.html:64
-#: frontend/templates/frontend/account/auth.html:96
-#: frontend/templates/frontend/account/profile.html:28
-#: frontend/templates/frontend/checkout.html:39
-#: frontend/templates/frontend/pages/contact.html:24
-#: frontend/templates/frontend/pages/contact.html:60
+#: .\frontend\templates\frontend\account\auth.html:28
+#: .\frontend\templates\frontend\account\auth.html:64
+#: .\frontend\templates\frontend\account\password_reset_form.html:16
+#: .\frontend\templates\frontend\account\profile.html:28
+#: .\frontend\templates\frontend\checkout.html:39
+#: .\frontend\templates\frontend\pages\contact.html:24
+#: .\frontend\templates\frontend\pages\contact.html:60
 msgid "Email"
 msgstr "邮箱"
 
-#: frontend/templates/frontend/account/auth.html:33
-#: frontend/templates/frontend/account/auth.html:71
-#: frontend/templates/frontend/account/profile.html:48
+#: .\frontend\templates\frontend\account\auth.html:33
+#: .\frontend\templates\frontend\account\auth.html:71
+#: .\frontend\templates\frontend\account\profile.html:49
 msgid "Password"
 msgstr "密码"
 
-#: frontend/templates/frontend/account/auth.html:38
+#: .\frontend\templates\frontend\account\auth.html:38
 msgid "Sessions last until you sign out."
 msgstr "登录状态将保持至您退出为止。"
 
-#: frontend/templates/frontend/account/auth.html:39
+#: .\frontend\templates\frontend\account\auth.html:39
 msgid "Forgot password?"
 msgstr "忘记密码？"
 
-#: frontend/templates/frontend/account/auth.html:41
-#: frontend/templates/frontend/account/auth.html:87
-#: frontend/templates/frontend/checkout.html:34
-#, fuzzy
-#| msgid "Sign out"
+#: .\frontend\templates\frontend\account\auth.html:41
+#: .\frontend\templates\frontend\account\auth.html:87
+#: .\frontend\templates\frontend\account\password_reset_complete.html:10
+#: .\frontend\templates\frontend\checkout.html:34
+#: .\frontend\templates\frontend\partials\header.html:34
 msgid "Sign in"
-msgstr "退出登录"
+msgstr "登录"
 
-#: frontend/templates/frontend/account/auth.html:43
+#: .\frontend\templates\frontend\account\auth.html:43
 msgid "New here?"
 msgstr "第一次来？"
 
-#: frontend/templates/frontend/account/auth.html:43
+#: .\frontend\templates\frontend\account\auth.html:43
 msgid "Create an account"
 msgstr "创建账户"
 
-#: frontend/templates/frontend/account/auth.html:47
+#: .\frontend\templates\frontend\account\auth.html:47
 msgid "An account keeps your orders, addresses and saved pieces in one place."
 msgstr "账户可将您的订单、地址与收藏集中在一处。"
 
-#: frontend/templates/frontend/account/auth.html:77
+#: .\frontend\templates\frontend\account\auth.html:77
 msgid "At least eight characters."
 msgstr "至少八个字符。"
 
-#: frontend/templates/frontend/account/auth.html:82
+#: .\frontend\templates\frontend\account\auth.html:82
 msgid "Send me studio notes, about once a month"
 msgstr "订阅工作室通讯，约每月一封"
 
-#: frontend/templates/frontend/account/auth.html:85
+#: .\frontend\templates\frontend\account\auth.html:85
 msgid "Create account"
 msgstr "创建账户"
 
-#: frontend/templates/frontend/account/auth.html:87
+#: .\frontend\templates\frontend\account\auth.html:87
 msgid "Already have one?"
 msgstr "已有账户？"
 
-#: frontend/templates/frontend/account/auth.html:91
-msgid "Enter your email and we will send a link to set a new password."
-msgstr "请输入邮箱，我们将发送重设密码的链接。"
-
-#: frontend/templates/frontend/account/auth.html:99
-msgid "Send reset link"
-msgstr "发送重设链接"
-
-#: frontend/templates/frontend/account/auth.html:101
-msgid "Back to sign in"
-msgstr "返回登录"
-
-#: frontend/templates/frontend/account/auth.html:103
-msgid ""
-"Password reset email delivery is not connected yet — the request is accepted "
-"and logged."
-msgstr "重设密码邮件发送功能尚未接入——请求已受理并记录。"
-
-#: frontend/templates/frontend/account/base.html:8
-#: frontend/templates/frontend/partials/account_nav.html:7
-#: frontend/templates/frontend/partials/mobile_nav.html:16
+#: .\frontend\templates\frontend\account\base.html:8
+#: .\frontend\templates\frontend\partials\account_nav.html:7
+#: .\frontend\templates\frontend\partials\mobile_nav.html:16
 msgid "Account"
 msgstr "账户"
 
-#: frontend/templates/frontend/account/order_detail.html:9
-#: frontend/templates/frontend/account/overview.html:27
-#, fuzzy
-#| msgid "Place order"
+#: .\frontend\templates\frontend\account\order_detail.html:4
+#, python-format
+msgid "Order %(number)s"
+msgstr "订单 %(number)s"
+
+#: .\frontend\templates\frontend\account\order_detail.html:5
+#, python-format
+msgid "Placed %(date)s · %(status)s"
+msgstr "下单于 %(date)s · %(status)s"
+
+#: .\frontend\templates\frontend\account\order_detail.html:9
+#: .\frontend\templates\frontend\account\overview.html:27
 msgid "All orders"
 msgstr "提交订单"
 
-#: frontend/templates/frontend/account/order_detail.html:14
+#: .\frontend\templates\frontend\account\order_detail.html:14
 msgid "Progress"
 msgstr "进度"
 
-#: frontend/templates/frontend/account/order_detail.html:31
+#: .\frontend\templates\frontend\account\order_detail.html:26
+#, python-format
+msgid "%(carrier)s · Tracking %(number)s"
+msgstr "%(carrier)s · 运单号 %(number)s"
+
+#: .\frontend\templates\frontend\account\order_detail.html:31
 msgid "Items"
 msgstr "商品"
 
-#: frontend/templates/frontend/account/order_detail.html:48
-#: frontend/templates/frontend/cart.html:33
-#: frontend/templates/frontend/checkout.html:177
-#: frontend/templates/frontend/order_confirmation.html:57
-#: frontend/templates/frontend/partials/cart_drawer.html:10
+#: .\frontend\templates\frontend\account\order_detail.html:40
+#: .\frontend\templates\frontend\order_confirmation.html:30
+#, python-format
+msgid "Quantity %(n)s"
+msgstr "数量 %(n)s"
+
+#: .\frontend\templates\frontend\account\order_detail.html:48
+#: .\frontend\templates\frontend\cart.html:33
+#: .\frontend\templates\frontend\checkout.html:177
+#: .\frontend\templates\frontend\order_confirmation.html:56
+#: .\frontend\templates\frontend\partials\cart_drawer.html:10
 msgid "Subtotal"
 msgstr "小计"
 
-#: frontend/templates/frontend/account/order_detail.html:50
-#: frontend/templates/frontend/account/order_detail.html:58
-#: frontend/templates/frontend/cart.html:34
-#: frontend/templates/frontend/checkout.html:179
-#: frontend/templates/frontend/order_confirmation.html:40
-#: frontend/templates/frontend/order_confirmation.html:59
+#: .\frontend\templates\frontend\account\order_detail.html:50
+#: .\frontend\templates\frontend\account\order_detail.html:58
+#: .\frontend\templates\frontend\cart.html:34
+#: .\frontend\templates\frontend\checkout.html:179
+#: .\frontend\templates\frontend\order_confirmation.html:39
+#: .\frontend\templates\frontend\order_confirmation.html:58
 msgid "Delivery"
 msgstr "配送"
 
-#: frontend/templates/frontend/account/order_detail.html:53
-#: frontend/templates/frontend/cart.html:35
-#: frontend/templates/frontend/checkout.html:180
-#: frontend/templates/frontend/order_confirmation.html:62
+#: .\frontend\templates\frontend\account\order_detail.html:51
+#: .\frontend\templates\frontend\order_confirmation.html:59
+msgid "Complimentary"
+msgstr "免运费"
+
+#: .\frontend\templates\frontend\account\order_detail.html:53
+#: .\frontend\templates\frontend\cart.html:35
+#: .\frontend\templates\frontend\checkout.html:180
+#: .\frontend\templates\frontend\order_confirmation.html:61
 msgid "Total"
 msgstr "合计"
 
-#: frontend/templates/frontend/account/order_detail.html:69
+#: .\frontend\templates\frontend\account\order_detail.html:69
 msgid "Something wrong with this order?"
 msgstr "此订单有问题？"
 
-#: frontend/templates/frontend/account/order_detail.html:69
-#: frontend/templates/frontend/partials/footer.html:22
+#: .\frontend\templates\frontend\account\order_detail.html:69
+#: .\frontend\templates\frontend\partials\footer.html:22
 msgid "Email the studio"
 msgstr "给工作室发邮件"
 
-#: frontend/templates/frontend/account/orders.html:5
+#: .\frontend\templates\frontend\account\order_detail.html:69
+#, python-format
+msgid "and quote %(number)s."
+msgstr "并注明订单号 %(number)s。"
+
+#: .\frontend\templates\frontend\account\orders.html:4
+#: .\frontend\templates\frontend\partials\account_nav.html:9
+msgid "Orders"
+msgstr "订单"
+
+#: .\frontend\templates\frontend\account\orders.html:5
 msgid "Everything you have ordered, newest first."
 msgstr "您的全部订单，最新的在前。"
 
-#: frontend/templates/frontend/account/orders.html:30
-#: frontend/templates/frontend/account/overview.html:38
-#: frontend/templates/frontend/mock_payment.html:29
+#: .\frontend\templates\frontend\account\orders.html:14
+#, python-format
+msgid "Placed %(date)s · %(n)s item · %(total)s"
+msgid_plural "Placed %(date)s · %(n)s items · %(total)s"
+msgstr[0] "下单于 %(date)s · %(n)s 件商品 · %(total)s"
+
+#: .\frontend\templates\frontend\account\orders.html:30
+#: .\frontend\templates\frontend\account\overview.html:38
+#: .\frontend\templates\frontend\mock_payment.html:29
 msgid "View order"
 msgstr "查看订单"
 
-#: frontend/templates/frontend/account/orders.html:35
+#: .\frontend\templates\frontend\account\orders.html:35
 msgid "No orders yet"
 msgstr "暂无订单"
 
-#: frontend/templates/frontend/account/orders.html:36
+#: .\frontend\templates\frontend\account\orders.html:36
 msgid "When you order something it will appear here with its tracking."
 msgstr "下单后，订单与物流信息将显示在这里。"
 
-#: frontend/templates/frontend/account/overview.html:15
+#: .\frontend\templates\frontend\account\overview.html:4
+#, python-format
+msgid "Hello, %(name)s"
+msgstr "您好，%(name)s"
+
+#: .\frontend\templates\frontend\account\overview.html:5
+#, python-format
+msgid "A member since %(joined)s."
+msgstr "自 %(joined)s 年成为会员。"
+
+#: .\frontend\templates\frontend\account\overview.html:11
+msgid "Placed order"
+msgid_plural "Placed orders"
+msgstr[0] "已下单"
+
+#: .\frontend\templates\frontend\account\overview.html:15
 msgid "Pieces saved"
 msgstr "已收藏作品"
 
-#: frontend/templates/frontend/account/overview.html:26
+#: .\frontend\templates\frontend\account\overview.html:19
+msgid "Saved address"
+msgid_plural "Saved addresses"
+msgstr[0] "已保存地址"
+
+#: .\frontend\templates\frontend\account\overview.html:26
 msgid "Latest order"
 msgstr "最近订单"
 
-#: frontend/templates/frontend/account/overview.html:45
+#: .\frontend\templates\frontend\account\overview.html:32
+#, python-format
+msgid "Placed %(date)s · %(total)s"
+msgstr "下单于 %(date)s · %(total)s"
+
+#: .\frontend\templates\frontend\account\overview.html:45
 msgid "Details"
 msgstr "详情"
 
-#: frontend/templates/frontend/account/overview.html:46
+#: .\frontend\templates\frontend\account\overview.html:46
 msgid "Edit"
 msgstr "编辑"
 
-#: frontend/templates/frontend/account/profile.html:5
+#: .\frontend\templates\frontend\account\password_reset_complete.html:4
+msgid "Password reset complete"
+msgstr "密码重设完成"
+
+#: .\frontend\templates\frontend\account\password_reset_complete.html:8
+msgid ""
+"Your password has been reset. You can now sign in with your new password."
+msgstr "您的密码已重设。现在可以使用新密码登录。"
+
+#: .\frontend\templates\frontend\account\password_reset_confirm.html:5
+msgid "Set a new password"
+msgstr "设置新密码"
+
+#: .\frontend\templates\frontend\account\password_reset_confirm.html:5
+msgid "Reset link unavailable"
+msgstr "重设链接无效"
+
+#: .\frontend\templates\frontend\account\password_reset_confirm.html:11
+msgid "Enter and confirm your new password."
+msgstr "请输入并确认您的新密码。"
+
+#: .\frontend\templates\frontend\account\password_reset_confirm.html:21
+#: .\frontend\templates\frontend\account\profile.html:65
+msgid "New password"
+msgstr "新密码"
+
+#: .\frontend\templates\frontend\account\password_reset_confirm.html:21
+#: .\frontend\templates\frontend\account\profile.html:76
+msgid "Confirm new password"
+msgstr "确认新密码"
+
+#: .\frontend\templates\frontend\account\password_reset_confirm.html:35
+msgid "Reset password"
+msgstr "重设密码"
+
+#: .\frontend\templates\frontend\account\password_reset_confirm.html:39
+msgid ""
+"This password reset link is invalid, has expired, or has already been used. "
+"Request a new link to try again."
+msgstr "此密码重设链接无效、已过期或已被使用。请重新获取链接后再试。"
+
+#: .\frontend\templates\frontend\account\password_reset_confirm.html:41
+msgid "Request a new reset link"
+msgstr "重新获取重设链接"
+
+#: .\frontend\templates\frontend\account\password_reset_confirm.html:43
+#: .\frontend\templates\frontend\account\password_reset_done.html:14
+#: .\frontend\templates\frontend\account\password_reset_form.html:29
+msgid "Back to sign in"
+msgstr "返回登录"
+
+#: .\frontend\templates\frontend\account\password_reset_done.html:4
+msgid "Check your email"
+msgstr "请查收邮件"
+
+#: .\frontend\templates\frontend\account\password_reset_done.html:8
+msgid ""
+"If an eligible account exists for that email address, you will receive a "
+"password reset link shortly."
+msgstr "若该邮箱对应的账户存在，您将很快收到一封密码重设链接邮件。"
+
+#: .\frontend\templates\frontend\account\password_reset_done.html:11
+msgid ""
+"Check your spam folder. If no email arrives, check the address and try again."
+msgstr "请检查垃圾邮件文件夹。若仍未收到邮件，请核对邮箱地址后重试。"
+
+#: .\frontend\templates\frontend\account\password_reset_done.html:13
+msgid "Try another email address"
+msgstr "尝试其他邮箱地址"
+
+#: .\frontend\templates\frontend\account\password_reset_email.txt:1
+msgid "You requested a password reset for your Atelier Form account."
+msgstr "您申请重设 Atelier Form 账户的密码。"
+
+#: .\frontend\templates\frontend\account\password_reset_email.txt:3
+msgid "Follow this link to choose a new password:"
+msgstr "请点击以下链接设置新密码："
+
+#: .\frontend\templates\frontend\account\password_reset_email.txt:6
+msgid ""
+"If you did not request this reset, you can ignore this email. Your password "
+"will remain unchanged."
+msgstr "若您并未申请重设密码，可忽略此邮件，您的密码将保持不变。"
+
+#: .\frontend\templates\frontend\account\password_reset_email.txt:8
+msgid "Atelier Form"
+msgstr "Atelier Form"
+
+#: .\frontend\templates\frontend\account\password_reset_form.html:4
+msgid "Reset your password"
+msgstr "重设密码"
+
+#: .\frontend\templates\frontend\account\password_reset_form.html:8
+msgid "Enter your email and we will send a link to set a new password."
+msgstr "请输入邮箱，我们将发送重设密码的链接。"
+
+#: .\frontend\templates\frontend\account\password_reset_form.html:27
+msgid "Send reset link"
+msgstr "发送重设链接"
+
+#: .\frontend\templates\frontend\account\password_reset_subject.txt:1
+msgid "Reset your Atelier Form password"
+msgstr "重设您的 Atelier Form 密码"
+
+#: .\frontend\templates\frontend\account\profile.html:4
+#: .\frontend\templates\frontend\partials\account_nav.html:12
+msgid "Profile"
+msgstr "个人资料"
+
+#: .\frontend\templates\frontend\account\profile.html:5
 msgid "Your details and what we send you."
 msgstr "您的资料与订阅设置。"
 
-#: frontend/templates/frontend/account/profile.html:14
+#: .\frontend\templates\frontend\account\profile.html:14
 msgid "Your details"
 msgstr "您的资料"
 
-#: frontend/templates/frontend/account/profile.html:31
+#: .\frontend\templates\frontend\account\profile.html:31
 msgid "Your email is your sign-in and cannot be changed here."
 msgstr "邮箱即登录账号，无法在此修改。"
 
-#: frontend/templates/frontend/account/profile.html:41
+#: .\frontend\templates\frontend\account\profile.html:41
 msgid "Studio notes — roughly monthly"
 msgstr "工作室通讯——约每月一封"
 
-#: frontend/templates/frontend/account/profile.html:44
+#: .\frontend\templates\frontend\account\profile.html:44
 msgid "Save changes"
 msgstr "保存更改"
 
-#: frontend/templates/frontend/account/profile.html:50
-msgid "Change your password through the API endpoint"
-msgstr "通过 API 接口修改密码"
+#: .\frontend\templates\frontend\account\profile.html:54
+msgid "Current password"
+msgstr "当前密码"
 
-#: frontend/templates/frontend/account/profile.html:51
-msgid "POST /api/auth/change-password/"
-msgstr "POST /api/auth/change-password/"
+#: .\frontend\templates\frontend\account\profile.html:86
+msgid "Change password"
+msgstr "修改密码"
 
-#: frontend/templates/frontend/account/profile.html:51
-msgid ". A frontend form for this is not built yet."
-msgstr "。前台表单尚未开发。"
+#: .\frontend\templates\frontend\account\wishlist.html:4
+#: .\frontend\templates\frontend\partials\account_nav.html:10
+#: .\frontend\templates\frontend\partials\header.html:30
+#: .\frontend\templates\frontend\partials\mobile_nav.html:17
+msgid "Wishlist"
+msgstr "心愿单"
 
-#: frontend/templates/frontend/account/wishlist.html:6
+#: .\frontend\templates\frontend\account\wishlist.html:6
 msgid ""
 "Saved to your account. Nothing here is reserved — small batches sell out."
 msgstr "已保存至您的账户。此处不含预留——小批量作品售完即止。"
 
-#: frontend/templates/frontend/account/wishlist.html:18
+#: .\frontend\templates\frontend\account\wishlist.html:18
 msgid "Nothing saved yet"
 msgstr "尚未收藏"
 
-#: frontend/templates/frontend/account/wishlist.html:19
+#: .\frontend\templates\frontend\account\wishlist.html:19
 msgid "Tap the heart on any piece and it will wait for you here."
 msgstr "点击任意作品上的心形图标，它就会留在这里等您。"
 
-#: frontend/templates/frontend/base.html:14
+#: .\frontend\templates\frontend\base.html:14
 msgid "Skip to content"
 msgstr "跳至主要内容"
 
-#: frontend/templates/frontend/cart.html:6
-#: frontend/templates/frontend/checkout.html:8
-#: frontend/templates/frontend/journal/detail.html:9
-#: frontend/templates/frontend/journal/index.html:6
-#: frontend/templates/frontend/makers/detail.html:6
-#: frontend/templates/frontend/makers/index.html:6
-#: frontend/templates/frontend/pages/care.html:6
-#: frontend/templates/frontend/pages/contact.html:6
-#: frontend/templates/frontend/pages/faq.html:6
-#: frontend/templates/frontend/pages/legal.html:8
-#: frontend/templates/frontend/pages/longform.html:6
-#: frontend/templates/frontend/product/detail.html:10
-#: frontend/templates/frontend/shop/collection_detail.html:19
-#: frontend/templates/frontend/shop/collections.html:6
-#: frontend/templates/frontend/shop/shop.html:6
+#: .\frontend\templates\frontend\cart.html:6
+#: .\frontend\templates\frontend\checkout.html:8
+#: .\frontend\templates\frontend\journal\detail.html:9
+#: .\frontend\templates\frontend\journal\index.html:6
+#: .\frontend\templates\frontend\makers\detail.html:6
+#: .\frontend\templates\frontend\makers\index.html:6
+#: .\frontend\templates\frontend\pages\care.html:6
+#: .\frontend\templates\frontend\pages\contact.html:6
+#: .\frontend\templates\frontend\pages\faq.html:6
+#: .\frontend\templates\frontend\pages\legal.html:8
+#: .\frontend\templates\frontend\pages\longform.html:6
+#: .\frontend\templates\frontend\product\detail.html:10
+#: .\frontend\templates\frontend\shop\collection_detail.html:19
+#: .\frontend\templates\frontend\shop\collections.html:6
+#: .\frontend\templates\frontend\shop\shop.html:6
 msgid "Breadcrumb"
 msgstr "面包屑导航"
 
-#: frontend/templates/frontend/cart.html:7
-#: frontend/templates/frontend/journal/detail.html:10
-#: frontend/templates/frontend/journal/index.html:7
-#: frontend/templates/frontend/makers/detail.html:7
-#: frontend/templates/frontend/makers/index.html:7
-#: frontend/templates/frontend/pages/care.html:7
-#: frontend/templates/frontend/pages/contact.html:7
-#: frontend/templates/frontend/pages/faq.html:7
-#: frontend/templates/frontend/pages/legal.html:9
-#: frontend/templates/frontend/pages/longform.html:7
-#: frontend/templates/frontend/product/detail.html:11
-#: frontend/templates/frontend/shop/collection_detail.html:20
-#: frontend/templates/frontend/shop/collections.html:7
-#: frontend/templates/frontend/shop/shop.html:7
+#: .\frontend\templates\frontend\cart.html:7
+#: .\frontend\templates\frontend\journal\detail.html:10
+#: .\frontend\templates\frontend\journal\index.html:7
+#: .\frontend\templates\frontend\makers\detail.html:7
+#: .\frontend\templates\frontend\makers\index.html:7
+#: .\frontend\templates\frontend\pages\care.html:7
+#: .\frontend\templates\frontend\pages\contact.html:7
+#: .\frontend\templates\frontend\pages\faq.html:7
+#: .\frontend\templates\frontend\pages\legal.html:9
+#: .\frontend\templates\frontend\pages\longform.html:7
+#: .\frontend\templates\frontend\product\detail.html:11
+#: .\frontend\templates\frontend\shop\collection_detail.html:20
+#: .\frontend\templates\frontend\shop\collections.html:7
+#: .\frontend\templates\frontend\shop\shop.html:7
 msgid "Home"
 msgstr "首页"
 
-#: frontend/templates/frontend/cart.html:7
-#: frontend/templates/frontend/checkout.html:9
-#: frontend/templates/frontend/checkout.html:13
-#: frontend/templates/frontend/partials/header.html:37
-#: frontend/templates/frontend/partials/mobile_nav.html:18
+#: .\frontend\templates\frontend\cart.html:7
+#: .\frontend\templates\frontend\checkout.html:9
+#: .\frontend\templates\frontend\checkout.html:13
+#: .\frontend\templates\frontend\partials\header.html:37
+#: .\frontend\templates\frontend\partials\mobile_nav.html:18
 msgid "Bag"
 msgstr "购物袋"
 
-#: frontend/templates/frontend/cart.html:9
-#: frontend/templates/frontend/partials/cart_drawer.html:3
-#: frontend/templates/frontend/partials/cart_drawer.html:5
+#: .\frontend\templates\frontend\cart.html:9
+#: .\frontend\templates\frontend\partials\cart_drawer.html:3
+#: .\frontend\templates\frontend\partials\cart_drawer.html:5
 msgid "Your bag"
 msgstr "您的购物袋"
 
-#: frontend/templates/frontend/cart.html:15
+#: .\frontend\templates\frontend\cart.html:15
 msgid "Your bag is empty"
 msgstr "购物袋是空的"
 
-#: frontend/templates/frontend/cart.html:16
+msgid "Nothing in here yet. The shop is a good place to start."
+msgstr "这里还没有商品。不妨先去逛逛商店。"
+
+#: .\frontend\templates\frontend\cart.html:16
 msgid "Nothing saved here yet. Everything we currently make is one page away."
 msgstr "这里还是空的。我们目前在售的全部作品，一页之隔。"
 
-#: frontend/templates/frontend/cart.html:19
-#, fuzzy
-#| msgid "Wishlist"
+#: .\frontend\templates\frontend\cart.html:19
 msgid "View wishlist"
 msgstr "心愿单"
 
-#: frontend/templates/frontend/cart.html:27
-#, fuzzy
-#| msgid "Keep shopping"
+#: .\frontend\templates\frontend\cart.html:27
 msgid "Continue shopping"
 msgstr "继续购物"
 
-#: frontend/templates/frontend/cart.html:32
-#: frontend/templates/frontend/order_confirmation.html:56
+#: .\frontend\templates\frontend\cart.html:32
+#: .\frontend\templates\frontend\order_confirmation.html:55
 msgid "Summary"
 msgstr "订单摘要"
 
-#: frontend/templates/frontend/cart.html:42
-#: frontend/templates/frontend/checkout.html:9
-#: frontend/templates/frontend/checkout.html:11
-#: frontend/templates/frontend/partials/cart_drawer.html:12
+#: .\frontend\templates\frontend\cart.html:42
+#: .\frontend\templates\frontend\checkout.html:9
+#: .\frontend\templates\frontend\checkout.html:11
+#: .\frontend\templates\frontend\partials\cart_drawer.html:12
 msgid "Checkout"
 msgstr "结算"
 
-#: frontend/templates/frontend/cart.html:44
+#: .\frontend\templates\frontend\cart.html:44
 msgid ""
 "Taxes calculated at checkout. This is a prototype — no payment is taken."
 msgstr "税费在结算时计算。这是原型站点——不会实际收款。"
 
-#: frontend/templates/frontend/checkout.html:14
+#: .\frontend\templates\frontend\checkout.html:14
 msgid "Details &amp; delivery"
 msgstr "资料与配送"
 
-#: frontend/templates/frontend/checkout.html:15
-#: frontend/templates/frontend/checkout.html:146
+#: .\frontend\templates\frontend\checkout.html:15
+#: .\frontend\templates\frontend\checkout.html:146
 msgid "Payment"
 msgstr "支付"
 
-#: frontend/templates/frontend/checkout.html:21
+#: .\frontend\templates\frontend\checkout.html:21
 msgid "There is nothing to check out"
 msgstr "没有可结算的商品"
 
-#: frontend/templates/frontend/checkout.html:22
+#: .\frontend\templates\frontend\checkout.html:22
 msgid "Your bag is empty. Add a piece and this page will fill itself in."
 msgstr "购物袋是空的。加入一件作品后，此页面便会显示内容。"
 
-#: frontend/templates/frontend/checkout.html:34
+#: .\frontend\templates\frontend\checkout.html:34
 msgid "Checking out as a guest."
 msgstr "正在以访客身份结算。"
 
-#: frontend/templates/frontend/checkout.html:35
+#: .\frontend\templates\frontend\checkout.html:35
 msgid "to use a saved address and keep this order in your account."
 msgstr "以使用已保存的地址，并将此订单归入您的账户。"
 
-#: frontend/templates/frontend/checkout.html:51
+#: .\frontend\templates\frontend\checkout.html:51
 msgid "Delivery address"
 msgstr "收货地址"
 
-#: frontend/templates/frontend/checkout.html:70
+#: .\frontend\templates\frontend\checkout.html:70
 msgid "Use a different address"
 msgstr "使用其他地址"
 
-#: frontend/templates/frontend/checkout.html:71
+#: .\frontend\templates\frontend\checkout.html:71
 msgid "Enter a new delivery address below"
 msgstr "在下方填写新的收货地址"
 
-#: frontend/templates/frontend/checkout.html:90
-#, fuzzy
-#| msgid "Addresses"
+#: .\frontend\templates\frontend\checkout.html:90
 msgid "Address"
 msgstr "地址"
 
-#: frontend/templates/frontend/checkout.html:94
+#: .\frontend\templates\frontend\checkout.html:94
 msgid "Apartment, unit"
 msgstr "门牌号、单元"
 
-#: frontend/templates/frontend/checkout.html:117
+#: .\frontend\templates\frontend\checkout.html:117
 msgid "Save this address to my account"
 msgstr "将此地址保存到我的账户"
 
-#: frontend/templates/frontend/checkout.html:124
+#: .\frontend\templates\frontend\checkout.html:124
 msgid "Delivery method"
 msgstr "配送方式"
 
-#: frontend/templates/frontend/checkout.html:129
+#: .\frontend\templates\frontend\checkout.html:129
 msgid "Standard delivery"
 msgstr "标准配送"
 
-#: frontend/templates/frontend/checkout.html:137
+#: .\frontend\templates\frontend\checkout.html:131
+#, python-format
+msgid "3–6 working days · complimentary above %(threshold)s"
+msgstr "3–6 个工作日 · 满 %(threshold)s 免运费"
+
+#: .\frontend\templates\frontend\checkout.html:137
 msgid "Express delivery"
 msgstr "加急配送"
 
-#: frontend/templates/frontend/checkout.html:139
+#: .\frontend\templates\frontend\checkout.html:139
 msgid "Next working day dispatch where stock allows"
 msgstr "有货情况下次个工作日发出"
 
-#: frontend/templates/frontend/checkout.html:151
+#: .\frontend\templates\frontend\checkout.html:151
 msgid "WeChat Pay"
 msgstr "微信支付"
 
-#: frontend/templates/frontend/checkout.html:152
+#: .\frontend\templates\frontend\checkout.html:152
 msgid "You will be shown a QR code to scan in the WeChat app."
 msgstr "系统将显示二维码，请在微信中扫码支付。"
 
-#: frontend/templates/frontend/checkout.html:158
+#: .\frontend\templates\frontend\checkout.html:158
 msgid ""
 "Development mode: a mock payment provider is configured. An order is created "
 "and left"
 msgstr "开发模式：已配置模拟支付服务。订单会被创建并保持"
 
-#: frontend/templates/frontend/checkout.html:158
+#: .\frontend\templates\frontend\checkout.html:158
 msgid "unpaid"
 msgstr "未支付"
 
-#: frontend/templates/frontend/checkout.html:158
+#: .\frontend\templates\frontend\checkout.html:158
 msgid "— no card details are collected and no money moves."
 msgstr "——不收集银行卡信息，也不会发生任何资金往来。"
 
-#: frontend/templates/frontend/checkout.html:164
+#: .\frontend\templates\frontend\checkout.html:164
 msgid "Gift note (optional)"
 msgstr "礼品留言（选填）"
 
-#: frontend/templates/frontend/checkout.html:166
+#: .\frontend\templates\frontend\checkout.html:166
 msgid "Written by hand onto a card and packed with the order"
 msgstr "将手写于卡片上，随订单一同寄出"
 
-#: frontend/templates/frontend/checkout.html:169
+#: .\frontend\templates\frontend\checkout.html:169
 msgid "Place order"
 msgstr "提交订单"
 
-#: frontend/templates/frontend/checkout.html:174
-#, fuzzy
-#| msgid "Orders"
+#: .\frontend\templates\frontend\checkout.html:174
 msgid "Order summary"
 msgstr "订单"
 
-#: frontend/templates/frontend/checkout.html:181
+#: .\frontend\templates\frontend\checkout.html:181
 msgid "Edit your bag"
 msgstr "编辑购物袋"
 
-#: frontend/templates/frontend/home.html:7
+#: .\frontend\templates\frontend\home.html:7
 msgid "A studio table set with handmade ceramics"
 msgstr "摆放着手作陶器的工作室桌面"
 
-#: frontend/templates/frontend/home.html:11
+#: .\frontend\templates\frontend\home.html:11
 msgid "Small-batch homeware"
 msgstr "小批量家居器物"
 
-#: frontend/templates/frontend/home.html:13
+#: .\frontend\templates\frontend\home.html:13
 msgid ""
 "Ceramics, textiles and objects made one at a time by five makers we know by "
 "name."
 msgstr "陶器、织物与器物，由五位我们熟识的匠人一件一件手工制成。"
 
-#: frontend/templates/frontend/home.html:15
+#: .\frontend\templates\frontend\home.html:15
 msgid "Shop everything"
 msgstr "浏览全部"
 
-#: frontend/templates/frontend/home.html:25
-#: frontend/templates/frontend/shop/collections.html:9
+#: .\frontend\templates\frontend\home.html:25
+#: .\frontend\templates\frontend\shop\collections.html:9
 msgid "Browse"
 msgstr "浏览"
 
-#: frontend/templates/frontend/home.html:26
+#: .\frontend\templates\frontend\home.html:26
 msgid "Four things we make well."
 msgstr "我们擅长的四个门类。"
 
-#: frontend/templates/frontend/home.html:28
-#, fuzzy
-#| msgid "Collections"
+#: .\frontend\templates\frontend\home.html:28
 msgid "All collections"
 msgstr "系列"
 
-#: frontend/templates/frontend/home.html:48
+#: .\frontend\templates\frontend\home.html:48
 msgid "Just finished"
 msgstr "刚刚完成"
 
-#: frontend/templates/frontend/home.html:49
+#: .\frontend\templates\frontend\home.html:49
 msgid "New arrivals"
 msgstr "新品"
 
-#: frontend/templates/frontend/home.html:51
+#: .\frontend\templates\frontend\home.html:51
 msgid "See all new"
 msgstr "查看全部新品"
 
-#: frontend/templates/frontend/home.html:65
-#, fuzzy
-#| msgid "Collections"
+#: .\frontend\templates\frontend\home.html:65
 msgid "Featured collection"
 msgstr "系列"
 
-#: frontend/templates/frontend/home.html:69
+#: .\frontend\templates\frontend\home.html:69
 msgid "Explore the collection"
 msgstr "探索该系列"
 
-#: frontend/templates/frontend/home.html:84
-#: frontend/templates/frontend/pages/our_story.html:55
+#: .\frontend\templates\frontend\home.html:84
+#: .\frontend\templates\frontend\pages\our_story.html:55
 msgid "How it is made"
 msgstr "制作过程"
 
-#: frontend/templates/frontend/home.html:85
-#: frontend/templates/frontend/pages/our_story.html:55
+#: .\frontend\templates\frontend\home.html:85
+#: .\frontend\templates\frontend\pages\our_story.html:55
 msgid "Three steps, none of them quick."
 msgstr "三个步骤，没有一步是快的。"
 
-#: frontend/templates/frontend/home.html:103
-#: frontend/templates/frontend/makers/index.html:9
-#: frontend/templates/frontend/pages/our_story.html:71
+#: .\frontend\templates\frontend\home.html:103
+#: .\frontend\templates\frontend\makers\index.html:9
+#: .\frontend\templates\frontend\pages\our_story.html:71
 msgid "The people"
 msgstr "匠人"
 
-#: frontend/templates/frontend/home.html:106
+#: .\frontend\templates\frontend\home.html:106
 msgid "Meet everyone"
 msgstr "认识所有匠人"
 
-#: frontend/templates/frontend/home.html:129
+#: .\frontend\templates\frontend\home.html:118
+#, python-format
+msgid "%(location)s · Since %(since)s"
+msgstr "%(location)s · 始于 %(since)s"
+
+#: .\frontend\templates\frontend\home.html:129
 msgid "From the studio"
 msgstr "来自工作室"
 
-#: frontend/templates/frontend/home.html:130
+#: .\frontend\templates\frontend\home.html:130
 msgid "In use, everywhere"
 msgstr "日常使用中"
 
-#: frontend/templates/frontend/journal/detail.html:44
+#: .\frontend\templates\frontend\journal\detail.html:20
+#, python-format
+msgid "%(author)s · %(date)s · %(time)s read"
+msgstr "%(author)s · %(date)s · 阅读需 %(time)s"
+
+#: .\frontend\templates\frontend\journal\detail.html:37
+#, python-format
+msgid "Written by %(author)s"
+msgstr "撰文：%(author)s"
+
+#: .\frontend\templates\frontend\journal\detail.html:44
 msgid "Keep reading"
 msgstr "继续阅读"
 
-#: frontend/templates/frontend/journal/detail.html:44
+#: .\frontend\templates\frontend\journal\detail.html:44
 msgid "More from the journal"
 msgstr "更多日志文章"
 
-#: frontend/templates/frontend/journal/detail.html:45
+#: .\frontend\templates\frontend\journal\detail.html:45
 msgid "All articles"
 msgstr "全部文章"
 
-#: frontend/templates/frontend/journal/index.html:9
+#: .\frontend\templates\frontend\journal\detail.html:51
+#: .\frontend\templates\frontend\journal\index.html:21
+#: .\frontend\templates\frontend\journal\index.html:38
+#, python-format
+msgid "%(category)s · %(time)s read"
+msgstr "%(category)s · 阅读需 %(time)s"
+
+#: .\frontend\templates\frontend\journal\index.html:9
 msgid "Writing"
 msgstr "文章"
 
-#: frontend/templates/frontend/journal/index.html:10
-#, fuzzy
-#| msgid "Journal"
+#: .\frontend\templates\frontend\journal\index.html:10
 msgid "The journal"
 msgstr "日志"
 
-#: frontend/templates/frontend/journal/index.html:11
+#: .\frontend\templates\frontend\journal\index.html:11
 msgid ""
 "Notes on making, materials and the people behind the pieces. Published when "
 "there is something worth saying."
 msgstr "关于制作、材质与作品背后之人的札记。有值得一说的内容时才发布。"
 
-#: frontend/templates/frontend/journal/index.html:25
-#, fuzzy
-#| msgid "Search the site"
+#: .\frontend\templates\frontend\journal\index.html:25
 msgid "Read the piece"
 msgstr "站内搜索"
 
-#: frontend/templates/frontend/makers/detail.html:38
+#: .\frontend\templates\frontend\makers\detail.html:22
+#, python-format
+msgid "%(location)s · Working since %(since)s"
+msgstr "%(location)s · 自 %(since)s 年起创作"
+
+#: .\frontend\templates\frontend\makers\detail.html:28
+#, python-format
+msgid "See %(n)s piece"
+msgid_plural "See %(n)s pieces"
+msgstr[0] "查看 %(n)s 件作品"
+
+#: .\frontend\templates\frontend\makers\detail.html:38
 msgid "In the studio"
 msgstr "在工作室"
 
-#: frontend/templates/frontend/makers/detail.html:57
+#: .\frontend\templates\frontend\makers\detail.html:39
+#, python-format
+msgid "How %(name)s works"
+msgstr "%(name)s 的创作方式"
+
+#: .\frontend\templates\frontend\makers\detail.html:57
 msgid "Available now"
 msgstr "现货供应"
 
-#: frontend/templates/frontend/makers/detail.html:60
+#: .\frontend\templates\frontend\makers\detail.html:58
+#, python-format
+msgid "Made by %(name)s"
+msgstr "制作者：%(name)s"
+
+#: .\frontend\templates\frontend\makers\detail.html:60
 msgid "All pieces"
 msgstr "全部作品"
 
-#: frontend/templates/frontend/makers/detail.html:68
+#: .\frontend\templates\frontend\makers\detail.html:68
 msgid "Between batches"
 msgstr "两批之间"
 
-#: frontend/templates/frontend/makers/index.html:10
+#: .\frontend\templates\frontend\makers\detail.html:69
+#, python-format
+msgid ""
+"Nothing from %(name)s is in stock right now. The next firing usually lands "
+"within a month."
+msgstr "%(name)s 的作品目前暂无现货。下一批通常会在一个月内烧制完成。"
+
+#: .\frontend\templates\frontend\makers\index.html:10
 msgid "Five makers, all known by name."
 msgstr "五位匠人，每一位我们都叫得出名字。"
 
-#: frontend/templates/frontend/makers/index.html:11
+#: .\frontend\templates\frontend\makers\index.html:11
 msgid ""
 "We do not commission from factories or buy through agents. Everything on "
 "this site was made by one of these five people, in their own studio."
@@ -1235,15 +1455,15 @@ msgstr ""
 "我们不向工厂下单，也不经由中间商采购。本站的每一件作品，都由这五位匠人之一在"
 "自己的工作室完成。"
 
-#: frontend/templates/frontend/mock_payment.html:8
+#: .\frontend\templates\frontend\mock_payment.html:8
 msgid "WeChat Pay sandbox"
 msgstr "微信支付沙箱"
 
-#: frontend/templates/frontend/mock_payment.html:9
+#: .\frontend\templates\frontend\mock_payment.html:9
 msgid "Scan to pay"
 msgstr "扫码支付"
 
-#: frontend/templates/frontend/mock_payment.html:10
+#: .\frontend\templates\frontend\mock_payment.html:10
 msgid ""
 "This is a no-money simulator for the project demo. It exercises the same "
 "provider callback and order-state flow as a real payment."
@@ -1251,43 +1471,48 @@ msgstr ""
 "这是用于项目演示的模拟支付，不涉及真实资金。它走的是与真实支付相同的回调与订"
 "单状态流程。"
 
-#: frontend/templates/frontend/mock_payment.html:13
+#: .\frontend\templates\frontend\mock_payment.html:13
 msgid "Simulated WeChat Pay QR code"
 msgstr "模拟微信支付二维码"
 
-#: frontend/templates/frontend/mock_payment.html:18
+#: .\frontend\templates\frontend\mock_payment.html:18
 msgid "No account is charged."
 msgstr "不会向任何账户扣款。"
 
-#: frontend/templates/frontend/mock_payment.html:23
+#: .\frontend\templates\frontend\mock_payment.html:23
 msgid "Simulate successful payment"
 msgstr "模拟支付成功"
 
-#: frontend/templates/frontend/mock_payment.html:25
+#: .\frontend\templates\frontend\mock_payment.html:25
 msgid "Simulate declined payment"
 msgstr "模拟支付失败"
 
-#: frontend/templates/frontend/order_confirmation.html:8
+#: .\frontend\templates\frontend\order_confirmation.html:8
 msgid "Order placed"
 msgstr "下单成功"
 
-#: frontend/templates/frontend/order_confirmation.html:9
+#: .\frontend\templates\frontend\order_confirmation.html:9
 msgid "Thank you."
 msgstr "谢谢您。"
 
-#: frontend/templates/frontend/order_confirmation.html:11
+#: .\frontend\templates\frontend\order_confirmation.html:11
 msgid "Your order is"
 msgstr "您的订单号为"
 
-#: frontend/templates/frontend/order_confirmation.html:20
+#: .\frontend\templates\frontend\order_confirmation.html:11
+#, python-format
+msgid ". A confirmation would be sent to %(email)s."
+msgstr "。确认邮件将发送至 %(email)s。"
+
+#: .\frontend\templates\frontend\order_confirmation.html:19
 msgid "What you ordered"
 msgstr "订单内容"
 
-#: frontend/templates/frontend/order_confirmation.html:51
+#: .\frontend\templates\frontend\order_confirmation.html:50
 msgid "Payment status:"
 msgstr "支付状态："
 
-#: frontend/templates/frontend/order_confirmation.html:51
+#: .\frontend\templates\frontend\order_confirmation.html:50
 msgid ""
 ". This prototype uses a mock payment provider — an order is only marked paid "
 "by a verified provider webhook."
@@ -1295,143 +1520,149 @@ msgstr ""
 "。本原型使用模拟支付服务——订单只有在收到经过验证的支付回调后才会标记为已支"
 "付。"
 
-#: frontend/templates/frontend/order_confirmation.html:65
+#: .\frontend\templates\frontend\order_confirmation.html:64
 msgid "Track this order"
 msgstr "查询订单物流"
 
-#: frontend/templates/frontend/order_confirmation.html:68
+#: .\frontend\templates\frontend\order_confirmation.html:67
 msgid "Keep shopping"
 msgstr "继续购物"
 
-#: frontend/templates/frontend/pages/care.html:14
-#: frontend/templates/frontend/pages/faq.html:14
-#: frontend/templates/frontend/pages/longform.html:14
+#: .\frontend\templates\frontend\pages\care.html:14
+#: .\frontend\templates\frontend\pages\faq.html:14
+#: .\frontend\templates\frontend\pages\longform.html:14
 msgid "On this page"
 msgstr "本页内容"
 
-#: frontend/templates/frontend/pages/contact.html:9
+#: .\frontend\templates\frontend\pages\contact.html:9
 msgid "Say hello"
 msgstr "打个招呼"
 
-#: frontend/templates/frontend/pages/contact.html:10
-#: frontend/templates/frontend/pages/faq.html:39
-#: frontend/templates/frontend/pages/longform.html:31
+#: .\frontend\templates\frontend\pages\contact.html:10
+#: .\frontend\templates\frontend\pages\faq.html:39
+#: .\frontend\templates\frontend\pages\longform.html:31
 msgid "Contact the studio"
 msgstr "联系工作室"
 
-#: frontend/templates/frontend/pages/contact.html:11
+#: .\frontend\templates\frontend\pages\contact.html:11
 msgid "One person reads this inbox and replies, usually within a working day."
 msgstr "这个收件箱由一个人查看并回复，通常在一个工作日内。"
 
-#: frontend/templates/frontend/pages/contact.html:17
+#: .\frontend\templates\frontend\pages\contact.html:17
 msgid "Send a message"
 msgstr "发送留言"
 
-#: frontend/templates/frontend/pages/contact.html:20
+#: .\frontend\templates\frontend\pages\contact.html:20
 msgid "Name"
 msgstr "姓名"
 
-#: frontend/templates/frontend/pages/contact.html:29
+#: .\frontend\templates\frontend\pages\contact.html:29
 msgid "What is it about?"
 msgstr "咨询事项"
 
-#: frontend/templates/frontend/pages/contact.html:31
+#: .\frontend\templates\frontend\pages\contact.html:31
 msgid "Choose one"
 msgstr "请选择"
 
-#: frontend/templates/frontend/pages/contact.html:32
+#: .\frontend\templates\frontend\pages\contact.html:32
 msgid "An existing order"
 msgstr "已有订单"
 
-#: frontend/templates/frontend/pages/contact.html:33
+#: .\frontend\templates\frontend\pages\contact.html:33
 msgid "A commission or custom piece"
 msgstr "定制作品"
 
-#: frontend/templates/frontend/pages/contact.html:34
+#: .\frontend\templates\frontend\pages\contact.html:34
 msgid "Wholesale and stockists"
 msgstr "批发与经销"
 
-#: frontend/templates/frontend/pages/contact.html:35
+#: .\frontend\templates\frontend\pages\contact.html:35
 msgid "Working with us"
 msgstr "合作事宜"
 
-#: frontend/templates/frontend/pages/contact.html:36
+#: .\frontend\templates\frontend\pages\contact.html:36
 msgid "Something else"
 msgstr "其他事项"
 
-#: frontend/templates/frontend/pages/contact.html:40
+#: .\frontend\templates\frontend\pages\contact.html:40
 msgid "Order number"
 msgstr "订单号"
 
-#: frontend/templates/frontend/pages/contact.html:41
+#: .\frontend\templates\frontend\pages\contact.html:41
 msgid "AF-2026-0000"
 msgstr "AF-2026-0000"
 
-#: frontend/templates/frontend/pages/contact.html:44
+#: .\frontend\templates\frontend\pages\contact.html:44
 msgid "Message"
 msgstr "留言内容"
 
-#: frontend/templates/frontend/pages/contact.html:47
+#: .\frontend\templates\frontend\pages\contact.html:47
 msgid "Send message"
 msgstr "发送留言"
 
-#: frontend/templates/frontend/pages/contact.html:50
+#: .\frontend\templates\frontend\pages\contact.html:50
 msgid ""
 "Your message is stored for the studio to read. Email delivery is not "
 "connected yet."
 msgstr "您的留言已保存，工作室会查看。邮件发送功能尚未接入。"
 
-#: frontend/templates/frontend/pages/contact.html:56
+#: .\frontend\templates\frontend\pages\contact.html:56
 msgid "The studio"
 msgstr "工作室"
 
-#: frontend/templates/frontend/pages/contact.html:68
+#: .\frontend\templates\frontend\pages\contact.html:68
 msgid "Studio"
 msgstr "工作室"
 
-#: frontend/templates/frontend/pages/contact.html:72
+#: .\frontend\templates\frontend\pages\contact.html:72
 msgid "Opening hours"
 msgstr "开放时间"
 
-#: frontend/templates/frontend/pages/contact.html:81
+#: .\frontend\templates\frontend\pages\contact.html:81
 msgid "Before you write"
 msgstr "写信之前"
 
-#: frontend/templates/frontend/pages/contact.html:81
+#: .\frontend\templates\frontend\pages\contact.html:81
 msgid "Quick answers"
 msgstr "快速解答"
 
-#: frontend/templates/frontend/pages/contact.html:82
+#: .\frontend\templates\frontend\pages\contact.html:82
 msgid "Full FAQ"
 msgstr "完整常见问题"
 
-#: frontend/templates/frontend/pages/faq.html:9
+#: .\frontend\templates\frontend\pages\contact.html:89
+#, python-format
+msgid "Read %(n)s answer"
+msgid_plural "Read %(n)s answers"
+msgstr[0] "查看 %(n)s 条解答"
+
+#: .\frontend\templates\frontend\pages\faq.html:9
 msgid "Frequently asked"
 msgstr "常见问题"
 
-#: frontend/templates/frontend/pages/faq.html:10
+#: .\frontend\templates\frontend\pages\faq.html:10
 msgid "The questions the studio is actually asked, answered plainly."
 msgstr "工作室实际收到的问题，据实作答。"
 
-#: frontend/templates/frontend/pages/faq.html:37
+#: .\frontend\templates\frontend\pages\faq.html:37
 msgid "Not covered here?"
 msgstr "没有找到答案？"
 
-#: frontend/templates/frontend/pages/faq.html:38
+#: .\frontend\templates\frontend\pages\faq.html:38
 msgid "Email the studio and a person will reply — usually the same day."
 msgstr "给工作室发邮件，会有人回复——通常当天即回。"
 
-#: frontend/templates/frontend/pages/legal.html:13
+#: .\frontend\templates\frontend\pages\legal.html:13
 msgid ""
 "Placeholder wording for the prototype. Real policy text needs to be written "
 "and reviewed before this site is put in front of customers."
 msgstr "此为原型站点的占位文字。正式条款须在网站面向客户之前撰写并审核。"
 
-#: frontend/templates/frontend/pages/legal.html:20
+#: .\frontend\templates\frontend\pages\legal.html:20
 msgid "What we collect"
 msgstr "我们收集的信息"
 
-#: frontend/templates/frontend/pages/legal.html:21
+#: .\frontend\templates\frontend\pages\legal.html:21
 msgid ""
 "Your name, email address, delivery address and phone number, so that an "
 "order can be packed and sent. Payment details are handled by the payment "
@@ -1440,11 +1671,11 @@ msgstr ""
 "您的姓名、邮箱、收货地址与电话，用于打包与寄送订单。支付信息由支付服务商处"
 "理，绝不会进入我们的服务器。"
 
-#: frontend/templates/frontend/pages/legal.html:22
+#: .\frontend\templates\frontend\pages\legal.html:22
 msgid "How it is used"
 msgstr "信息的用途"
 
-#: frontend/templates/frontend/pages/legal.html:23
+#: .\frontend\templates\frontend\pages\legal.html:23
 msgid ""
 "To fulfil orders, answer questions about them, and — only if you asked for "
 "it — to send the studio newsletter. We do not sell or share customer data "
@@ -1453,11 +1684,11 @@ msgstr ""
 "用于履行订单、解答相关问题，以及在您主动订阅的前提下发送工作室通讯。我们不会"
 "向广告商出售或共享客户数据。"
 
-#: frontend/templates/frontend/pages/legal.html:24
+#: .\frontend\templates\frontend\pages\legal.html:24
 msgid "What this prototype stores"
 msgstr "本原型存储的内容"
 
-#: frontend/templates/frontend/pages/legal.html:25
+#: .\frontend\templates\frontend\pages\legal.html:25
 msgid ""
 "The prototype database stores account details, saved addresses, server-side "
 "bags, orders, newsletter subscriptions and contact messages. Signed-in "
@@ -1467,23 +1698,21 @@ msgstr ""
 "原型数据库存储账户资料、已保存地址、服务端购物袋、订单、通讯订阅与联系留言。"
 "登录后的心愿单随账户保存；访客心愿单与最近浏览记录仅保留在本浏览器中。"
 
-#: frontend/templates/frontend/pages/legal.html:26
+#: .\frontend\templates\frontend\pages\legal.html:26
 msgid "Your rights"
 msgstr "您的权利"
 
-#: frontend/templates/frontend/pages/legal.html:27
+#: .\frontend\templates\frontend\pages\legal.html:27
 msgid ""
 "You can ask for a copy of your data or ask for it to be deleted by emailing "
 "the studio. Requests are answered within thirty days."
 msgstr "您可致信工作室，索取您的数据副本或要求删除。我们将在三十天内答复。"
 
-#: frontend/templates/frontend/pages/legal.html:29
-#, fuzzy
-#| msgid "Orders"
+#: .\frontend\templates\frontend\pages\legal.html:29
 msgid "Ordering"
 msgstr "订单"
 
-#: frontend/templates/frontend/pages/legal.html:30
+#: .\frontend\templates\frontend\pages\legal.html:30
 msgid ""
 "Placing an order is an offer to buy. A contract is formed when the studio "
 "confirms dispatch. Prices are shown inclusive of applicable tax and "
@@ -1492,11 +1721,11 @@ msgstr ""
 "下单即为购买要约。工作室确认发货时合同成立。标价含适用税费，不含进口关税，关"
 "税由收件人承担。"
 
-#: frontend/templates/frontend/pages/legal.html:31
+#: .\frontend\templates\frontend\pages\legal.html:31
 msgid "Handmade variation"
 msgstr "手作差异"
 
-#: frontend/templates/frontend/pages/legal.html:32
+#: .\frontend\templates\frontend\pages\legal.html:32
 msgid ""
 "Every piece is made individually. Colour, glaze and dimensions vary within a "
 "normal range, and that variation is not a defect. Product photography shows "
@@ -1505,7 +1734,7 @@ msgstr ""
 "每件作品均单独制作。颜色、釉面与尺寸在正常范围内会有差异，这并非瑕疵。商品照"
 "片展示的是代表性样品，而非您将收到的那一件。"
 
-#: frontend/templates/frontend/pages/legal.html:34
+#: .\frontend\templates\frontend\pages\legal.html:34
 msgid ""
 "Thirty days from delivery for unused pieces in their original packaging. "
 "Made-to-order and commissioned pieces can only be returned if faulty. See the"
@@ -1513,19 +1742,19 @@ msgstr ""
 "自收货起三十天内，未使用且保持原包装的作品可退。定制与订制作品仅在存在瑕疵时"
 "可退。详见"
 
-#: frontend/templates/frontend/pages/legal.html:35
+#: .\frontend\templates\frontend\pages\legal.html:35
 msgid "shipping and returns page"
 msgstr "配送与退货页面"
 
-#: frontend/templates/frontend/pages/legal.html:36
+#: .\frontend\templates\frontend\pages\legal.html:36
 msgid "for the detail."
 msgstr "。"
 
-#: frontend/templates/frontend/pages/legal.html:37
+#: .\frontend\templates\frontend\pages\legal.html:37
 msgid "This prototype"
 msgstr "关于本原型"
 
-#: frontend/templates/frontend/pages/legal.html:38
+#: .\frontend\templates\frontend\pages\legal.html:38
 msgid ""
 "This site is a university project. No orders are fulfilled, no payments are "
 "taken and nothing here forms a real contract."
@@ -1533,483 +1762,558 @@ msgstr ""
 "本站为大学课程项目。不会真实履行订单，不会实际收款，此处内容不构成任何真实合"
 "同。"
 
-#: frontend/templates/frontend/pages/legal.html:41
+#: .\frontend\templates\frontend\pages\legal.html:41
 msgid "Last reviewed:"
 msgstr "最后审阅："
 
-#: frontend/templates/frontend/pages/longform.html:29
+#: .\frontend\templates\frontend\pages\longform.html:29
 msgid "Still unclear?"
 msgstr "仍有疑问？"
 
-#: frontend/templates/frontend/pages/longform.html:30
+#: .\frontend\templates\frontend\pages\longform.html:30
 msgid "The studio answers email within one working day."
 msgstr "工作室会在一个工作日内回复邮件。"
 
-#: frontend/templates/frontend/pages/our_story.html:40
+#: .\frontend\templates\frontend\pages\our_story.html:40
 msgid "By the numbers"
 msgstr "数据一览"
 
-#: frontend/templates/frontend/pages/our_story.html:40
+#: .\frontend\templates\frontend\pages\our_story.html:40
 msgid "Where things stand"
 msgstr "当前状况"
 
-#: frontend/templates/frontend/pages/our_story.html:72
-#, fuzzy
-#| msgid "Makers"
+#: .\frontend\templates\frontend\pages\our_story.html:72
 msgid "All makers"
 msgstr "匠人"
 
-#: frontend/templates/frontend/partials/account_nav.html:8
+#: .\frontend\templates\frontend\partials\account_nav.html:8
 msgid "Overview"
 msgstr "概览"
 
-#: frontend/templates/frontend/partials/account_nav.html:9
-msgid "Orders"
-msgstr "订单"
-
-#: frontend/templates/frontend/partials/account_nav.html:10
-#: frontend/templates/frontend/partials/header.html:30
-#: frontend/templates/frontend/partials/mobile_nav.html:17
-msgid "Wishlist"
-msgstr "心愿单"
-
-#: frontend/templates/frontend/partials/account_nav.html:11
-msgid "Addresses"
-msgstr "地址"
-
-#: frontend/templates/frontend/partials/account_nav.html:12
-msgid "Profile"
-msgstr "个人资料"
-
-#: frontend/templates/frontend/partials/account_nav.html:13
-#: frontend/templates/frontend/seller/dashboard.html:8
+#: .\frontend\templates\frontend\partials\account_nav.html:13
+#: .\frontend\templates\frontend\seller\dashboard.html:8
 msgid "Seller dashboard"
 msgstr "卖家中心"
 
-#: frontend/templates/frontend/partials/account_nav.html:17
+#: .\frontend\templates\frontend\partials\account_nav.html:17
 msgid "Sign out"
 msgstr "退出登录"
 
-#: frontend/templates/frontend/partials/cart_drawer.html:6
+#: .\frontend\templates\frontend\partials\cart_drawer.html:6
 msgid "Close bag"
 msgstr "关闭购物袋"
 
-#: frontend/templates/frontend/partials/cart_drawer.html:13
+#: .\frontend\templates\frontend\partials\cart_drawer.html:13
 msgid "View bag"
 msgstr "查看购物袋"
 
-#: frontend/templates/frontend/partials/filters.html:5
+#: .\frontend\templates\frontend\partials\filters.html:5
 msgid "Filter products"
 msgstr "筛选商品"
 
-#: frontend/templates/frontend/partials/filters.html:7
+#: .\frontend\templates\frontend\partials\filters.html:7
+#: .\frontend\templates\frontend\shop\shop.html:21
 msgid "Filters"
 msgstr "筛选"
 
-#: frontend/templates/frontend/partials/filters.html:8
+#: .\frontend\templates\frontend\partials\filters.html:8
 msgid "Close filters"
 msgstr "关闭筛选"
 
-#: frontend/templates/frontend/partials/filters.html:12
+#: .\frontend\templates\frontend\partials\filters.html:12
+#: .\frontend\templates\frontend\shop\collection_detail.html:11
+#: .\frontend\templates\frontend\shop\collections.html:23
 msgid "Category"
 msgstr "品类"
 
-#: frontend/templates/frontend/partials/filters.html:25
-#, fuzzy
-#| msgid "Materials."
+#: .\frontend\templates\frontend\partials\filters.html:25
 msgid "Material"
-msgstr "材质。"
+msgstr "材质"
 
-#: frontend/templates/frontend/partials/filters.html:38
-#: frontend/templates/frontend/product/detail.html:55
+#: .\frontend\templates\frontend\partials\filters.html:38
+#: .\frontend\templates\frontend\product\detail.html:55
 msgid "Colour"
 msgstr "颜色"
 
-#: frontend/templates/frontend/partials/filters.html:50
+#: .\frontend\templates\frontend\partials\filters.html:50
 msgid "Price"
 msgstr "价格"
 
-#: frontend/templates/frontend/partials/filters.html:62
-#, fuzzy
-#| msgid "Available now"
+#: .\frontend\templates\frontend\partials\filters.html:62
 msgid "Availability"
 msgstr "现货供应"
 
-#: frontend/templates/frontend/partials/filters.html:74
-#: frontend/templates/frontend/shop/shop.html:61
+#: .\frontend\templates\frontend\partials\filters.html:74
+#: .\frontend\templates\frontend\shop\shop.html:61
 msgid "Clear all filters"
 msgstr "清除全部筛选"
 
-#: frontend/templates/frontend/partials/footer.html:18
+#: .\frontend\templates\frontend\partials\footer.html:18
 msgid "Elsewhere"
 msgstr "其他平台"
 
-#: frontend/templates/frontend/partials/footer.html:20
+#: .\frontend\templates\frontend\partials\footer.html:20
 msgid "Instagram"
 msgstr "Instagram"
 
-#: frontend/templates/frontend/partials/footer.html:21
+#: .\frontend\templates\frontend\partials\footer.html:21
 msgid "Pinterest"
 msgstr "Pinterest"
 
-#: frontend/templates/frontend/partials/footer.html:28
+#: .\frontend\templates\frontend\partials\footer.html:27
+msgid "Prototype frontend — no orders are fulfilled."
+msgstr "原型前端——不会实际履行订单。"
+
+#: .\frontend\templates\frontend\partials\footer.html:28
 msgid "Legal"
 msgstr "法律条款"
 
-#: frontend/templates/frontend/partials/footer.html:29
+#: .\frontend\templates\frontend\partials\footer.html:29
 msgid "Privacy"
 msgstr "隐私政策"
 
-#: frontend/templates/frontend/partials/footer.html:30
+#: .\frontend\templates\frontend\partials\footer.html:30
 msgid "Terms"
 msgstr "服务条款"
 
-#: frontend/templates/frontend/partials/footer.html:31
+#: .\frontend\templates\frontend\partials\footer.html:31
 msgid "Shipping &amp; Returns"
 msgstr "配送与退货"
 
-#: frontend/templates/frontend/partials/header.html:5
+#: .\frontend\templates\frontend\partials\header.html:5
 msgid "Primary"
 msgstr "主导航"
 
-#: frontend/templates/frontend/partials/header.html:11
+#: .\frontend\templates\frontend\partials\header.html:11
 msgid "Open menu"
 msgstr "打开菜单"
 
-#: frontend/templates/frontend/partials/header.html:27
-#: frontend/templates/frontend/partials/search_overlay.html:2
-#: frontend/templates/frontend/search/results.html:6
-#: frontend/templates/frontend/search/results.html:11
-#: frontend/templates/frontend/search/results.html:17
-#: frontend/templates/frontend/search/results.html:18
-#: frontend/templates/frontend/search/results.html:20
+#: .\frontend\templates\frontend\partials\header.html:27
+#: .\frontend\templates\frontend\partials\search_overlay.html:2
+#: .\frontend\templates\frontend\search\results.html:6
+#: .\frontend\templates\frontend\search\results.html:11
+#: .\frontend\templates\frontend\search\results.html:17
+#: .\frontend\templates\frontend\search\results.html:18
+#: .\frontend\templates\frontend\search\results.html:20
 msgid "Search"
 msgstr "搜索"
 
-#: frontend/templates/frontend/partials/mobile_nav.html:2
+#: .\frontend\templates\frontend\partials\header.html:34
+msgid "Your account"
+msgstr "您的账户"
+
+#: .\frontend\templates\frontend\partials\mobile_nav.html:2
 msgid "Menu"
 msgstr "菜单"
 
-#: frontend/templates/frontend/partials/mobile_nav.html:5
+#: .\frontend\templates\frontend\partials\mobile_nav.html:5
 msgid "Close menu"
 msgstr "关闭菜单"
 
-#: frontend/templates/frontend/partials/mobile_nav.html:7
+#: .\frontend\templates\frontend\partials\mobile_nav.html:7
 msgid "Mobile"
 msgstr "移动端导航"
 
-#: frontend/templates/frontend/partials/newsletter.html:5
+#: .\frontend\templates\frontend\partials\newsletter.html:5
 msgid "Studio notes"
 msgstr "工作室通讯"
 
-#: frontend/templates/frontend/partials/newsletter.html:6
+#: .\frontend\templates\frontend\partials\newsletter.html:6
 msgid "A note when something new comes out of the kiln."
 msgstr "有新作出窑时，我们会写信告诉您。"
 
-#: frontend/templates/frontend/partials/newsletter.html:10
+#: .\frontend\templates\frontend\partials\newsletter.html:10
 msgid "Email address"
 msgstr "邮箱地址"
 
-#: frontend/templates/frontend/partials/newsletter.html:12
+#: .\frontend\templates\frontend\partials\newsletter.html:12
 msgid "you@example.com"
 msgstr "you@example.com"
 
-#: frontend/templates/frontend/partials/newsletter.html:13
+#: .\frontend\templates\frontend\partials\newsletter.html:13
 msgid "Subscribe"
 msgstr "订阅"
 
-#: frontend/templates/frontend/partials/newsletter.html:16
+#: .\frontend\templates\frontend\partials\newsletter.html:16
 msgid "About one email a month. Unsubscribe whenever you like."
 msgstr "约每月一封。可随时取消订阅。"
 
-#: frontend/templates/frontend/partials/product_card.html:13
+#: .\frontend\templates\frontend\partials\product_card.html:13
 msgid "New"
 msgstr "新品"
 
-#: frontend/templates/frontend/partials/product_card.html:14
+#: .\frontend\templates\frontend\partials\product_card.html:14
 msgid "Low stock"
 msgstr "库存紧张"
 
-#: frontend/templates/frontend/partials/product_card.html:15
+#: .\frontend\templates\frontend\partials\product_card.html:15
 msgid "Made to order"
 msgstr "订制生产"
 
-#: frontend/templates/frontend/partials/product_card.html:25
-#: frontend/templates/frontend/product/detail.html:95
+#: .\frontend\templates\frontend\partials\product_card.html:19
+#: .\frontend\templates\frontend\product\detail.html:99
+#, python-format
+msgid "Save %(name)s to wishlist"
+msgstr "将 %(name)s 加入心愿单"
+
+#: .\frontend\templates\frontend\partials\product_card.html:25
+#: .\frontend\templates\frontend\product\detail.html:95
 msgid "Add to bag"
 msgstr "加入购物袋"
 
-#: frontend/templates/frontend/partials/search_overlay.html:6
+#: .\frontend\templates\frontend\partials\product_card.html:34
+#, python-format
+msgid "%(n)s colour available"
+msgid_plural "%(n)s colours available"
+msgstr[0] "可选 %(n)s 种颜色"
+
+#: .\frontend\templates\frontend\partials\search_overlay.html:6
 msgid "Search products, makers, journal"
 msgstr "搜索商品、匠人、日志"
 
-#: frontend/templates/frontend/partials/search_overlay.html:7
+#: .\frontend\templates\frontend\partials\search_overlay.html:7
 msgid "Search the site"
 msgstr "站内搜索"
 
-#: frontend/templates/frontend/partials/search_overlay.html:8
+#: .\frontend\templates\frontend\partials\search_overlay.html:8
 msgid "Close search"
 msgstr "关闭搜索"
 
-#: frontend/templates/frontend/partials/search_overlay.html:14
-#: frontend/templates/frontend/search/results.html:26
+#: .\frontend\templates\frontend\partials\search_overlay.html:14
+#: .\frontend\templates\frontend\search\results.html:26
 msgid "Popular searches"
 msgstr "热门搜索"
 
-#: frontend/templates/frontend/partials/sort.html:2
+#: .\frontend\templates\frontend\partials\sort.html:2
 msgid "Sort products"
 msgstr "商品排序"
 
-#: frontend/templates/frontend/product/detail.html:24
+#: .\frontend\templates\frontend\product\detail.html:24
 msgid "Enlarge image"
 msgstr "放大图片"
 
-#: frontend/templates/frontend/product/detail.html:26
+#: .\frontend\templates\frontend\product\detail.html:26
 msgid "Product images"
 msgstr "商品图片"
 
-#: frontend/templates/frontend/product/detail.html:45
+#: .\frontend\templates\frontend\product\detail.html:30
+#, python-format
+msgid "Image %(n)s of %(total)s"
+msgstr "第 %(n)s 张，共 %(total)s 张"
+
+#: .\frontend\templates\frontend\product\detail.html:45
 msgid "Made by"
 msgstr "制作者"
 
-#: frontend/templates/frontend/product/detail.html:74
+#: .\frontend\templates\frontend\product\detail.html:63
+#, python-format
+msgid "%(label)s — sold out"
+msgstr "%(label)s — 已售罄"
+
+#: .\frontend\templates\frontend\product\detail.html:74
 msgid "Size"
 msgstr "尺寸"
 
-#: frontend/templates/frontend/product/detail.html:90
+#: .\frontend\templates\frontend\product\detail.html:90
 msgid "Decrease quantity"
 msgstr "减少数量"
 
-#: frontend/templates/frontend/product/detail.html:91
+#: .\frontend\templates\frontend\product\detail.html:91
 msgid "Quantity"
 msgstr "数量"
 
-#: frontend/templates/frontend/product/detail.html:93
+#: .\frontend\templates\frontend\product\detail.html:93
 msgid "Increase quantity"
 msgstr "增加数量"
 
-#: frontend/templates/frontend/product/detail.html:113
-#, fuzzy
-#| msgid "Details &amp; delivery"
+#: .\frontend\templates\frontend\product\detail.html:107
+#, python-format
+msgid "Complimentary delivery over %(threshold)s · Thirty-day returns"
+msgstr "满 %(threshold)s 免运费 · 三十天内可退货"
+
+#: .\frontend\templates\frontend\product\detail.html:113
 msgid "Details &amp; materials"
 msgstr "资料与配送"
 
-#: frontend/templates/frontend/product/detail.html:116
+#: .\frontend\templates\frontend\product\detail.html:116
 msgid "Materials."
 msgstr "材质。"
 
-#: frontend/templates/frontend/product/detail.html:117
+#: .\frontend\templates\frontend\product\detail.html:117
 msgid "Dimensions."
 msgstr "尺寸。"
 
-#: frontend/templates/frontend/product/detail.html:118
+#: .\frontend\templates\frontend\product\detail.html:118
 msgid "Made by."
 msgstr "制作者。"
 
-#: frontend/templates/frontend/product/detail.html:122
+#: .\frontend\templates\frontend\product\detail.html:122
 msgid "Care"
 msgstr "保养"
 
-#: frontend/templates/frontend/product/detail.html:125
+#: .\frontend\templates\frontend\product\detail.html:125
 msgid "Read the full care guide"
 msgstr "阅读完整保养指南"
 
-#: frontend/templates/frontend/product/detail.html:130
-#, fuzzy
-#| msgid "Shipping &amp; Returns"
+#: .\frontend\templates\frontend\product\detail.html:130
 msgid "Shipping &amp; returns"
 msgstr "配送与退货"
 
-#: frontend/templates/frontend/product/detail.html:134
+#: .\frontend\templates\frontend\product\detail.html:133
+#, python-format
+msgid ""
+"%(dispatch)s. Standard delivery is %(standard)s, complimentary above "
+"%(threshold)s."
+msgstr "%(dispatch)s。标准配送 %(standard)s，满 %(threshold)s 免运费。"
+
+#: .\frontend\templates\frontend\product\detail.html:134
 msgid "Thirty days to return an unused piece."
 msgstr "未使用的作品可在三十天内退货。"
 
-#: frontend/templates/frontend/product/detail.html:135
+#: .\frontend\templates\frontend\product\detail.html:135
 msgid "Full policy"
 msgstr "完整条款"
 
-#: frontend/templates/frontend/product/detail.html:150
+#: .\frontend\templates\frontend\product\detail.html:150
 msgid "The story"
 msgstr "背后的故事"
 
-#: frontend/templates/frontend/product/detail.html:164
+#: .\frontend\templates\frontend\product\detail.html:154
+#, python-format
+msgid "More from %(name)s"
+msgstr "更多来自 %(name)s 的作品"
+
+#: .\frontend\templates\frontend\product\detail.html:164
 msgid "Verified buyers"
 msgstr "已验证买家"
 
-#: frontend/templates/frontend/product/detail.html:164
-#, fuzzy
-#| msgid "Overview"
+#: .\frontend\templates\frontend\product\detail.html:164
 msgid "Reviews"
 msgstr "概览"
 
-#: frontend/templates/frontend/product/detail.html:170
+#: .\frontend\templates\frontend\product\detail.html:169
+#, python-format
+msgid "%(n)s out of 5 stars"
+msgstr "5 星中评 %(n)s 星"
+
+#: .\frontend\templates\frontend\product\detail.html:170
 msgid "· Verified purchase"
 msgstr "· 已验证购买"
 
-#: frontend/templates/frontend/product/detail.html:176
+#: .\frontend\templates\frontend\product\detail.html:176
 msgid "No reviews yet."
 msgstr "暂无评价。"
 
-#: frontend/templates/frontend/product/detail.html:182
+#: .\frontend\templates\frontend\product\detail.html:182
 msgid "Review your purchase"
 msgstr "评价您购买的作品"
 
-#: frontend/templates/frontend/product/detail.html:183
+#: .\frontend\templates\frontend\product\detail.html:183
 msgid "Rating"
 msgstr "评分"
 
-#: frontend/templates/frontend/product/detail.html:185
+#: .\frontend\templates\frontend\product\detail.html:185
 msgid "Choose"
 msgstr "请选择"
 
-#: frontend/templates/frontend/product/detail.html:185
+#: .\frontend\templates\frontend\product\detail.html:185
 msgid "5 — Excellent"
 msgstr "5 — 非常好"
 
-#: frontend/templates/frontend/product/detail.html:186
+#: .\frontend\templates\frontend\product\detail.html:186
 msgid "4 — Good"
 msgstr "4 — 好"
 
-#: frontend/templates/frontend/product/detail.html:186
+#: .\frontend\templates\frontend\product\detail.html:186
 msgid "3 — Fair"
 msgstr "3 — 一般"
 
-#: frontend/templates/frontend/product/detail.html:187
+#: .\frontend\templates\frontend\product\detail.html:187
 msgid "2 — Poor"
 msgstr "2 — 差"
 
-#: frontend/templates/frontend/product/detail.html:187
+#: .\frontend\templates\frontend\product\detail.html:187
 msgid "1 — Very poor"
 msgstr "1 — 非常差"
 
-#: frontend/templates/frontend/product/detail.html:189
+#: .\frontend\templates\frontend\product\detail.html:189
 msgid "Title"
 msgstr "标题"
 
-#: frontend/templates/frontend/product/detail.html:191
-#, fuzzy
-#| msgid "Overview"
+#: .\frontend\templates\frontend\product\detail.html:191
 msgid "Review"
 msgstr "概览"
 
-#: frontend/templates/frontend/product/detail.html:193
+#: .\frontend\templates\frontend\product\detail.html:193
 msgid "Publish review"
 msgstr "发布评价"
 
-#: frontend/templates/frontend/product/detail.html:202
+#: .\frontend\templates\frontend\product\detail.html:202
 msgid "You may also like"
 msgstr "您可能还喜欢"
 
-#: frontend/templates/frontend/product/detail.html:202
+#: .\frontend\templates\frontend\product\detail.html:202
 msgid "Goes with this"
 msgstr "搭配推荐"
 
-#: frontend/templates/frontend/product/detail.html:212
+#: .\frontend\templates\frontend\product\detail.html:212
 msgid "Recently viewed"
 msgstr "最近浏览"
 
-#: frontend/templates/frontend/product/detail.html:212
+#: .\frontend\templates\frontend\product\detail.html:212
 msgid "Where you have been"
 msgstr "您浏览过的作品"
 
-#: frontend/templates/frontend/product/detail.html:217
+#: .\frontend\templates\frontend\product\detail.html:217
 msgid "Enlarged product image"
 msgstr "放大的商品图片"
 
-#: frontend/templates/frontend/product/detail.html:218
+#: .\frontend\templates\frontend\product\detail.html:218
 msgid "Close"
 msgstr "关闭"
 
-#: frontend/templates/frontend/search/results.html:12
+#: .\frontend\templates\frontend\search\results.html:8
+#, python-format
+msgid "Results for “%(term)s”"
+msgstr "“%(term)s”的搜索结果"
+
+#: .\frontend\templates\frontend\search\results.html:9
+#, python-format
+msgid "%(n)s result across products, collections, makers and the journal."
+msgid_plural ""
+"%(n)s results across products, collections, makers and the journal."
+msgstr[0] "在商品、系列、匠人与日志中找到 %(n)s 条结果。"
+
+#: .\frontend\templates\frontend\search\results.html:12
 msgid "Look for a material, a maker, a room or a piece by name."
 msgstr "可按材质、匠人、空间或作品名称搜索。"
 
-#: frontend/templates/frontend/search/results.html:33
+#: .\frontend\templates\frontend\search\results.html:32
+#, python-format
+msgid "Nothing matched “%(term)s”"
+msgstr "没有与“%(term)s”匹配的结果"
+
+#: .\frontend\templates\frontend\search\results.html:33
 msgid ""
 "The catalogue is small — around twenty pieces — so specific searches often "
 "come up short. Try a material or a category."
 msgstr ""
 "本站商品不多——约二十件——因此过于具体的搜索常无结果。不妨试试材质或品类。"
 
-#: frontend/templates/frontend/search/results.html:41
+#: .\frontend\templates\frontend\search\results.html:41
 msgid "Products"
 msgstr "商品"
 
-#: frontend/templates/frontend/seller/dashboard.html:10
+#: .\frontend\templates\frontend\seller\dashboard.html:10
 msgid ""
 "Manage your catalogue through the protected seller API and monitor incoming "
 "lines here."
 msgstr "通过受保护的卖家 API 管理您的商品，并在此查看新进订单明细。"
 
-#: frontend/templates/frontend/seller/dashboard.html:11
+#: .\frontend\templates\frontend\seller\dashboard.html:11
 msgid "Open API workspace"
 msgstr "打开 API 工作台"
 
-#: frontend/templates/frontend/seller/dashboard.html:16
+#: .\frontend\templates\frontend\seller\dashboard.html:16
 msgid "Your products"
 msgstr "您的商品"
 
-#: frontend/templates/frontend/seller/dashboard.html:23
+#: .\frontend\templates\frontend\seller\dashboard.html:23
 msgid "No products yet."
 msgstr "暂无商品。"
 
-#: frontend/templates/frontend/seller/dashboard.html:28
+#: .\frontend\templates\frontend\seller\dashboard.html:28
 msgid "Incoming order lines"
 msgstr "新进订单明细"
 
-#: frontend/templates/frontend/seller/dashboard.html:35
+#: .\frontend\templates\frontend\seller\dashboard.html:35
 msgid "No incoming orders yet."
 msgstr "暂无新订单。"
 
-#: frontend/templates/frontend/shop/collection_detail.html:38
+#: .\frontend\templates\frontend\shop\collection_detail.html:11
+#: .\frontend\templates\frontend\shop\collections.html:23
+msgid "Collection"
+msgstr "系列"
+
+#: .\frontend\templates\frontend\shop\collection_detail.html:28
+#: .\frontend\templates\frontend\shop\shop.html:23
+#, python-format
+msgid "%(n)s piece"
+msgid_plural "%(n)s pieces"
+msgstr[0] "%(n)s 件作品"
+
+#: .\frontend\templates\frontend\shop\collection_detail.html:38
 msgid "Nothing here just yet"
 msgstr "这里暂时还没有内容"
 
-#: frontend/templates/frontend/shop/collection_detail.html:39
+#: .\frontend\templates\frontend\shop\collection_detail.html:39
 msgid "This collection is between batches. The shop has everything else."
 msgstr "该系列正处于两批之间。其余作品请见商店。"
 
-#: frontend/templates/frontend/shop/collections.html:11
+#: .\frontend\templates\frontend\shop\collections.html:11
 msgid ""
 "Four categories and one editorial grouping. Each one is small on purpose."
 msgstr "四个品类与一个专题系列。每一个都刻意保持小而精。"
 
-#: frontend/templates/frontend/shop/shop.html:9
+#: .\frontend\templates\frontend\shop\collections.html:27
+#, python-format
+msgid "Shop %(name)s"
+msgstr "选购 %(name)s"
+
+#: .\frontend\templates\frontend\shop\shop.html:9
 msgid "Everything"
 msgstr "全部"
 
-#: frontend/templates/frontend/shop/shop.html:10
+#: .\frontend\templates\frontend\shop\shop.html:10
 msgid "The shop"
 msgstr "商店"
 
-#: frontend/templates/frontend/shop/shop.html:11
+#: .\frontend\templates\frontend\shop\shop.html:11
 msgid ""
 "Every piece we currently make, from all five makers. Filter by material, "
 "colour or what is ready to ship today."
 msgstr "五位匠人目前在售的全部作品。可按材质、颜色或现货状态筛选。"
 
-#: frontend/templates/frontend/shop/shop.html:32
+#: .\frontend\templates\frontend\shop\shop.html:32
 msgid "Active filters"
 msgstr "已选筛选条件"
 
-#: frontend/templates/frontend/shop/shop.html:49
+#: .\frontend\templates\frontend\shop\shop.html:49
 msgid "Clear all"
 msgstr "清除全部"
 
-#: frontend/templates/frontend/shop/shop.html:59
+#: .\frontend\templates\frontend\shop\shop.html:59
 msgid "Nothing matches that combination"
 msgstr "没有符合该组合的作品"
 
-#: frontend/templates/frontend/shop/shop.html:60
+#: .\frontend\templates\frontend\shop\shop.html:60
 msgid ""
 "Try loosening one filter — the range is deliberately small, so narrow "
 "searches run out quickly."
 msgstr "试着放宽一个筛选条件——本站选品刻意精简，条件太窄很快就没有结果了。"
 
-#: frontend/templatetags/frontend_extras.py:154
+#: .\frontend\templatetags\frontend_extras.py:154
 msgid "Switch to English"
 msgstr "切换为英文"
 
-#: frontend/templatetags/frontend_extras.py:155
+#: .\frontend\templatetags\frontend_extras.py:155
 msgid "Switch to Chinese"
 msgstr "切换为中文"
+
+#: .\frontend\views.py:332
+msgid "Your password has been changed."
+msgstr "您的密码已修改。"
+
+#~ msgid ""
+#~ "Password reset email delivery is not connected yet — the request is "
+#~ "accepted and logged."
+#~ msgstr "重设密码邮件发送功能尚未接入——请求已受理并记录。"
+
+#~ msgid "Change your password through the API endpoint"
+#~ msgstr "通过 API 接口修改密码"
+
+#~ msgid "POST /api/auth/change-password/"
+#~ msgstr "POST /api/auth/change-password/"
+
+#~ msgid ". A frontend form for this is not built yet."
+#~ msgstr "。前台表单尚未开发。"

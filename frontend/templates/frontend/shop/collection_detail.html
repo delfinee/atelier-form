@@ -8,7 +8,7 @@
   </div>
   <div class="hero__copy">
     <div class="shell">
-      <p class="eyebrow">{% if collection.kind == "editorial" %}Collection{% else %}Category{% endif %}</p>
+      <p class="eyebrow">{% if collection.kind == "editorial" %}{% translate "Collection" %}{% else %}{% translate "Category" %}{% endif %}</p>
       <h1 style="font-size:var(--step-3)">{{ collection.title }}</h1>
       <p>{{ collection.tagline }}</p>
     </div>
@@ -25,7 +25,7 @@
   <p class="lede" style="max-width:62ch">{{ collection.description }}</p>
 
   <div class="shop-toolbar" style="margin-top:var(--section)">
-    <span class="count">{{ products|length }} piece{{ products|length|pluralize }}</span>
+    <span class="count">{% blocktranslate count n=products|length %}{{ n }} piece{% plural %}{{ n }} pieces{% endblocktranslate %}</span>
     {% include "frontend/partials/sort.html" %}
   </div>
 

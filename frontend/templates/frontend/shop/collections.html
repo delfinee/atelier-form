@@ -20,11 +20,11 @@
           <img src="{% placeholder collection.hero %}" alt="{{ collection.title }}" loading="lazy" width="1600" height="900">
         </div>
         <div>
-          <p class="eyebrow">{% if collection.kind == "editorial" %}Collection{% else %}Category{% endif %}</p>
+          <p class="eyebrow">{% if collection.kind == "editorial" %}{% translate "Collection" %}{% else %}{% translate "Category" %}{% endif %}</p>
           <h2>{{ collection.title }}</h2>
           <p class="lede" style="margin-top:0.8rem">{{ collection.tagline }}</p>
           <p class="muted" style="margin-top:1rem">{{ collection.description|truncatewords:38 }}</p>
-          <span class="link" style="margin-top:1.4rem">Shop {{ collection.title }} {% icon "arrow-right" 16 %}</span>
+          <span class="link" style="margin-top:1.4rem">{% blocktranslate with name=collection.title %}Shop {{ name }}{% endblocktranslate %} {% icon "arrow-right" 16 %}</span>
         </div>
       </a>
     {% endfor %}

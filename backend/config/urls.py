@@ -5,7 +5,8 @@ both hard-code a few of them, so a rename here needs a matching edit there.
 """
 
 from django.contrib import admin
-from django.urls import include, path
+from django.contrib.auth import views as auth_views
+from django.urls import include, path, reverse_lazy
 
 from frontend import views
 
@@ -43,13 +44,29 @@ urlpatterns = [
     path("account/orders/", views.account_orders, name="account_orders"),
     path("account/orders/<str:order_id>/", views.account_order_detail, name="account_order_detail"),
     path("account/profile/", views.account_profile, name="account_profile"),
+    path("account/change-password/", views.account_change_password, name="account_change_password"),
     path("account/addresses/", views.account_addresses, name="account_addresses"),
     path("account/wishlist/", views.account_wishlist, name="account_wishlist"),
     path("account/addresses/<uuid:uuid>/delete/", views.account_address_delete,
          name="account_address_delete"),
     path("account/login/", views.auth_page, {"mode": "login"}, name="login"),
     path("account/register/", views.auth_page, {"mode": "register"}, name="register"),
-    path("account/forgot-password/", views.auth_page, {"mode": "forgot"}, name="forgot_password"),
+    path("account/forgot-password/", auth_views.PasswordResetView.as_view(
+        template_name="frontend/account/password_reset_form.html",
+        email_template_name="frontend/account/password_reset_email.txt",
+        subject_template_name="frontend/account/password_reset_subject.txt",
+        success_url=reverse_lazy("password_reset_done"),
+    ), name="forgot_password"),
+    path("account/password-reset/done/", auth_views.PasswordResetDoneView.as_view(
+        template_name="frontend/account/password_reset_done.html",
+    ), name="password_reset_done"),
+    path("account/reset/<uidb64>/<token>/", auth_views.PasswordResetConfirmView.as_view(
+        template_name="frontend/account/password_reset_confirm.html",
+        success_url=reverse_lazy("password_reset_complete"),
+    ), name="password_reset_confirm"),
+    path("account/reset/complete/", auth_views.PasswordResetCompleteView.as_view(
+        template_name="frontend/account/password_reset_complete.html",
+    ), name="password_reset_complete"),
     path("account/logout/", views.account_logout, name="logout"),
 
     # Seller surface

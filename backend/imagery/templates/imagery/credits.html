@@ -1,38 +1,37 @@
 {% extends "frontend/base.html" %}
+{% load i18n %}
 
 {% block newsletter %}{% endblock %}
 
 {% block content %}
 <div class="shell page-head">
-  <nav class="breadcrumbs" aria-label="Breadcrumb">
-    <a href="{% url 'home' %}">Home</a><span class="sep">/</span><span aria-current="page">{{ title }}</span>
+  <nav class="breadcrumbs" aria-label="{% translate 'Breadcrumb' %}">
+    <a href="{% url 'home' %}">{% translate "Home" %}</a><span class="sep">/</span><span aria-current="page">{% translate "Image Credits" %}</span>
   </nav>
-  <h1 style="font-size:var(--step-3)">{{ title }}</h1>
+  <h1 style="font-size:var(--step-3)">{% translate "Image Credits" %}</h1>
   <p class="lede">
-    The photography on this prototype is openly licensed work found through
-    <a class="text-link" href="https://openverse.org/" rel="noopener">Openverse</a>. It stands in
-    for studio photography that has not been commissioned yet, and it is credited here because
-    most of these licences require it.
+    {% translate "The photography on this prototype is openly licensed work found through" %}
+    <a class="text-link" href="https://openverse.org/" rel="noopener">Openverse</a>。{% translate "It stands in" %}
+    {% translate "for studio photography that has not been commissioned yet, and it is credited here because most of these licences require it." %}
   </p>
 </div>
 
 <div class="shell shell--text" style="padding-bottom:var(--section)">
   <div class="flow" style="color:var(--ink-soft)">
     {% if credited %}
-      <h2 style="font-size:var(--step-2)">Creative Commons</h2>
-      <p>Each of these is used under a licence permitting commercial use and modification.
-        Images have been cropped and resized to fit the layout.</p>
+      <h2 style="font-size:var(--step-2)">{% translate "Creative Commons" %}</h2>
+      <p>{% translate "Each of these is used under a licence permitting commercial use and modification. Images have been cropped and resized to fit the layout." %}</p>
       <ul class="flow" style="list-style:none;padding:0">
         {% for image in credited %}
           <li style="padding:0.5rem 0;border-bottom:1px solid var(--rule)">
             <a class="text-link" href="{{ image.source_url }}" rel="noopener">{{ image.source_title|default:image.name }}</a>
             {% if image.creator %}
-              by
+              {% translate "by" %}
               {% if image.creator_url %}
                 <a class="text-link" href="{{ image.creator_url }}" rel="noopener">{{ image.creator }}</a>
               {% else %}{{ image.creator }}{% endif %}
             {% endif %}
-            — licensed under
+            — {% translate "licensed under" %}
             <a class="text-link" href="{{ image.license_url }}" rel="noopener">CC {{ image.license|upper }} {{ image.license_version }}</a>
           </li>
         {% endfor %}
@@ -40,8 +39,8 @@
     {% endif %}
 
     {% if public_domain %}
-      <h2 style="font-size:var(--step-2)">Public domain</h2>
-      <p>Used under CC0 or a public domain mark. No attribution is required; it is given anyway.</p>
+      <h2 style="font-size:var(--step-2)">{% translate "Public domain" %}</h2>
+      <p>{% translate "Used under CC0 or a public domain mark. No attribution is required; it is given anyway." %}</p>
       <ul class="flow" style="list-style:none;padding:0">
         {% for image in public_domain %}
           <li style="padding:0.5rem 0;border-bottom:1px solid var(--rule)">
@@ -53,12 +52,11 @@
     {% endif %}
 
     {% if not credited and not public_domain %}
-      <p>No photography has been fetched yet — every image on the site is still a generated
-        placeholder. Run <code>python manage.py fetch_images</code> to populate them.</p>
+      <p>{% translate "No photography has been fetched yet — every image on the site is still a generated placeholder. Run" %} <code>python manage.py fetch_images</code> {% translate "to populate them." %}</p>
     {% endif %}
 
     <p class="form-note" style="margin-top:var(--section)">
-      Generated illustrations remain in place wherever no photograph could be found.
+      {% translate "Generated illustrations remain in place wherever no photograph could be found." %}
     </p>
   </div>
 </div>

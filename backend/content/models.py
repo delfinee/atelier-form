@@ -62,7 +62,7 @@ class Article(UUIDModel, TimeStampedModel):
 
     @property
     def date(self) -> str:
-        return self.published_at.strftime("%-d %B %Y")
+        return f"{self.published_at.day} {self.published_at.strftime('%B %Y')}"
 
     @property
     def featured(self) -> bool:

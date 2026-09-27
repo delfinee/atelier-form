@@ -1,7 +1,7 @@
 {% extends "frontend/account/base.html" %}
 {% load i18n frontend_extras %}
 
-{% block account_title %}Orders{% endblock %}
+{% block account_title %}{% translate "Orders" %}{% endblock %}
 {% block account_lede %}<p class="lede">{% translate "Everything you have ordered, newest first." %}</p>{% endblock %}
 
 {% block account_content %}
@@ -11,7 +11,7 @@
       <div>
         <h3 style="font-size:var(--step-1)">{{ order.order_number }}</h3>
         <p class="muted" style="margin:0.25rem 0 0">
-          Placed {{ order.date }} · {{ order.items|length }} item{{ order.items|length|pluralize }} · {{ order.total|money }}
+          {% blocktranslate count n=order.items|length with date=order.date total=order.total|money %}Placed {{ date }} · {{ n }} item · {{ total }}{% plural %}Placed {{ date }} · {{ n }} items · {{ total }}{% endblocktranslate %}
         </p>
       </div>
       <span class="status status--{{ order.status }}">{{ order.status_label }}</span>

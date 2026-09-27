@@ -225,7 +225,7 @@ class Order(UUIDModel, TimeStampedModel):
 
     @property
     def date(self) -> str:
-        return self.placed_at.strftime("%-d %B %Y")
+        return f"{self.placed_at.day} {self.placed_at.strftime('%B %Y')}"
 
     @property
     def address(self) -> dict:
@@ -245,7 +245,7 @@ class Order(UUIDModel, TimeStampedModel):
     @property
     def estimated(self) -> str:
         if self.status == OrderStatus.DELIVERED:
-            return f"Delivered {self.placed_at.strftime('%-d %B')}"
+            return f"Delivered {self.placed_at.day} {self.placed_at.strftime('%B')}"
         return "Arriving within 3–6 working days"
 
     @property
@@ -255,10 +255,12 @@ class Order(UUIDModel, TimeStampedModel):
                  OrderStatus.SHIPPED, OrderStatus.DELIVERED]
         if self.status == OrderStatus.CANCELLED:
             return [{"label": "Order placed", "date": self.date, "done": True},
-                    {"label": "Cancelled", "date": self.updated_at.strftime("%-d %b"), "done": True}]
+                    {"label": "Cancelled", "date": f"{self.updated_at.day} {self.updated_at.strftime('%b')}",
+                     "done": True}]
         reached = order.index(self.status) if self.status in order else 0
         labels = ["Order placed", "Confirmed", "Made & packed", "Dispatched", "Delivered"]
-        return [{"label": label, "date": self.placed_at.strftime("%-d %b") if i <= reached else "Expected",
+        return [{"label": label,
+                 "date": f"{self.placed_at.day} {self.placed_at.strftime('%b')}" if i <= reached else "Expected",
                  "done": i <= reached}
                 for i, label in enumerate(labels)]
 
@@ -325,3 +327,38 @@ class OrderItem(TimeStampedModel):
     @property
     def slug(self) -> str:
         return self.product_slug
+
+
+class SellerFulfillment(UUIDModel, TimeStampedModel):
+    """One seller's independent slice of an Order's fulfilment.
+
+    Membership is derived, not stored: the lines belonging to this fulfilment
+    are `OrderItem.objects.filter(order=self.order, maker=self.maker)` -- the
+    same (order, maker) pair that already identifies seller ownership on
+    OrderItem, so there is no second, potentially-inconsistent membership list
+    to maintain (see `items` below).
+    """
+
+    order = models.ForeignKey(Order, related_name="seller_fulfillments", on_delete=models.CASCADE)
+    maker = models.ForeignKey("products.Maker", related_name="seller_fulfillments",
+                              on_delete=models.PROTECT)
+
+    status = models.CharField(max_length=20, choices=FulfillmentStatus.choices,
+                              default=FulfillmentStatus.UNFULFILLED)
+    carrier = models.CharField(max_length=80, blank=True)
+    tracking_number = models.CharField(max_length=80, blank=True)
+    shipped_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["order_id", "maker__name"]
+        constraints = [
+            models.UniqueConstraint(fields=["order", "maker"], name="unique_fulfillment_per_order_maker"),
+        ]
+
+    def __str__(self):
+        return f"{self.order.order_number} · {self.maker.name} ({self.status})"
+
+    @property
+    def items(self):
+        """The purchased lines this seller is responsible for within the order."""
+        return self.order.items.filter(maker=self.maker)

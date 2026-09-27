@@ -10,26 +10,34 @@ from __future__ import annotations
 
 import json
 import re
+from urllib.parse import urlsplit
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
+from django.db import IntegrityError, transaction
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from accounts.models import Address, User, WishlistItem
+from accounts.models import Address, WishlistItem
 from content.models import FAQGroup, NewsletterSubscriber
 from orders.models import Order, OrderItem
 from orders.services import get_cart, merge_session_cart
 from payments.models import Payment, PaymentProviderChoices
 from payments.services import MockPaymentProvider
 from reviews.models import Review
+from reviews.errors import is_duplicate_review_error
 
 from . import services
+from .forms import ProfileForm, RegistrationForm
+from .review_forms import ReviewForm
 from .mockdata.content import CARE_PAGE, PROCESS_STEPS, SHIPPING_PAGE, SITE, STORY_PAGE
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$")
@@ -77,7 +85,7 @@ def shop(request):
         "selected": selected,
         "active_filter_count": active_count,
         "sort": sort,
-        "sort_options": services.SORT_OPTIONS,
+        "sort_options": services.localized_sort_options(),
         "meta_title": f"Shop — {SITE['brand']}",
     })
 
@@ -102,7 +110,7 @@ def collection_detail(request, slug):
         "collection": collection,
         "products": services.products_in_collection(slug, sort=sort),
         "sort": sort,
-        "sort_options": services.SORT_OPTIONS,
+        "sort_options": services.localized_sort_options(),
         "meta_title": f"{collection.title} — {SITE['brand']}",
     })
 
@@ -114,45 +122,51 @@ def product_detail(request, slug):
     if not product:
         raise Http404("Unknown product")
 
-    if request.method == "POST":
-        if not request.user.is_authenticated:
-            return redirect(f"/account/login/?next=/products/{product.slug}/")
+    review_state = "login_required"
+    order_item = None
+    if request.user.is_authenticated:
         order_item = (OrderItem.objects.filter(
             order__user=request.user, order__payment_status="paid", product=product,
         ).order_by("-order__placed_at").first())
-        if order_item is None:
-            messages.error(request, "Only verified buyers can review this product.")
-        elif Review.objects.filter(user=request.user, product=product).exists():
-            messages.error(request, "You have already reviewed this product.")
+        if Review.objects.filter(user=request.user, product=product).exists():
+            review_state = "already_reviewed"
         else:
+            review_state = "eligible" if order_item else "purchase_required"
+
+    review_form = ReviewForm(request.POST if request.method == "POST" else None)
+    if request.method == "POST":
+        if review_state == "login_required":
+            return redirect_to_login(request.path)
+        if review_state != "eligible":
+            messages.error(request, "You have already reviewed this product."
+                           if review_state == "already_reviewed" else
+                           "Only verified buyers can review this product.")
+            return redirect("product_detail", slug=product.slug)
+        if review_form.is_valid():
             try:
-                rating = int(request.POST.get("rating", ""))
-                if rating not in range(1, 6):
-                    raise ValueError
-                Review.objects.create(
-                    user=request.user, product=product, order_item=order_item,
-                    rating=rating, title=request.POST.get("title", "").strip()[:160],
-                    body=request.POST.get("body", "").strip(),
-                )
+                with transaction.atomic():
+                    Review.objects.create(
+                        user=request.user, product=product, order_item=order_item,
+                        **review_form.cleaned_data,
+                    )
+            except IntegrityError as exc:
+                if not is_duplicate_review_error(exc):
+                    raise
+                messages.error(request, "You have already reviewed this product.")
+            else:
                 messages.success(request, "Thank you for reviewing this piece.")
-            except ValueError:
-                messages.error(request, "Choose a rating from 1 to 5.")
-        return redirect("product_detail", slug=product.slug)
+            return redirect("product_detail", slug=product.slug)
 
     reviews = getattr(product, "reviews").filter(is_published=True).select_related("user")
-    can_review = False
-    if request.user.is_authenticated:
-        can_review = (not reviews.filter(user=request.user).exists() and
-                      OrderItem.objects.filter(order__user=request.user,
-                                               order__payment_status="paid",
-                                               product=product).exists())
 
     return render(request, "frontend/product/detail.html", {
         "product": product,
-        "maker": product.maker,
+        "maker": services.get_maker(product.maker.slug),
         "related": services.related_products(product),
         "reviews": reviews,
-        "can_review": can_review,
+        "can_review": review_state == "eligible",
+        "review_state": review_state,
+        "review_form": review_form,
         "in_wishlist": (request.user.is_authenticated and
                         WishlistItem.objects.filter(user=request.user, product=product).exists()),
         "meta_title": f"{product.name} — {SITE['brand']}",
@@ -290,26 +304,47 @@ def account_order_detail(request, order_id):
         raise Http404("Unknown order")
     return render(request, "frontend/account/order_detail.html", {
         "customer": request.user, "order": order,
+        "current_path": reverse("account_orders"),
         "meta_title": f"Order {order.order_number} — {SITE['brand']}",
+    })
+
+
+def _render_account_profile(request, password_form=None, profile_form=None):
+    return render(request, "frontend/account/profile.html", {
+        "customer": request.user, "meta_title": f"Profile — {SITE['brand']}",
+        "current_path": reverse("account_profile"),
+        "profile_form": (profile_form if profile_form is not None
+                         else ProfileForm(user=request.user)),
+        "password_form": (password_form if password_form is not None
+                          else PasswordChangeForm(request.user)),
     })
 
 
 @login_required
 def account_profile(request):
     if request.method == "POST":
-        user = request.user
-        user.first_name = request.POST.get("first_name", user.first_name).strip()
-        user.last_name = request.POST.get("last_name", user.last_name).strip()
-        user.phone = request.POST.get("phone", user.phone).strip()
-        user.accepts_marketing = bool(request.POST.get("accepts_marketing"))
-        user.save(update_fields=["first_name", "last_name", "phone",
-                                 "accepts_marketing", "updated_at"])
-        messages.success(request, "Your details have been saved.")
-        return redirect("account_profile")
+        form = ProfileForm(request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your details have been saved.")
+            return redirect("account_profile")
+        return _render_account_profile(request, profile_form=form)
 
-    return render(request, "frontend/account/profile.html", {
-        "customer": request.user, "meta_title": f"Profile — {SITE['brand']}",
-    })
+    return _render_account_profile(request)
+
+
+@require_POST
+def account_change_password(request):
+    if not request.user.is_authenticated:
+        # Login must return to the form, not GET this POST-only action.
+        return redirect_to_login(reverse("account_profile"))
+    form = PasswordChangeForm(request.user, request.POST)
+    if form.is_valid():
+        user = form.save()
+        update_session_auth_hash(request, user)
+        messages.success(request, _("Your password has been changed."))
+        return redirect("account_profile")
+    return _render_account_profile(request, password_form=form)
 
 
 @login_required
@@ -353,25 +388,28 @@ def account_wishlist(request):
              .prefetch_related("product__product_images"))
     return render(request, "frontend/account/wishlist.html", {
         "customer": request.user,
-        "wishlist_products": [item.product for item in items],
+        "wishlist_products": [services.localize_product(item.product) for item in items],
         "meta_title": f"Wishlist — {SITE['brand']}",
     })
 
 
 def auth_page(request, mode):
-    """Sign in, register and password reset.
+    """Sign in and register.
 
     Uses Django's session authentication -- the frontend is server-rendered,
     so a session cookie is the right mechanism. The JWT endpoints under
     /api/auth/ exist for non-browser clients.
     """
-    titles = {"login": "Sign in", "register": "Create an account",
-              "forgot": "Reset your password"}
+    titles = {"login": "Sign in", "register": "Create an account"}
     if request.user.is_authenticated and mode in {"login", "register"}:
         return redirect("account_overview")
 
     errors: dict[str, str] = {}
     values: dict[str, str] = {}
+    registration_form = (
+        RegistrationForm(request.POST if request.method == "POST" else None)
+        if mode == "register" else None
+    )
 
     if request.method == "POST":
         values = {k: v.strip() for k, v in request.POST.items() if k != "password"}
@@ -387,47 +425,34 @@ def auth_page(request, mode):
                 merge_session_cart(request, user)      # keep the guest's bag
                 login(request, user)
                 messages.success(request, f"Welcome back, {user.first_name or 'there'}.")
-                return redirect(request.GET.get("next") or "account_overview")
+                next_url = request.GET.get("next", "").strip()
+                if (url_has_allowed_host_and_scheme(
+                    next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure(),
+                ) and urlsplit(next_url).path.startswith("/")):
+                    return redirect(next_url)
+                return redirect("account_overview")
 
-        elif mode == "register":
-            email = request.POST.get("email", "").strip().lower()
-            password = request.POST.get("password", "")
-            if not EMAIL_RE.match(email):
-                errors["email"] = "Enter a valid email address."
-            elif User.objects.filter(email=email).exists():
-                errors["email"] = "An account with this email already exists."
-            try:
-                validate_password(password)
-            except ValidationError as exc:
-                errors["password"] = " ".join(exc.messages)
-
-            if not errors:
-                user = User.objects.create_user(
-                    email=email, password=password,
-                    first_name=request.POST.get("first_name", "").strip(),
-                    last_name=request.POST.get("last_name", "").strip(),
-                    accepts_marketing=bool(request.POST.get("accepts_marketing")),
-                )
+        elif mode == "register" and registration_form is not None:
+            if registration_form.is_valid():
+                user = registration_form.save()
                 merge_session_cart(request, user)
                 login(request, user)
                 messages.success(request, "Your account is ready.")
                 return redirect("account_overview")
-
-        else:  # forgot
-            # Always the same response, whether or not the address is known.
-            messages.success(request, "If that address has an account, a reset link is on its way.")
-            return redirect("login")
+            errors = {field: " ".join(field_errors)
+                      for field, field_errors in registration_form.errors.items()}
 
     return render(request, "frontend/account/auth.html", {
         "mode": mode, "heading": titles[mode], "errors": errors, "values": values,
+        "registration_form": registration_form,
         "meta_title": f"{titles[mode]} — {SITE['brand']}",
     })
 
 
+@require_POST
 def account_logout(request):
-    if request.method == "POST" or request.user.is_authenticated:
-        logout(request)
-        messages.success(request, "You have been signed out.")
+    logout(request)
+    messages.success(request, "You have been signed out.")
     return redirect("home")
 
 
@@ -493,7 +518,9 @@ def journal_detail(request, slug):
 
 
 def _faq_groups():
-    return FAQGroup.objects.filter(is_active=True).prefetch_related("faqs")
+    from .catalogue_i18n import localize_faq_group
+    return [localize_faq_group(group) for group in
+            FAQGroup.objects.filter(is_active=True).prefetch_related("faqs")]
 
 
 def contact(request):

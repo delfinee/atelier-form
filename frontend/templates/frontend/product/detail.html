@@ -27,7 +27,7 @@
         {% for image in product.images %}
           <button type="button" role="tab" data-gallery-thumb data-full="{% placeholder image %}"
                   aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
-                  aria-label="Image {{ forloop.counter }} of {{ product.images|length }}">
+                  aria-label="{% blocktranslate with n=forloop.counter total=product.images|length %}Image {{ n }} of {{ total }}{% endblocktranslate %}">
             <img src="{% placeholder image %}" alt="" loading="lazy">
           </button>
         {% endfor %}
@@ -60,7 +60,7 @@
                 <button class="variant variant--swatch" type="button" data-variant="{{ v.label }}"
                         aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
                         {% if not v.available %}disabled{% endif %}
-                        aria-label="{{ v.label }}{% if not v.available %} — sold out{% endif %}">
+                        aria-label="{% if v.available %}{{ v.label }}{% else %}{% blocktranslate with label=v.label %}{{ label }} — sold out{% endblocktranslate %}{% endif %}">
                   <span style="background:{{ v.swatch }}"></span>
                 </button>
               {% endfor %}
@@ -96,7 +96,7 @@
         <button class="btn btn--quiet{% if in_wishlist %} is-active{% endif %}" type="button"
                 data-wish-toggle data-slug="{{ product.slug }}"
                 aria-pressed="{% if in_wishlist %}true{% else %}false{% endif %}"
-                aria-label="Save {{ product.name }} to wishlist">{% icon "heart" 18 %}</button>
+                aria-label="{% blocktranslate with name=product.name %}Save {{ name }} to wishlist{% endblocktranslate %}">{% icon "heart" 18 %}</button>
       </div>
 
       <p class="pdp__stock">
@@ -104,7 +104,7 @@
         {% stock_label product.stock_status %} · {{ product.dispatch }}
       </p>
       <p class="form-note" style="margin-top:0.5rem">
-        Complimentary delivery over {{ site.free_shipping_threshold|money }} · Thirty-day returns
+        {% blocktranslate with threshold=site.free_shipping_threshold|money %}Complimentary delivery over {{ threshold }} · Thirty-day returns{% endblocktranslate %}
       </p>
 
       <div class="accordion" data-accordion>
@@ -130,7 +130,7 @@
             {% translate "Shipping &amp; returns" %} {% icon "chevron-down" 18 %}
           </button>
           <div class="accordion__body">
-            <p>{{ product.dispatch }}. Standard delivery is {{ site.shipping_standard|money }}, complimentary above {{ site.free_shipping_threshold|money }}.</p>
+            <p>{% blocktranslate with dispatch=product.dispatch standard=site.shipping_standard|money threshold=site.free_shipping_threshold|money %}{{ dispatch }}. Standard delivery is {{ standard }}, complimentary above {{ threshold }}.{% endblocktranslate %}</p>
             <p style="margin-bottom:0">{% translate "Thirty days to return an unused piece." %}
               <a class="text-link" href="{% url 'shipping_returns' %}">{% translate "Full policy" %}</a>.</p>
           </div>
@@ -151,7 +151,7 @@
       <blockquote class="quote" style="border:0;padding:0">{{ product.story }}</blockquote>
       {% if maker %}
         <p style="margin-top:1.6rem">
-          <a class="link" href="{% url 'maker_detail' maker.slug %}">More from {{ maker.name }} {% icon "arrow-right" 16 %}</a>
+          <a class="link" href="{% url 'maker_detail' maker.slug %}">{% blocktranslate with name=maker.name %}More from {{ name }}{% endblocktranslate %} {% icon "arrow-right" 16 %}</a>
         </p>
       {% endif %}
     </div>
@@ -166,11 +166,11 @@
   <div style="display:grid;gap:1rem">
     {% for review in reviews %}
       <article class="panel">
-        <p aria-label="{{ review.rating }} out of 5 stars"><strong>{{ review.rating }} / 5</strong>
+        <p aria-label="{% blocktranslate with n=review.rating %}{{ n }} out of 5 stars{% endblocktranslate %}"><strong>{{ review.rating }} / 5</strong>
           {% if review.is_verified_purchase %}<span class="muted"> {% translate "· Verified purchase" %}</span>{% endif %}</p>
         {% if review.title %}<h3 style="margin-top:.5rem">{{ review.title }}</h3>{% endif %}
-        {% if review.body %}<p style="margin-top:.5rem">{{ review.body }}</p>{% endif %}
-        <p class="muted" style="margin-top:.5rem">{{ review.user.full_name }}</p>
+        {% if review.body %}<p style="margin-top:.5rem">{{ review.body|linebreaksbr }}</p>{% endif %}
+        <p class="muted" style="margin-top:.5rem">{{ review.public_author }} · <time datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:"j M Y" }}</time></p>
       </article>
     {% empty %}
       <p class="muted">{% translate "No reviews yet." %}</p>
@@ -181,17 +181,22 @@
         {% csrf_token %}
         <h3>{% translate "Review your purchase" %}</h3>
         <div class="field"><label class="label" for="review-rating">{% translate "Rating" %}</label>
-          <select class="select" id="review-rating" name="rating" required>
-            <option value="">{% translate "Choose" %}</option><option value="5">{% translate "5 — Excellent" %}</option>
-            <option value="4">{% translate "4 — Good" %}</option><option value="3">{% translate "3 — Fair" %}</option>
-            <option value="2">{% translate "2 — Poor" %}</option><option value="1">{% translate "1 — Very poor" %}</option>
-          </select></div>
-        <div class="field"><label class="label" for="review-title">{% translate "Title" %}</label>
-          <input class="input" id="review-title" name="title" maxlength="160"></div>
-        <div class="field"><label class="label" for="review-body">{% translate "Review" %}</label>
-          <textarea class="textarea" id="review-body" name="body" rows="4"></textarea></div>
+          {{ review_form.rating }}
+          {% if review_form.rating.errors %}<div id="review-rating-errors" role="alert">{% for error in review_form.rating.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endif %}</div>
+        <div class="field"><label class="label" for="review-title">{% translate "Title (optional)" %}</label>
+          {{ review_form.title }}
+          {% if review_form.title.errors %}<div id="review-title-errors" role="alert">{% for error in review_form.title.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endif %}</div>
+        <div class="field"><label class="label" for="review-body">{% translate "Review (optional)" %}</label>
+          {{ review_form.body }}
+          {% if review_form.body.errors %}<div id="review-body-errors" role="alert">{% for error in review_form.body.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endif %}</div>
         <button class="btn" type="submit">{% translate "Publish review" %}</button>
       </form>
+    {% elif review_state == "login_required" %}
+      <p class="muted"><a class="link" href="{% url 'login' %}?next={{ request.path|urlencode }}">{% translate "Sign in" %}</a> {% translate "to review a product you have purchased. Reviews are available after payment." %}</p>
+    {% elif review_state == "already_reviewed" %}
+      <p class="muted">{% translate "You have already submitted a review for this product." %}</p>
+    {% else %}
+      <p class="muted">{% translate "You can review this product after purchasing it and completing payment." %}</p>
     {% endif %}
   </div>
 </section>

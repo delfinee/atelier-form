@@ -86,7 +86,7 @@
         <div class="info-card">
           <h4>{{ group.title }}</h4>
           <p>{{ group.blurb }}</p>
-          <p style="margin-top:0.8rem"><a class="text-link" href="{% url 'faq' %}#{{ group.slug }}">Read {{ group.items|length }} answers</a></p>
+          <p style="margin-top:0.8rem"><a class="text-link" href="{% url 'faq' %}#{{ group.slug }}">{% blocktranslate count n=group.items|length %}Read {{ n }} answer{% plural %}Read {{ n }} answers{% endblocktranslate %}</a></p>
         </div>
       {% endfor %}
     </div>

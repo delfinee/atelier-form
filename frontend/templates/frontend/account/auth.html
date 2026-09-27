@@ -12,7 +12,7 @@
   <div class="auth-panel">
     <div class="auth-panel__inner">
       <p class="eyebrow">{{ site.brand }}</p>
-      <h1 style="font-size:var(--step-3)">{{ heading }}</h1>
+      <h1 style="font-size:var(--step-3)">{% if mode == "login" %}{% translate "Sign in" %}{% else %}{% translate "Create an account" %}{% endif %}</h1>
 
       {% if errors.form %}
         <p class="field-error" role="alert" style="margin-top:1rem">{{ errors.form }}</p>
@@ -35,7 +35,7 @@
                    autocomplete="current-password">
           </div>
           <div class="field" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
-            <span class="form-note">{% translate "Sessions last until you sign out." %}</span>
+            <span class="form-note">{% translate "For your privacy, sign out on shared devices." %}</span>
             <a class="text-link" href="{% url 'forgot_password' %}">{% translate "Forgot password?" %}</a>
           </div>
           <button class="btn btn--block" type="submit" style="margin-top:1.4rem">{% translate "Sign in" %}</button>
@@ -51,30 +51,39 @@
           <div class="field-row">
             <div class="field">
               <label class="label" for="au-first">{% translate "First name" %}</label>
-              <input class="input" id="au-first" name="first_name" required
+              <input class="input {% if errors.first_name %}is-invalid{% endif %}" id="au-first" name="first_name" required
+                     maxlength="{{ registration_form.fields.first_name.max_length }}"
+                     {% if errors.first_name %}aria-invalid="true" aria-describedby="au-first-errors"{% endif %}
                      value="{{ values.first_name|default:'' }}" autocomplete="given-name">
+              {% if errors.first_name %}<p class="field-error" id="au-first-errors" role="alert">{{ errors.first_name }}</p>{% endif %}
             </div>
             <div class="field">
               <label class="label" for="au-last">{% translate "Last name" %}</label>
-              <input class="input" id="au-last" name="last_name" required
+              <input class="input {% if errors.last_name %}is-invalid{% endif %}" id="au-last" name="last_name" required
+                     maxlength="{{ registration_form.fields.last_name.max_length }}"
+                     {% if errors.last_name %}aria-invalid="true" aria-describedby="au-last-errors"{% endif %}
                      value="{{ values.last_name|default:'' }}" autocomplete="family-name">
+              {% if errors.last_name %}<p class="field-error" id="au-last-errors" role="alert">{{ errors.last_name }}</p>{% endif %}
             </div>
           </div>
           <div class="field">
             <label class="label" for="au-remail">{% translate "Email" %}</label>
             <input class="input {% if errors.email %}is-invalid{% endif %}" id="au-remail"
                    name="email" type="email" required value="{{ values.email|default:'' }}"
+                   maxlength="{{ registration_form.fields.email.max_length }}"
+                   {% if errors.email %}aria-invalid="true" aria-describedby="au-remail-errors"{% endif %}
                    autocomplete="email">
-            {% if errors.email %}<p class="field-error">{{ errors.email }}</p>{% endif %}
+            {% if errors.email %}<p class="field-error" id="au-remail-errors" role="alert">{{ errors.email }}</p>{% endif %}
           </div>
           <div class="field">
             <label class="label" for="au-rpass">{% translate "Password" %}</label>
             <input class="input {% if errors.password %}is-invalid{% endif %}" id="au-rpass"
+                   {% if errors.password %}aria-invalid="true" aria-describedby="au-rpass-errors"{% endif %}
                    name="password" type="password" required autocomplete="new-password">
             {% if errors.password %}
-              <p class="field-error">{{ errors.password }}</p>
+              <p class="field-error" id="au-rpass-errors" role="alert">{{ errors.password }}</p>
             {% else %}
-              <p class="form-note" style="margin-top:0.4rem">{% translate "At least eight characters." %}</p>
+              <p class="form-note" style="margin-top:0.4rem">{% translate "Use at least eight characters. Avoid common passwords, only numbers, or passwords similar to your name or email." %}</p>
             {% endif %}
           </div>
           <div class="field">
@@ -86,22 +95,6 @@
         </form>
         <p class="auth-alt">{% translate "Already have one?" %} <a class="text-link" href="{% url 'login' %}">{% translate "Sign in" %}</a></p>
 
-      {% else %}
-        <p class="lede" style="font-size:var(--step-0);margin-top:0.8rem">
-          {% translate "Enter your email and we will send a link to set a new password." %}
-        </p>
-        <form method="post" style="margin-top:2rem" novalidate>
-          {% csrf_token %}
-          <div class="field">
-            <label class="label" for="au-femail">{% translate "Email" %}</label>
-            <input class="input" id="au-femail" name="email" type="email" required autocomplete="email">
-          </div>
-          <button class="btn btn--block" type="submit" style="margin-top:1.4rem">{% translate "Send reset link" %}</button>
-        </form>
-        <p class="auth-alt"><a class="text-link" href="{% url 'login' %}">{% translate "Back to sign in" %}</a></p>
-        <p class="form-note" style="margin-top:1.4rem">
-          {% translate "Password reset email delivery is not connected yet — the request is accepted and logged." %}
-        </p>
       {% endif %}
     </div>
   </div>

@@ -1,5 +1,7 @@
-{% load i18n static frontend_extras recommendations %}<!doctype html>
-<html lang="en">
+{% load i18n static frontend_extras recommendations %}
+{% get_current_language as CURRENT_LANGUAGE %}
+<!doctype html>
+<html lang="{{ CURRENT_LANGUAGE }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,6 +22,14 @@
 {% include "frontend/partials/search_overlay.html" %}
 
 <main id="main">
+  {% if messages %}
+    <div class="shell" style="padding-top:var(--gap)">
+      {% for message in messages %}
+        <p class="{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}field-error{% else %}form-note{% endif %}"
+           role="{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}alert{% else %}status{% endif %}">{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
   {% block content %}{% endblock %}
   {% recommendation_block 4 %}
 </main>

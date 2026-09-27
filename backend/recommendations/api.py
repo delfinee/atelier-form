@@ -14,9 +14,10 @@ from .services import recommend
 @extend_schema(
     summary="Recommended products",
     description=(
-        "Returns personalised recommendations for the current user. "
+        "Returns personalised multi-factor recommendations for the current user. "
         "Pass ?product=<slug> for content-similar recommendations. "
-        "Anonymous/new users fall back to popular available products."
+        "Anonymous/new users fall back to popular available products. "
+        "Each result includes an explainable factor-score breakdown."
     ),
     responses=ProductListSerializer(many=True),
 )
@@ -41,19 +42,25 @@ def recommendations(request):
         [item.product for item in ranked], many=True, context={"request": request}
     )
 
-    reason_map = {
+    recommendation_meta = {
         str(item.product.uuid): {
             "score": item.score,
             "reasons": list(item.reasons),
+            "factors": {name: score for name, score in item.factor_scores},
         }
         for item in ranked
     }
+
     data = []
     for row in serializer.data:
         enriched = dict(row)
-        meta = reason_map.get(str(row.get("uuid")), {"score": 0.0, "reasons": []})
+        meta = recommendation_meta.get(
+            str(row.get("uuid")),
+            {"score": 0.0, "reasons": [], "factors": {}},
+        )
         enriched["recommendation_score"] = meta["score"]
         enriched["recommendation_reasons"] = meta["reasons"]
+        enriched["recommendation_factors"] = meta["factors"]
         data.append(enriched)
 
     return Response({"count": len(data), "results": data})

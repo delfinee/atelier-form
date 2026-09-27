@@ -72,6 +72,7 @@ admin_router.register("contact", content_api.AdminContactViewSet, basename="admi
 
 urlpatterns = [
     path("health/", health, name="api-health"),
+    path("recommendations/", include("recommendations.urls")),
 
     # Auth
     path("auth/register/", accounts_api.RegisterView.as_view(), name="api-register"),

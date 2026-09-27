@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     "payments",
     "reviews",
     "content",
+    "recommendations",
 
     # Photography held in PostgreSQL, shared by every surface
     "imagery",

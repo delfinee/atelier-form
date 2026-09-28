@@ -220,21 +220,34 @@
       updateStatusBadge();
     });
 
-    // Form Submit
-    form?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const text = input.value.trim();
-      if (!text || isThinking) return;
-      input.value = '';
-      sendMessage(text);
+    // Form Submit (bound to all .crafty-form instances as defense-in-depth)
+    document.querySelectorAll('.crafty-form').forEach(f => {
+      f.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const inp = f.querySelector('.crafty-input') || input;
+        const text = inp?.value.trim() || '';
+        if (!text || isThinking) return;
+        inp.value = '';
+        sendMessage(text);
+      });
     });
 
-    // Auto-expand and Enter-to-send in textarea
-    input?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        form?.dispatchEvent(new Event('submit'));
-      }
+    // Auto-expand and Enter-to-send in textarea (bound to all .crafty-input instances)
+    document.querySelectorAll('.crafty-input').forEach(inp => {
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          const f = inp.closest('form');
+          if (f) {
+            f.dispatchEvent(new Event('submit'));
+          } else {
+            const text = inp.value.trim();
+            if (!text || isThinking) return;
+            inp.value = '';
+            sendMessage(text);
+          }
+        }
+      });
     });
 
     // Initial render

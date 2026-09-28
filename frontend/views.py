@@ -16,6 +16,7 @@ from urllib.parse import urlsplit
 from django.db.models import Avg, Count, Sum
 from django.utils import timezone
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -32,7 +33,9 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from accounts.models import Address, WishlistItem
 from content.models import FAQGroup, NewsletterSubscriber
-from orders.models import Order, OrderItem, PaymentStatus, SellerFulfillment
+from orders.models import (
+    FulfillmentStatus, Order, OrderItem, OrderStatus, PaymentStatus, SellerFulfillment, ZERO,
+)
 from orders.services import get_cart, merge_session_cart
 from payments.models import Payment, PaymentProviderChoices
 from payments.services import MockPaymentProvider
@@ -505,6 +508,10 @@ def seller_dashboard(request):
     total_revenue = totals["revenue"] or 0
     total_units = totals["units_sold"] or 0
     total_orders = totals["order_count"] or 0
+    # Average order value: seller revenue / distinct paid orders containing
+    # this seller. No paid orders yet is not an error -- it's a real,
+    # displayable zero, not a ZeroDivisionError.
+    average_order_value = (total_revenue / total_orders) if total_orders else ZERO
 
     # ------------------------------------------------------------------
     # Core metric 2 — Customer Favorites (Wishlist Likes)
@@ -532,38 +539,78 @@ def seller_dashboard(request):
 
     # ------------------------------------------------------------------
     # Core metric 4 — Pending Dispatches (orders awaiting shipment)
-    # These are SellerFulfillment records still marked "unfulfilled".
+    # SellerFulfillment rows are created at checkout, before payment is
+    # confirmed (see orders.services.create_order), so an unfulfilled row
+    # alone does not mean "ready to pack" -- it may belong to an order that
+    # was never paid, or whose payment failed. "Awaiting dispatch" means the
+    # seller was actually paid and still hasn't shipped their part.
+    #
+    # A paid order can still end up CANCELLED (e.g. an admin cancels it
+    # after payment, ahead of any refund) -- excluded explicitly, since a
+    # cancelled order has nothing left to pack regardless of payment state.
     # ------------------------------------------------------------------
     pending_dispatch_count = (
         SellerFulfillment.objects
-        .filter(maker=maker, status="unfulfilled")
+        .filter(maker=maker, status=FulfillmentStatus.UNFULFILLED,
+               order__payment_status=PaymentStatus.PAID)
+        .exclude(order__status=OrderStatus.CANCELLED)
         .count()
     )
 
     # ------------------------------------------------------------------
     # Best-selling products — top 5 ranked by revenue, with wishlist
-    # counts annotated so the template can display engagement too.
+    # counts merged in from a separate query.
+    #
+    # wishlist_saves cannot be annotated in the same query as units/revenue:
+    # joining OrderItem to WishlistItem through product fans out the row
+    # count (N order-item rows x M wishlist rows for that product), which
+    # inflates Sum("quantity")/Sum("line_total") by a factor of M even
+    # though Count(..., distinct=True) itself stays correct. Verified
+    # directly: 5 units / $50.00 across 2 order-item rows and 4 wishlist
+    # rows for one product was returning 20 units / $200.00 with a single
+    # annotate() call.
     # ------------------------------------------------------------------
-    best_sellers = (
+    best_sellers = list(
         paid_items_qs
         .values("product_id", "product_name")
-        .annotate(
-            units=Sum("quantity"),
-            revenue=Sum("line_total"),
-            wishlist_saves=Count("product__wishlisted_by", distinct=True),
-        )
+        .annotate(units=Sum("quantity"), revenue=Sum("line_total"))
         .order_by("-revenue")[:5]
     )
+    wishlist_counts = dict(
+        WishlistItem.objects
+        .filter(product_id__in=[row["product_id"] for row in best_sellers])
+        .values("product_id")
+        .annotate(count=Count("id"))
+        .values_list("product_id", "count")
+    )
+    for row in best_sellers:
+        row["wishlist_saves"] = wishlist_counts.get(row["product_id"], 0)
 
     # ------------------------------------------------------------------
-    # Low Stock Alerts — variants with 5 or fewer units remaining
-    # Gives the maker a heads-up on what to restock.
+    # Low Stock Alerts — active variants at or below the project's
+    # configured low-stock threshold (settings.COMMERCE["LOW_STOCK_THRESHOLD"]),
+    # but not sold out. `product_variants` is the actual reverse accessor
+    # from Product to ProductVariant (see products.models.ProductVariant);
+    # the `variants` property on Product is a plain Python list and cannot
+    # be used inside a queryset filter/prefetch.
+    #
+    # Restricted to `product_variants__is_active=True`: an inactive variant
+    # is deliberately not offered for sale, so its stock level isn't
+    # something the seller needs to restock. Made-to-order products are
+    # excluded entirely: per orders.services._available_for, stock checks
+    # never apply to them (is_made_to_order bypasses the stock_quantity
+    # check at checkout), so a low numeric stock_quantity on one of their
+    # variants doesn't mean anything is actually running out.
     # ------------------------------------------------------------------
+    low_stock_threshold = settings.COMMERCE["LOW_STOCK_THRESHOLD"]
     low_stock_products = (
         maker.products
-        .filter(variants__stock_quantity__lte=5, variants__stock_quantity__gt=0)
+        .filter(is_made_to_order=False,
+               product_variants__is_active=True,
+               product_variants__stock_quantity__lte=low_stock_threshold,
+               product_variants__stock_quantity__gt=0)
         .distinct()
-        .prefetch_related("variants")[:10]
+        .prefetch_related("product_variants")[:10]
     )
 
     # Recent incoming order lines (unchanged from original dashboard)
@@ -571,7 +618,7 @@ def seller_dashboard(request):
         OrderItem.objects
         .filter(maker=maker)
         .select_related("order", "product")
-        .order_by("-order__placed_at")[:20]
+        .order_by("-order__placed_at")[:50]
     )
 
     return render(request, "frontend/seller/dashboard.html", {
@@ -587,6 +634,7 @@ def seller_dashboard(request):
         "total_revenue": total_revenue,
         "total_units": total_units,
         "total_orders": total_orders,
+        "average_order_value": average_order_value,
         "total_wishlist_saves": total_wishlist_saves,
         "avg_rating": avg_rating,
         "review_count": review_count,

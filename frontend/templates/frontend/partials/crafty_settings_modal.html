@@ -1,0 +1,34 @@
+{% load i18n frontend_extras %}
+<!-- Settings Modal (Hidden by default) -->
+<div id="crafty-settings-modal" class="crafty-modal" hidden>
+  <div class="crafty-modal-box">
+    <h4>⚙️ {% translate "Gemini AI Settings" %}</h4>
+    <div class="crafty-modal-field">
+      <label for="crafty-modal-model">{% translate "Gemini Model:" %}</label>
+      <select id="crafty-modal-model">
+        <option value="gemini-3.8-flash">gemini-3.8-flash (Recommended: Ultra fast)</option>
+        <option value="gemini-3.8-pro">gemini-3.8-pro (Deep reasoning)</option>
+        <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+      </select>
+    </div>
+    <div class="crafty-modal-field">
+      <label for="crafty-modal-key">{% translate "Custom Client API Key (Optional):" %}</label>
+      <input type="text" id="crafty-modal-key" autocomplete="off" spellcheck="false" placeholder="AIzaSy... ({% translate "leave blank to use studio backend" %})">
+      <p style="font-size:0.72rem; color:var(--crafty-muted); margin-top:0.35rem">
+        {% translate "If left blank, calls will safely route through the Atelier Form studio backend." %}
+      </p>
+    </div>
+    <div class="crafty-modal-actions">
+      <button type="button" id="crafty-settings-clear" class="crafty-btn-icon" style="color:#e11d48; margin-right:auto">
+        {% translate "Clear Key" %}
+      </button>
+      <button type="button" id="crafty-settings-close" class="crafty-btn-icon" style="border:1px solid var(--crafty-line)">
+        {% translate "Cancel" %}
+      </button>
+      <button type="button" id="crafty-settings-save" class="btn" style="padding:0.4rem 0.9rem; font-size:0.8rem">
+        {% translate "Save Settings" %}
+      </button>
+    </div>
+  </div>
+</div>

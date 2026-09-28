@@ -65,37 +65,6 @@
     </div>
   </div>
 
-  <!-- Settings Modal (Hidden by default) -->
-  <div id="crafty-settings-modal" class="crafty-modal" hidden>
-    <div class="crafty-modal-box">
-      <h4>⚙️ Gemini AI 设置</h4>
-      <div class="crafty-modal-field">
-        <label for="crafty-modal-model">选择 Gemini 模型：</label>
-        <select id="crafty-modal-model">
-          <option value="gemini-3.8-flash">gemini-3.8-flash (推荐: 最新极速)</option>
-          <option value="gemini-3.8-pro">gemini-3.8-pro (深度推理)</option>
-          <option value="gemini-2.5-flash">gemini-2.5-flash</option>
-          <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-        </select>
-      </div>
-      <div class="crafty-modal-field">
-        <label for="crafty-modal-key">客户端个人 API 密钥 (可选)：</label>
-        <input type="password" id="crafty-modal-key" placeholder="AIzaSy... (留空则默认使用工坊后端)">
-        <p style="font-size:0.72rem; color:var(--crafty-muted); margin-top:0.35rem">
-          若留空，将自动通过 Atelier Form 工坊后端接口安全调用。
-        </p>
-      </div>
-      <div class="crafty-modal-actions">
-        <button type="button" id="crafty-settings-clear" class="crafty-btn-icon" style="color:#e11d48; margin-right:auto">
-          清空本地密钥
-        </button>
-        <button type="button" id="crafty-settings-close" class="crafty-btn-icon" style="border:1px solid var(--crafty-line)">
-          取消
-        </button>
-        <button type="button" id="crafty-settings-save" class="btn" style="padding:0.4rem 0.9rem; font-size:0.8rem">
-          保存并启用
-        </button>
-      </div>
-    </div>
-  </div>
+  <!-- Settings Modal -->
+  {% include "frontend/partials/crafty_settings_modal.html" %}
 </aside>

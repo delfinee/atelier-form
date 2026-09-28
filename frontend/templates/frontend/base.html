@@ -36,7 +36,9 @@
 {% include "frontend/partials/footer.html" %}
 
 {% include "frontend/partials/cart_drawer.html" %}
+{% block chatbot_drawer %}
 {% include "frontend/partials/chatbot.html" %}
+{% endblock %}
 
 <script src="{% static 'frontend/js/site.js' %}" defer></script>
 <script src="{% static 'frontend/js/chatbot.js' %}" defer></script>

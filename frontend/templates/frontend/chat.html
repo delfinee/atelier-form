@@ -3,6 +3,8 @@
 
 {% block title %}Crafty · {% translate "Artisan AI Concierge" %} | {{ site.brand }}{% endblock %}
 
+{% block chatbot_drawer %}{% endblock %}
+
 {% block content %}
 <section class="shell" style="padding-top: var(--gap); padding-bottom: var(--section);">
   <div style="max-width: 680px; margin: 0 auto; text-align: center; margin-bottom: 1.5rem;">
@@ -59,6 +61,9 @@
         Crafty v1.3 · Powered by Google Gemini 3.8 Flash · Atelier Form
       </div>
     </div>
+
+    <!-- Settings Modal -->
+    {% include "frontend/partials/crafty_settings_modal.html" %}
   </div>
 </section>
 {% endblock %}

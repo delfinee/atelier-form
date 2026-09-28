@@ -552,6 +552,7 @@
 
 /* Full-Page Mode Adaptation */
 .crafty-fullpage {
+  position: relative;
   max-width: 960px;
   margin: 2rem auto;
   border: 1px solid var(--crafty-line);

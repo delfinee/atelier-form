@@ -130,6 +130,7 @@
 
   // --- UI Controller ---
   function initCrafty() {
+    const isFullPage = Boolean(document.querySelector('.crafty-fullpage'));
     const launcher = document.getElementById('crafty-launcher');
     const drawer = document.getElementById('crafty-drawer');
     const backdrop = document.getElementById('crafty-backdrop');
@@ -143,10 +144,11 @@
     const settingsSave = document.getElementById('crafty-settings-save');
     const settingsClear = document.getElementById('crafty-settings-clear');
 
-    if (!launcher || !drawer) return;
+    if (!isFullPage && (!launcher || !drawer)) return;
 
     // Toggle Drawer
     function openDrawer() {
+      if (!drawer) return;
       drawer.classList.add('is-open');
       if (backdrop) backdrop.classList.add('is-open');
       input?.focus();
@@ -154,12 +156,13 @@
     }
 
     function closeDrawer() {
+      if (!drawer) return;
       drawer.classList.remove('is-open');
       if (backdrop) backdrop.classList.remove('is-open');
       if (settingsModal) settingsModal.hidden = true;
     }
 
-    launcher.addEventListener('click', openDrawer);
+    launcher?.addEventListener('click', openDrawer);
     closeBtn?.addEventListener('click', closeDrawer);
     backdrop?.addEventListener('click', closeDrawer);
 
@@ -167,13 +170,17 @@
     document.querySelectorAll('[data-crafty-open]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        openDrawer();
+        if (drawer) {
+          openDrawer();
+        } else if (input) {
+          input.focus();
+        }
       });
     });
 
     // Close on Escape key
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && drawer.classList.contains('is-open')) {
+      if (e.key === 'Escape' && drawer?.classList.contains('is-open')) {
         closeDrawer();
       }
     });
@@ -234,6 +241,9 @@
     renderStaticUI();
     if (conversationHistory.length === 0) {
       appendBotMessage(i18n[currentLang].welcome);
+    }
+    if (isFullPage && input) {
+      input.focus();
     }
   }
 

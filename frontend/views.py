@@ -10,7 +10,11 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import timedelta
 from urllib.parse import urlsplit
+
+from django.db.models import Avg, Count, Sum
+from django.utils import timezone
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -28,7 +32,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from accounts.models import Address, WishlistItem
 from content.models import FAQGroup, NewsletterSubscriber
-from orders.models import Order, OrderItem
+from orders.models import Order, OrderItem, PaymentStatus, SellerFulfillment
 from orders.services import get_cart, merge_session_cart
 from payments.models import Payment, PaymentProviderChoices
 from payments.services import MockPaymentProvider
@@ -461,13 +465,134 @@ def seller_dashboard(request):
     if not request.user.is_seller or not hasattr(request.user, "maker_profile"):
         raise PermissionDenied("A linked seller profile is required.")
     maker = request.user.maker_profile
-    seller_items = (OrderItem.objects.filter(maker=maker)
-                    .select_related("order", "product").order_by("-order__placed_at"))
+
+    # ------------------------------------------------------------------
+    # Time period selector — driven by ?period= query param
+    # Defaults to "30d" (last 30 days) if nothing is specified.
+    # ------------------------------------------------------------------
+    PERIOD_OPTIONS = {
+        "24h":  ("Last 24 Hours",   timedelta(hours=24)),
+        "7d":   ("Last 7 Days",     timedelta(days=7)),
+        "30d":  ("Last 30 Days",    timedelta(days=30)),
+        "all":  ("All Time",        None),
+    }
+    period_key = request.GET.get("period", "30d")
+    if period_key not in PERIOD_OPTIONS:
+        period_key = "30d"
+    period_label, period_delta = PERIOD_OPTIONS[period_key]
+
+    # Base queryset: paid order lines belonging to this seller.
+    # This is the source of truth for all financial and volume metrics.
+    paid_items_qs = (
+        OrderItem.objects
+        .filter(maker=maker, order__payment_status=PaymentStatus.PAID)
+    )
+
+    # Apply the time window filter if a bounded period is selected.
+    if period_delta is not None:
+        since = timezone.now() - period_delta
+        paid_items_qs = paid_items_qs.filter(order__placed_at__gte=since)
+
+    # ------------------------------------------------------------------
+    # Core metric 1 — Revenue, Units Sold, and Order Count
+    # Sum() and Count() from Django ORM aggregations do the math for us.
+    # ------------------------------------------------------------------
+    totals = paid_items_qs.aggregate(
+        revenue=Sum("line_total"),         # e.g. Decimal("8450.00")
+        units_sold=Sum("quantity"),        # e.g. 34
+        order_count=Count("order", distinct=True),  # e.g. 19 unique orders
+    )
+    total_revenue = totals["revenue"] or 0
+    total_units = totals["units_sold"] or 0
+    total_orders = totals["order_count"] or 0
+
+    # ------------------------------------------------------------------
+    # Core metric 2 — Customer Favorites (Wishlist Likes)
+    # Count how many times any customer has saved this maker's products.
+    # ------------------------------------------------------------------
+    total_wishlist_saves = (
+        WishlistItem.objects
+        .filter(product__maker=maker)
+        .count()
+    )
+
+    # ------------------------------------------------------------------
+    # Core metric 3 — Average Star Rating from published reviews
+    # ------------------------------------------------------------------
+    rating_data = (
+        Review.objects
+        .filter(product__maker=maker, is_published=True)
+        .aggregate(
+            avg_rating=Avg("rating"),
+            review_count=Count("id"),
+        )
+    )
+    avg_rating = rating_data["avg_rating"]       # float or None if no reviews yet
+    review_count = rating_data["review_count"]   # int
+
+    # ------------------------------------------------------------------
+    # Core metric 4 — Pending Dispatches (orders awaiting shipment)
+    # These are SellerFulfillment records still marked "unfulfilled".
+    # ------------------------------------------------------------------
+    pending_dispatch_count = (
+        SellerFulfillment.objects
+        .filter(maker=maker, status="unfulfilled")
+        .count()
+    )
+
+    # ------------------------------------------------------------------
+    # Best-selling products — top 5 ranked by revenue, with wishlist
+    # counts annotated so the template can display engagement too.
+    # ------------------------------------------------------------------
+    best_sellers = (
+        paid_items_qs
+        .values("product_id", "product_name")
+        .annotate(
+            units=Sum("quantity"),
+            revenue=Sum("line_total"),
+            wishlist_saves=Count("product__wishlisted_by", distinct=True),
+        )
+        .order_by("-revenue")[:5]
+    )
+
+    # ------------------------------------------------------------------
+    # Low Stock Alerts — variants with 5 or fewer units remaining
+    # Gives the maker a heads-up on what to restock.
+    # ------------------------------------------------------------------
+    low_stock_products = (
+        maker.products
+        .filter(variants__stock_quantity__lte=5, variants__stock_quantity__gt=0)
+        .distinct()
+        .prefetch_related("variants")[:10]
+    )
+
+    # Recent incoming order lines (unchanged from original dashboard)
+    seller_items = (
+        OrderItem.objects
+        .filter(maker=maker)
+        .select_related("order", "product")
+        .order_by("-order__placed_at")[:20]
+    )
+
     return render(request, "frontend/seller/dashboard.html", {
         "maker": maker,
         "products": maker.products.all().order_by("-updated_at"),
-        "seller_items": seller_items[:50],
+        "seller_items": seller_items,
         "meta_title": f"Seller dashboard — {SITE['brand']}",
+        # Time period context
+        "period_key": period_key,
+        "period_label": period_label,
+        "period_options": PERIOD_OPTIONS,
+        # Analytics metrics
+        "total_revenue": total_revenue,
+        "total_units": total_units,
+        "total_orders": total_orders,
+        "total_wishlist_saves": total_wishlist_saves,
+        "avg_rating": avg_rating,
+        "review_count": review_count,
+        "pending_dispatch_count": pending_dispatch_count,
+        "best_sellers": best_sellers,
+        "low_stock_products": low_stock_products,
     })
 
 

@@ -518,20 +518,22 @@ You are "Crafty" (匠心小助手), the warm, poetic, and knowledgeable artisan 
     appendBotMessage(reply, card);
   }
 
-  // Built-in Domain Knowledge Fallback
+  // Built-in Domain Knowledge Engine
   function respondArtisanDemo(prompt) {
     const isZh = currentLang === 'zh';
     const p = prompt.toLowerCase();
 
-    if (p.includes('礼') || p.includes('gift') || p.includes('wedding')) {
+    // 1. Gifting
+    if (p.includes('礼') || p.includes('gift') || p.includes('wedding') || p.includes('送人') || p.includes('乔迁')) {
       const reply = isZh
-        ? "为婚礼或乔迁准备心意礼物，我特别推荐以下两件富有手温与寓意的器物：\n\n1. **双耳柴烧手握对杯** (¥76) — 经五天四夜松木落灰，每只杯身皆有独特的火痕与流釉，象征彼此独一无二的陪伴。\n2. **托斯卡纳植鞣皮手工托盘** (¥88) — 可免费黄铜压印新人姓名缩写与纪念日期。\n\n需要我为您搭配手作和纸礼盒与手写致意卡吗？"
-        : "For a meaningful wedding or housewarming gift, I wholeheartedly recommend:\n\n1. **Wood-fired Stoneware Cup Pair** ($76) — Kissed by 5 days of natural pine-ash flames, symbolizing an unrepeatable bond.\n2. **Hand-stitched Vegetable-Tanned Tray** ($88) — Complimentary brass hot-stamping with couple initials and wedding date.\n\nWould you like me to pair this with handmade mulberry gift wrapping?";
+        ? "为婚礼、乔迁或重要纪念日准备心意礼物，我特别推荐以下两件富有手温与寓意的器物：\n\n1. **双耳柴烧手握对杯** (¥76) — 经五天四夜松木落灰，每只杯身皆有独一无二的火痕与流釉，象征独一无二的伴侣情谊。\n2. **托斯卡纳植鞣皮手工托盘** (¥88) — 甄选意大利 Badalassi Carlo 植鞣皮，可免费黄铜压印新人姓名缩写与纪念日期。\n\n需要我为您搭配手作桑皮纸礼盒与手写致意卡吗？"
+        : "For a heartfelt wedding, housewarming, or anniversary gift, I wholeheartedly recommend:\n\n1. **Wood-fired Stoneware Cup Pair** ($76 / ¥76) — Kissed by 5 days of natural pine-ash flames, symbolizing an unrepeatable bond.\n2. **Hand-stitched Vegetable-Tanned Tray** ($88 / ¥88) — Badalassi Carlo Tuscan leather with complimentary brass hot-stamping of couple initials and date.\n\nWould you like me to pair your piece with handmade mulberry gift wrapping and a handwritten studio note?";
       appendBotMessage(reply);
       return;
     }
 
-    if (p.includes('养护') || p.includes('care') || p.includes('保养') || p.includes('洗')) {
+    // 2. Care & Maintenance
+    if (p.includes('养护') || p.includes('care') || p.includes('保养') || p.includes('洗') || p.includes('开裂') || p.includes('clean')) {
       const reply = isZh
         ? "慢工器物的日常打理其实非常简单，善待它们就是最好的陪伴：\n\n- 🏺 **陶器 & 柴烧**：初次使用建议淘米水温和浸泡 15 分钟闭合微孔；勿用洗碗机与钢丝球，清洗后在阴凉通风处自然晾干。\n- 🪵 **实木 & 橄榄木**：表面渐现哑光感时，取少许食品级核桃油或天然蜂蜡均匀薄涂，静置吸收一晚即可恢复油脂温润。\n- 🍃 **亚麻织物**：温水轻柔手洗，平铺阴干，其自然的微皱正是天然纤维的从容质感。"
         : "Caring for slow-crafted objects is an intimate ritual:\n\n- 🏺 **Handmade Ceramics**: Gentle hand-wash with warm water. Avoid abrasive scourers or harsh dishwashers; air-dry in open circulation.\n- 🪵 **Olive & Walnut Wood**: When the surface looks matte, massage lightly with food-grade walnut oil or natural beeswax, allowing overnight absorption.\n- 🍃 **Natural Linen**: Wash gently in cold or lukewarm water, dry flat; natural slub and gentle creases celebrate the fabric's soul.";
@@ -539,10 +541,46 @@ You are "Crafty" (匠心小助手), the warm, poetic, and knowledgeable artisan 
       return;
     }
 
-    // Default warm artisan reply
+    // 3. Shipping & Delivery
+    if (p.includes('ship') || p.includes('deliver') || p.includes('freight') || p.includes('运费') || p.includes('发货') || p.includes('包邮') || p.includes('快递') || p.includes('多久')) {
+      const reply = isZh
+        ? "工坊的配送与打包政策如下：\n\n- 📦 **免运费门槛**：全店订单实付满 **¥80** 即享顺丰包邮（标准配送 ¥8，特快 ¥18）。\n- 🌿 **工坊打包**：现货器物在 1-2 个工作日内完成手工质检，采用传统和纸与减震蜂窝纸箱安全包装。\n- ⏳ **定制周期**：刻字皮具或柴烧预定由于慢工制作，需 7-10 个工作日慢火细作。"
+        : "Here are Atelier Form's shipping details:\n\n- 📦 **Complimentary Shipping:** Free standard delivery on orders over **¥80 / $80** (Standard shipping ¥8, Express ¥18).\n- 🌿 **Artisan Packaging:** In-stock pieces are inspected and wrapped in protective handmade mulberry paper within 1-2 business days.\n- ⏳ **Custom Orders:** Bespoke monograms and made-to-order kiln batches take 7-10 business days for careful hand fabrication.";
+      appendBotMessage(reply);
+      return;
+    }
+
+    // 4. Ceramics & Kilns
+    if (p.includes('ceramic') || p.includes('pottery') || p.includes('clay') || p.includes('kiln') || p.includes('陶') || p.includes('瓷') || p.includes('柴烧') || p.includes('杯') || p.includes('景德镇')) {
+      const reply = isZh
+        ? "工坊的陶器全部来自景德镇老窑区的独立陶艺匠人：\n\n- 🔥 **柴窑烧制**：以马尾松木为燃料，在 1,300°C 还原气氛中持续燃烧 5 天 4 夜，木灰自然融化为落灰釉。\n- 🤲 **手工拉胚**：每只杯身的握感均根据手部曲线修整，保留指尖拉胚的微旋螺纹。\n- ✨ **不可复制**：即使同一窑出产，因炉内温差与火焰游走，每件器物的火痕与落灰深浅皆绝无仅有。"
+        : "Our ceramics are hand-thrown by independent artisans in Jingdezhen:\n\n- 🔥 **Wood-Kiln Alchemy:** Fired with seasoned red pine wood at 1,300°C for 5 days and 4 nights. Natural wood ash melts across the clay body into an earthy glaze.\n- 🤲 **Wheel-Thrown Touch:** Every cup rim and handle is shaped to cradle the human hand, retaining subtle thumb ridges from the wheel.\n- ✨ **Unrepeatable Character:** Flame tongues and kiln air currents ensure no two cups ever leave the kiln with identical marks.";
+      appendBotMessage(reply);
+      return;
+    }
+
+    // 5. Leather & Monogramming
+    if (p.includes('leather') || p.includes('monogram') || p.includes('皮') || p.includes('刻字') || p.includes('手账') || p.includes('托盘')) {
+      const reply = isZh
+        ? "关于 Atelier Form 的植鞣皮具定制：\n\n- 🇮🇹 **皮料来源**：选用意大利托斯卡纳 Badalassi Carlo 协会认证植鞣牛皮，保留天然牛脂光泽。\n- 🧵 **马鞍针法**：由皮艺师以纯手工双针马鞍缝合，采用天然法国浸蜡亚麻线，结实耐用。\n- ✍️ **黄铜刻字**：支持 2-4 位英文字母首字母热压印，免费赠送专属定制服务。"
+        : "About Atelier Form bespoke leathercraft:\n\n- 🇮🇹 **Tuscan Provenance:** Badalassi Carlo certified vegetable-tanned leather, rich with natural tallow oils that patina into deep honey tones.\n- 🧵 **Saddle Stitching:** Stitched entirely by hand with dual needles using French waxed linen thread, far stronger than sewing machines.\n- ✍️ **Brass Hot-Stamping:** Complimentary custom monograms (2-4 initials) stamped with heated vintage brass type.";
+      appendBotMessage(reply);
+      return;
+    }
+
+    // 6. Pricing & Discounts
+    if (p.includes('price') || p.includes('cost') || p.includes('discount') || p.includes('coupon') || p.includes('价格') || p.includes('多少钱') || p.includes('打折') || p.includes('贵') || p.includes('便宜')) {
+      const reply = isZh
+        ? "Atelier Form 坚持透明直达的工坊定价原则：\n\n- 💰 **直通匠人**：价格直接回报手作匠人的工时与原料成本，不设虚高标价再进行大幅打折。\n- 🎁 **包邮与礼遇**：订单满 ¥80 免运费，随单附赠手写致意卡与天然麻布收纳袋。\n- 🏺 **手作价值**：一件高品质手作器物经年使用后，会随岁月沉淀出温润的包浆，陪伴您数十年时光。"
+        : "Atelier Form upholds honest, transparent studio pricing:\n\n- 💰 **Direct Artisan Return:** Our prices directly honor the makers' unhurried labor and premium raw materials rather than inflated retail markups.\n- 🎁 **Complimentary Shipping:** Orders over ¥80 / $80 ship free, packaged with handwritten cards in mulberry envelopes.\n- 🏺 **Enduring Value:** A thoughtfully crafted stoneware piece or vegetable-tanned leather good is designed to serve and patina beautifully for decades.";
+      appendBotMessage(reply);
+      return;
+    }
+
+    // 7. General Inquiry (Helpful structured guidance instead of generic echo)
     const reply = isZh
-      ? `收到您的心意：“${escapeHtml(prompt)}”。在工坊里，我们深信每件手作器物都蕴含着匠人指尖的体温与时光的印记。\n\n无论您想了解哪位手作匠人的工坊故事、挑选一件打动人心的礼物，或是了解定制周期，我随时在工作台前倾听与协助。`
-      : `Thank you for sharing your thoughts: "${escapeHtml(prompt)}". Here at Atelier Form, we believe every piece carries the maker's heartbeat and quiet patience.\n\nWhether you wish to learn about our makers' techniques, select an unforgettable gift, or commission custom leatherwork, I am right here at the bench to assist you.`;
+      ? `很高兴为您解答关于“**${escapeHtml(prompt)}**”的咨询 🌿\n\n在 Atelier Form，我们致力于为日常生活找回手作的体温。无论您需要哪方面的帮助，我都随时在工坊工作台前为您服务：\n\n- 🏺 **器物探索**：了解景德镇 1,300°C 柴烧杯与手拉胚工艺\n- ✂️ **皮具定制**：定制意大利托斯卡纳植鞣皮手账（免费刻字）\n- 📦 **订单追踪**：查询手作订单制作与柴窑出窑进度（如 #AF-8921）\n- 🌿 **器物养护**：胡桃木托盘上油、陶器日常使用心得\n\n请问您对哪一件手作器物最感兴趣？`
+      : `Delighted to assist you regarding "**${escapeHtml(prompt)}**" 🌿\n\nHere at Atelier Form, we help people bring quiet soul and intentional craftsmanship into their daily rituals. I can guide you through:\n\n- 🏺 **Ceramic Studio:** Explore our 1,300°C wood-fired cups and Jingdezhen stoneware\n- ✂️ **Bespoke Leather:** Customize Tuscan vegetable-tanned journals with brass initials\n- 📦 **Order Tracking:** Check production and kiln cooling status (e.g., #AF-8921)\n- 🌿 **Care Guides:** Tips for re-oiling walnut timber or caring for porous pottery\n\nWhich of these would you like to explore together?`;
     appendBotMessage(reply);
   }
 

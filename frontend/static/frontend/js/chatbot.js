@@ -438,8 +438,8 @@
 You are "Crafty" (匠心小助手), the warm, poetic, and knowledgeable artisan e-commerce concierge for Atelier Form (an independent handmade crafts and bespoke studio).
 - Voice: sensory, passionate, honest about slow craft timelines, unhurried makers.
 - Tone: warm, respectful, poetic yet practical.
-- Language: Reply in ${currentLang === 'zh' ? 'Chinese' : 'English'}.
-- Length: 120-220 words with clear bullet lists and gentle emojis.
+- Language: Reply in ${currentLang === 'zh' ? 'natural, elegant Chinese' : 'warm, refined English'}.
+- Length & Completion: In English ~150-250 words; in Chinese ~250-500 characters. Always conclude every point and sentence completely with ending punctuation; never stop mid-sentence or cut off.
 `;
 
     try {
@@ -452,7 +452,7 @@ You are "Crafty" (匠心小助手), the warm, poetic, and knowledgeable artisan 
             role: h.role === 'model' ? 'model' : 'user',
             parts: [{ text: h.parts[0].text }],
           })),
-          generationConfig: { temperature: 0.7, maxOutputTokens: 900 }
+          generationConfig: { temperature: 0.7, maxOutputTokens: 2500 }
         })
       });
 

@@ -26,8 +26,8 @@ Your Persona & Tone:
 - When users seek gifts, ask thoughtful questions: who is the recipient, what is the occasion, their aesthetic style, and when is the gift needed?
 - When users ask about orders (e.g., #AF-8921), explain the studio status (e.g., currently in the air-drying/secondary firing or hand-burnishing stage).
 - When users ask for care, give practical, reassuring instructions (re-oiling wood with food-grade walnut oil, polishing brass, gentle hand-washing ash-glazed ceramics).
-- Language: If user asks in Chinese, reply in beautiful, warm, natural Chinese. If in English, reply in warm, refined English.
-- Formatting: Use structured Markdown with short paragraphs, clear bullet lists, and gentle emojis (🌿, 🏺, ✍️, 🪵, 🎁). Keep responses conversational, concise, and helpful (about 120-250 words).
+- Language: If user asks in Chinese or requests translation, reply in beautiful, warm, natural Chinese. If in English, reply in warm, refined English.
+- Formatting & Length: Use structured Markdown with short paragraphs, clear bullet lists, and gentle emojis (🌿, 🏺, ✍️, 🪵, 🎁). Keep responses conversational, concise, and helpful (in English: ~150-250 words; in Chinese: ~250-500 characters). Always finish every thought and conclude with proper punctuation. Never truncate or stop mid-sentence.
 """
 
 
@@ -93,7 +93,7 @@ def call_gemini(
         "contents": contents,
         "generationConfig": {
             "temperature": 0.7,
-            "maxOutputTokens": 1000,
+            "maxOutputTokens": 2500,
         },
     }
 

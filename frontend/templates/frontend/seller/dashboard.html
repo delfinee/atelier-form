@@ -12,6 +12,96 @@
 </div>
 
 <div class="shell" style="padding-bottom:var(--section);display:grid;gap:2rem">
+
+  <section>
+    <nav class="chips" aria-label="{% translate "Select time period" %}">
+      {% for period_value, period_option in period_options.items %}
+        <a class="chip" href="{% query_replace period=period_value %}"
+           {% if period_value == period_key %}aria-current="page"{% endif %}>{{ period_option.0 }}</a>
+      {% endfor %}
+    </nav>
+  </section>
+
+  <section class="panel">
+    <div class="panel__head">
+      <h2>{% translate "Sales" %}</h2>
+      <span class="muted">{{ period_label }}</span>
+    </div>
+    <div class="grid grid--4">
+      <div class="stat">
+        <span class="stat__value">{{ total_revenue|money }}</span>
+        <span class="stat__label">{% translate "Revenue" %}</span>
+      </div>
+      <div class="stat">
+        <span class="stat__value">{{ total_orders }}</span>
+        <span class="stat__label">{% translate "Orders" %}</span>
+      </div>
+      <div class="stat">
+        <span class="stat__value">{{ total_units }}</span>
+        <span class="stat__label">{% translate "Units sold" %}</span>
+      </div>
+      <div class="stat">
+        <span class="stat__value">{{ average_order_value|money }}</span>
+        <span class="stat__label">{% translate "Average order value" %}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel__head">
+      <h2>{% translate "Current status" %}</h2>
+      <span class="muted">{% translate "Not affected by the period above" %}</span>
+    </div>
+    <div class="grid grid--3">
+      <div class="stat">
+        <span class="stat__value">{{ total_wishlist_saves }}</span>
+        <span class="stat__label">{% translate "Wishlist saves" %}</span>
+      </div>
+      <div class="stat">
+        {% if avg_rating %}
+          <span class="stat__value">{{ avg_rating|floatformat:1 }} ★</span>
+          <span class="stat__label">{% blocktranslate count n=review_count %}{{ n }} review{% plural %}{{ n }} reviews{% endblocktranslate %}</span>
+        {% else %}
+          <span class="stat__value">—</span>
+          <span class="stat__label">{% translate "No reviews yet" %}</span>
+        {% endif %}
+      </div>
+      <div class="stat">
+        <span class="stat__value">{{ pending_dispatch_count }}</span>
+        <span class="stat__label">{% translate "Awaiting dispatch" %}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel__head">
+      <h2>{% translate "Best sellers" %}</h2>
+      <span class="muted">{{ period_label }}</span>
+    </div>
+    {% for row in best_sellers %}
+      <div class="summary__row">
+        <span>{{ row.product_name }}</span>
+        <span>{% blocktranslate with units=row.units revenue=row.revenue|money %}{{ units }} sold · {{ revenue }}{% endblocktranslate %} · {% blocktranslate count n=row.wishlist_saves %}{{ n }} save{% plural %}{{ n }} saves{% endblocktranslate %}</span>
+      </div>
+    {% empty %}
+      <p class="muted">{% translate "No sales yet in this period." %}</p>
+    {% endfor %}
+  </section>
+
+  <section class="panel">
+    <div class="panel__head">
+      <h2>{% icon "alert" 18 %} {% translate "Low stock alerts" %}</h2>
+    </div>
+    {% for product in low_stock_products %}
+      <div class="summary__row">
+        <a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a>
+        <span class="badge badge--accent">{% translate "Low stock" %}</span>
+      </div>
+    {% empty %}
+      <p class="muted">{% translate "Nothing running low right now." %}</p>
+    {% endfor %}
+  </section>
+
   <section class="panel">
     <div class="panel__head"><h2>{% translate "Your products" %}</h2><span>{{ products|length }}</span></div>
     {% for product in products %}

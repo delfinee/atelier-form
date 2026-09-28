@@ -29,6 +29,7 @@ from orders.models import (
     FulfillmentStatus, Order, OrderItem, OrderNumberSequence, OrderStatus,
     PaymentStatus, SellerFulfillment,
 )
+from frontend.templatetags.frontend_extras import money as money_filter
 from products.models import Category, Maker, Product, ProductVariant
 from reviews.models import Review
 
@@ -1251,7 +1252,8 @@ class SellerDashboardAnalyticsTests(TestCase):
         SellerFulfillment.objects.create(order=alice_order, maker=self.maker)
         SellerFulfillment.objects.create(order=bob_order, maker=self.other_maker)
 
-        ctx = self.get_dashboard().context
+        response = self.get_dashboard()
+        ctx = response.context
 
         self.assertEqual(ctx["total_revenue"], Decimal("40.00"))
         self.assertEqual(ctx["total_units"], 2)
@@ -1269,6 +1271,13 @@ class SellerDashboardAnalyticsTests(TestCase):
         low_stock_ids = [p.id for p in ctx["low_stock_products"]]
         self.assertIn(alice_product.id, low_stock_ids)
         self.assertNotIn(bob_product.id, low_stock_ids)
+
+        # Gate 3: the existing "Your products" / "Incoming order lines" sections
+        # still render this seller's own data, and never the other seller's.
+        self.assertContains(response, alice_product.name)
+        self.assertNotContains(response, bob_product.name)
+        self.assertContains(response, alice_order.order_number)
+        self.assertNotContains(response, bob_order.order_number)
 
     # -- 2. paid vs unpaid ----------------------------------------------------
 
@@ -1393,12 +1402,16 @@ class SellerDashboardAnalyticsTests(TestCase):
                 email=f"wisher{i}@example.com", password=self.password)
             WishlistItem.objects.create(user=wisher, product=product)
 
-        best_sellers = list(self.get_dashboard().context["best_sellers"])
+        response = self.get_dashboard()
+        best_sellers = list(response.context["best_sellers"])
         self.assertEqual(len(best_sellers), 1)
         row = best_sellers[0]
         self.assertEqual(row["units"], 5)
         self.assertEqual(row["revenue"], Decimal("50.00"))
         self.assertEqual(row["wishlist_saves"], 4)
+
+        # Gate 3: the corrected (non-inflated) numbers actually reach the page
+        self.assertContains(response, product.name)
 
     # -- 7. pending dispatch payment state ---------------------------------------
 
@@ -1461,6 +1474,17 @@ class SellerDashboardAnalyticsTests(TestCase):
         low_stock_ids = {p.id for p in response.context["low_stock_products"]}
         self.assertEqual(low_stock_ids, {low_product.id})
 
+        # Gate 3: within the Low stock alerts panel specifically, only the
+        # qualifying product appears -- excluded products are expected to
+        # still show up elsewhere on the page (e.g. in "Your products"),
+        # so the check is scoped rather than page-wide.
+        html = response.content.decode()
+        low_stock_html = re.search(r'Low stock alerts.*?</section>', html, re.S).group()
+        self.assertIn(low_product.name, low_stock_html)
+        self.assertNotIn(healthy_product.name, low_stock_html)
+        self.assertNotIn(made_to_order_product.name, low_stock_html)
+        self.assertNotIn(inactive_product.name, low_stock_html)
+
     # -- 9. reviews -----------------------------------------------------------------
 
     def test_review_metrics(self):
@@ -1501,3 +1525,41 @@ class SellerDashboardAnalyticsTests(TestCase):
         self.assertEqual(ctx["pending_dispatch_count"], 0)
         self.assertEqual(list(ctx["best_sellers"]), [])
         self.assertEqual(list(ctx["low_stock_products"]), [])
+
+        # Gate 3: a seller with nothing yet gets a sensible neutral empty state
+        # everywhere, never a raw `None` for the missing rating.
+        self.assertContains(response, "No reviews yet")
+        self.assertContains(response, "No sales yet in this period.")
+        self.assertContains(response, "Nothing running low right now.")
+        self.assertContains(response, "No products yet.")
+        self.assertContains(response, "No incoming orders yet.")
+
+    # -- 11. Gate 3 presentation -----------------------------------------------
+
+    def test_dashboard_renders_kpi_labels_and_validated_values(self):
+        """The already-validated backend values actually reach the page, and
+        the existing product/incoming-order sections survive alongside them."""
+        product = self.make_product(self.maker, "presentation-product", price="25.00")
+        order = self.make_order()
+        self.make_order_item(order, product, quantity=2)  # $50.00 revenue
+
+        response = self.get_dashboard()
+        self.assertEqual(response.status_code, 200)
+
+        for label in ("Revenue", "Orders", "Units sold", "Average order value",
+                     "Wishlist saves", "Awaiting dispatch", "Best sellers",
+                     "Low stock alerts", "Your products", "Incoming order lines"):
+            self.assertContains(response, label)
+
+        # tied to the same context values Gate 2 already validated, not
+        # hardcoded numbers/currency-symbol assumptions
+        self.assertContains(response, money_filter(response.context["total_revenue"]))
+        self.assertContains(response, money_filter(response.context["average_order_value"]))
+
+    def test_period_selector_marks_the_selected_chip(self):
+        response = self.get_dashboard(period="7d")
+        html = response.content.decode()
+        chips_html = re.search(r'<nav class="chips".*?</nav>', html, re.S).group()
+        # exactly one chip is marked selected, and it is the requested period
+        self.assertEqual(chips_html.count('aria-current="page"'), 1)
+        self.assertRegex(chips_html, r'href="\?period=7d"[^>]*aria-current="page"')

@@ -71,6 +71,7 @@ urlpatterns = [
 
     # Seller surface
     path("seller/", views.seller_dashboard, name="seller_dashboard"),
+    path("seller/orders/<str:order_number>/", views.seller_order_detail, name="seller_order_detail"),
 
     # Editorial
     path("our-story/", views.our_story, name="our_story"),

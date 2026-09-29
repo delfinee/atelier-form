@@ -1563,3 +1563,293 @@ class SellerDashboardAnalyticsTests(TestCase):
         # exactly one chip is marked selected, and it is the requested period
         self.assertEqual(chips_html.count('aria-current="page"'), 1)
         self.assertRegex(chips_html, r'href="\?period=7d"[^>]*aria-current="page"')
+
+
+@override_settings(
+    STORAGES={
+        **settings.STORAGES,
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    },
+)
+class SellerOrderDetailBrowserTests(TestCase):
+    """CP2: the server-rendered seller order page and its fulfilment form.
+
+    Writes must reach orders.services.update_seller_fulfillment(); these tests
+    assert its observable effects (fields, shipped_at, parent sync) rather
+    than re-deriving them.
+    """
+
+    password = "Studio-owner-57!"
+
+    @classmethod
+    def setUpTestData(cls):
+        User = get_user_model()
+        cls.alice = User.objects.create_user(
+            email="alice.fulfil@example.com", password=cls.password, is_seller=True)
+        cls.bob = User.objects.create_user(
+            email="bob.fulfil@example.com", password=cls.password, is_seller=True)
+        cls.buyer = User.objects.create_user(
+            email="buyer.fulfil@example.com", password=cls.password)
+
+        category = Category.objects.create(slug="fulfil-category", name="Fulfil Category")
+        cls.alice_maker = Maker.objects.create(
+            slug="alice-fulfil", name="Alice Studio", owner=cls.alice,
+            discipline="Ceramics", location="Singapore")
+        cls.bob_maker = Maker.objects.create(
+            slug="bob-fulfil", name="Bob Workshop", owner=cls.bob,
+            discipline="Woodwork", location="Singapore")
+        cls.alice_product = Product.objects.create(
+            slug="alice-fulfil-vase", name="Alice Fulfil Vase", maker=cls.alice_maker,
+            category=category, price=Decimal("20.00"), stock_quantity=10, is_active=True)
+        cls.bob_product = Product.objects.create(
+            slug="bob-fulfil-stool", name="Bob Fulfil Stool", maker=cls.bob_maker,
+            category=category, price=Decimal("30.00"), stock_quantity=10, is_active=True)
+
+    def setUp(self):
+        # Order X: one commercial order, one line from each seller.
+        self.order = self.make_order()
+        self.make_order_item(self.order, self.alice_product, quantity=2)  # 40.00
+        self.make_order_item(self.order, self.bob_product, quantity=1)    # 30.00
+        self.alice_f = SellerFulfillment.objects.create(
+            order=self.order, maker=self.alice_maker,
+            carrier="SF Express", tracking_number="SF-ALICE-1")
+        self.bob_f = SellerFulfillment.objects.create(
+            order=self.order, maker=self.bob_maker,
+            carrier="FedEx", tracking_number="FX-BOB-999")
+
+        self.bob_only_order = self.make_order()
+        self.make_order_item(self.bob_only_order, self.bob_product)
+        self.bob_only_f = SellerFulfillment.objects.create(
+            order=self.bob_only_order, maker=self.bob_maker)
+
+    # -- helpers -------------------------------------------------------------
+
+    def make_order(self, **fields):
+        return Order.objects.create(
+            order_number=OrderNumberSequence.next_number(),
+            status=OrderStatus.CONFIRMED, payment_status=PaymentStatus.PAID,
+            customer_email="buyer.fulfil@example.com",
+            shipping_address_snapshot={
+                "first_name": "Wei", "last_name": "Buyer", "address_line_1": "1 Kiln Lane",
+                "city": "Shanghai", "postal_code": "200000", "country": "China",
+            },
+            **fields,
+        )
+
+    def make_order_item(self, order, product, *, quantity=1):
+        return OrderItem.objects.create(
+            order=order, product=product, maker=product.maker,
+            product_slug=product.slug, product_name=product.name,
+            maker_name=product.maker.name, unit_price=product.price, quantity=quantity,
+            line_total=product.price * quantity,
+        )
+
+    def url(self, order):
+        return reverse("seller_order_detail", args=[order.order_number])
+
+    def post_update(self, order, **data):
+        payload = {"status": FulfillmentStatus.UNFULFILLED, "carrier": "", "tracking_number": ""}
+        payload.update(data)
+        return self.client.post(self.url(order), payload)
+
+    def snapshot(self, fulfillment):
+        fulfillment.refresh_from_db()
+        return (fulfillment.status, fulfillment.carrier, fulfillment.tracking_number,
+                fulfillment.shipped_at)
+
+    # -- authentication / access --------------------------------------------
+
+    def test_anonymous_user_is_sent_to_login(self):
+        response = self.client.get(self.url(self.order))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response["Location"].startswith(reverse("login")))
+
+    def test_anonymous_post_is_sent_to_login_and_changes_nothing(self):
+        before = self.snapshot(self.alice_f)
+        response = self.post_update(self.order, carrier="DHL")
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response["Location"].startswith(reverse("login")))
+        self.assertEqual(self.snapshot(self.alice_f), before)
+
+    def test_non_seller_is_forbidden(self):
+        self.client.force_login(self.buyer)
+        self.assertEqual(self.client.get(self.url(self.order)).status_code, 403)
+        before = self.snapshot(self.alice_f)
+        self.assertEqual(self.post_update(self.order, carrier="DHL").status_code, 403)
+        self.assertEqual(self.snapshot(self.alice_f), before)
+
+    def test_seller_can_open_an_order_containing_their_items(self):
+        self.client.force_login(self.alice)
+        response = self.client.get(self.url(self.order))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.order.order_number)
+
+    def test_other_sellers_order_is_not_found(self):
+        self.client.force_login(self.alice)
+        self.assertEqual(self.client.get(self.url(self.bob_only_order)).status_code, 404)
+        before = self.snapshot(self.bob_only_f)
+        response = self.post_update(self.bob_only_order, status=FulfillmentStatus.FULFILLED,
+                                    carrier="DHL")
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(self.snapshot(self.bob_only_f), before)
+
+    def test_unknown_order_number_is_not_found(self):
+        self.client.force_login(self.alice)
+        response = self.client.get(reverse("seller_order_detail", args=["PS-0000-000000"]))
+        self.assertEqual(response.status_code, 404)
+
+    # -- seller isolation on a shared order ----------------------------------
+
+    def test_shared_order_shows_only_own_items_subtotal_and_fulfilment(self):
+        self.client.force_login(self.alice)
+        response = self.client.get(self.url(self.order))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, "Alice Fulfil Vase")
+        self.assertNotContains(response, "Bob Fulfil Stool")
+        self.assertContains(response, money_filter(Decimal("40.00")))  # Alice's subtotal
+        self.assertEqual(response.context["seller_subtotal"], Decimal("40.00"))
+        self.assertEqual(response.context["fulfillment"], self.alice_f)
+
+        self.assertContains(response, "SF Express")
+        self.assertContains(response, "SF-ALICE-1")
+        self.assertNotContains(response, "FedEx")
+        self.assertNotContains(response, "FX-BOB-999")
+        # The parent commercial total (70.00) is not part of the seller view.
+        self.assertNotContains(response, money_filter(Decimal("70.00")))
+
+    # -- dashboard link ------------------------------------------------------
+
+    def test_dashboard_incoming_line_links_to_seller_order_detail(self):
+        self.client.force_login(self.alice)
+        response = self.client.get(reverse("seller_dashboard"))
+        self.assertContains(response, f'href="{self.url(self.order)}"')
+        self.assertNotContains(response, f'href="{self.url(self.bob_only_order)}"')
+
+    # -- valid update --------------------------------------------------------
+
+    def test_valid_update_goes_through_service_and_syncs_parent(self):
+        self.client.force_login(self.alice)
+        bob_before = self.snapshot(self.bob_f)
+        self.order.carrier, self.order.tracking_number = "LEGACY-CARRIER", "LEGACY-TRACK"
+        self.order.save(update_fields=["carrier", "tracking_number"])
+
+        response = self.post_update(self.order, status=FulfillmentStatus.FULFILLED,
+                                    carrier="ZTO", tracking_number="ZTO-123")
+        # Not fetched here: that GET would consume the one-time success message.
+        self.assertRedirects(response, self.url(self.order), fetch_redirect_response=False)
+
+        self.alice_f.refresh_from_db()
+        self.assertEqual(self.alice_f.status, FulfillmentStatus.FULFILLED)
+        self.assertEqual(self.alice_f.carrier, "ZTO")
+        self.assertEqual(self.alice_f.tracking_number, "ZTO-123")
+        self.assertIsNotNone(self.alice_f.shipped_at)  # service sets it on first FULFILLED
+
+        self.assertEqual(self.snapshot(self.bob_f), bob_before)
+
+        self.order.refresh_from_db()
+        # Alice fulfilled, Bob still unfulfilled -> service aggregates to PARTIAL.
+        self.assertEqual(self.order.fulfillment_status, FulfillmentStatus.PARTIAL)
+        # Seller writes never touch the parent's legacy carrier/tracking fields.
+        self.assertEqual(self.order.carrier, "LEGACY-CARRIER")
+        self.assertEqual(self.order.tracking_number, "LEGACY-TRACK")
+
+        page = self.client.get(response["Location"])
+        self.assertContains(page, "Fulfilment updated.")
+
+    def test_single_seller_order_fully_fulfilled_syncs_parent_to_fulfilled(self):
+        alice_only = self.make_order()
+        self.make_order_item(alice_only, self.alice_product)
+        SellerFulfillment.objects.create(order=alice_only, maker=self.alice_maker)
+        self.client.force_login(self.alice)
+
+        self.post_update(alice_only, status=FulfillmentStatus.FULFILLED)
+        alice_only.refresh_from_db()
+        self.assertEqual(alice_only.fulfillment_status, FulfillmentStatus.FULFILLED)
+
+    def test_tracking_only_update_leaves_shipped_at_unset(self):
+        self.client.force_login(self.alice)
+        self.post_update(self.order, status=FulfillmentStatus.UNFULFILLED,
+                         carrier="EMS", tracking_number="EMS-1")
+        self.alice_f.refresh_from_db()
+        self.assertEqual(self.alice_f.tracking_number, "EMS-1")
+        self.assertIsNone(self.alice_f.shipped_at)
+
+    # -- invalid input -------------------------------------------------------
+
+    def assert_rejected_without_change(self, **data):
+        self.client.force_login(self.alice)
+        alice_before, bob_before = self.snapshot(self.alice_f), self.snapshot(self.bob_f)
+        parent_before = self.order.fulfillment_status
+
+        response = self.post_update(self.order, **data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["form"].errors)
+        self.assertContains(response, 'class="field-error"')
+        self.assertEqual(self.snapshot(self.alice_f), alice_before)
+        self.assertEqual(self.snapshot(self.bob_f), bob_before)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.fulfillment_status, parent_before)
+        return response
+
+    def test_invalid_status_is_rejected(self):
+        response = self.assert_rejected_without_change(status="flying", carrier="DHL")
+        self.assertIn("status", response.context["form"].errors)
+
+    def test_over_length_carrier_is_rejected(self):
+        response = self.assert_rejected_without_change(
+            status=FulfillmentStatus.FULFILLED, carrier="X" * 81)
+        self.assertIn("carrier", response.context["form"].errors)
+
+    def test_over_length_tracking_number_is_rejected(self):
+        response = self.assert_rejected_without_change(
+            status=FulfillmentStatus.FULFILLED, tracking_number="X" * 81)
+        self.assertIn("tracking_number", response.context["form"].errors)
+
+    # -- missing SellerFulfillment ------------------------------------------
+
+    def test_order_without_seller_fulfillment_is_readable_but_not_editable(self):
+        legacy = self.make_order(carrier="LEGACY-CARRIER", tracking_number="LEGACY-TRACK")
+        self.make_order_item(legacy, self.alice_product)
+        self.client.force_login(self.alice)
+
+        response = self.client.get(self.url(legacy))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Alice Fulfil Vase")
+        self.assertIsNone(response.context["fulfillment"])
+        self.assertContains(response, "Fulfilment details are not available for this order.")
+        self.assertNotContains(response, 'name="tracking_number"')
+        # Parent fields are not presented as if they were this seller's own.
+        self.assertNotContains(response, "LEGACY-CARRIER")
+        self.assertNotContains(response, "LEGACY-TRACK")
+
+    def test_post_without_seller_fulfillment_is_not_found_and_creates_nothing(self):
+        legacy = self.make_order()
+        self.make_order_item(legacy, self.alice_product)
+        self.client.force_login(self.alice)
+
+        response = self.post_update(legacy, status=FulfillmentStatus.FULFILLED, carrier="DHL")
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(SellerFulfillment.objects.filter(order=legacy).exists())
+
+    # -- CSRF ----------------------------------------------------------------
+
+    def test_post_requires_csrf_token_rendered_by_the_form(self):
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.alice)
+        payload = {"status": FulfillmentStatus.FULFILLED, "carrier": "DHL",
+                   "tracking_number": "DHL-1"}
+
+        before = self.snapshot(self.alice_f)
+        self.assertEqual(client.post(self.url(self.order), payload).status_code, 403)
+        self.assertEqual(self.snapshot(self.alice_f), before)
+
+        page = client.get(self.url(self.order))
+        token = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"',
+                          page.content.decode()).group(1)
+        response = client.post(self.url(self.order), {**payload, "csrfmiddlewaretoken": token})
+        self.assertEqual(response.status_code, 302)
+        self.alice_f.refresh_from_db()
+        self.assertEqual(self.alice_f.carrier, "DHL")
+        self.assertEqual(self.alice_f.status, FulfillmentStatus.FULFILLED)

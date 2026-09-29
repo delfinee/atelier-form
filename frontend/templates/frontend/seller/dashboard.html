@@ -118,7 +118,7 @@
     <div class="panel__head"><h2>{% translate "Incoming order lines" %}</h2></div>
     {% for item in seller_items %}
       <div class="summary__row">
-        <span><strong>{{ item.order.order_number }}</strong><br>{{ item.quantity }} × {{ item.product_name }}</span>
+        <span><strong><a href="{% url 'seller_order_detail' item.order.order_number %}">{{ item.order.order_number }}</a></strong><br>{{ item.quantity }} × {{ item.product_name }}</span>
         <span>{{ item.line_total|money }} · {{ item.order.get_status_display }}</span>
       </div>
     {% empty %}

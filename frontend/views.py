@@ -36,14 +36,14 @@ from content.models import FAQGroup, NewsletterSubscriber
 from orders.models import (
     FulfillmentStatus, Order, OrderItem, OrderStatus, PaymentStatus, SellerFulfillment, ZERO,
 )
-from orders.services import get_cart, merge_session_cart
+from orders.services import get_cart, merge_session_cart, update_seller_fulfillment
 from payments.models import Payment, PaymentProviderChoices
 from payments.services import MockPaymentProvider
 from reviews.models import Review
 from reviews.errors import is_duplicate_review_error
 
 from . import services
-from .forms import ProfileForm, RegistrationForm
+from .forms import ProfileForm, RegistrationForm, SellerFulfillmentForm
 from .review_forms import ReviewForm
 from .mockdata.content import CARE_PAGE, PROCESS_STEPS, SHIPPING_PAGE, SITE, STORY_PAGE
 
@@ -641,6 +641,52 @@ def seller_dashboard(request):
         "pending_dispatch_count": pending_dispatch_count,
         "best_sellers": best_sellers,
         "low_stock_products": low_stock_products,
+    })
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def seller_order_detail(request, order_number):
+    if not request.user.is_seller or not hasattr(request.user, "maker_profile"):
+        raise PermissionDenied("A linked seller profile is required.")
+    maker = request.user.maker_profile
+
+    # Scoped in the query itself: an order with none of this seller's lines 404s,
+    # exactly as GET /api/seller/orders/<uuid>/ does.
+    order = get_object_or_404(
+        Order.objects.filter(items__maker=maker).distinct(), order_number=order_number)
+    items = order.items.filter(maker=maker)
+    # Never created or synthesised here. A seller-owned order with no row
+    # (legacy data) stays readable but not editable, matching the API, whose
+    # fulfilment PATCH 404s without the seller's own row.
+    fulfillment = order.seller_fulfillments.filter(maker=maker).first()
+
+    if request.method == "POST":
+        if fulfillment is None:
+            raise Http404("No fulfilment record for this seller.")
+        form = SellerFulfillmentForm(request.POST)
+        if form.is_valid():
+            # Ownership, shipped_at and the parent status sync all live in the service.
+            update_seller_fulfillment(fulfillment, acting_maker=maker, **form.cleaned_data)
+            messages.success(request, _("Fulfilment updated."))
+            return redirect("seller_order_detail", order_number=order.order_number)
+    elif fulfillment is not None:
+        form = SellerFulfillmentForm(initial={
+            "status": fulfillment.status,
+            "carrier": fulfillment.carrier,
+            "tracking_number": fulfillment.tracking_number,
+        })
+    else:
+        form = None
+
+    return render(request, "frontend/seller/order_detail.html", {
+        "maker": maker,
+        "order": order,
+        "items": items,
+        "seller_subtotal": sum((item.line_total for item in items), ZERO),
+        "fulfillment": fulfillment,
+        "form": form,
+        "meta_title": f"Order {order.order_number} — {SITE['brand']}",
     })
 
 

@@ -1,0 +1,103 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell page-head">
+  <p class="eyebrow">{{ maker.name }}</p>
+  <h1 style="font-size:var(--step-3)">{% blocktranslate with number=order.order_number %}Order {{ number }}{% endblocktranslate %}</h1>
+  <p class="lede">{% blocktranslate with date=order.date status=order.get_status_display payment=order.get_payment_status_display %}Placed {{ date }} · {{ status }} · Payment {{ payment }}{% endblocktranslate %}</p>
+  <p style="margin-top:1.1rem">
+    <a class="link" href="{% url 'seller_dashboard' %}">{% icon "chevron-left" 16 %} {% translate "Seller dashboard" %}</a>
+  </p>
+</div>
+
+<div class="shell" style="padding-bottom:var(--section);display:grid;gap:2rem">
+
+  <section class="panel">
+    <div class="panel__head"><h2>{% translate "Your items" %}</h2></div>
+    {% for item in items %}
+      <div class="summary__row">
+        <span>{{ item.quantity }} × {{ item.product_name }}{% if item.variant_name %} · {{ item.variant_name }}{% endif %}{% if item.sku %}<br><span class="muted">{{ item.sku }}</span>{% endif %}</span>
+        <span>{{ item.line_total|money }}</span>
+      </div>
+    {% endfor %}
+    <div class="summary__row summary__row--total"><span>{% translate "Your subtotal" %}</span><span>{{ seller_subtotal|money }}</span></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel__head"><h2>{% translate "Ship to" %}</h2></div>
+    <address style="font-style:normal;color:var(--ink-soft)">
+      {{ order.address.name }}<br>
+      {{ order.address.line1 }}{% if order.address.line2 %}<br>{{ order.address.line2 }}{% endif %}<br>
+      {{ order.address.city }} {{ order.address.postcode }}<br>
+      {{ order.address.country }}
+    </address>
+    <p class="muted" style="margin-top:0.9rem">
+      {{ order.customer_email }}{% if order.customer_phone %} · {{ order.customer_phone }}{% elif order.address.phone %} · {{ order.address.phone }}{% endif %}
+    </p>
+  </section>
+
+  <section class="panel">
+    <div class="panel__head">
+      <h2>{% translate "Your fulfilment" %}</h2>
+      {% if fulfillment %}<span class="status">{{ fulfillment.get_status_display }}</span>{% endif %}
+    </div>
+    {% if fulfillment %}
+      {% if fulfillment.shipped_at %}
+        <p class="muted" style="margin-bottom:1rem">{% blocktranslate with when=fulfillment.shipped_at|date:"j F Y, H:i" %}Marked shipped {{ when }}{% endblocktranslate %}</p>
+      {% endif %}
+      <form method="post" action="{% url 'seller_order_detail' order.order_number %}" novalidate>
+        {% csrf_token %}
+        {% for error in form.non_field_errors %}
+          <p class="field-error" role="alert">{{ error }}</p>
+        {% endfor %}
+        <div class="field">
+          <label class="label" for="f-status">{% translate "Status" %}</label>
+          <select class="select" id="f-status" name="status"
+                  {% if form.status.errors %}aria-invalid="true" aria-describedby="f-status-errors"{% endif %}>
+            {% for value, label in form.fields.status.choices %}
+              <option value="{{ value }}" {% if value == form.status.value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          {% if form.status.errors %}
+            <div id="f-status-errors" role="alert">
+              {% for error in form.status.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        <div class="field-row" style="margin-top:1.1rem">
+          <div class="field">
+            <label class="label" for="f-carrier">{% translate "Carrier" %}</label>
+            <input class="input {% if form.carrier.errors %}is-invalid{% endif %}" id="f-carrier" name="carrier"
+                   maxlength="{{ form.fields.carrier.max_length }}"
+                   {% if form.carrier.errors %}aria-invalid="true" aria-describedby="f-carrier-errors"{% endif %}
+                   value="{{ form.carrier.value|default_if_none:'' }}">
+            {% if form.carrier.errors %}
+              <div id="f-carrier-errors" role="alert">
+                {% for error in form.carrier.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          <div class="field">
+            <label class="label" for="f-tracking">{% translate "Tracking number" %}</label>
+            <input class="input {% if form.tracking_number.errors %}is-invalid{% endif %}" id="f-tracking" name="tracking_number"
+                   maxlength="{{ form.fields.tracking_number.max_length }}"
+                   {% if form.tracking_number.errors %}aria-invalid="true" aria-describedby="f-tracking-errors"{% endif %}
+                   value="{{ form.tracking_number.value|default_if_none:'' }}">
+            {% if form.tracking_number.errors %}
+              <div id="f-tracking-errors" role="alert">
+                {% for error in form.tracking_number.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        <p style="margin-top:1.4rem"><button class="btn" type="submit">{% translate "Save fulfilment" %}</button></p>
+      </form>
+    {% else %}
+      <p class="muted">{% translate "Fulfilment details are not available for this order." %}</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,237 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell page-head">
+  <p class="eyebrow">
+    <a class="link" href="{% url 'seller_product_list' %}">{% icon "chevron-left" 16 %} {% translate "Back to products" %}</a>
+  </p>
+  <h1 style="font-size:var(--step-3)">
+    {% if is_edit %}{% translate "Edit Product" %}: {{ product.name }}{% else %}{% translate "Add New Product" %}{% endif %}
+  </h1>
+  <p class="lede">{{ maker.name }}</p>
+</div>
+
+<div class="shell" style="padding-bottom:var(--section);max-width:860px">
+  <form method="post" class="flow" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="panel" style="border-left:4px solid #ef4444;background:#fef2f2;margin-bottom:1.5rem">
+        {% for error in form.non_field_errors %}
+          <p class="field-error" role="alert">{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- 1. Core Product Details -->
+    <section class="panel">
+      <div class="panel__head">
+        <h2>{% translate "1. Core Details" %}</h2>
+      </div>
+
+      <div class="field" style="margin-bottom:1.2rem">
+        <label class="label" for="{{ form.name.id_for_label }}">{% translate "Product Name" %} *</label>
+        {{ form.name }}
+        {% if form.name.errors %}<p class="field-error">{{ form.name.errors.0 }}</p>{% endif %}
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1.2rem;margin-bottom:1.2rem">
+        <div class="field">
+          <label class="label" for="{{ form.category.id_for_label }}">{% translate "Category" %} *</label>
+          {{ form.category }}
+          {% if form.category.errors %}<p class="field-error">{{ form.category.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="field">
+          <label class="label" for="{{ form.price.id_for_label }}">{% translate "Base Price (¥)" %} *</label>
+          {{ form.price }}
+          {% if form.price.errors %}<p class="field-error">{{ form.price.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:1.2rem">
+        <label class="label" for="{{ form.short_description.id_for_label }}">{% translate "Short Description" %}</label>
+        {{ form.short_description }}
+        {% if form.short_description.errors %}<p class="field-error">{{ form.short_description.errors.0 }}</p>{% endif %}
+      </div>
+
+      <div class="field" style="margin-bottom:1.2rem">
+        <label class="label" for="{{ form.description.id_for_label }}">{% translate "Full Description" %}</label>
+        {{ form.description }}
+        {% if form.description.errors %}<p class="field-error">{{ form.description.errors.0 }}</p>{% endif %}
+      </div>
+
+      <div class="field" style="margin-bottom:1.2rem">
+        <label class="label" for="{{ form.story.id_for_label }}">{% translate "Craft Story / Artisan Notes" %}</label>
+        {{ form.story }}
+        {% if form.story.errors %}<p class="field-error">{{ form.story.errors.0 }}</p>{% endif %}
+      </div>
+    </section>
+
+    <!-- 2. Inventory & Specifications -->
+    <section class="panel">
+      <div class="panel__head">
+        <h2>{% translate "2. Inventory & Specifications" %}</h2>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1.2rem;margin-bottom:1.2rem">
+        <div class="field">
+          <label class="label" for="{{ form.stock_quantity.id_for_label }}">{% translate "Stock Quantity" %}</label>
+          {{ form.stock_quantity }}
+          <span class="form-note">{% translate "Used when product has no individual variant stock." %}</span>
+          {% if form.stock_quantity.errors %}<p class="field-error">{{ form.stock_quantity.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="field">
+          <label class="label" for="{{ form.shipping_information.id_for_label }}">{% translate "Shipping Information" %}</label>
+          {{ form.shipping_information }}
+          {% if form.shipping_information.errors %}<p class="field-error">{{ form.shipping_information.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1.2rem;margin-bottom:1.2rem">
+        <div class="field">
+          <label class="label" for="{{ form.dimensions.id_for_label }}">{% translate "Dimensions / Sizing" %}</label>
+          {{ form.dimensions }}
+          {% if form.dimensions.errors %}<p class="field-error">{{ form.dimensions.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="field">
+          <label class="label" for="{{ form.care_instructions.id_for_label }}">{% translate "Care Instructions" %}</label>
+          {{ form.care_instructions }}
+          {% if form.care_instructions.errors %}<p class="field-error">{{ form.care_instructions.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+
+      <div style="display:flex;gap:2rem;margin-top:1rem;flex-wrap:wrap">
+        <label style="display:inline-flex;align-items:center;gap:0.5rem;cursor:pointer">
+          {{ form.is_made_to_order }}
+          <strong>{% translate "Made to order (not limited by numeric stock)" %}</strong>
+        </label>
+
+        <label style="display:inline-flex;align-items:center;gap:0.5rem;cursor:pointer">
+          {{ form.is_active }}
+          <strong>{% translate "Active in catalogue" %}</strong>
+        </label>
+      </div>
+    </section>
+
+    <!-- 3. Variants (Sizes, Colours, Finishes) -->
+    <section class="panel">
+      <div class="panel__head">
+        <h2>{% translate "3. Product Variants" %}</h2>
+        <span class="muted">{% translate "Colours, sizes, or finishes" %}</span>
+      </div>
+
+      {{ variant_formset.management_form }}
+      {% if variant_formset.non_form_errors %}
+        {% for error in variant_formset.non_form_errors %}
+          <p class="field-error">{{ error }}</p>
+        {% endfor %}
+      {% endif %}
+
+      <div class="flow" style="margin-top:1rem">
+        {% for v_form in variant_formset %}
+          <div class="summary__row" style="background:var(--sand);padding:1.2rem;border-radius:4px;display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:0.75rem;align-items:end">
+            {{ v_form.id }}
+            <div class="field">
+              <label style="font-size:0.8rem">{% translate "Group" %}</label>
+              {{ v_form.group }}
+              {% if v_form.group.errors %}<p class="field-error">{{ v_form.group.errors.0 }}</p>{% endif %}
+            </div>
+            <div class="field">
+              <label style="font-size:0.8rem">{% translate "Label" %}</label>
+              {{ v_form.label }}
+              {% if v_form.label.errors %}<p class="field-error">{{ v_form.label.errors.0 }}</p>{% endif %}
+            </div>
+            <div class="field">
+              <label style="font-size:0.8rem">{% translate "SKU" %}</label>
+              {{ v_form.sku }}
+              {% if v_form.sku.errors %}<p class="field-error">{{ v_form.sku.errors.0 }}</p>{% endif %}
+            </div>
+            <div class="field">
+              <label style="font-size:0.8rem">{% translate "Price (¥)" %}</label>
+              {{ v_form.price_override }}
+              {% if v_form.price_override.errors %}<p class="field-error">{{ v_form.price_override.errors.0 }}</p>{% endif %}
+            </div>
+            <div class="field">
+              <label style="font-size:0.8rem">{% translate "Stock" %}</label>
+              {{ v_form.stock_quantity }}
+              {% if v_form.stock_quantity.errors %}<p class="field-error">{{ v_form.stock_quantity.errors.0 }}</p>{% endif %}
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:center;padding-bottom:0.5rem">
+              <label style="font-size:0.8rem;display:inline-flex;align-items:center;gap:0.3rem">
+                {{ v_form.is_active }} {% translate "Active" %}
+              </label>
+              {% if v_form.instance.pk %}
+                <label style="font-size:0.8rem;display:inline-flex;align-items:center;gap:0.3rem;color:#b91c1c">
+                  {{ v_form.DELETE }} {% translate "Delete" %}
+                </label>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- 4. Product Gallery & Images -->
+    <section class="panel">
+      <div class="panel__head">
+        <h2>{% translate "4. Photography & Image Slots" %}</h2>
+        <span class="muted">{% translate "Openverse photograph names or placeholders" %}</span>
+      </div>
+
+      {{ image_formset.management_form }}
+      {% if image_formset.non_form_errors %}
+        {% for error in image_formset.non_form_errors %}
+          <p class="field-error">{{ error }}</p>
+        {% endfor %}
+      {% endif %}
+
+      <div class="flow" style="margin-top:1rem">
+        {% for img_form in image_formset %}
+          <div class="summary__row" style="background:var(--sand);padding:1.2rem;border-radius:4px;display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:0.75rem;align-items:end">
+            {{ img_form.id }}
+            <div class="field">
+              <label style="font-size:0.8rem">{% translate "Image Key" %}</label>
+              {{ img_form.image }}
+              {% if img_form.image.errors %}<p class="field-error">{{ img_form.image.errors.0 }}</p>{% endif %}
+            </div>
+            <div class="field">
+              <label style="font-size:0.8rem">{% translate "Alt Text" %}</label>
+              {{ img_form.alt_text }}
+              {% if img_form.alt_text.errors %}<p class="field-error">{{ img_form.alt_text.errors.0 }}</p>{% endif %}
+            </div>
+            <div class="field">
+              <label style="font-size:0.8rem">{% translate "Sort Order" %}</label>
+              {{ img_form.sort_order }}
+              {% if img_form.sort_order.errors %}<p class="field-error">{{ img_form.sort_order.errors.0 }}</p>{% endif %}
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:center;padding-bottom:0.5rem">
+              <label style="font-size:0.8rem;display:inline-flex;align-items:center;gap:0.3rem">
+                {{ img_form.is_primary }} {% translate "Primary" %}
+              </label>
+              {% if img_form.instance.pk %}
+                <label style="font-size:0.8rem;display:inline-flex;align-items:center;gap:0.3rem;color:#b91c1c">
+                  {{ img_form.DELETE }} {% translate "Delete" %}
+                </label>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- Actions -->
+    <div style="display:flex;gap:1rem;margin-top:2rem;align-items:center">
+      <button class="btn btn--primary" type="submit">
+        {% if is_edit %}{% translate "Save Changes" %}{% else %}{% translate "Create Product" %}{% endif %}
+      </button>
+      <a class="btn btn--secondary" href="{% url 'seller_product_list' %}">{% translate "Cancel" %}</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

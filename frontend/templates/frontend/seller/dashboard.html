@@ -7,8 +7,13 @@
 <div class="shell page-head">
   <p class="eyebrow">{% translate "Seller dashboard" %}</p>
   <h1 style="font-size:var(--step-3)">{{ maker.name }}</h1>
-  <p class="lede">{% translate "Manage your catalogue through the protected seller API and monitor incoming lines here." %}</p>
-  <a class="btn btn--sm" href="/api/docs/">{% translate "Open API workspace" %}</a>
+  <p class="lede">{% translate "Manage your catalogue, track customer orders, and monitor performance analytics." %}</p>
+  <div style="display:flex;gap:0.75rem;margin-top:1.2rem;flex-wrap:wrap;align-items:center">
+    <a class="btn btn--secondary btn--sm" href="{% url 'seller_product_list' %}">{% translate "Manage Products" %}</a>
+    <a class="btn btn--primary btn--sm" href="{% url 'seller_product_create' %}">{% icon "plus" 16 %} {% translate "Add Product" %}</a>
+    <a class="btn btn--secondary btn--sm" href="{% url 'seller_order_list' %}">{% translate "View Orders" %}</a>
+    <a class="btn btn--quiet btn--sm" href="/api/docs/">{% translate "API Docs" %}</a>
+  </div>
 </div>
 
 <div class="shell" style="padding-bottom:var(--section);display:grid;gap:2rem">
@@ -103,7 +108,10 @@
   </section>
 
   <section class="panel">
-    <div class="panel__head"><h2>{% translate "Your products" %}</h2><span>{{ products|length }}</span></div>
+    <div class="panel__head">
+      <h2>{% translate "Your products" %}</h2>
+      <a class="link" href="{% url 'seller_product_list' %}" style="font-size:0.9rem">{% translate "Manage all" %} ({{ products|length }}) →</a>
+    </div>
     {% for product in products %}
       <div class="summary__row">
         <a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a>
@@ -115,7 +123,10 @@
   </section>
 
   <section class="panel">
-    <div class="panel__head"><h2>{% translate "Incoming order lines" %}</h2></div>
+    <div class="panel__head">
+      <h2>{% translate "Incoming order lines" %}</h2>
+      <a class="link" href="{% url 'seller_order_list' %}" style="font-size:0.9rem">{% translate "View all orders" %} →</a>
+    </div>
     {% for item in seller_items %}
       <div class="summary__row">
         <span><strong><a href="{% url 'seller_order_detail' item.order.order_number %}">{{ item.order.order_number }}</a></strong><br>{{ item.quantity }} × {{ item.product_name }}</span>

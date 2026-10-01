@@ -3,7 +3,6 @@
 from decimal import Decimal
 from django import forms
 from django.forms import inlineformset_factory
-from django.utils.text import slugify
 
 from products.models import Product, ProductImage, ProductVariant, VariantGroup
 
@@ -70,14 +69,6 @@ class SellerProductVariantForm(forms.ModelForm):
             "is_active": forms.CheckboxInput(attrs={"class": "checkbox"}),
         }
 
-    def clean(self):
-        cleaned_data = super().clean()
-        label = cleaned_data.get("label")
-        sku = cleaned_data.get("sku")
-        # If label is given but SKU is missing, generate a clean default SKU
-        if label and not sku:
-            cleaned_data["sku"] = f"SKU-{slugify(label).upper()}"
-        return cleaned_data
 
 
 SellerVariantFormSet = inlineformset_factory(

@@ -5,10 +5,12 @@ from django.conf import settings
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
+from frontend.forms_seller import SellerProductVariantForm
+
 from accounts.models import User
 from orders.models import DeliveryMethod, Order, OrderItem, OrderStatus, PaymentStatus
 from orders.services import create_seller_fulfillments
-from products.models import Category, Maker, Product, ProductImage, ProductVariant, VariantGroup
+from products.models import Category, Maker, Product, ProductImage, ProductVariant, StockStatus, VariantGroup
 
 
 @override_settings(
@@ -110,6 +112,31 @@ class SellerProductManagementTests(TestCase):
         self.assertContains(resp, "Porcelain Tea Cup")
         self.assertNotContains(resp, "Linen Scarf")
 
+    def test_product_list_displays_low_stock_and_sold_out_badges(self):
+        Product.objects.filter(pk=self.product_a.pk).update(
+            stock_status=StockStatus.LOW_STOCK
+        )
+        Product.objects.create(
+            maker=self.maker_a,
+            category=self.category,
+            name="Sold Out Bowl",
+            slug="sold-out-bowl",
+            price=Decimal("35.00"),
+            stock_quantity=0,
+            stock_status=StockStatus.SOLD_OUT,
+            is_active=True,
+        )
+
+        self.client.login(
+            username="seller-a@atelierform.test",
+            password="test-password-123",
+        )
+        resp = self.client.get(reverse("seller_product_list"))
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Low stock", count=1)
+        self.assertContains(resp, "Sold out", count=1)
+
     def test_seller_product_create_get(self):
         self.client.login(username="seller-a@atelierform.test", password="test-password-123")
         resp = self.client.get(reverse("seller_product_create"))
@@ -194,6 +221,41 @@ class SellerProductManagementTests(TestCase):
         resp = self.client.get(other_edit_url)
         self.assertEqual(resp.status_code, 404)
 
+    def test_variant_sku_is_required_and_not_auto_generated(self):
+        form = SellerProductVariantForm(data={
+            "group": VariantGroup.SIZE,
+            "label": "Medium",
+            "sku": "",
+            "price_override": "",
+            "stock_quantity": "5",
+            "is_active": "on",
+        })
+
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors.as_data()["sku"][0].code, "required")
+        self.assertIsNone(form.cleaned_data.get("sku"))
+
+    def test_variant_form_rejects_duplicate_sku(self):
+        ProductVariant.objects.create(
+            product=self.product_a,
+            group=VariantGroup.SIZE,
+            label="Medium",
+            sku="DUPLICATE-SKU",
+            stock_quantity=1,
+        )
+
+        form = SellerProductVariantForm(data={
+            "group": VariantGroup.SIZE,
+            "label": "Large",
+            "sku": "DUPLICATE-SKU",
+            "price_override": "",
+            "stock_quantity": "5",
+            "is_active": "on",
+        })
+
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors.as_data()["sku"][0].code, "unique")
+
 
 @override_settings(
     STORAGES={
@@ -257,3 +319,50 @@ class SellerOrderListTests(TestCase):
         self.assertContains(resp, "Studio Mug")
         self.assertContains(resp, "¥100")
         self.assertContains(resp, "Unfulfilled")
+
+    def test_order_list_hides_other_seller_items_in_shared_order(self):
+        maker_b = Maker.objects.create(
+            name="Lu Wenjing",
+            slug="lu-wenjing-order",
+            discipline="Textiles",
+        )
+        product_b = Product.objects.create(
+            maker=maker_b,
+            category=self.category,
+            name="Woven Throw",
+            slug="woven-throw-order-test",
+            price=Decimal("75.00"),
+            stock_quantity=10,
+        )
+        OrderItem.objects.create(
+            order=self.order,
+            product=product_b,
+            maker=maker_b,
+            product_name="Woven Throw",
+            quantity=1,
+            unit_price=Decimal("75.00"),
+            line_total=Decimal("75.00"),
+        )
+
+        # Idempotent service call adds Seller B's fulfilment without
+        # duplicating Seller A's existing fulfilment.
+        create_seller_fulfillments(self.order)
+
+        self.client.login(
+            username="seller-list@atelierform.test",
+            password="test-password-123",
+        )
+        resp = self.client.get(reverse("seller_order_list"))
+
+        self.assertEqual(resp.status_code, 200)
+
+        rows = resp.context["seller_orders"]
+        self.assertEqual(len(rows), 1)
+
+        row = rows[0]
+        self.assertEqual(len(row["items"]), 1)
+        self.assertEqual(row["items"][0].maker_id, self.maker.id)
+        self.assertEqual(row["seller_subtotal"], Decimal("100.00"))
+
+        self.assertContains(resp, "Studio Mug")
+        self.assertNotContains(resp, "Woven Throw")

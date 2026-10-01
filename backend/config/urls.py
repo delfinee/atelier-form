@@ -76,7 +76,6 @@ urlpatterns = [
     path("seller/products/add/", views_seller.seller_product_create, name="seller_product_create"),
     path("seller/products/<slug:slug>/edit/", views_seller.seller_product_edit, name="seller_product_edit"),
     path("seller/orders/", views_seller.seller_order_list, name="seller_order_list"),
-    path("seller/", include("frontend.urls_seller", namespace="seller")),
 
     # Editorial
     path("our-story/", views.our_story, name="our_story"),

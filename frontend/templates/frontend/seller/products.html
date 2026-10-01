@@ -33,9 +33,9 @@
             {% endif %}
             {% if product.is_made_to_order %}
               <span class="badge">{% translate "Made to order" %}</span>
-            {% elif product.stock_status == "low_stock" %}
+            {% elif product.stock_status == "low-stock" %}
               <span class="badge badge--accent">{% translate "Low stock" %}</span>
-            {% elif product.stock_status == "sold_out" %}
+            {% elif product.stock_status == "sold-out" %}
               <span class="badge" style="background:#fee2e2;color:#991b1b">{% translate "Sold out" %}</span>
             {% endif %}
           </div>

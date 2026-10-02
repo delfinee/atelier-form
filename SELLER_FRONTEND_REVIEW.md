@@ -1,8 +1,5 @@
 # Seller Frontend Integration Review
 
-**Project:** NTU EE3180 Design & Innovation Project (DIP), Group E006  
-**Product:** Atelier Form  
-**Reviewer:** Delfine  
 **Branch reviewed:** `feature/samuel-seller-frontend-continuation`  
 **Target branch:** `main`  
 **Branch tip reviewed:** `612190de57b854c8f1f71f9b425a16f4592f2df9` — `Harden seller frontend workflows`

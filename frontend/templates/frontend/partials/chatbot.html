@@ -1,70 +1,143 @@
 {% load i18n frontend_extras %}
 <!-- Floating Launcher Button -->
-<button id="crafty-launcher" type="button" aria-label="{% translate "Open Artisan AI Concierge" %}" title="{% translate "Chat with Crafty" %}">
+<button id="crafty-launcher" type="button" aria-label="{% translate "Chat with Seller" %}" title="{% translate "Chat with Seller" %}">
   <span class="crafty-launcher-pulse"></span>
-  <span style="font-size:1.15rem; line-height:1">🏺</span>
-  <span id="crafty-launcher-text">{% translate "Chat with Crafty" %}</span>
+  <span style="font-size:1.15rem; line-height:1">💬</span>
+  <span id="crafty-launcher-text">{% translate "Chat with Seller" %}</span>
+  <span style="background:rgba(255,255,255,0.25); border-radius:10px; padding:0 5px; font-size:0.75rem; font-weight:700;">1</span>
 </button>
 
-<!-- Slide-over Drawer Backdrop -->
+<!-- Slide-over Drawer / Docked Shopee Widget Backdrop -->
 <div id="crafty-backdrop"></div>
 
-<!-- Crafty Slide-over Drawer -->
-<aside id="crafty-drawer" role="dialog" aria-modal="true" aria-label="{% translate "Artisan AI Concierge" %}">
-  <!-- Header -->
-  <div class="crafty-head">
-    <div class="crafty-profile">
-      <div class="crafty-avatar">
-        🏺
-        <span class="crafty-online-dot"></span>
+<!-- Shopee-Style Buyer Chat Widget (Docked Drawer) -->
+<aside id="crafty-drawer" role="dialog" aria-modal="true" aria-label="{% translate "Shopee Style Buyer Chat with Seller" %}">
+  
+  <!-- 1. Shopee Storefront Header (Seller Profile) -->
+  <div class="shopee-widget-head">
+    <div class="shopee-maker-info">
+      <!-- Back Arrow (Minimizes Widget) -->
+      <button type="button" id="crafty-back-btn" class="crafty-btn-icon" style="padding:0; font-size:1.1rem; color:var(--crafty-ink);" title="{% translate "Back" %}">
+        ←
+      </button>
+
+      <!-- Seller Store Avatar with Mall Badge -->
+      <div class="shopee-store-avatar">
+        🪵
+        <span class="shopee-mall-badge">Mall</span>
       </div>
-      <div class="crafty-meta">
-        <h3 id="crafty-title">Crafty · 匠心小助手</h3>
-        <div class="crafty-badge">
-          <span class="crafty-badge-dot" id="crafty-status-dot"></span>
-          <span id="crafty-status">Gemini 3.8 Flash</span>
+
+      <!-- Seller Store Meta -->
+      <div class="shopee-store-meta">
+        <h3 class="shopee-store-name" id="widgetSellerTitle">{% translate "Lin Woodcraft Flagship Store" %}</h3>
+        <div class="shopee-store-sub">
+          <span style="color:#10b981;">●</span>
+          <span id="widgetSellerStatus">{% translate "Active 47 minutes ago" %}</span>
         </div>
       </div>
     </div>
+
     <div class="crafty-head-actions">
+      <!-- Full page link -->
       <a class="crafty-btn-icon" href="{% url 'chat_page' %}" title="{% translate "Open full screen page" %}" aria-label="{% translate "Full page" %}">
         {% icon "zoom" 16 %}
       </a>
+      <!-- Language Switch -->
       <button class="crafty-btn-icon" id="crafty-lang-toggle" type="button" title="{% translate "Switch Language" %}">
         EN
       </button>
+      <!-- Settings -->
       <button class="crafty-btn-icon" id="crafty-settings-toggle" type="button" title="{% translate "Settings" %}">
         ⚙️
       </button>
-      <button class="crafty-btn-icon" id="crafty-close" type="button" aria-label="{% translate "Close" %}">
-        {% icon "close" 18 %}
+      <!-- Close Button -->
+      <button class="crafty-btn-icon" id="crafty-close" type="button" aria-label="{% translate "Close" %}" title="{% translate "Close" %}">
+        ✕
       </button>
     </div>
   </div>
 
-  <!-- Quick Scenario Chips -->
-  <div class="crafty-chips-bar" id="crafty-chips">
-    <!-- Generated dynamically by chatbot.js -->
+  <!-- 2. Shopee Pinned Product Bar (Stuck under header) -->
+  <div class="shopee-pinned-product" id="pinnedProductBar">
+    <div class="shopee-pinned-thumb">🪵</div>
+    <div class="shopee-pinned-details">
+      <h4 class="shopee-pinned-title" id="pinnedTitle">{% translate "FAS Black Walnut Dovetail Keepsake Box" %}</h4>
+      <div class="shopee-pinned-price" id="pinnedPrice">$58.00 / ¥388</div>
+    </div>
+    <button type="button" class="shopee-buy-btn-sm" id="btnPinnedBuy">
+      🛒 <span id="btnPinnedBuyText">{% translate "Buy Now" %}</span>
+    </button>
   </div>
 
-  <!-- Messages List -->
-  <div class="crafty-messages" id="crafty-messages">
-    <!-- Populated by chatbot.js -->
+  <!-- 3. Messages Thread Container -->
+  <div class="crafty-messages" id="crafty-messages" style="padding:0.75rem;">
+    <!-- Populated dynamically by chatbot.js -->
   </div>
 
-  <!-- Foot Form Input -->
-  <div class="crafty-foot">
-    <form class="crafty-form" id="crafty-form" autocomplete="off" onsubmit="return false;">
-      <textarea id="crafty-input" class="crafty-input" rows="1" placeholder="{% translate "Ask about makers, gifts, custom leather, or care..." %}"></textarea>
-      <button type="submit" id="crafty-send-btn" class="crafty-send-btn" aria-label="{% translate "Send" %}" title="{% translate "Send" %}">
-        {% icon "arrow-right" 16 %}
-      </button>
+  <!-- 4. Shopee Expandable Tools Tray -->
+  <div class="shopee-tools-tray" id="toolsTray" style="display:none;">
+    <button type="button" class="shopee-tool-item" id="toolBtnPhoto">
+      <div class="shopee-tool-icon">📸</div>
+      <span id="toolPhoto">{% translate "Photos" %}</span>
+    </button>
+    <button type="button" class="shopee-tool-item" id="toolBtnProduct">
+      <div class="shopee-tool-icon">🪵</div>
+      <span id="toolProduct">{% translate "Send Item" %}</span>
+    </button>
+    <button type="button" class="shopee-tool-item" id="toolBtnBrief">
+      <div class="shopee-tool-icon">📐</div>
+      <span id="toolBrief">{% translate "Custom Brief" %}</span>
+    </button>
+    <button type="button" class="shopee-tool-item" id="toolBtnOrder">
+      <div class="shopee-tool-icon">📦</div>
+      <span id="toolOrder">{% translate "My Order" %}</span>
+    </button>
+  </div>
+
+  <!-- 5. Shopee Bottom Input Bar -->
+  <div class="shopee-foot-bar">
+    <!-- Plus tool expansion button -->
+    <button type="button" class="shopee-icon-btn" id="btnPlusTool" title="{% translate "More tools" %}">
+      ⊕
+    </button>
+
+    <!-- Bag button to quickly send product inquiry -->
+    <button type="button" class="shopee-icon-btn" id="btnBagInquiry" title="{% translate "Send Current Item" %}">
+      🛍️
+    </button>
+
+    <!-- Message input field -->
+    <form class="crafty-form" id="crafty-form" autocomplete="off" onsubmit="return false;" style="flex:1; display:flex; align-items:center; margin:0;">
+      <input 
+        type="text" 
+        id="crafty-input" 
+        class="shopee-input-pill" 
+        placeholder="{% translate "Type a message..." %}"
+      />
     </form>
-    <div class="crafty-foot-note">
-      Crafty v1.3 · Powered by Google Gemini 3.8 Flash
+
+    <!-- Emoji Picker Popup Tray -->
+    <div class="shopee-emoji-picker" id="emojiPicker" style="display:none;">
+      <div class="shopee-emoji-tabs">
+        <button type="button" class="shopee-emoji-tab is-active" data-tab="faces" title="Faces">😊</button>
+        <button type="button" class="shopee-emoji-tab" data-tab="gestures" title="Gestures">👍</button>
+        <button type="button" class="shopee-emoji-tab" data-tab="craft" title="Craft & Nature">🪵</button>
+        <button type="button" class="shopee-emoji-tab" data-tab="objects" title="Objects & Hearts">🎁</button>
+      </div>
+      <div class="shopee-emoji-grid" id="emojiGrid"></div>
     </div>
+
+    <!-- Emoji icon -->
+    <button type="button" class="shopee-icon-btn" id="btnEmojiToggle" title="{% translate "Emoji" %}">
+      😊
+    </button>
+
+    <!-- Send button -->
+    <button type="submit" id="crafty-send-btn" class="crafty-send-btn" style="width:32px; height:32px;" title="{% translate "Send" %}">
+      {% icon "arrow-right" 14 %}
+    </button>
   </div>
 
-  <!-- Settings Modal -->
+  <!-- Settings Modal Included -->
   {% include "frontend/partials/crafty_settings_modal.html" %}
 </aside>

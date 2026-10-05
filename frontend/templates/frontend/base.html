@@ -1,4 +1,6 @@
-{% load i18n static frontend_extras %}{% get_current_language as CURRENT_LANGUAGE %}<!doctype html>
+{% load i18n static frontend_extras recommendations %}
+{% get_current_language as CURRENT_LANGUAGE %}
+<!doctype html>
 <html lang="{{ CURRENT_LANGUAGE }}">
 <head>
 <meta charset="utf-8">
@@ -30,6 +32,7 @@
     </div>
   {% endif %}
   {% block content %}{% endblock %}
+  {% recommendation_block 4 %}
 </main>
 
 {% block newsletter %}{% include "frontend/partials/newsletter.html" %}{% endblock %}

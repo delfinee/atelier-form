@@ -1,0 +1,16 @@
+{% load i18n %}
+{% if recommendations %}
+<section class="section--tight shell" style="padding-top:var(--section)" data-recommendations>
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">{{ recommendation_eyebrow }}</p>
+      <h2>{{ recommendation_title }}</h2>
+    </div>
+  </div>
+  <div class="grid grid--4">
+    {% for product in recommendations %}
+      {% include "frontend/partials/product_card.html" %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}

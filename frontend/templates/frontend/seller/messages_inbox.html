@@ -1,0 +1,56 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell page-head">
+  <p class="eyebrow"><a href="{% url 'seller_dashboard' %}">← {% translate "Seller dashboard" %}</a></p>
+  <h1 style="font-size:var(--step-3)">{% translate "Customer inquiries" %}</h1>
+  <p class="lede">{% blocktranslate with maker_name=maker.name %}Direct buyer conversations for {{ maker_name }}.{% endblocktranslate %}</p>
+</div>
+
+<div class="shell" style="padding-bottom:var(--section);display:grid;gap:2rem">
+  <section class="panel">
+    <div class="panel__head">
+      <h2>{% translate "Conversations" %}</h2>
+      <span>{{ conversations|length }}</span>
+    </div>
+    {% for conv in conversations %}
+      <div class="summary__row" style="align-items:flex-start; padding:1rem 0; border-bottom:1px solid var(--border);">
+        <div>
+          <a href="{% url 'seller_message_thread' conv.uuid %}" style="font-weight:600; font-size:1.05rem;">
+            {{ conv.buyer.get_full_name|default:conv.buyer.email }}
+          </a>
+          {% if conv.product %}
+            <div style="font-size:0.85rem; color:var(--ink-soft); margin-top:2px;">
+              {% translate "Product:" %} {{ conv.product.name }}
+            </div>
+          {% endif %}
+          {% if conv.order %}
+            <div style="font-size:0.85rem; color:var(--ink-soft);">
+              {% translate "Order:" %} #{{ conv.order.order_number }}
+            </div>
+          {% endif %}
+          {% with last_msg=conv.messages.last %}
+            {% if last_msg %}
+              <div style="font-size:0.9rem; color:var(--ink-soft); margin-top:0.4rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:500px;">
+                <strong>{{ last_msg.sender.get_full_name|default:last_msg.sender.email }}:</strong> {{ last_msg.body|truncatechars:80 }}
+              </div>
+            {% endif %}
+          {% endwith %}
+        </div>
+        <div style="text-align:right;">
+          <span style="font-size:0.8rem; color:var(--ink-soft);">{{ conv.updated_at|date:"M j, H:i" }}</span>
+          <br>
+          <a class="btn btn--sm" href="{% url 'seller_message_thread' conv.uuid %}" style="margin-top:0.5rem;">
+            {% translate "Open thread" %}
+          </a>
+        </div>
+      </div>
+    {% empty %}
+      <p class="muted" style="padding:1.5rem 0;">{% translate "No customer inquiries yet." %}</p>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}

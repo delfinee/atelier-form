@@ -1,7 +1,7 @@
 {% extends "frontend/base.html" %}
 {% load i18n frontend_extras %}
 
-{% block body_attrs %} data-product-slug="{{ product.slug }}"{% endblock %}
+{% block body_attrs %} data-product-slug="{{ product.slug }}" data-product-name="{{ product.name }}" data-product-price="{{ product.price|money }}" {% if maker %}data-maker-name="{{ maker.name }}" data-maker-slug="{{ maker.slug }}"{% endif %}{% endblock %}
 
 {% block description %}{{ product.short_description }} — {{ product.description|truncatewords:24 }}{% endblock %}
 
@@ -97,6 +97,18 @@
                 data-wish-toggle data-slug="{{ product.slug }}"
                 aria-pressed="{% if in_wishlist %}true{% else %}false{% endif %}"
                 aria-label="{% blocktranslate with name=product.name %}Save {{ name }} to wishlist{% endblocktranslate %}">{% icon "heart" 18 %}</button>
+        {% if maker %}
+          <button class="btn btn--quiet" type="button" id="btn-chat-with-maker"
+                  data-open-chat
+                  data-maker-name="{{ maker.name }}"
+                  data-maker-slug="{{ maker.slug }}"
+                  data-product-name="{{ product.name }}"
+                  data-product-slug="{{ product.slug }}"
+                  data-product-price="{{ product.price|money }}"
+                  title="{% translate "Chat with artisan maker" %}">
+            💬 {% translate "Ask maker" %}
+          </button>
+        {% endif %}
       </div>
 
       <p class="pdp__stock">

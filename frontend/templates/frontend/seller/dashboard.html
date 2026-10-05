@@ -7,8 +7,10 @@
 <div class="shell page-head">
   <p class="eyebrow">{% translate "Seller dashboard" %}</p>
   <h1 style="font-size:var(--step-3)">{{ maker.name }}</h1>
-  <p class="lede">{% translate "Manage your catalogue through the protected seller API and monitor incoming lines here." %}</p>
-  <a class="btn btn--sm" href="/api/docs/">{% translate "Open API workspace" %}</a>
+  <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
+    <a class="btn btn--sm" href="{% url 'seller_messages' %}">{% translate "Customer inquiries" %}</a>
+    <a class="btn btn--sm btn--quiet" href="/api/docs/">{% translate "Open API workspace" %}</a>
+  </div>
 </div>
 
 <div class="shell" style="padding-bottom:var(--section);display:grid;gap:2rem">

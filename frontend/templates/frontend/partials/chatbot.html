@@ -1,17 +1,17 @@
 {% load i18n frontend_extras %}
 <!-- Floating Launcher Button -->
-<button id="crafty-launcher" type="button" aria-label="{% translate "Chat with Seller" %}" title="{% translate "Chat with Seller" %}">
+<button id="crafty-launcher" type="button" aria-label="{% translate "Messages" %}" title="{% translate "Messages" %}">
   <span class="crafty-launcher-pulse"></span>
   <span style="font-size:1.15rem; line-height:1">💬</span>
-  <span id="crafty-launcher-text">{% translate "Chat with Seller" %}</span>
-  <span style="background:rgba(255,255,255,0.25); border-radius:10px; padding:0 5px; font-size:0.75rem; font-weight:700;">1</span>
+  <span id="crafty-launcher-text">{% translate "Messages" %}</span>
+  <span id="crafty-unread-badge" style="display:none; background:rgba(255,255,255,0.25); border-radius:10px; padding:0 5px; font-size:0.75rem; font-weight:700;"></span>
 </button>
 
 <!-- Slide-over Drawer / Docked Shopee Widget Backdrop -->
 <div id="crafty-backdrop"></div>
 
 <!-- Shopee-Style Buyer Chat Widget (Docked Drawer) -->
-<aside id="crafty-drawer" role="dialog" aria-modal="true" aria-label="{% translate "Shopee Style Buyer Chat with Seller" %}">
+<aside id="crafty-drawer" role="dialog" aria-modal="true" aria-label="{% translate "Buyer Chat with Seller" %}">
   
   <!-- 1. Shopee Storefront Header (Seller Profile) -->
   <div class="shopee-widget-head">
@@ -21,34 +21,26 @@
         ←
       </button>
 
-      <!-- Seller Store Avatar with Mall Badge -->
-      <div class="shopee-store-avatar">
+      <!-- Seller Store Avatar with Artisan Badge -->
+      <div class="shopee-store-avatar" id="widgetSellerAvatar">
         🪵
-        <span class="shopee-mall-badge">Mall</span>
+        <span class="shopee-mall-badge">Artisan</span>
       </div>
 
       <!-- Seller Store Meta -->
       <div class="shopee-store-meta">
-        <h3 class="shopee-store-name" id="widgetSellerTitle">{% translate "Lin Woodcraft Flagship Store" %}</h3>
+        <h3 class="shopee-store-name" id="widgetSellerTitle">{% translate "Artisan Support" %}</h3>
         <div class="shopee-store-sub">
           <span style="color:#10b981;">●</span>
-          <span id="widgetSellerStatus">{% translate "Active 47 minutes ago" %}</span>
+          <span id="widgetSellerStatus">{% translate "Active" %}</span>
         </div>
       </div>
     </div>
 
     <div class="crafty-head-actions">
-      <!-- Full page link -->
-      <a class="crafty-btn-icon" href="{% url 'chat_page' %}" title="{% translate "Open full screen page" %}" aria-label="{% translate "Full page" %}">
-        {% icon "zoom" 16 %}
-      </a>
       <!-- Language Switch -->
       <button class="crafty-btn-icon" id="crafty-lang-toggle" type="button" title="{% translate "Switch Language" %}">
         EN
-      </button>
-      <!-- Settings -->
-      <button class="crafty-btn-icon" id="crafty-settings-toggle" type="button" title="{% translate "Settings" %}">
-        ⚙️
       </button>
       <!-- Close Button -->
       <button class="crafty-btn-icon" id="crafty-close" type="button" aria-label="{% translate "Close" %}" title="{% translate "Close" %}">
@@ -57,15 +49,15 @@
     </div>
   </div>
 
-  <!-- 2. Shopee Pinned Product Bar (Stuck under header) -->
-  <div class="shopee-pinned-product" id="pinnedProductBar">
-    <div class="shopee-pinned-thumb">🪵</div>
+  <!-- 2. Shopee Pinned Product Bar (Shown when product is selected or on product page) -->
+  <div class="shopee-pinned-product" id="pinnedProductBar" style="display:none;">
+    <div class="shopee-pinned-thumb" id="pinnedThumb">🪵</div>
     <div class="shopee-pinned-details">
-      <h4 class="shopee-pinned-title" id="pinnedTitle">{% translate "FAS Black Walnut Dovetail Keepsake Box" %}</h4>
-      <div class="shopee-pinned-price" id="pinnedPrice">$58.00 / ¥388</div>
+      <h4 class="shopee-pinned-title" id="pinnedTitle"></h4>
+      <div class="shopee-pinned-price" id="pinnedPrice"></div>
     </div>
-    <button type="button" class="shopee-buy-btn-sm" id="btnPinnedBuy">
-      🛒 <span id="btnPinnedBuyText">{% translate "Buy Now" %}</span>
+    <button type="button" class="shopee-buy-btn-sm" id="btnPinnedBuy" style="display:none;">
+      🛍️ <span id="btnPinnedBuyText">{% translate "Send Item" %}</span>
     </button>
   </div>
 
@@ -76,17 +68,9 @@
 
   <!-- 4. Shopee Expandable Tools Tray -->
   <div class="shopee-tools-tray" id="toolsTray" style="display:none;">
-    <button type="button" class="shopee-tool-item" id="toolBtnPhoto">
-      <div class="shopee-tool-icon">📸</div>
-      <span id="toolPhoto">{% translate "Photos" %}</span>
-    </button>
     <button type="button" class="shopee-tool-item" id="toolBtnProduct">
       <div class="shopee-tool-icon">🪵</div>
       <span id="toolProduct">{% translate "Send Item" %}</span>
-    </button>
-    <button type="button" class="shopee-tool-item" id="toolBtnBrief">
-      <div class="shopee-tool-icon">📐</div>
-      <span id="toolBrief">{% translate "Custom Brief" %}</span>
     </button>
     <button type="button" class="shopee-tool-item" id="toolBtnOrder">
       <div class="shopee-tool-icon">📦</div>
@@ -101,18 +85,14 @@
       ⊕
     </button>
 
-    <!-- Bag button to quickly send product inquiry -->
-    <button type="button" class="shopee-icon-btn" id="btnBagInquiry" title="{% translate "Send Current Item" %}">
-      🛍️
-    </button>
-
     <!-- Message input field -->
-    <form class="crafty-form" id="crafty-form" autocomplete="off" onsubmit="return false;" style="flex:1; display:flex; align-items:center; margin:0;">
+    <form class="crafty-form" id="crafty-form" autocomplete="off" style="flex:1; display:flex; align-items:center; margin:0;">
       <input 
         type="text" 
         id="crafty-input" 
         class="shopee-input-pill" 
         placeholder="{% translate "Type a message..." %}"
+        maxlength="2000"
       />
     </form>
 
@@ -132,12 +112,12 @@
       😊
     </button>
 
-    <!-- Send button -->
-    <button type="submit" id="crafty-send-btn" class="crafty-send-btn" style="width:32px; height:32px;" title="{% translate "Send" %}">
+    <!-- Send button with form="crafty-form" -->
+    <button type="submit" id="crafty-send-btn" form="crafty-form" class="crafty-send-btn" style="width:32px; height:32px;" title="{% translate "Send" %}" aria-label="{% translate "Send" %}">
       {% icon "arrow-right" 14 %}
     </button>
   </div>
 
-  <!-- Settings Modal Included -->
+  <!-- Settings Modal Included for regression compatibility -->
   {% include "frontend/partials/crafty_settings_modal.html" %}
 </aside>

@@ -1,0 +1,105 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell page-head">
+  <p class="eyebrow"><a href="{% url 'seller_messages' %}">← {% translate "Customer inquiries" %}</a></p>
+  <h1 style="font-size:var(--step-3)">
+    {% blocktranslate with name=conversation.buyer.get_full_name|default:conversation.buyer.email %}Conversation with {{ name }}{% endblocktranslate %}
+  </h1>
+  {% if conversation.product %}
+    <p class="lede">
+      {% translate "Regarding product:" %}
+      <a class="text-link" href="{% url 'product_detail' conversation.product.slug %}">{{ conversation.product.name }}</a>
+    </p>
+  {% elif conversation.order %}
+    <p class="lede">{% translate "Regarding order:" %} #{{ conversation.order.order_number }}</p>
+  {% endif %}
+</div>
+
+<div class="shell" style="padding-bottom:var(--section); max-width:800px;">
+  <section class="panel" style="padding:1.5rem;">
+    <!-- Messages Stream -->
+    <div id="seller-thread-messages" style="display:flex; flex-direction:column; gap:1rem; margin-bottom:1.5rem; max-height:500px; overflow-y:auto; padding-right:0.5rem;">
+      {% for msg in messages_list %}
+        <div class="chat-bubble-row" data-msg-uuid="{{ msg.uuid }}" style="display:flex; flex-direction:column; {% if msg.sender_id == request.user.id %}align-items:flex-end;{% else %}align-items:flex-start;{% endif %}">
+          <div style="font-size:0.75rem; color:var(--ink-soft); margin-bottom:2px;">
+            {% if msg.sender_id == request.user.id %}
+              <span style="font-weight:600; color:var(--earth);">{% translate "You (Seller)" %}</span>
+            {% else %}
+              <span style="font-weight:600;">{{ msg.sender.get_full_name|default:msg.sender.email }} ({% translate "Buyer" %})</span>
+            {% endif %}
+            · {{ msg.created_at|date:"M j, H:i" }}
+          </div>
+          <div style="padding:0.75rem 1rem; border-radius:12px; max-width:80%; font-size:0.95rem; line-height:1.45; white-space:pre-wrap; {% if msg.sender_id == request.user.id %}background:var(--earth); color:#fff; border-bottom-right-radius:2px;{% else %}background:var(--paper-soft); color:var(--ink); border:1px solid var(--border); border-bottom-left-radius:2px;{% endif %}">
+            {{ msg.body }}
+          </div>
+          {% if msg.sender_id == request.user.id and msg.read_at %}
+            <div style="font-size:0.7rem; color:var(--ink-soft); margin-top:2px;">{% translate "Read" %} ✓</div>
+          {% endif %}
+        </div>
+      {% empty %}
+        <p class="muted">{% translate "No messages yet." %}</p>
+      {% endfor %}
+    </div>
+
+    <!-- Reply Form -->
+    <form method="post" action="{% url 'seller_message_thread' conversation.uuid %}" style="display:flex; flex-direction:column; gap:0.75rem;">
+      {% csrf_token %}
+      <label for="reply-body" class="sr-only">{% translate "Your reply" %}</label>
+      <textarea id="reply-body" name="body" rows="3" class="input" placeholder="{% translate "Type your reply to the buyer..." %}" required style="width:100%; border-radius:8px; padding:0.75rem; resize:vertical;"></textarea>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="muted" style="font-size:0.8rem;">{% translate "Replies are saved and delivered to the buyer." %}</span>
+        <button type="submit" class="btn btn--sm">{% translate "Send reply" %}</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<script>
+  // Simple polling for new incoming buyer messages
+  (function() {
+    const thread = document.getElementById('seller-thread-messages');
+    if (!thread) return;
+    thread.scrollTop = thread.scrollHeight;
+
+    const convUuid = "{{ conversation.uuid }}";
+    let lastMsgId = "";
+    const items = thread.querySelectorAll('[data-msg-uuid]');
+    if (items.length > 0) {
+      lastMsgId = items[items.length - 1].getAttribute('data-msg-uuid');
+    }
+
+    setInterval(async function() {
+      try {
+        const url = `/api/conversations/${convUuid}/messages/?after=${lastMsgId}`;
+        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        if (!res.ok) return;
+        const newMsgs = await res.json();
+        if (Array.isArray(newMsgs) && newMsgs.length > 0) {
+          newMsgs.forEach(m => {
+            lastMsgId = m.uuid;
+            const row = document.createElement('div');
+            row.className = 'chat-bubble-row';
+            row.setAttribute('data-msg-uuid', m.uuid);
+            row.style.cssText = m.is_sender ? 'display:flex; flex-direction:column; align-items:flex-end;' : 'display:flex; flex-direction:column; align-items:flex-start;';
+            const senderLabel = m.is_sender ? 'You (Seller)' : `${m.sender_name} (Buyer)`;
+            row.innerHTML = `
+              <div style="font-size:0.75rem; color:var(--ink-soft); margin-bottom:2px;">
+                <span style="font-weight:600;">${senderLabel}</span> · Just now
+              </div>
+              <div style="padding:0.75rem 1rem; border-radius:12px; max-width:80%; font-size:0.95rem; line-height:1.45; white-space:pre-wrap; ${m.is_sender ? 'background:var(--earth); color:#fff; border-bottom-right-radius:2px;' : 'background:var(--paper-soft); color:var(--ink); border:1px solid var(--border); border-bottom-left-radius:2px;'}">
+                ${m.body}
+              </div>
+            `;
+            thread.appendChild(row);
+          });
+          thread.scrollTop = thread.scrollHeight;
+        }
+      } catch (e) {}
+    }, 4000);
+  })();
+</script>
+{% endblock %}

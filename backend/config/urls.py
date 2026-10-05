@@ -71,6 +71,8 @@ urlpatterns = [
 
     # Seller surface
     path("seller/", views.seller_dashboard, name="seller_dashboard"),
+    path("seller/messages/", views.seller_messages_inbox, name="seller_messages"),
+    path("seller/messages/<uuid:conversation_uuid>/", views.seller_message_thread, name="seller_message_thread"),
 
     # Editorial
     path("our-story/", views.our_story, name="our_story"),

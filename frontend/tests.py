@@ -1205,7 +1205,9 @@ class CraftyChatbotTests(TestCase):
                     f"Found duplicate crafty IDs on {path}: {duplicate_crafty_ids}"
                 )
 
-    def test_chat_api_endpoint(self):
+    @patch("frontend.chatbot_service.call_gemini")
+    def test_chat_api_endpoint(self, mock_gemini):
+        mock_gemini.return_value = {"status": "ok", "reply": "Hello from mock artisan"}
         response = self.client.post(
             reverse("chat_api"),
             data=json.dumps({"message": "Hello Crafty"}),

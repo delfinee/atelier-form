@@ -75,7 +75,10 @@
     setInterval(async function() {
       try {
         const url = `/api/conversations/${convUuid}/messages/?after=${lastMsgId}`;
-        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        const res = await fetch(url, {
+          credentials: 'same-origin',
+          headers: { 'Accept': 'application/json' }
+        });
         if (!res.ok) return;
         const newMsgs = await res.json();
         if (Array.isArray(newMsgs) && newMsgs.length > 0) {

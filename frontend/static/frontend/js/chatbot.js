@@ -66,6 +66,7 @@
       today: '今天',
       you: '您',
       artisan: '手作人',
+      buyer: '买家',
       sending: '发送中...',
       langToggleText: 'EN'
     },
@@ -83,6 +84,7 @@
       today: 'Today',
       you: 'You',
       artisan: 'Artisan',
+      buyer: 'Buyer',
       sending: 'Sending...',
       langToggleText: '中文'
     }
@@ -324,7 +326,7 @@
     const t = i18n[currentLang] || i18n.en;
     lastMessageUuid = m.uuid;
 
-    const isUser = m.is_sender || m.is_buyer;
+    const isUser = Boolean(m.is_sender);
     const msgEl = document.createElement('div');
     msgEl.className = `crafty-msg ${isUser ? 'crafty-msg--user' : 'crafty-msg--bot'}`;
     msgEl.setAttribute('data-msg-uuid', m.uuid);
@@ -339,9 +341,11 @@
         </div>
       `;
     } else {
+      const defaultBadge = m.is_seller ? t.artisan : (t.buyer || 'Buyer');
+      const badgeText = m.sender_name || defaultBadge;
       metaHtml = `
         <div class="crafty-msg-meta">
-          <span class="crafty-maker-badge">${m.sender_name || t.artisan}</span>
+          <span class="crafty-maker-badge">${escapeHtml(badgeText)}</span>
           <span>•</span>
           <span>${timeStr}</span>
         </div>

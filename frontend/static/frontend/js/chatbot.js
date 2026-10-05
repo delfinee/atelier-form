@@ -235,6 +235,23 @@
         }
       }
 
+      // If buyer has no existing conversations, initialize a new thread with the studio
+      if (!conv) {
+        const createRes = await fetch('/api/conversations/', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken(),
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({})
+        });
+        if (createRes.ok) {
+          conv = await createRes.json();
+        }
+      }
+
       activeConversation = conv;
 
       if (activeConversation) {
@@ -344,14 +361,20 @@
 
   // --- Send Message ---
   async function sendMessage(textOverride) {
-    const text = (textOverride || (input ? input.value : '')).trim();
+    const raw = textOverride !== undefined ? textOverride : (input ? input.value : '');
+    const text = (raw || '').trim();
     if (!text) return;
-    if (input) input.value = '';
 
     if (!activeConversation) {
-      // Re-try initializing conversation if user started typing before conversation resolved
       await initConversation();
-      if (!activeConversation) return;
+      if (!activeConversation) {
+        console.warn('Could not establish conversation with artisan.');
+        return;
+      }
+    }
+
+    if (textOverride === undefined && input) {
+      input.value = '';
     }
 
     try {
@@ -456,6 +479,13 @@
     sendBtn?.addEventListener('click', (e) => {
       e.preventDefault();
       sendMessage();
+    });
+
+    input?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
     });
 
     // 4. Global buttons with [data-open-chat]

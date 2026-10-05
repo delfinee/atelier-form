@@ -104,8 +104,12 @@ class MessagingTests(TestCase):
         self.assertEqual(msg_resp.status_code, status.HTTP_201_CREATED)
         self.assertEqual(msg_resp.data["body"], "Hello, is this keepsake box currently in stock?")
 
-        # Verify DB persistence
-        self.assertEqual(ConversationMessage.objects.filter(conversation=conv).count(), 1)
+        # Verify DB persistence (1 seller welcome greeting + 1 buyer message)
+        self.assertEqual(ConversationMessage.objects.filter(conversation=conv).count(), 2)
+        welcome_msg = ConversationMessage.objects.filter(conversation=conv).order_by("created_at").first()
+        self.assertEqual(welcome_msg.sender, self.seller_user)
+        self.assertIn("Welcome", welcome_msg.body)
+
         saved_msg = ConversationMessage.objects.get(uuid=msg_resp.data["uuid"])
         self.assertEqual(saved_msg.sender, self.buyer)
         self.assertIsNone(saved_msg.read_at)

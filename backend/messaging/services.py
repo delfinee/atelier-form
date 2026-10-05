@@ -84,7 +84,10 @@ def get_or_create_conversation(
                 raise ValidationError("No valid maker found for the specified order.")
 
     if not maker:
-        raise ValidationError("A maker must be specified to start a conversation.")
+        maker = Maker.objects.filter(owner__isnull=False).first() or Maker.objects.first()
+
+    if not maker:
+        raise ValidationError("No active maker available to start a conversation.")
 
     # Match existing open thread
     filters = {
@@ -113,6 +116,32 @@ def get_or_create_conversation(
         product=product,
         order=order,
     )
+
+    # Automatically send an initial welcome greeting from the maker to the buyer
+    seller_user = maker.owner
+    if not seller_user:
+        from django.contrib.auth import get_user_model
+        seller_user = get_user_model().objects.filter(is_seller=True).first()
+
+    if seller_user:
+        if product:
+            welcome_text = (
+                f"Hello! Welcome to {maker.name}. "
+                f"I see you're viewing our {product.name}. "
+                "Feel free to ask about materials, dimensions, or custom crafting!"
+            )
+        else:
+            welcome_text = (
+                f"Hello! Welcome to {maker.name}. "
+                "We craft handmade studio pieces with care. "
+                "How can we help you today with our items or custom commissions?"
+            )
+        ConversationMessage.objects.create(
+            conversation=conversation,
+            sender=seller_user,
+            body=welcome_text,
+        )
+
     return conversation, True
 
 

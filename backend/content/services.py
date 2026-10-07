@@ -52,6 +52,23 @@ def send_order_confirmation(order) -> bool:
         body=f"Thank you. Order {order.order_number} totalling {order.total} {order.currency} is confirmed.",
     )
 
+def send_order_shipped(order) -> bool:
+    return get_email_sender().send(
+        to=order.customer_email,
+        subject=f"Your order {order.order_number} has shipped",
+        body=(f"Good news — order {order.order_number} is on its way. "
+              f"We'll let you know the moment it arrives."),
+    )
+ 
+ 
+def send_order_delivered(order) -> bool:
+    return get_email_sender().send(
+        to=order.customer_email,
+        subject=f"Your order {order.order_number} has been delivered",
+        body=(f"Order {order.order_number} has arrived. We hope you love it — "
+              f"thank you for supporting a small maker."),
+    )
+
 
 def send_welcome(user) -> bool:
     return get_email_sender().send(

@@ -38,7 +38,7 @@ class Payment(UUIDModel, TimeStampedModel):
     # Provider-side identifiers. Opaque strings, never credentials.
     provider_session_id = models.CharField(max_length=200, blank=True, db_index=True)
     provider_payment_id = models.CharField(max_length=200, blank=True)
-    checkout_url = models.URLField(blank=True)
+    checkout_url = models.TextField(blank=True, default="")
     failure_reason = models.CharField(max_length=200, blank=True)
     inventory_released_at = models.DateTimeField(
         null=True, blank=True,

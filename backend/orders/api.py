@@ -222,6 +222,22 @@ class SellerOrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         order.refresh_from_db()
         return Response(SellerOrderSerializer(order, context={"request": request}).data)
 
+    @extend_schema(
+        summary="Mark this order as delivered",
+        request=None,
+        responses=SellerOrderSerializer,
+    )
+    @action(detail=True, methods=["post"], url_path="delivered")
+    def mark_delivered(self, request, uuid=None):
+        """Seller confirms an order has arrived. No real carrier tracking
+        exists, so this is a manual, honest substitute triggered by the
+        seller themselves."""
+        order = self.get_object()
+        maker = request.user.maker_profile
+        services.mark_order_delivered(order, acting_maker=maker)
+        order.refresh_from_db()
+        return Response(SellerOrderSerializer(order, context={"request": request}).data)
+ 
 
 class AdminOrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                         mixins.UpdateModelMixin, viewsets.GenericViewSet):

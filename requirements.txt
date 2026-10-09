@@ -17,4 +17,5 @@ whitenoise==6.9.0               # compressed, cacheable static assets
 
 Pillow==11.3.0                   # crop/encode fetched photography (imagery app)
 requests==2.32.5                 # Openverse image search + download
+stripe
 

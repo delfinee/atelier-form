@@ -447,13 +447,41 @@ def update_seller_fulfillment(
         if status == FulfillmentStatus.FULFILLED and fulfillment.shipped_at is None:
             fulfillment.shipped_at = timezone.now()
             update_fields.append("shipped_at")
+            # First time this seller's portion ships -> notify the buyer.
+            # Runs after the transaction commits, same pattern as payments.
+            from content.services import send_order_shipped
+            transaction.on_commit(lambda: send_order_shipped(fulfillment.order))
     if carrier is not None:
         fulfillment.carrier = carrier
         update_fields.append("carrier")
     if tracking_number is not None:
         fulfillment.tracking_number = tracking_number
         update_fields.append("tracking_number")
-
+        
     fulfillment.save(update_fields=update_fields)
     sync_order_fulfillment_status(fulfillment.order)
     return fulfillment
+
+@transaction.atomic
+def mark_order_delivered(order: Order, *, acting_maker: Maker) -> Order:
+    """Mark the whole order delivered and notify the buyer.
+ 
+    Any seller with a line in this order may do this — for a single-package
+    order with one seller (the common case for this project), this is exactly
+    right. There is no real carrier tracking, so this is a manual, honest
+    substitute: the seller confirms delivery themselves.
+    """
+    has_line = order.seller_fulfillments.filter(maker=acting_maker).exists()
+    if not has_line:
+        raise PermissionDenied("You do not have access to this order.")
+ 
+    if order.status == OrderStatus.DELIVERED:
+        return order  # already marked; do not re-send the email
+ 
+    order.status = OrderStatus.DELIVERED
+    order.save(update_fields=["status", "updated_at"])
+ 
+    from content.services import send_order_delivered
+    transaction.on_commit(lambda: send_order_delivered(order))
+    return order
+ 

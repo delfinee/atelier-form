@@ -23,6 +23,7 @@ from django.test import Client, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone as django_timezone
 from django.utils.html import escape
+from rest_framework.test import APIClient
 
 from accounts.models import WishlistItem
 from orders.models import (
@@ -1853,3 +1854,115 @@ class SellerOrderDetailBrowserTests(TestCase):
         self.alice_f.refresh_from_db()
         self.assertEqual(self.alice_f.carrier, "DHL")
         self.assertEqual(self.alice_f.status, FulfillmentStatus.FULFILLED)
+
+
+@override_settings(
+    STORAGES={
+        **settings.STORAGES,
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    },
+)
+class SellerDispatchEligibilityBrowserTests(TestCase):
+    """CP-M6: the seller order page surfaces the service's dispatch rules as
+    form errors (never a 500), and agrees with the seller API."""
+
+    password = "Studio-owner-57!"
+
+    @classmethod
+    def setUpTestData(cls):
+        User = get_user_model()
+        cls.seller = User.objects.create_user(
+            email="dispatch.seller@example.com", password=cls.password, is_seller=True)
+        category = Category.objects.create(slug="dispatch-category", name="Dispatch Category")
+        cls.maker = Maker.objects.create(
+            slug="dispatch-maker", name="Dispatch Studio", owner=cls.seller,
+            discipline="Ceramics", location="Singapore")
+        cls.product = Product.objects.create(
+            slug="dispatch-bowl", name="Dispatch Bowl", maker=cls.maker,
+            category=category, price=Decimal("25.00"), stock_quantity=10, is_active=True)
+
+    def setUp(self):
+        self.client.force_login(self.seller)
+
+    def make_order(self, *, status, payment_status):
+        order = Order.objects.create(
+            order_number=OrderNumberSequence.next_number(),
+            status=status, payment_status=payment_status,
+            customer_email="dispatch.buyer@example.com",
+        )
+        OrderItem.objects.create(
+            order=order, product=self.product, maker=self.maker,
+            product_slug=self.product.slug, product_name=self.product.name,
+            maker_name=self.maker.name, unit_price=self.product.price, quantity=1,
+            line_total=self.product.price,
+        )
+        fulfillment = SellerFulfillment.objects.create(order=order, maker=self.maker)
+        return order, fulfillment
+
+    def post(self, order, **data):
+        payload = {"status": FulfillmentStatus.UNFULFILLED, "carrier": "", "tracking_number": ""}
+        payload.update(data)
+        return self.client.post(reverse("seller_order_detail", args=[order.order_number]), payload)
+
+    @staticmethod
+    def snapshot(fulfillment):
+        row = SellerFulfillment.objects.get(pk=fulfillment.pk)
+        return (row.status, row.carrier, row.tracking_number, row.shipped_at)
+
+    def test_dispatching_an_ineligible_order_shows_a_form_error(self):
+        cases = [("unpaid", OrderStatus.PENDING, PaymentStatus.UNPAID),
+                 ("paid but cancelled", OrderStatus.CANCELLED, PaymentStatus.PAID)]
+        for label, status, payment_status in cases:
+            with self.subTest(order=label):
+                order, fulfillment = self.make_order(status=status, payment_status=payment_status)
+                response = self.post(order, status=FulfillmentStatus.FULFILLED,
+                                     carrier="DHL", tracking_number="DHL-1")
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("status", response.context["form"].errors)
+                self.assertContains(response, "This order cannot be dispatched")
+                self.assertContains(response, 'class="field-error"')
+                self.assertEqual(self.snapshot(fulfillment),
+                                 (FulfillmentStatus.UNFULFILLED, "", "", None))
+                order.refresh_from_db()
+                self.assertEqual(order.fulfillment_status, FulfillmentStatus.UNFULFILLED)
+
+    def test_tracking_correction_after_a_refund_is_saved(self):
+        order, fulfillment = self.make_order(status=OrderStatus.CONFIRMED,
+                                             payment_status=PaymentStatus.REFUNDED)
+        shipped_at = django_timezone.now() - timedelta(days=2)
+        SellerFulfillment.objects.filter(pk=fulfillment.pk).update(
+            status=FulfillmentStatus.FULFILLED, shipped_at=shipped_at,
+            carrier="SF Express", tracking_number="OLD")
+
+        response = self.post(order, status=FulfillmentStatus.FULFILLED,
+                             carrier="SF Express", tracking_number="NEW")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.snapshot(fulfillment),
+                         (FulfillmentStatus.FULFILLED, "SF Express", "NEW", shipped_at))
+
+    def test_carrier_only_update_on_an_unpaid_order_is_saved(self):
+        order, fulfillment = self.make_order(status=OrderStatus.PENDING,
+                                             payment_status=PaymentStatus.UNPAID)
+        response = self.post(order, carrier="DHL", tracking_number="DHL-5")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.snapshot(fulfillment),
+                         (FulfillmentStatus.UNFULFILLED, "DHL", "DHL-5", None))
+
+    def test_browser_and_api_reject_the_same_dispatch_identically(self):
+        browser_order, browser_f = self.make_order(status=OrderStatus.PENDING,
+                                                   payment_status=PaymentStatus.UNPAID)
+        api_order, api_f = self.make_order(status=OrderStatus.PENDING,
+                                           payment_status=PaymentStatus.UNPAID)
+
+        browser = self.post(browser_order, status=FulfillmentStatus.FULFILLED)
+        api_client = APIClient()
+        api_client.force_authenticate(user=self.seller)
+        api = api_client.patch(f"/api/seller/orders/{api_order.uuid}/fulfilment/",
+                               data={"status": FulfillmentStatus.FULFILLED}, format="json")
+
+        self.assertEqual(browser.status_code, 200)
+        self.assertEqual(api.status_code, 400)
+        self.assertEqual([str(e) for e in browser.context["form"].errors["status"]],
+                         [str(e) for e in api.data["errors"]["status"]])
+        self.assertEqual(self.snapshot(browser_f), self.snapshot(api_f))
+        self.assertEqual(self.snapshot(api_f), (FulfillmentStatus.UNFULFILLED, "", "", None))

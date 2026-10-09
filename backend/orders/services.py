@@ -16,7 +16,7 @@ from decimal import Decimal
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Q
 from django.utils import timezone
 
 from config.exceptions import EmptyCart, InsufficientStock
@@ -376,6 +376,26 @@ def fulfillment_items(fulfillment: SellerFulfillment):
     return fulfillment.items
 
 
+# Order statuses a paid order may be dispatched from. PENDING has not been
+# confirmed by a payment yet; CANCELLED and DELIVERED are terminal.
+DISPATCH_ELIGIBLE_ORDER_STATUSES = frozenset({
+    OrderStatus.CONFIRMED, OrderStatus.PROCESSING, OrderStatus.SHIPPED,
+})
+
+# Moving up this ranking is a dispatch; staying level or moving down is not.
+_FULFILLMENT_PROGRESS = {
+    FulfillmentStatus.UNFULFILLED: 0,
+    FulfillmentStatus.PARTIAL: 1,
+    FulfillmentStatus.FULFILLED: 2,
+}
+
+
+def is_dispatch_eligible(order: Order) -> bool:
+    """Whether a seller may ship (or partly ship) their part of this order."""
+    return (order.payment_status == PaymentStatus.PAID
+            and order.status in DISPATCH_ELIGIBLE_ORDER_STATUSES)
+
+
 @transaction.atomic
 def sync_order_fulfillment_status(order: Order) -> str:
     """Recompute Order.fulfillment_status from its SellerFulfillment children.
@@ -433,12 +453,36 @@ def update_seller_fulfillment(
     `choices=` on the model field is display/form metadata only -- Django
     does not run full_clean() on save(), so an invalid `status` is rejected
     here explicitly rather than trusted to a future API-layer serializer.
+
+    Moving the status forward (UNFULFILLED -> PARTIAL -> FULFILLED) is a
+    dispatch and needs a dispatch-eligible order (`is_dispatch_eligible`).
+    Re-submitting the current status, moving it back, and carrier/tracking
+    corrections are not dispatches and stay allowed, so a shipment recorded
+    before a later refund or cancellation is never rewritten.
+
+    The parent Order row is locked first, then this fulfilment's row, and the
+    caller's instance is refreshed from the locked row before anything is
+    decided. Concurrent updates to the same order therefore run one after
+    another on committed state: sibling sellers cannot compute a stale
+    aggregate, and only one request can see `shipped_at` still empty.
     """
     if fulfillment.maker_id != acting_maker.id:
         raise PermissionDenied("You do not have access to this seller fulfilment.")
 
     if status is not None and status not in FulfillmentStatus.values:
         raise ValidationError({"status": "Invalid fulfilment status."})
+
+    order = Order.objects.select_for_update().get(pk=fulfillment.order_id)
+    fulfillment.refresh_from_db(from_queryset=SellerFulfillment.objects.select_for_update())
+    fulfillment.order = order
+    if fulfillment.maker_id != acting_maker.id:
+        raise PermissionDenied("You do not have access to this seller fulfilment.")
+
+    is_dispatch = (status is not None and
+                   _FULFILLMENT_PROGRESS[status] > _FULFILLMENT_PROGRESS[fulfillment.status])
+    if is_dispatch and not is_dispatch_eligible(order):
+        raise ValidationError({"status": "This order cannot be dispatched: it must be paid "
+                                         "and not cancelled or already delivered."})
 
     update_fields = ["updated_at"]
     if status is not None and status != fulfillment.status:
@@ -447,41 +491,83 @@ def update_seller_fulfillment(
         if status == FulfillmentStatus.FULFILLED and fulfillment.shipped_at is None:
             fulfillment.shipped_at = timezone.now()
             update_fields.append("shipped_at")
-            # First time this seller's portion ships -> notify the buyer.
-            # Runs after the transaction commits, same pattern as payments.
+            # First time this seller's portion ships -> notify the buyer once.
+            # shipped_at was read from the locked row, so a concurrent or
+            # repeated request cannot reach this branch a second time. Runs
+            # after the transaction commits, same pattern as payments.
             from content.services import send_order_shipped
-            transaction.on_commit(lambda: send_order_shipped(fulfillment.order))
+            whole_order = _order_items_all_belong_to(order, acting_maker)
+            transaction.on_commit(
+                lambda: send_order_shipped(fulfillment, whole_order=whole_order))
     if carrier is not None:
         fulfillment.carrier = carrier
         update_fields.append("carrier")
     if tracking_number is not None:
         fulfillment.tracking_number = tracking_number
         update_fields.append("tracking_number")
-        
+
     fulfillment.save(update_fields=update_fields)
-    sync_order_fulfillment_status(fulfillment.order)
+    sync_order_fulfillment_status(order)
     return fulfillment
+
+
+def _order_items_all_belong_to(order: Order, maker: Maker) -> bool:
+    """True when the order has lines and every one of them was sold by `maker`.
+
+    A line with no maker (its Maker since deleted) or from another maker means
+    the commercial order is not this seller's alone -- whether or not that
+    other maker has a SellerFulfillment row.
+    """
+    items = OrderItem.objects.filter(order=order)
+    return items.exists() and not items.filter(
+        Q(maker__isnull=True) | ~Q(maker_id=maker.id)).exists()
+
 
 @transaction.atomic
 def mark_order_delivered(order: Order, *, acting_maker: Maker) -> Order:
-    """Mark the whole order delivered and notify the buyer.
- 
-    Any seller with a line in this order may do this — for a single-package
-    order with one seller (the common case for this project), this is exactly
-    right. There is no real carrier tracking, so this is a manual, honest
-    substitute: the seller confirms delivery themselves.
+    """Confirm a single-seller order has arrived, and notify the buyer once.
+
+    There is no real carrier tracking, so the seller confirms delivery
+    themselves. Order.status is order-wide, so that is only honest when the
+    whole commercial order is theirs: one seller of a multi-seller order must
+    not declare another seller's parcel delivered. So the order must have
+    exactly one SellerFulfillment, owned by the acting seller, and every
+    OrderItem must be that seller's (`_order_items_all_belong_to`). Those
+    integrity checks run before the already-delivered shortcut. A first
+    confirmation also needs a dispatch-eligible order and the seller's
+    fulfilment already FULFILLED (shipped).
+
+    Order.fulfillment_status is not written here; it stays the aggregate of
+    the seller fulfilments.
+
+    The order row is locked and the caller's instance refreshed first, then
+    its fulfilments -- the same order as update_seller_fulfillment(). A repeat
+    or concurrent confirmation therefore sees the committed DELIVERED status
+    and returns without sending a second email.
     """
-    has_line = order.seller_fulfillments.filter(maker=acting_maker).exists()
-    if not has_line:
+    order.refresh_from_db(from_queryset=Order.objects.select_for_update())
+    fulfillments = list(SellerFulfillment.objects.select_for_update()
+                        .filter(order=order).order_by("pk"))
+    own = [f for f in fulfillments if f.maker_id == acting_maker.id]
+    if not own:
         raise PermissionDenied("You do not have access to this order.")
- 
+    if len(fulfillments) != 1 or not _order_items_all_belong_to(order, acting_maker):
+        raise ValidationError({"status": "Only an order whose items all come from you "
+                                         "can be confirmed delivered by you."})
+
     if order.status == OrderStatus.DELIVERED:
-        return order  # already marked; do not re-send the email
- 
+        return order  # already confirmed; do not notify again
+
+    if not is_dispatch_eligible(order):
+        raise ValidationError({"status": "This order cannot be confirmed delivered: it must be "
+                                         "paid and not cancelled."})
+    if own[0].status != FulfillmentStatus.FULFILLED:
+        raise ValidationError({"status": "Mark your fulfilment as fulfilled before confirming "
+                                         "delivery."})
+
     order.status = OrderStatus.DELIVERED
     order.save(update_fields=["status", "updated_at"])
- 
+
     from content.services import send_order_delivered
     transaction.on_commit(lambda: send_order_delivered(order))
     return order
- 

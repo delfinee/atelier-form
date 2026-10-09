@@ -22,7 +22,7 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import redirect_to_login
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError, transaction
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -666,10 +666,15 @@ def seller_order_detail(request, order_number):
             raise Http404("No fulfilment record for this seller.")
         form = SellerFulfillmentForm(request.POST)
         if form.is_valid():
-            # Ownership, shipped_at and the parent status sync all live in the service.
-            update_seller_fulfillment(fulfillment, acting_maker=maker, **form.cleaned_data)
-            messages.success(request, _("Fulfilment updated."))
-            return redirect("seller_order_detail", order_number=order.order_number)
+            # Ownership, dispatch eligibility, shipped_at and the parent status
+            # sync all live in the service; a rule it rejects is shown on the form.
+            try:
+                update_seller_fulfillment(fulfillment, acting_maker=maker, **form.cleaned_data)
+            except ValidationError as exc:
+                form.add_error(None, exc)
+            else:
+                messages.success(request, _("Fulfilment updated."))
+                return redirect("seller_order_detail", order_number=order.order_number)
     elif fulfillment is not None:
         form = SellerFulfillmentForm(initial={
             "status": fulfillment.status,

@@ -776,7 +776,7 @@ msgstr "下单于 %(date)s · %(status)s"
 #: .\frontend\templates\frontend\account\order_detail.html:9
 #: .\frontend\templates\frontend\account\overview.html:27
 msgid "All orders"
-msgstr "提交订单"
+msgstr "全部订单"
 
 #: .\frontend\templates\frontend\account\order_detail.html:14
 msgid "Progress"
@@ -1397,7 +1397,7 @@ msgstr "关于制作、材质与作品背后之人的札记。有值得一说的
 
 #: .\frontend\templates\frontend\journal\index.html:25
 msgid "Read the piece"
-msgstr "站内搜索"
+msgstr "阅读文章"
 
 #: .\frontend\templates\frontend\makers\detail.html:22
 #, python-format
@@ -2033,7 +2033,7 @@ msgstr "满 %(threshold)s 免运费 · 三十天内可退货"
 
 #: .\frontend\templates\frontend\product\detail.html:113
 msgid "Details &amp; materials"
-msgstr "资料与配送"
+msgstr "详情与材质"
 
 #: .\frontend\templates\frontend\product\detail.html:116
 msgid "Materials."
@@ -2089,7 +2089,7 @@ msgstr "已验证买家"
 
 #: .\frontend\templates\frontend\product\detail.html:164
 msgid "Reviews"
-msgstr "概览"
+msgstr "商品评价"
 
 #: .\frontend\templates\frontend\product\detail.html:169
 #, python-format
@@ -2142,7 +2142,7 @@ msgstr "标题"
 
 #: .\frontend\templates\frontend\product\detail.html:191
 msgid "Review"
-msgstr "概览"
+msgstr "评价"
 
 #: .\frontend\templates\frontend\product\detail.html:193
 msgid "Publish review"
@@ -2303,6 +2303,54 @@ msgstr "切换为中文"
 #: .\frontend\views.py:332
 msgid "Your password has been changed."
 msgstr "您的密码已修改。"
+
+#: .\backend\imagery\templates\imagery\credits.html:22
+msgid "Creative Commons"
+msgstr "知识共享"
+
+#: .\backend\imagery\templates\imagery\credits.html:23
+msgid "Each of these is used under a licence permitting commercial use and modification. Images have been cropped and resized to fit the layout."
+msgstr "这些图片均依据允许商业使用与修改的许可协议使用，并已裁剪和调整尺寸以适应页面布局。"
+
+#: .\frontend\templates\frontend\account\auth.html:38
+msgid "For your privacy, sign out on shared devices."
+msgstr "为了您的隐私，请在共享设备上退出登录。"
+
+#: .\backend\imagery\templates\imagery\credits.html:59
+msgid "Generated illustrations remain in place wherever no photograph could be found."
+msgstr "在找不到摄影图片的地方，将继续使用生成的插图。"
+
+#: .\backend\imagery\templates\imagery\credits.html:14
+msgid "It stands in"
+msgstr "这些图片暂代"
+
+#: .\backend\imagery\templates\imagery\credits.html:55
+msgid "No photography has been fetched yet — every image on the site is still a generated placeholder. Run"
+msgstr "尚未获取摄影图片——网站上的所有图片仍是生成的占位图。请运行"
+
+#: .\backend\imagery\templates\imagery\credits.html:42
+msgid "Public domain"
+msgstr "公有领域"
+
+#: .\backend\imagery\templates\imagery\credits.html:13
+msgid "The photography on this prototype is openly licensed work found through"
+msgstr "本原型中的摄影图片均通过以下平台获取并采用开放许可："
+
+#: .\backend\imagery\templates\imagery\credits.html:43
+msgid "Used under CC0 or a public domain mark. No attribution is required; it is given anyway."
+msgstr "依据 CC0 或公有领域标记使用。虽然无需署名，我们仍在此注明来源。"
+
+#: .\backend\imagery\templates\imagery\credits.html:15
+msgid "for studio photography that has not been commissioned yet, and it is credited here because most of these licences require it."
+msgstr "尚未委托拍摄的工作室照片，并因多数许可协议要求而在此列出来源。"
+
+#: .\frontend\templates\frontend\journal\detail.html:20
+msgid "read"
+msgstr "阅读"
+
+#: .\backend\imagery\templates\imagery\credits.html:55
+msgid "to populate them."
+msgstr "以填充图片。"
 
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is "

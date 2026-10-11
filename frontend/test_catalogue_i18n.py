@@ -8,10 +8,12 @@ from types import SimpleNamespace
 from uuid import UUID
 from unittest.mock import MagicMock, patch
 
+from django.core.exceptions import ValidationError
 from django.template import Context, Template
+from django.template.loader import get_template
 from django.test import SimpleTestCase
 from django.utils import translation
-from django.utils.translation import gettext
+from django.utils.translation import gettext, ngettext, npgettext, pgettext
 
 from content.models import FAQ, Article, FAQGroup
 from orders.serializers import CartItemSerializer
@@ -24,6 +26,7 @@ from frontend.catalogue_i18n import (
     localize_article, localize_collection, localize_colour_label, localize_faq_group,
     localize_maker, localize_product,
 )
+from frontend.forms import RegistrationForm
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
 from frontend.mockdata.faqs import FAQ_GROUPS
 from frontend.mockdata.journal import ARTICLES
@@ -2048,3 +2051,394 @@ class StaticUILocalizationTests(SimpleTestCase):
         with translation.override("zh-hans"):
             self.assertEqual(gettext("Home, studio, parents'"), "家、工作室、父母家")
             self.assertEqual(gettext("All orders"), "全部订单")
+
+
+ACCOUNT_MESSAGE_EXPECTED = (
+    ("Your details have been saved.", "您的资料已保存。"),
+    ("Address saved.", "地址已保存。"),
+    ("Address removed.", "地址已移除。"),
+    ("That address no longer exists.", "该地址已不存在。"),
+    ("Invalid email or password.", "邮箱或密码无效。"),
+    ("Welcome back, %(name)s.", "%(name)s，欢迎回来。"),
+    ("Your account is ready.", "您的账户已创建。"),
+    ("You have been signed out.", "您已退出登录。"),
+    ("An account with this email already exists.", "使用此邮箱的账户已存在。"),
+)
+
+ACCOUNT_METADATA_EXPECTED = (
+    ("Account", "账户"),
+    ("Profile", "个人资料"),
+    ("Addresses", "地址"),
+    ("Wishlist", "心愿单"),
+    ("Sign in", "登录"),
+    ("Create an account", "创建账户"),
+)
+
+
+class AccountUILocalizationTests(SimpleTestCase):
+    template_name = "frontend/account/overview.html"
+
+    @staticmethod
+    def _request(method="GET", post=None, first_name="Alex"):
+        user = SimpleNamespace(
+            is_authenticated=False,
+            first_name=first_name,
+            addresses=MagicMock(),
+        )
+        return SimpleNamespace(
+            method=method,
+            POST=post or {},
+            GET={},
+            user=user,
+            get_host=lambda: "testserver",
+            is_secure=lambda: False,
+        )
+
+    def _render_overview(self, language, count, *, recent_order=None):
+        customer = SimpleNamespace(
+            first_name="<R&D>",
+            last_name="Example",
+            email="reader@example.com",
+            phone="+65 1234 5678",
+            date_joined=datetime(2020, 1, 2, 12, tzinfo=datetime_timezone.utc),
+        )
+        context = {
+            "customer": customer,
+            "user": SimpleNamespace(is_authenticated=False, is_seller=False),
+            "recent_order": recent_order,
+            "order_count": count,
+            "address_count": count,
+            "wishlist_count": 0,
+            "meta_title": "Account — Atelier Form",
+            "site": {
+                "brand": "Atelier Form",
+                "description": "",
+                "announcement": "",
+            },
+            "primary_nav": (),
+            "footer_nav": (),
+            "popular_searches": (),
+            "af_config": {},
+            "current_path": "/account/",
+        }
+        with translation.override(language):
+            return get_template(self.template_name).render(context)
+
+    def test_new_account_translations_and_language_switching(self):
+        with translation.override("en"):
+            for english, _ in ACCOUNT_MESSAGE_EXPECTED:
+                self.assertEqual(gettext(english), english)
+            self.assertEqual(
+                pgettext("account welcome fallback", "there"),
+                "there",
+            )
+            self.assertEqual(
+                pgettext("account membership date", "A member since %(joined)s.")
+                % {"joined": "2 January 2020"},
+                "A member since 2 January 2020.",
+            )
+            self.assertEqual(
+                [gettext(english) for english, _ in ACCOUNT_METADATA_EXPECTED],
+                [english for english, _ in ACCOUNT_METADATA_EXPECTED],
+            )
+
+        with translation.override("zh-hans"):
+            for english, chinese in ACCOUNT_MESSAGE_EXPECTED:
+                self.assertEqual(gettext(english), chinese)
+            self.assertEqual(
+                pgettext("account welcome fallback", "there"),
+                "朋友",
+            )
+            self.assertEqual(
+                pgettext("account membership date", "A member since %(joined)s.")
+                % {"joined": "2020年1月2日"},
+                "自2020年1月2日起成为会员。",
+            )
+            self.assertEqual(
+                [gettext(english) for english, _ in ACCOUNT_METADATA_EXPECTED],
+                [chinese for _, chinese in ACCOUNT_METADATA_EXPECTED],
+            )
+
+        with translation.override("en"):
+            self.assertEqual(gettext("Address saved."), "Address saved.")
+
+    def test_account_overview_renders_safe_names_dates_and_plurals(self):
+        for count, order_label, address_label in (
+            (0, "Orders placed", "Saved addresses"),
+            (1, "Order placed", "Saved address"),
+            (2, "Orders placed", "Saved addresses"),
+        ):
+            with self.subTest(language="en", count=count):
+                rendered = self._render_overview("en", count)
+                self.assertIn("Hello, &lt;R&amp;D&gt;", rendered)
+                self.assertIn("A member since 2 January 2020.", rendered)
+                self.assertIn(order_label, rendered)
+                self.assertIn(address_label, rendered)
+
+            with self.subTest(language="zh-hans", count=count):
+                rendered = self._render_overview("zh-hans", count)
+                self.assertIn("您好，&lt;R&amp;D&gt;", rendered)
+                self.assertIn("自2020年1月2日起成为会员。", rendered)
+                self.assertIn("已下单", rendered)
+                self.assertIn("已保存地址", rendered)
+
+        with translation.override("en"):
+            self.assertEqual(
+                [npgettext("account overview order count", "Order placed", "Orders placed", n)
+                 for n in (0, 1, 2)],
+                ["Orders placed", "Order placed", "Orders placed"],
+            )
+            self.assertEqual(
+                [ngettext("Saved address", "Saved addresses", n) for n in (0, 1, 2)],
+                ["Saved addresses", "Saved address", "Saved addresses"],
+            )
+        with translation.override("zh-hans"):
+            self.assertEqual(
+                [npgettext("account overview order count", "Order placed", "Orders placed", n)
+                 for n in (0, 1, 2)],
+                ["已下单", "已下单", "已下单"],
+            )
+            self.assertEqual(
+                [ngettext("Saved address", "Saved addresses", n) for n in (0, 1, 2)],
+                ["已保存地址", "已保存地址", "已保存地址"],
+            )
+
+    def test_recent_order_display_translates_only_its_label(self):
+        order = SimpleNamespace(
+            order_number="AF-SAFE-1",
+            date="2 January 2020",
+            total="12.50",
+            status="confirmed",
+            status_label="Confirmed",
+            estimated="Arriving soon",
+            carrier="Carrier-X",
+            tracking_number="TRACK-123",
+        )
+        rendered = self._render_overview("zh-hans", 1, recent_order=order)
+        self.assertIn("下单于 2 January 2020 ·", rendered)
+        for value in ("AF-SAFE-1", "Confirmed", "Arriving soon", "Carrier-X", "TRACK-123"):
+            self.assertIn(value, rendered)
+
+    def test_account_notifications_keep_existing_control_flow(self):
+        request = self._request("POST", {"first_name": "Alex"})
+        profile_form = MagicMock()
+        profile_form.is_valid.return_value = True
+        response = object()
+        with (
+            translation.override("zh-hans"),
+            patch.object(views, "ProfileForm", return_value=profile_form) as profile_class,
+            patch.object(views.messages, "success") as success,
+            patch.object(views, "redirect", return_value=response) as redirect,
+        ):
+            self.assertIs(views.account_profile.__wrapped__(request), response)
+            profile_class.assert_called_once_with(request.POST, user=request.user)
+            profile_form.save.assert_called_once_with()
+            success.assert_called_once_with(request, "您的资料已保存。")
+            redirect.assert_called_once_with("account_profile")
+
+        address_request = self._request("POST", {"label": "Studio"})
+        with (
+            translation.override("zh-hans"),
+            patch.object(views.Address.objects, "create") as create,
+            patch.object(views.messages, "success") as success,
+            patch.object(views, "redirect", return_value=response) as redirect,
+        ):
+            self.assertIs(views.account_addresses.__wrapped__(address_request), response)
+            self.assertEqual(create.call_args.kwargs["label"], "Studio")
+            success.assert_called_once_with(address_request, "地址已保存。")
+            redirect.assert_called_once_with("account_addresses")
+
+        for deleted, expected in ((1, "地址已移除。"), (0, "该地址已不存在。")):
+            delete_request = self._request("POST")
+            queryset = MagicMock()
+            queryset.delete.return_value = (deleted, {})
+            with (
+                self.subTest(deleted=deleted),
+                translation.override("zh-hans"),
+                patch.object(views.Address.objects, "filter", return_value=queryset),
+                patch.object(views.messages, "success") as success,
+                patch.object(views, "redirect", return_value=response) as redirect,
+            ):
+                result = views.account_address_delete.__wrapped__.__wrapped__(
+                    delete_request, "address-uuid"
+                )
+                self.assertIs(result, response)
+                views.Address.objects.filter.assert_called_once_with(
+                    user=delete_request.user, uuid="address-uuid"
+                )
+                success.assert_called_once_with(delete_request, expected)
+                redirect.assert_called_once_with("account_addresses")
+
+    def test_auth_messages_preserve_authentication_and_redirect_behaviour(self):
+        response = object()
+        password = " exact password "
+        for first_name, expected in (("Alex", "Alex，欢迎回来。"), ("", "朋友，欢迎回来。")):
+            request = self._request(
+                "POST", {"email": " USER@EXAMPLE.COM ", "password": password},
+                first_name=first_name,
+            )
+            authenticated_user = SimpleNamespace(first_name=first_name)
+            with (
+                self.subTest(first_name=first_name),
+                translation.override("zh-hans"),
+                patch.object(views, "authenticate", return_value=authenticated_user) as authenticate,
+                patch.object(views, "merge_session_cart") as merge,
+                patch.object(views, "login") as login,
+                patch.object(views.messages, "success") as success,
+                patch.object(views, "redirect", return_value=response) as redirect,
+            ):
+                self.assertIs(views.auth_page(request, "login"), response)
+                authenticate.assert_called_once_with(
+                    request, username="user@example.com", password=password
+                )
+                merge.assert_called_once_with(request, authenticated_user)
+                login.assert_called_once_with(request, authenticated_user)
+                success.assert_called_once_with(request, expected)
+                redirect.assert_called_once_with("account_overview")
+
+        invalid_request = self._request(
+            "POST", {"email": "unknown@example.com", "password": "wrong"}
+        )
+        with (
+            translation.override("zh-hans"),
+            patch.object(views, "authenticate", return_value=None),
+            patch.object(views, "render", return_value=response) as render,
+            patch.object(views, "merge_session_cart") as merge,
+            patch.object(views, "login") as login,
+        ):
+            self.assertIs(views.auth_page(invalid_request, "login"), response)
+            self.assertEqual(render.call_args.args[2]["errors"], {"form": "邮箱或密码无效。"})
+            merge.assert_not_called()
+            login.assert_not_called()
+
+        register_request = self._request("POST", {"email": "new@example.com"})
+        registration_form = MagicMock()
+        registration_form.is_valid.return_value = True
+        registered_user = SimpleNamespace(first_name="New")
+        registration_form.save.return_value = registered_user
+        with (
+            translation.override("zh-hans"),
+            patch.object(views, "RegistrationForm", return_value=registration_form),
+            patch.object(views, "merge_session_cart") as merge,
+            patch.object(views, "login") as login,
+            patch.object(views.messages, "success") as success,
+            patch.object(views, "redirect", return_value=response) as redirect,
+        ):
+            self.assertIs(views.auth_page(register_request, "register"), response)
+            registration_form.save.assert_called_once_with()
+            merge.assert_called_once_with(register_request, registered_user)
+            login.assert_called_once_with(register_request, registered_user)
+            success.assert_called_once_with(register_request, "您的账户已创建。")
+            redirect.assert_called_once_with("account_overview")
+
+        logout_request = self._request("POST")
+        with (
+            translation.override("zh-hans"),
+            patch.object(views, "logout") as logout,
+            patch.object(views.messages, "success") as success,
+            patch.object(views, "redirect", return_value=response) as redirect,
+        ):
+            self.assertIs(views.account_logout.__wrapped__(logout_request), response)
+            logout.assert_called_once_with(logout_request)
+            success.assert_called_once_with(logout_request, "您已退出登录。")
+            redirect.assert_called_once_with("home")
+
+    def test_duplicate_email_error_keeps_validation_code(self):
+        for language, expected in (
+            ("en", "An account with this email already exists."),
+            ("zh-hans", "使用此邮箱的账户已存在。"),
+        ):
+            form = RegistrationForm()
+            form.cleaned_data = {"email": "Existing@Example.com"}
+            queryset = MagicMock()
+            queryset.exists.return_value = True
+            with (
+                self.subTest(language=language),
+                translation.override(language),
+                patch("frontend.forms.User.objects.filter", return_value=queryset) as user_filter,
+                self.assertRaises(ValidationError) as raised,
+            ):
+                form.clean_email()
+            user_filter.assert_called_once_with(email="existing@example.com")
+            self.assertEqual(raised.exception.code, "duplicate")
+            self.assertEqual(str(raised.exception.message), expected)
+
+    def test_account_metadata_titles_are_request_time_translations(self):
+        expected = {
+            "en": {
+                "account": "Account", "profile": "Profile", "addresses": "Addresses",
+                "wishlist": "Wishlist", "login": "Sign in",
+                "register": "Create an account",
+            },
+            "zh-hans": {
+                "account": "账户", "profile": "个人资料", "addresses": "地址",
+                "wishlist": "心愿单", "login": "登录", "register": "创建账户",
+            },
+        }
+        response = object()
+        for language, titles in expected.items():
+            with self.subTest(language=language), translation.override(language):
+                request = self._request()
+                orders = MagicMock()
+                orders.prefetch_related.return_value = orders
+                orders.first.return_value = None
+                orders.count.return_value = 0
+                request.user.addresses.count.return_value = 0
+                wishlist_items = MagicMock()
+                wishlist_items.count.return_value = 0
+                with (
+                    patch.object(views.Order.objects, "filter", return_value=orders),
+                    patch.object(views.WishlistItem.objects, "filter", return_value=wishlist_items),
+                    patch.object(views, "render", return_value=response) as render,
+                ):
+                    self.assertIs(views.account_overview.__wrapped__(request), response)
+                    self.assertEqual(
+                        render.call_args.args[2]["meta_title"],
+                        f"{titles['account']} — {views.SITE['brand']}",
+                    )
+
+                with (
+                    patch.object(views, "ProfileForm"),
+                    patch.object(views, "PasswordChangeForm"),
+                    patch.object(views, "render", return_value=response) as render,
+                ):
+                    self.assertIs(views._render_account_profile(request), response)
+                    self.assertEqual(
+                        render.call_args.args[2]["meta_title"],
+                        f"{titles['profile']} — {views.SITE['brand']}",
+                    )
+
+                request.user.addresses.all.return_value = []
+                with patch.object(views, "render", return_value=response) as render:
+                    self.assertIs(views.account_addresses.__wrapped__(request), response)
+                    self.assertEqual(
+                        render.call_args.args[2]["meta_title"],
+                        f"{titles['addresses']} — {views.SITE['brand']}",
+                    )
+
+                wishlist_items = MagicMock()
+                wishlist_items.select_related.return_value = wishlist_items
+                wishlist_items.prefetch_related.return_value = []
+                with (
+                    patch.object(views.WishlistItem.objects, "filter", return_value=wishlist_items),
+                    patch.object(views, "render", return_value=response) as render,
+                ):
+                    self.assertIs(views.account_wishlist.__wrapped__(request), response)
+                    self.assertEqual(
+                        render.call_args.args[2]["meta_title"],
+                        f"{titles['wishlist']} — {views.SITE['brand']}",
+                    )
+
+                for mode in ("login", "register"):
+                    auth_request = self._request()
+                    with (
+                        patch.object(views, "RegistrationForm"),
+                        patch.object(views, "render", return_value=response) as render,
+                    ):
+                        self.assertIs(views.auth_page(auth_request, mode), response)
+                        context = render.call_args.args[2]
+                        self.assertEqual(context["heading"], titles[mode])
+                        self.assertEqual(
+                            context["meta_title"],
+                            f"{titles[mode]} — {views.SITE['brand']}",
+                        )

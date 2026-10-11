@@ -23,7 +23,7 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, pgettext
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from accounts.models import Address, WishlistItem
@@ -282,7 +282,7 @@ def account_overview(request):
         "order_count": orders.count(),
         "address_count": request.user.addresses.count(),
         "wishlist_count": WishlistItem.objects.filter(user=request.user).count(),
-        "meta_title": f"Account — {SITE['brand']}",
+        "meta_title": f"{_('Account')} — {SITE['brand']}",
     })
 
 
@@ -311,7 +311,7 @@ def account_order_detail(request, order_id):
 
 def _render_account_profile(request, password_form=None, profile_form=None):
     return render(request, "frontend/account/profile.html", {
-        "customer": request.user, "meta_title": f"Profile — {SITE['brand']}",
+        "customer": request.user, "meta_title": f"{_('Profile')} — {SITE['brand']}",
         "current_path": reverse("account_profile"),
         "profile_form": (profile_form if profile_form is not None
                          else ProfileForm(user=request.user)),
@@ -326,7 +326,7 @@ def account_profile(request):
         form = ProfileForm(request.POST, user=request.user)
         if form.is_valid():
             form.save()
-            messages.success(request, "Your details have been saved.")
+            messages.success(request, _("Your details have been saved."))
             return redirect("account_profile")
         return _render_account_profile(request, profile_form=form)
 
@@ -363,21 +363,22 @@ def account_addresses(request):
             phone=request.POST.get("phone", "").strip(),
             is_default=bool(request.POST.get("is_default")),
         )
-        messages.success(request, "Address saved.")
+        messages.success(request, _("Address saved."))
         return redirect("account_addresses")
 
     return render(request, "frontend/account/addresses.html", {
         "customer": request.user,
         "addresses": request.user.addresses.all(),
-        "meta_title": f"Addresses — {SITE['brand']}",
+        "meta_title": f"{_('Addresses')} — {SITE['brand']}",
     })
 
 
 @login_required
 @require_POST
 def account_address_delete(request, uuid):
-    deleted, _ = Address.objects.filter(user=request.user, uuid=uuid).delete()
-    messages.success(request, "Address removed." if deleted else "That address no longer exists.")
+    deleted, _details = Address.objects.filter(user=request.user, uuid=uuid).delete()
+    message = _("Address removed.") if deleted else _("That address no longer exists.")
+    messages.success(request, message)
     return redirect("account_addresses")
 
 
@@ -389,7 +390,7 @@ def account_wishlist(request):
     return render(request, "frontend/account/wishlist.html", {
         "customer": request.user,
         "wishlist_products": [services.localize_product(item.product) for item in items],
-        "meta_title": f"Wishlist — {SITE['brand']}",
+        "meta_title": f"{_('Wishlist')} — {SITE['brand']}",
     })
 
 
@@ -400,7 +401,7 @@ def auth_page(request, mode):
     so a session cookie is the right mechanism. The JWT endpoints under
     /api/auth/ exist for non-browser clients.
     """
-    titles = {"login": "Sign in", "register": "Create an account"}
+    titles = {"login": _("Sign in"), "register": _("Create an account")}
     if request.user.is_authenticated and mode in {"login", "register"}:
         return redirect("account_overview")
 
@@ -420,11 +421,12 @@ def auth_page(request, mode):
             if user is None:
                 # One message for every failure: this must not reveal whether
                 # an account exists.
-                errors["form"] = "Invalid email or password."
+                errors["form"] = _("Invalid email or password.")
             else:
                 merge_session_cart(request, user)      # keep the guest's bag
                 login(request, user)
-                messages.success(request, f"Welcome back, {user.first_name or 'there'}.")
+                name = user.first_name or pgettext("account welcome fallback", "there")
+                messages.success(request, _("Welcome back, %(name)s.") % {"name": name})
                 next_url = request.GET.get("next", "").strip()
                 if (url_has_allowed_host_and_scheme(
                     next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure(),
@@ -437,7 +439,7 @@ def auth_page(request, mode):
                 user = registration_form.save()
                 merge_session_cart(request, user)
                 login(request, user)
-                messages.success(request, "Your account is ready.")
+                messages.success(request, _("Your account is ready."))
                 return redirect("account_overview")
             errors = {field: " ".join(field_errors)
                       for field, field_errors in registration_form.errors.items()}
@@ -452,7 +454,7 @@ def auth_page(request, mode):
 @require_POST
 def account_logout(request):
     logout(request)
-    messages.success(request, "You have been signed out.")
+    messages.success(request, _("You have been signed out."))
     return redirect("home")
 
 

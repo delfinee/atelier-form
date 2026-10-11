@@ -3,6 +3,7 @@
 from django import forms
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
 from accounts.models import User
 
@@ -17,7 +18,7 @@ class RegistrationForm(forms.Form):
     def clean_email(self):
         email = self.cleaned_data["email"].lower()
         if User.objects.filter(email=email).exists():
-            raise ValidationError("An account with this email already exists.", code="duplicate")
+            raise ValidationError(_("An account with this email already exists."), code="duplicate")
         return email
 
     def clean(self):

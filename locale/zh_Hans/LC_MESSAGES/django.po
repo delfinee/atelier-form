@@ -3526,6 +3526,60 @@ msgstr "隐私政策"
 msgid "Terms of Service"
 msgstr "服务条款"
 
+#: .\frontend\templates\frontend\account\overview.html
+#, python-format
+msgctxt "account membership date"
+msgid "A member since %(joined)s."
+msgstr "自%(joined)s起成为会员。"
+
+#: .\frontend\templates\frontend\account\overview.html
+msgctxt "account overview order count"
+msgid "Order placed"
+msgid_plural "Orders placed"
+msgstr[0] "已下单"
+
+#: .\frontend\views.py
+msgid "Your details have been saved."
+msgstr "您的资料已保存。"
+
+#: .\frontend\views.py
+msgid "Address saved."
+msgstr "地址已保存。"
+
+#: .\frontend\views.py
+msgid "Address removed."
+msgstr "地址已移除。"
+
+#: .\frontend\views.py
+msgid "That address no longer exists."
+msgstr "该地址已不存在。"
+
+#: .\frontend\views.py
+msgid "Invalid email or password."
+msgstr "邮箱或密码无效。"
+
+#: .\frontend\views.py
+#, python-format
+msgid "Welcome back, %(name)s."
+msgstr "%(name)s，欢迎回来。"
+
+#: .\frontend\views.py
+msgctxt "account welcome fallback"
+msgid "there"
+msgstr "朋友"
+
+#: .\frontend\views.py
+msgid "Your account is ready."
+msgstr "您的账户已创建。"
+
+#: .\frontend\views.py
+msgid "You have been signed out."
+msgstr "您已退出登录。"
+
+#: .\frontend\forms.py
+msgid "An account with this email already exists."
+msgstr "使用此邮箱的账户已存在。"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is "
 #~ "accepted and logged."

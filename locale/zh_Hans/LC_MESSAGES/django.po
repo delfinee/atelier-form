@@ -2894,6 +2894,206 @@ msgstr "阅读"
 msgid "to populate them."
 msgstr "以填充图片。"
 
+#: .\frontend\mockdata\makers.py:31
+msgid "Chen Meilin"
+msgstr "陈梅琳"
+
+#: .\frontend\mockdata\makers.py:32
+msgid "Ceramicist"
+msgstr "陶艺师"
+
+#: .\frontend\mockdata\makers.py:33
+msgid "Jingdezhen, Jiangxi"
+msgstr "江西景德镇"
+
+#: .\frontend\mockdata\makers.py:36
+msgid "Porcelain thrown thin enough to hold the light."
+msgstr "薄到足以承托光线的瓷器。"
+
+#: .\frontend\mockdata\makers.py:38
+msgid "Meilin trained for six years under a Jingdezhen master before opening a small studio on the eastern edge of the old kiln district. She works almost entirely in local porcelain stone, quarried an hour from her door."
+msgstr "梅琳曾在景德镇一位陶艺大师门下学习六年，之后在古窑区东侧开设了一间小工作室。她几乎只使用本地瓷石，泥料取自离工作室一小时车程的地方。"
+
+#: .\frontend\mockdata\makers.py:41
+msgid "Her forms are quiet and slightly imperfect by design. A rim that dips a little, a foot left unglazed so you can read the clay -- these are the marks she leaves on purpose, and the reason no two pieces are alike."
+msgstr "她的器形安静而略带不完美，这是刻意为之。微微下沉的器口、露出泥土质感的素烧足部，都是她有意留下的痕迹，也正是每件作品各不相同的原因。"
+
+#: .\frontend\mockdata\makers.py:46
+msgid "Clay is wedged by hand each morning and rested overnight before throwing."
+msgstr "每天早晨手工揉泥，静置一夜后才开始拉坯。"
+
+#: .\frontend\mockdata\makers.py:47
+msgid "Every piece is turned on the wheel, then trimmed once leather-hard."
+msgstr "每件作品都在转盘上完成，并在半干时修坯。"
+
+#: .\frontend\mockdata\makers.py:48
+msgid "Glazes are mixed in small batches from ash, feldspar and iron oxide."
+msgstr "釉料以灰烬、长石和氧化铁分批调配。"
+
+#: .\frontend\mockdata\makers.py:49
+msgid "A single gas firing to 1280°C, with the kiln cooled slowly over two days."
+msgstr "以 1280°C 进行一次燃气烧制，窑炉缓慢冷却两天。"
+
+#: .\frontend\mockdata\makers.py:55
+msgid "Lu Wenjing"
+msgstr "陆文静"
+
+#: .\frontend\mockdata\makers.py:56
+msgid "Weaver & natural dyer"
+msgstr "织工与天然染色师"
+
+#: .\frontend\mockdata\makers.py:57
+msgid "Dali, Yunnan"
+msgstr "云南大理"
+
+#: .\frontend\mockdata\makers.py:60
+msgid "Indigo that deepens with every wash."
+msgstr "每一次清洗，靛蓝都更深一层。"
+
+#: .\frontend\mockdata\makers.py:62
+msgid "Wenjing learned to dye from her grandmother, who kept an indigo vat behind the family house in Dali. She now grows her own indigo and works with three neighbouring households during the harvest."
+msgstr "文静向祖母学习染色。祖母曾在大理的家屋后经营一口靛蓝染缸。如今她自己种植蓝靛，并在收获季与邻近的三户人家合作。"
+
+#: .\frontend\mockdata\makers.py:65
+msgid "She weaves on a floor loom her father built, in cotton and hemp spun within the province. Nothing in her studio is dyed twice the same way, and she has stopped apologising for it."
+msgstr "她使用父亲制作的木质地织机，以省内纺成的棉与麻织布。她工作室里的任何东西都不会以完全相同的方式染两次，她也不再为此道歉。"
+
+#: .\frontend\mockdata\makers.py:70
+msgid "Indigo is fermented in clay vats and fed weekly through the season."
+msgstr "靛蓝在陶缸中发酵，并在整个季节每周补养。"
+
+#: .\frontend\mockdata\makers.py:71
+msgid "Cloth is dipped between six and fourteen times, depending on the depth wanted."
+msgstr "布料浸染六至十四次，视所需深浅而定。"
+
+#: .\frontend\mockdata\makers.py:72
+msgid "Washed in river water and dried in shade to keep the colour even."
+msgstr "在河水中清洗并于阴凉处晾干，使颜色保持均匀。"
+
+#: .\frontend\mockdata\makers.py:73
+msgid "Woven, finished and hemmed by hand on a wooden floor loom."
+msgstr "在木质地织机上手工织造、整理与锁边。"
+
+#: .\frontend\mockdata\makers.py:79
+msgid "Zhao Hesheng"
+msgstr "赵和生"
+
+#: .\frontend\mockdata\makers.py:80
+msgid "Woodworker"
+msgstr "木匠"
+
+#: .\frontend\mockdata\makers.py:81
+msgid "Huizhou, Anhui"
+msgstr "安徽徽州"
+
+#: .\frontend\mockdata\makers.py:84
+msgid "Working with the grain, never against it."
+msgstr "顺着木纹工作，从不与它对抗。"
+
+#: .\frontend\mockdata\makers.py:86
+msgid "Hesheng spent a decade restoring Huizhou timber houses before turning to smaller objects. He still sources most of his wood from those restorations -- beams and floorboards that have already lived a life."
+msgstr "和生花了十年修复徽州木屋，之后才转向制作更小的器物。他的大部分木材仍来自这些修复工程，是已经度过一段岁月的梁木与地板。"
+
+#: .\frontend\mockdata\makers.py:89
+msgid "He cuts joinery by hand and finishes everything in raw linseed oil. Nothing leaves the bench until it feels right in the hand."
+msgstr "他手工切削榫卯，所有作品都以生亚麻籽油完成。每件东西在握感恰到好处之前，都不会离开工作台。"
+
+#: .\frontend\mockdata\makers.py:93
+msgid "Reclaimed timber is milled, then rested for a season to settle."
+msgstr "回收木材先加工，再静置一季让它稳定下来。"
+
+#: .\frontend\mockdata\makers.py:94
+msgid "Every joint is cut and pared by hand -- no dowels, no filler."
+msgstr "每个榫接都手工切削与修整，不用木钉，也不用填料。"
+
+#: .\frontend\mockdata\makers.py:95
+msgid "Surfaces are worked through five grades of abrasive to a soft sheen."
+msgstr "表面经过五种不同粗细的磨料处理，呈现柔和光泽。"
+
+#: .\frontend\mockdata\makers.py:96
+msgid "Finished in food-safe linseed oil, reapplied three times over a week."
+msgstr "使用食品级亚麻籽油完成表面处理，一周内重复涂刷三次。"
+
+#: .\frontend\mockdata\makers.py:102
+msgid "Xu Anying"
+msgstr "徐安莹"
+
+#: .\frontend\mockdata\makers.py:103
+msgid "Candlemaker & perfumer"
+msgstr "制烛师与调香师"
+
+#: .\frontend\mockdata\makers.py:104
+msgid "Suzhou, Jiangsu"
+msgstr "江苏苏州"
+
+#: .\frontend\mockdata\makers.py:107
+msgid "Scent built the way a garden is planted."
+msgstr "像栽种花园一样构筑香气。"
+
+#: .\frontend\mockdata\makers.py:109
+msgid "Anying studied classical Chinese garden design before training in perfumery. She thinks about a scent the way she was taught to think about a courtyard: what you meet first, and what you find later."
+msgstr "安莹曾学习中国古典园林设计，之后接受调香训练。她以设计庭院的方式思考香气：首先遇见什么，之后又会发现什么。"
+
+#: .\frontend\mockdata\makers.py:112
+msgid "She pours in batches of forty, by hand, in a converted ground-floor workshop near the canal. Each batch is left to cure for two weeks before a wick is ever lit."
+msgstr "她在运河附近一间改造的底层工作室里手工浇注，每批四十支。每批蜡烛会静置固化两周，之后才点燃烛芯。"
+
+#: .\frontend\mockdata\makers.py:117
+msgid "Essential oils are blended and left to marry for ten days."
+msgstr "精油混合后静置十天，让香气彼此融合。"
+
+#: .\frontend\mockdata\makers.py:118
+msgid "Soy and rapeseed wax is melted low, never above 65°C."
+msgstr "大豆蜡与菜籽蜡低温融化，温度不超过 65°C。"
+
+#: .\frontend\mockdata\makers.py:119
+msgid "Poured by hand in batches of forty, one vessel at a time."
+msgstr "每次一只容器，分批手工浇注，每批四十支。"
+
+#: .\frontend\mockdata\makers.py:120
+msgid "Cured for fourteen days, then burn-tested from every batch."
+msgstr "固化十四天后，从每批中抽样进行燃烧测试。"
+
+#: .\frontend\mockdata\makers.py:126
+msgid "Ye Ruolan"
+msgstr "叶若兰"
+
+#: .\frontend\mockdata\makers.py:127
+msgid "Textile artist"
+msgstr "纺织艺术家"
+
+#: .\frontend\mockdata\makers.py:128
+msgid "Hangzhou, Zhejiang"
+msgstr "浙江杭州"
+
+#: .\frontend\mockdata\makers.py:131
+msgid "Linen washed until it forgets it was ever stiff."
+msgstr "将亚麻洗到仿佛从未僵硬过。"
+
+#: .\frontend\mockdata\makers.py:133
+msgid "Ruolan works in European flax linen, finished in her own studio using a stone-washing process she spent two years refining. The point, she says, is for a new piece to feel like one you have owned for years."
+msgstr "若兰使用欧洲亚麻，在自己的工作室里以经过两年改良的石洗工艺完成整理。她说，理想状态是让新作品摸起来像已经陪伴你多年的旧物。"
+
+#: .\frontend\mockdata\makers.py:136
+msgid "She cuts and sews everything herself, with a single assistant during busy months, and keeps her ranges deliberately small."
+msgstr "她亲自裁剪和缝制所有作品，忙碌月份会有一名助手，并始终刻意保持系列精简。"
+
+#: .\frontend\mockdata\makers.py:140
+msgid "Flax linen is sourced from a single mill and cut in small lays."
+msgstr "亚麻来自同一家纺厂，并以小批量裁片处理。"
+
+#: .\frontend\mockdata\makers.py:141
+msgid "Seams are sewn, then the finished piece is stone-washed twice."
+msgstr "缝合后，成品进行两次石洗。"
+
+#: .\frontend\mockdata\makers.py:142
+msgid "Dried flat and pressed once, lightly, to keep the natural crumple."
+msgstr "平铺晾干后只轻轻熨烫一次，保留自然的褶皱。"
+
+#: .\frontend\mockdata\makers.py:143
+msgid "Checked seam by seam before it is folded and wrapped."
+msgstr "逐条检查缝线，再折叠包裹。"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is "
 #~ "accepted and logged."

@@ -253,11 +253,12 @@ def products_in_collection(slug: str, sort: str = "featured") -> list[Product]:
 # -- Makers --------------------------------------------------------------
 
 def all_makers() -> list[Maker]:
-    return list(Maker.objects.filter(is_active=True))
+    return [localize_maker(maker) for maker in Maker.objects.filter(is_active=True)]
 
 
 def get_maker(slug: str) -> Maker | None:
-    return Maker.objects.filter(slug=slug, is_active=True).first()
+    maker = Maker.objects.filter(slug=slug, is_active=True).first()
+    return localize_maker(maker) if maker else None
 
 
 # -- Journal -------------------------------------------------------------
@@ -298,13 +299,14 @@ def search(query: str) -> dict[str, list]:
     collections += list(Category.objects.filter(
         Q(name__icontains=q) | Q(tagline__icontains=q) | Q(description__icontains=q),
         is_active=True))
+    makers = list(Maker.objects.filter(
+        Q(name__icontains=q) | Q(discipline__icontains=q)
+        | Q(location__icontains=q) | Q(tagline__icontains=q), is_active=True))
 
     return {
         "products": [localize_product(product) for product in _base_queryset().search(q)],
         "collections": collections,
-        "makers": list(Maker.objects.filter(
-            Q(name__icontains=q) | Q(discipline__icontains=q)
-            | Q(location__icontains=q) | Q(tagline__icontains=q), is_active=True)),
+        "makers": [localize_maker(maker) for maker in makers],
         "articles": list(cast(ArticleQuerySet, Article.objects).published().filter(
             Q(title__icontains=q) | Q(standfirst__icontains=q) | Q(category__icontains=q))),
     }

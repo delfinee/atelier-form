@@ -11,11 +11,16 @@ from django.utils import translation
 from django.utils.translation import gettext
 
 from orders.serializers import CartItemSerializer
-from products.models import MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Product
+from products.models import (
+    MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product,
+)
 
 from frontend import services
-from frontend.catalogue_i18n import localize_collection, localize_colour_label, localize_product
+from frontend.catalogue_i18n import (
+    localize_collection, localize_colour_label, localize_maker, localize_product,
+)
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
+from frontend.mockdata.makers import MAKERS
 from frontend.mockdata.products import CARE_BY_CATEGORY, PRODUCTS, SWATCHES
 from frontend.templatetags.frontend_extras import colour_label, stock_label
 
@@ -122,6 +127,107 @@ EXTRA_COLLECTIONS_BEFORE_MOVE = ({'slug': 'quiet-mornings',
               'hand-loomed-tea-towel',
               'linen-market-tote',
               'brass-oak-candle-snuffer']})
+
+# Approved maker copy is fixed here, independent of the runtime translation source.
+MAKER_EXPECTED = ({'slug': 'chen-meilin',
+  'name': ('Chen Meilin', '陈梅琳'),
+  'discipline': ('Ceramicist', '陶艺师'),
+  'location': ('Jingdezhen, Jiangxi', '江西景德镇'),
+  'tagline': ('Porcelain thrown thin enough to hold the light.', '薄到足以承托光线的瓷器。'),
+  'biography': (('Meilin trained for six years under a Jingdezhen master before opening a small '
+                 'studio on the eastern edge of the old kiln district. She works almost entirely '
+                 'in local porcelain stone, quarried an hour from her door.',
+                 '梅琳曾在景德镇一位陶艺大师门下学习六年，之后在古窑区东侧开设了一间小工作室。她几乎只使用本地瓷石，泥料取自离工作室一小时车程的地方。'),
+                ('Her forms are quiet and slightly imperfect by design. A rim that dips a little, '
+                 'a foot left unglazed so you can read the clay -- these are the marks she leaves '
+                 'on purpose, and the reason no two pieces are alike.',
+                 '她的器形安静而略带不完美，这是刻意为之。微微下沉的器口、露出泥土质感的素烧足部，都是她有意留下的痕迹，也正是每件作品各不相同的原因。')),
+  'process': (('Clay is wedged by hand each morning and rested overnight before throwing.',
+               '每天早晨手工揉泥，静置一夜后才开始拉坯。'),
+              ('Every piece is turned on the wheel, then trimmed once leather-hard.',
+               '每件作品都在转盘上完成，并在半干时修坯。'),
+              ('Glazes are mixed in small batches from ash, feldspar and iron oxide.',
+               '釉料以灰烬、长石和氧化铁分批调配。'),
+              ('A single gas firing to 1280°C, with the kiln cooled slowly over two days.',
+               '以 1280°C 进行一次燃气烧制，窑炉缓慢冷却两天。'))},
+ {'slug': 'lu-wenjing',
+  'name': ('Lu Wenjing', '陆文静'),
+  'discipline': ('Weaver & natural dyer', '织工与天然染色师'),
+  'location': ('Dali, Yunnan', '云南大理'),
+  'tagline': ('Indigo that deepens with every wash.', '每一次清洗，靛蓝都更深一层。'),
+  'biography': (('Wenjing learned to dye from her grandmother, who kept an indigo vat behind the '
+                 'family house in Dali. She now grows her own indigo and works with three '
+                 'neighbouring households during the harvest.',
+                 '文静向祖母学习染色。祖母曾在大理的家屋后经营一口靛蓝染缸。如今她自己种植蓝靛，并在收获季与邻近的三户人家合作。'),
+                ('She weaves on a floor loom her father built, in cotton and hemp spun within the '
+                 'province. Nothing in her studio is dyed twice the same way, and she has stopped '
+                 'apologising for it.',
+                 '她使用父亲制作的木质地织机，以省内纺成的棉与麻织布。她工作室里的任何东西都不会以完全相同的方式染两次，她也不再为此道歉。')),
+  'process': (('Indigo is fermented in clay vats and fed weekly through the season.',
+               '靛蓝在陶缸中发酵，并在整个季节每周补养。'),
+              ('Cloth is dipped between six and fourteen times, depending on the depth wanted.',
+               '布料浸染六至十四次，视所需深浅而定。'),
+              ('Washed in river water and dried in shade to keep the colour even.',
+               '在河水中清洗并于阴凉处晾干，使颜色保持均匀。'),
+              ('Woven, finished and hemmed by hand on a wooden floor loom.',
+               '在木质地织机上手工织造、整理与锁边。'))},
+ {'slug': 'zhao-hesheng',
+  'name': ('Zhao Hesheng', '赵和生'),
+  'discipline': ('Woodworker', '木匠'),
+  'location': ('Huizhou, Anhui', '安徽徽州'),
+  'tagline': ('Working with the grain, never against it.', '顺着木纹工作，从不与它对抗。'),
+  'biography': (('Hesheng spent a decade restoring Huizhou timber houses before turning to smaller '
+                 'objects. He still sources most of his wood from those restorations -- beams and '
+                 'floorboards that have already lived a life.',
+                 '和生花了十年修复徽州木屋，之后才转向制作更小的器物。他的大部分木材仍来自这些修复工程，是已经度过一段岁月的梁木与地板。'),
+                ('He cuts joinery by hand and finishes everything in raw linseed oil. Nothing '
+                 'leaves the bench until it feels right in the hand.',
+                 '他手工切削榫卯，所有作品都以生亚麻籽油完成。每件东西在握感恰到好处之前，都不会离开工作台。')),
+  'process': (('Reclaimed timber is milled, then rested for a season to settle.',
+               '回收木材先加工，再静置一季让它稳定下来。'),
+              ('Every joint is cut and pared by hand -- no dowels, no filler.',
+               '每个榫接都手工切削与修整，不用木钉，也不用填料。'),
+              ('Surfaces are worked through five grades of abrasive to a soft sheen.',
+               '表面经过五种不同粗细的磨料处理，呈现柔和光泽。'),
+              ('Finished in food-safe linseed oil, reapplied three times over a week.',
+               '使用食品级亚麻籽油完成表面处理，一周内重复涂刷三次。'))},
+ {'slug': 'xu-anying',
+  'name': ('Xu Anying', '徐安莹'),
+  'discipline': ('Candlemaker & perfumer', '制烛师与调香师'),
+  'location': ('Suzhou, Jiangsu', '江苏苏州'),
+  'tagline': ('Scent built the way a garden is planted.', '像栽种花园一样构筑香气。'),
+  'biography': (('Anying studied classical Chinese garden design before training in perfumery. She '
+                 'thinks about a scent the way she was taught to think about a courtyard: what you '
+                 'meet first, and what you find later.',
+                 '安莹曾学习中国古典园林设计，之后接受调香训练。她以设计庭院的方式思考香气：首先遇见什么，之后又会发现什么。'),
+                ('She pours in batches of forty, by hand, in a converted ground-floor workshop '
+                 'near the canal. Each batch is left to cure for two weeks before a wick is ever '
+                 'lit.',
+                 '她在运河附近一间改造的底层工作室里手工浇注，每批四十支。每批蜡烛会静置固化两周，之后才点燃烛芯。')),
+  'process': (('Essential oils are blended and left to marry for ten days.', '精油混合后静置十天，让香气彼此融合。'),
+              ('Soy and rapeseed wax is melted low, never above 65°C.', '大豆蜡与菜籽蜡低温融化，温度不超过 65°C。'),
+              ('Poured by hand in batches of forty, one vessel at a time.', '每次一只容器，分批手工浇注，每批四十支。'),
+              ('Cured for fourteen days, then burn-tested from every batch.',
+               '固化十四天后，从每批中抽样进行燃烧测试。'))},
+ {'slug': 'ye-ruolan',
+  'name': ('Ye Ruolan', '叶若兰'),
+  'discipline': ('Textile artist', '纺织艺术家'),
+  'location': ('Hangzhou, Zhejiang', '浙江杭州'),
+  'tagline': ('Linen washed until it forgets it was ever stiff.', '将亚麻洗到仿佛从未僵硬过。'),
+  'biography': (('Ruolan works in European flax linen, finished in her own studio using a '
+                 'stone-washing process she spent two years refining. The point, she says, is for '
+                 'a new piece to feel like one you have owned for years.',
+                 '若兰使用欧洲亚麻，在自己的工作室里以经过两年改良的石洗工艺完成整理。她说，理想状态是让新作品摸起来像已经陪伴你多年的旧物。'),
+                ('She cuts and sews everything herself, with a single assistant during busy '
+                 'months, and keeps her ranges deliberately small.',
+                 '她亲自裁剪和缝制所有作品，忙碌月份会有一名助手，并始终刻意保持系列精简。')),
+  'process': (('Flax linen is sourced from a single mill and cut in small lays.',
+               '亚麻来自同一家纺厂，并以小批量裁片处理。'),
+              ('Seams are sewn, then the finished piece is stone-washed twice.', '缝合后，成品进行两次石洗。'),
+              ('Dried flat and pressed once, lightly, to keep the natural crumple.',
+               '平铺晾干后只轻轻熨烫一次，保留自然的褶皱。'),
+              ('Checked seam by seam before it is folded and wrapped.', '逐条检查缝线，再折叠包裹。'))})
+
 
 class CollectionLocalizationTests(SimpleTestCase):
     def make_category(self, seed):
@@ -297,6 +403,207 @@ class CollectionLocalizationTests(SimpleTestCase):
         with translation.override("fr"):
             self.assertIs(localize_collection(category), category)
             self.assertIs(localize_collection(editorial), editorial)
+
+
+class MakerLocalizationTests(SimpleTestCase):
+    @staticmethod
+    def display_fields(expected, language_index):
+        return (
+            expected["name"][language_index],
+            expected["discipline"][language_index],
+            expected["location"][language_index],
+            expected["tagline"][language_index],
+            [value[language_index] for value in expected["biography"]],
+            [value[language_index] for value in expected["process"]],
+        )
+
+    def make_maker(self, expected=MAKER_EXPECTED[0], **overrides):
+        seed = next(item for item in MAKERS if item["slug"] == expected["slug"])
+        english = self.display_fields(expected, 0)
+        values = {
+            "id": 23,
+            "slug": expected["slug"],
+            "name": english[0],
+            "discipline": english[1],
+            "location": english[2],
+            "since": seed["since"],
+            "tagline": english[3],
+            "short_bio": english[4][0],
+            "biography": list(english[4]),
+            "process": list(english[5]),
+            "portrait": seed["portrait"],
+            "studio_images": list(seed["images"]),
+            "is_featured": True,
+            "is_active": True,
+        }
+        values.update(overrides)
+        return Maker(**values)
+
+    @staticmethod
+    def maker_fields(maker):
+        return (
+            maker.name, maker.discipline, maker.location, maker.tagline,
+            maker.biography, maker.process,
+        )
+
+    def test_all_seeded_maker_copy_in_english_and_chinese(self):
+        self.assertEqual(len(MAKERS), 5)
+        for seed, expected in zip(MAKERS, MAKER_EXPECTED, strict=True):
+            with self.subTest(slug=expected["slug"]):
+                english = self.display_fields(expected, 0)
+                chinese = self.display_fields(expected, 1)
+                self.assertEqual(seed["slug"], expected["slug"])
+                self.assertEqual(
+                    (seed["name"], seed["discipline"], seed["location"],
+                     seed["tagline"], seed["biography"], seed["process"]),
+                    english,
+                )
+                source = self.make_maker(expected)
+                original_biography = list(source.biography)
+                original_process = list(source.process)
+                with translation.override("en"):
+                    self.assertIs(localize_maker(source), source)
+                with translation.override("zh-hans"):
+                    localized = localize_maker(source)
+                self.assertIsNot(localized, source)
+                self.assertEqual(self.maker_fields(localized), chinese)
+                self.assertEqual(localized.short_bio, chinese[4][0])
+                self.assertEqual(self.maker_fields(source), english)
+                self.assertEqual(source.short_bio, english[4][0])
+                self.assertEqual(source.biography, original_biography)
+                self.assertEqual(source.process, original_process)
+                self.assertIsNot(localized.biography, source.biography)
+                self.assertIsNot(localized.process, source.process)
+
+    def test_maker_language_switching_uses_the_same_source_object(self):
+        expected = MAKER_EXPECTED[0]
+        source = self.make_maker(expected)
+        with translation.override("en"):
+            self.assertIs(localize_maker(source), source)
+            self.assertEqual(self.maker_fields(source), self.display_fields(expected, 0))
+        with translation.override("zh-hans"):
+            self.assertEqual(
+                self.maker_fields(localize_maker(source)), self.display_fields(expected, 1),
+            )
+        with translation.override("en"):
+            self.assertIs(localize_maker(source), source)
+            self.assertEqual(self.maker_fields(source), self.display_fields(expected, 0))
+
+    def test_custom_scalar_fields_are_guarded_independently(self):
+        expected = MAKER_EXPECTED[0]
+        chinese = self.display_fields(expected, 1)
+        scalar_fields = ("name", "discipline", "location", "tagline")
+        with translation.override("zh-hans"):
+            for custom_field in scalar_fields:
+                with self.subTest(field=custom_field):
+                    source = self.make_maker(expected, **{custom_field: "Seller copy"})
+                    localized = localize_maker(source)
+                    wanted = dict(zip(scalar_fields, chinese[:4]))
+                    wanted[custom_field] = "Seller copy"
+                    self.assertEqual(
+                        tuple(getattr(localized, field) for field in scalar_fields),
+                        tuple(wanted[field] for field in scalar_fields),
+                    )
+                    self.assertEqual(getattr(source, custom_field), "Seller copy")
+
+    def test_custom_biography_and_process_use_all_or_nothing_guards(self):
+        expected = MAKER_EXPECTED[0]
+        english = self.display_fields(expected, 0)
+        chinese = self.display_fields(expected, 1)
+        cases = (
+            ("biography", ["Seller biography", english[4][1]]),
+            ("process", ["Seller process", *english[5][1:]]),
+        )
+        with translation.override("zh-hans"):
+            for custom_field, custom_list in cases:
+                with self.subTest(field=custom_field):
+                    source = self.make_maker(expected, **{custom_field: custom_list})
+                    original_biography = list(source.biography)
+                    original_process = list(source.process)
+                    localized = localize_maker(source)
+                    if custom_field == "biography":
+                        self.assertEqual(localized.biography, custom_list)
+                        self.assertEqual(localized.process, chinese[5])
+                    else:
+                        self.assertEqual(localized.biography, chinese[4])
+                        self.assertEqual(localized.process, custom_list)
+                    self.assertEqual(source.biography, original_biography)
+                    self.assertEqual(source.process, original_process)
+
+    def test_short_bio_is_translated_only_when_it_matches_the_canonical_first_paragraph(self):
+        expected = MAKER_EXPECTED[0]
+        with translation.override("zh-hans"):
+            canonical = self.make_maker(expected)
+            self.assertEqual(localize_maker(canonical).short_bio,
+                             expected["biography"][0][1])
+            for value in ("", "Seller summary"):
+                with self.subTest(value=value):
+                    source = self.make_maker(expected, short_bio=value)
+                    localized = localize_maker(source)
+                    self.assertEqual(localized.short_bio, value)
+                    self.assertEqual(source.short_bio, value)
+
+    def test_unknown_maker_and_functional_fields_are_preserved(self):
+        expected = MAKER_EXPECTED[0]
+        unknown = self.make_maker(expected, slug="seller-created-maker")
+        with translation.override("zh-hans"):
+            self.assertIs(localize_maker(unknown), unknown)
+
+            source = self.make_maker(expected)
+            functional = (
+                source.pk, source.uuid, source.slug, source.owner_id, source.since,
+                source.portrait, source.studio_images, source.images,
+                source.is_featured, source.is_active,
+            )
+            localized = localize_maker(source)
+            self.assertEqual(
+                (localized.pk, localized.uuid, localized.slug, localized.owner_id,
+                 localized.since, localized.portrait, localized.studio_images,
+                 localized.images, localized.is_featured, localized.is_active),
+                functional,
+            )
+
+    def test_customer_facing_maker_services_localise_after_raw_queries(self):
+        expected = MAKER_EXPECTED[0]
+        chinese = self.display_fields(expected, 1)
+
+        def assert_localized(result, source):
+            maker = result[0] if isinstance(result, list) else result
+            self.assertEqual(self.maker_fields(maker), chinese)
+            self.assertEqual(self.maker_fields(source), self.display_fields(expected, 0))
+
+        with translation.override("zh-hans"):
+            source = self.make_maker(expected)
+            with patch.object(services.Maker.objects, "filter", return_value=[source]) as query:
+                assert_localized(services.all_makers(), source)
+            query.assert_called_once_with(is_active=True)
+
+            source = self.make_maker(expected)
+            queryset = MagicMock()
+            queryset.first.return_value = source
+            with patch.object(services.Maker.objects, "filter", return_value=queryset) as query:
+                assert_localized(services.get_maker(source.slug), source)
+            query.assert_called_once_with(slug=source.slug, is_active=True)
+
+            source = self.make_maker(expected)
+            product_queryset = MagicMock()
+            product_queryset.search.return_value = []
+            with (patch.object(services, "_base_queryset", return_value=product_queryset),
+                  patch.object(services.Collection.objects, "filter", return_value=[]),
+                  patch.object(services.Category.objects, "filter", return_value=[]),
+                  patch.object(services.Maker.objects, "filter", return_value=[source]) as query,
+                  patch.object(services.Article.objects, "published") as articles):
+                articles.return_value.filter.return_value = []
+                results = services.search("Chen")
+            assert_localized(results["makers"], source)
+            product_queryset.search.assert_called_once_with("Chen")
+            query.assert_called_once_with(
+                services.Q(name__icontains="Chen")
+                | services.Q(discipline__icontains="Chen")
+                | services.Q(location__icontains="Chen")
+                | services.Q(tagline__icontains="Chen"),
+                is_active=True,
+            )
 
 
 class ProductLocalizationTests(SimpleTestCase):

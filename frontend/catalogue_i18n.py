@@ -7,91 +7,8 @@ from copy import copy
 from django.utils.translation import get_language, gettext, pgettext
 
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
+from frontend.mockdata.makers import MAKERS_BY_SLUG
 from frontend.mockdata.products import PRODUCTS, PRODUCTS_BY_SLUG
-
-
-MAKER_TRANSLATIONS = {
-    "chen-meilin": {
-        "name": "陈梅琳",
-        "discipline": "陶艺师",
-        "location": "江西景德镇",
-        "tagline": "薄到足以承托光线的瓷器。",
-        "biography": [
-            "梅琳曾在景德镇一位陶艺大师门下学习六年，之后在古窑区东侧开设了一间小工作室。她几乎只使用本地瓷石，泥料取自离工作室一小时车程的地方。",
-            "她的器形安静而略带不完美，这是刻意为之。微微下沉的器口、露出泥土质感的素烧足部，都是她有意留下的痕迹，也正是每件作品各不相同的原因。",
-        ],
-        "process": [
-            "每天早晨手工揉泥，静置一夜后才开始拉坯。",
-            "每件作品都在转盘上完成，并在半干时修坯。",
-            "釉料以灰烬、长石和氧化铁分批调配。",
-            "以 1280°C 进行一次燃气烧制，窑炉缓慢冷却两天。",
-        ],
-    },
-    "lu-wenjing": {
-        "name": "陆文静",
-        "discipline": "织工与天然染色师",
-        "location": "云南大理",
-        "tagline": "每一次清洗，靛蓝都更深一层。",
-        "biography": [
-            "文静向祖母学习染色。祖母曾在大理的家屋后经营一口靛蓝染缸。如今她自己种植蓝靛，并在收获季与邻近的三户人家合作。",
-            "她使用父亲制作的木质地织机，以省内纺成的棉与麻织布。她工作室里的任何东西都不会以完全相同的方式染两次，她也不再为此道歉。",
-        ],
-        "process": [
-            "靛蓝在陶缸中发酵，并在整个季节每周补养。",
-            "布料浸染六至十四次，视所需深浅而定。",
-            "在河水中清洗并于阴凉处晾干，使颜色保持均匀。",
-            "在木质地织机上手工织造、整理与锁边。",
-        ],
-    },
-    "zhao-hesheng": {
-        "name": "赵和生",
-        "discipline": "木匠",
-        "location": "安徽徽州",
-        "tagline": "顺着木纹工作，从不与它对抗。",
-        "biography": [
-            "和生花了十年修复徽州木屋，之后才转向制作更小的器物。他的大部分木材仍来自这些修复工程，是已经度过一段岁月的梁木与地板。",
-            "他手工切削榫卯，所有作品都以生亚麻籽油完成。每件东西在握感恰到好处之前，都不会离开工作台。",
-        ],
-        "process": [
-            "回收木材先加工，再静置一季让它稳定下来。",
-            "每个榫接都手工切削与修整，不用木钉，也不用填料。",
-            "表面经过五种不同粗细的磨料处理，呈现柔和光泽。",
-            "使用食品级亚麻籽油完成表面处理，一周内重复涂刷三次。",
-        ],
-    },
-    "xu-anying": {
-        "name": "徐安莹",
-        "discipline": "制烛师与调香师",
-        "location": "江苏苏州",
-        "tagline": "像栽种花园一样构筑香气。",
-        "biography": [
-            "安莹曾学习中国古典园林设计，之后接受调香训练。她以设计庭院的方式思考香气：首先遇见什么，之后又会发现什么。",
-            "她在运河附近一间改造的底层工作室里手工浇注，每批四十支。每批蜡烛会静置固化两周，之后才点燃烛芯。",
-        ],
-        "process": [
-            "精油混合后静置十天，让香气彼此融合。",
-            "大豆蜡与菜籽蜡低温融化，温度不超过 65°C。",
-            "每次一只容器，分批手工浇注，每批四十支。",
-            "固化十四天后，从每批中抽样进行燃烧测试。",
-        ],
-    },
-    "ye-ruolan": {
-        "name": "叶若兰",
-        "discipline": "纺织艺术家",
-        "location": "浙江杭州",
-        "tagline": "将亚麻洗到仿佛从未僵硬过。",
-        "biography": [
-            "若兰使用欧洲亚麻，在自己的工作室里以经过两年改良的石洗工艺完成整理。她说，理想状态是让新作品摸起来像已经陪伴你多年的旧物。",
-            "她亲自裁剪和缝制所有作品，忙碌月份会有一名助手，并始终刻意保持系列精简。",
-        ],
-        "process": [
-            "亚麻来自同一家纺厂，并以小批量裁片处理。",
-            "缝合后，成品进行两次石洗。",
-            "平铺晾干后只轻轻熨烫一次，保留自然的褶皱。",
-            "逐条检查缝线，再折叠包裹。",
-        ],
-    },
-}
 
 _SEEDED_COLOUR_LABELS = frozenset(
     variant["label"] for product in PRODUCTS for variant in product["variants"]
@@ -165,11 +82,26 @@ def localize_collection(collection):
 
 
 def localize_maker(maker):
-    if not _is_chinese() or maker.slug not in MAKER_TRANSLATIONS:
+    if not _is_chinese():
         return maker
+    source = MAKERS_BY_SLUG.get(maker.slug)
+    if source is None:
+        return maker
+
     localized = copy(maker)
-    for field, value in MAKER_TRANSLATIONS[maker.slug].items():
-        setattr(localized, field, value)
+    for field in ("name", "discipline", "location", "tagline"):
+        current = getattr(maker, field)
+        if current == source[field]:
+            setattr(localized, field, gettext(current))
+
+    for field in ("biography", "process"):
+        current = getattr(maker, field)
+        if current == source[field]:
+            setattr(localized, field, [gettext(value) for value in current])
+
+    canonical_short_bio = source["biography"][0] if source["biography"] else ""
+    if maker.short_bio and maker.short_bio == canonical_short_bio:
+        localized.short_bio = gettext(maker.short_bio)
     return localized
 
 

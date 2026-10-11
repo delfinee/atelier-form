@@ -21,8 +21,8 @@ from django.utils.translation import gettext, gettext_noop
 
 from content.models import Article, ArticleQuerySet
 from .catalogue_i18n import (
-    COLOUR_TRANSLATIONS, MATERIAL_TRANSLATIONS, is_chinese,
-    localize_article, localize_collection, localize_maker, localize_product,
+    localize_article, localize_collection, localize_colour_label, localize_maker,
+    localize_product,
 )
 from products.models import (
     MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product,
@@ -197,8 +197,7 @@ def shop_facets() -> dict[str, Any]:
         count = _base_queryset().filter(clause).count()
         if count:
             material_rows.append({"value": family,
-                                  "label": MATERIAL_TRANSLATIONS.get(family, family)
-                                  if is_chinese() else family,
+                                  "label": gettext(family),
                                   "count": count})
 
     colour_rows = (ProductVariant.objects
@@ -213,8 +212,7 @@ def shop_facets() -> dict[str, Any]:
                    for c in category_rows],
         "materials": material_rows,
         "colours": [{"value": r["label"],
-                 "label": COLOUR_TRANSLATIONS.get(r["label"], r["label"])
-                 if is_chinese() else r["label"], "swatch": r["swatch"]}
+                 "label": localize_colour_label(r["label"]), "swatch": r["swatch"]}
                     for r in colour_rows],
         "price_bands": [{"value": v, "label": _price_label(lbl)}
                 for v, lbl, _, _ in PRICE_BANDS],

@@ -1,15 +1,22 @@
-"""Database-free checks for catalogue collection presentation translations."""
+"""Database-free checks for catalogue presentation translations."""
 
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
+
+from django.template import Context, Template
 from django.test import SimpleTestCase
 from django.utils import translation
 from django.utils.translation import gettext
 
-from products.models import Category, Collection
+from orders.serializers import CartItemSerializer
+from products.models import MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection
 
 from frontend import services
-from frontend.catalogue_i18n import localize_collection
+from frontend.catalogue_i18n import localize_collection, localize_colour_label
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
-from frontend.templatetags.frontend_extras import stock_label
+from frontend.mockdata.products import PRODUCTS, SWATCHES
+from frontend.templatetags.frontend_extras import colour_label, stock_label
 
 
 # Approved Chinese copy is fixed here, independent of the runtime translation source.
@@ -326,3 +333,155 @@ class ShopLabelLocalizationTests(SimpleTestCase):
         self.assertEqual(services.SORT_OPTIONS, self.SORT_EN)
         self.assertEqual(services.PRICE_BANDS, self.PRICE_EN)
         self.assertEqual(services.AVAILABILITY_OPTIONS, self.AVAILABILITY_EN)
+
+
+class ColourAndMaterialLocalizationTests(SimpleTestCase):
+    COLOURS = {
+        "Bone": "骨白", "Ash": "灰烬", "Clay": "泥土", "Olive": "橄榄绿",
+        "Sand": "沙色", "Smoke": "烟灰", "Natural": "本色", "Indigo": "靛蓝",
+        "Rust": "铁锈红", "Ink": "墨色", "Cedar & Fig": "雪松与无花果",
+        "Wild Grass": "野草", "Smoked Cypress": "烟熏柏木",
+    }
+    MATERIALS = {
+        "Stoneware": "炻器", "Porcelain": "瓷器", "Linen": "亚麻",
+        "Cotton": "棉", "Wood": "木料", "Brass": "黄铜", "Rattan": "藤编",
+        "Wax": "蜡",
+    }
+    SWATCHES_BEFORE = {
+        "Bone": "#EFE7DA", "Ash": "#C6BFB2", "Clay": "#B4674B",
+        "Olive": "#6F7757", "Ink": "#3A342D", "Sand": "#D9C9AF",
+        "Indigo": "#4A5568", "Rust": "#A05A3C", "Natural": "#E2D7C3",
+        "Smoke": "#8C8478",
+    }
+    ALIASES_BEFORE = {
+        "Stoneware": ["stoneware"], "Porcelain": ["porcelain"],
+        "Linen": ["linen", "flax"], "Cotton": ["cotton"],
+        "Wood": ["wood", "oak", "hardwood", "timber"], "Brass": ["brass"],
+        "Rattan": ["rattan"], "Wax": ["wax", "beeswax", "soy", "rapeseed"],
+    }
+
+    def test_all_colour_display_labels_and_language_switching(self):
+        with translation.override("en"):
+            self.assertEqual({key: localize_colour_label(key) for key in self.COLOURS},
+                             {key: key for key in self.COLOURS})
+        with translation.override("zh-hans"):
+            self.assertEqual({key: localize_colour_label(key) for key in self.COLOURS},
+                             self.COLOURS)
+            self.assertEqual({key: colour_label(key) for key in self.COLOURS},
+                             self.COLOURS)
+        with translation.override("en"):
+            self.assertEqual({key: localize_colour_label(key) for key in self.COLOURS},
+                             {key: key for key in self.COLOURS})
+
+    def test_all_material_labels_and_language_switching(self):
+        with translation.override("en"):
+            self.assertEqual({key: gettext(key) for key in self.MATERIALS},
+                             {key: key for key in self.MATERIALS})
+        with translation.override("zh-hans"):
+            self.assertEqual({key: gettext(key) for key in self.MATERIALS},
+                             self.MATERIALS)
+        with translation.override("en"):
+            self.assertEqual({key: gettext(key) for key in self.MATERIALS},
+                             {key: key for key in self.MATERIALS})
+
+    def test_unknown_or_custom_colour_stays_raw(self):
+        with translation.override("zh-hans"):
+            for label in ("Custom Blue", "Home", "45 cm", ""):
+                with self.subTest(label=label):
+                    self.assertEqual(localize_colour_label(label), label)
+
+    def test_seed_identifiers_swatches_and_material_aliases_stay_english(self):
+        self.assertEqual(SWATCHES, self.SWATCHES_BEFORE)
+        self.assertEqual(MATERIAL_FAMILIES, list(self.MATERIALS))
+        self.assertEqual(MATERIAL_ALIASES, self.ALIASES_BEFORE)
+        variants = [variant for product in PRODUCTS for variant in product["variants"]]
+        colours = [variant for variant in variants if variant["group"] == "colour"]
+        sizes = [variant for variant in variants if variant["group"] == "size"]
+        self.assertEqual({variant["label"] for variant in colours}, set(self.COLOURS))
+        self.assertTrue(all(variant["id"] == "colour-" + variant["label"].lower()
+                            for variant in colours))
+        self.assertTrue(all(variant["swatch"] == SWATCHES.get(variant["label"], "#D9C9AF")
+                            for variant in colours))
+        self.assertEqual({variant["label"] for variant in sizes}, {"45 cm", "60 cm", "Medium", "Large"})
+        self.assertTrue(all(variant["id"] == "size-" + variant["label"].lower().replace(" ", "-")
+                            for variant in sizes))
+        self.assertEqual([variant["label"] for variant in next(
+            product for product in PRODUCTS if product["slug"] == "soy-wax-studio-candle"
+        )["variants"]], ["Cedar & Fig", "Wild Grass", "Smoked Cypress"])
+
+    def test_shop_facets_translate_labels_but_keep_filter_values(self):
+        with (patch.object(services, "_base_queryset") as base,
+              patch.object(services.Category.objects, "filter") as categories,
+              patch.object(services.ProductVariant.objects, "filter") as variants):
+            base.return_value.filter.return_value.count.return_value = 1
+            base.return_value.order_by.return_value.values_list.return_value.first.return_value = 150
+            categories.return_value.annotate.return_value.order_by.return_value = []
+            variants.return_value.values.return_value.distinct.return_value.order_by.return_value = [
+                {"label": "Bone", "swatch": "#EFE7DA"},
+                {"label": "Custom Blue", "swatch": "#123456"},
+            ]
+            with translation.override("en"):
+                english = services.shop_facets()
+            with translation.override("zh-hans"):
+                chinese = services.shop_facets()
+        self.assertEqual([(item["value"], item["label"]) for item in english["materials"]],
+                         [(value, value) for value in self.MATERIALS])
+        self.assertEqual([(item["value"], item["label"]) for item in chinese["materials"]],
+                         list(self.MATERIALS.items()))
+        self.assertEqual(english["colours"], [
+            {"value": "Bone", "label": "Bone", "swatch": "#EFE7DA"},
+            {"value": "Custom Blue", "label": "Custom Blue", "swatch": "#123456"},
+        ])
+        self.assertEqual(chinese["colours"], [
+            {"value": "Bone", "label": "骨白", "swatch": "#EFE7DA"},
+            {"value": "Custom Blue", "label": "Custom Blue", "swatch": "#123456"},
+        ])
+
+    def test_product_template_separates_display_from_cart_identifier(self):
+        source = (Path(__file__).parent / "templates/frontend/product/detail.html").read_text(encoding="utf-8")
+        colour_section = source.split("{% if colours %}", 1)[1].split("{% if sizes %}", 1)[0]
+        template = Template("{% load i18n frontend_extras %}{% if colours %}" + colour_section)
+        variants = [SimpleNamespace(label="Bone", swatch="#EFE7DA", available=True),
+                    SimpleNamespace(label="Olive", swatch="#6F7757", available=False)]
+        with translation.override("zh-hans"):
+            html = template.render(Context({"colours": variants}))
+        self.assertIn("data-variant-value>骨白</span>", html)
+        self.assertIn('data-variant="Bone"', html)
+        self.assertIn('data-display-label="骨白"', html)
+        self.assertIn('aria-label="骨白"', html)
+        self.assertIn('data-variant="Olive"', html)
+        self.assertIn('data-display-label="橄榄绿"', html)
+        self.assertIn('aria-label="橄榄绿 — 已售罄"', html)
+        size_section = source.split("{% if sizes %}", 1)[1].split("{% endwith %}", 1)[0]
+        size_template = Template("{% load i18n frontend_extras %}{% if sizes %}" + size_section)
+        size_html = size_template.render(Context({"sizes": [SimpleNamespace(label="45 cm", available=True)]}))
+        self.assertIn('data-variant="45 cm"', size_html)
+        self.assertIn('data-variant-value>45 cm</span>', size_html)
+        self.assertNotIn("data-display-label", size_html)
+
+    def test_product_card_swatch_title_uses_display_label(self):
+        source = (Path(__file__).parent / "templates/frontend/partials/product_card.html").read_text(encoding="utf-8")
+        swatches = source.split("{% with colours=", 1)[1].split("{% endwith %}", 1)[0]
+        template = Template("{% load i18n frontend_extras %}{% with colours=" + swatches + "{% endwith %}")
+        product = SimpleNamespace(variants=[SimpleNamespace(group="colour", label="Ash", swatch="#C6BFB2")])
+        with translation.override("zh-hans"):
+            html = template.render(Context({"product": product}))
+        self.assertIn('title="灰烬"', html)
+        self.assertIn('background:#C6BFB2', html)
+
+    def test_cart_serializer_localises_only_colour_display(self):
+        def display(group, label, language):
+            item = SimpleNamespace(variant=SimpleNamespace(group=group, label=label))
+            serializer = CartItemSerializer(context={"request": SimpleNamespace(LANGUAGE_CODE=language)})
+            return serializer.get_variant_label(item), item.variant.label
+
+        with translation.override("en"):
+            self.assertEqual(display("colour", "Bone", "zh-hans"), ("骨白", "Bone"))
+            self.assertEqual(display("colour", "Bone", "zh-cn"), ("骨白", "Bone"))
+        with translation.override("zh-hans"):
+            self.assertEqual(display("colour", "Bone", "en"), ("Bone", "Bone"))
+            self.assertEqual(display("colour", "Home", "zh-hans"), ("Home", "Home"))
+            self.assertEqual(display("size", "Bone", "zh-hans"), ("Bone", "Bone"))
+            self.assertEqual(display("finish", "Ash", "zh-hans"), ("Ash", "Ash"))
+        self.assertEqual(display("colour", "Bone", "zh-hans"), ("骨白", "Bone"))
+        self.assertIn("variant_uuid", CartItemSerializer().fields)

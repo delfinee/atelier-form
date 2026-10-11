@@ -7,6 +7,7 @@ from copy import copy
 from django.utils.translation import get_language, gettext, pgettext
 
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
+from frontend.mockdata.products import PRODUCTS
 
 
 MAKER_TRANSLATIONS = {
@@ -116,18 +117,15 @@ PRODUCT_TRANSLATIONS = {
     "beeswax-taper-pair": ("蜂蜡长烛一对", "纯蜂蜡 · 徐安莹"),
 }
 
-COLOUR_TRANSLATIONS = {
-    "Bone": "骨白", "Ash": "灰烬", "Clay": "泥土", "Olive": "橄榄绿",
-    "Sand": "沙色", "Smoke": "烟灰", "Natural": "本色", "Indigo": "靛蓝",
-    "Rust": "铁锈红", "Ink": "墨色", "Cedar & Fig": "雪松与无花果",
-    "Wild Grass": "野草", "Smoked Cypress": "烟熏柏木",
-}
+_SEEDED_COLOUR_LABELS = frozenset(
+    variant["label"] for product in PRODUCTS for variant in product["variants"]
+    if variant["group"] == "colour"
+)
 
-MATERIAL_TRANSLATIONS = {
-    "Stoneware": "炻器", "Porcelain": "瓷器", "Linen": "亚麻",
-    "Cotton": "棉", "Wood": "木料", "Brass": "黄铜", "Rattan": "藤编",
-    "Wax": "蜡",
-}
+
+def localize_colour_label(label: str) -> str:
+    """Translate a recognised colour for display without changing its stored label."""
+    return gettext(label) if label in _SEEDED_COLOUR_LABELS else label
 
 FAQ_GROUP_TRANSLATIONS = {
     "orders": ("订单", "下单、修改与取消。"),

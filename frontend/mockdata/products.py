@@ -12,6 +12,8 @@ import re
 
 from typing import Any, Literal, TypedDict
 
+from django.utils.translation import gettext_noop
+
 StockStatus = Literal["in-stock", "low-stock", "made-to-order"]
 
 
@@ -49,9 +51,11 @@ class Product(TypedDict):
 # Colour swatches drawn from the site palette so product chips never introduce
 # a colour the rest of the design system does not already use.
 SWATCHES = {
-    "Bone": "#EFE7DA", "Ash": "#C6BFB2", "Clay": "#B4674B", "Olive": "#6F7757",
-    "Ink": "#3A342D", "Sand": "#D9C9AF", "Indigo": "#4A5568", "Rust": "#A05A3C",
-    "Natural": "#E2D7C3", "Smoke": "#8C8478",
+    gettext_noop("Bone"): "#EFE7DA", gettext_noop("Ash"): "#C6BFB2",
+    gettext_noop("Clay"): "#B4674B", gettext_noop("Olive"): "#6F7757",
+    gettext_noop("Ink"): "#3A342D", gettext_noop("Sand"): "#D9C9AF",
+    gettext_noop("Indigo"): "#4A5568", gettext_noop("Rust"): "#A05A3C",
+    gettext_noop("Natural"): "#E2D7C3", gettext_noop("Smoke"): "#8C8478",
 }
 
 CARE_BY_CATEGORY = {
@@ -243,7 +247,9 @@ PRODUCTS: list[Product] = [
                    "worth keeping once the wax is gone.",
        story="Anying built this scent around the smell of her workshop after rain -- wet "
              "stone, cut wood, and the fig tree in the courtyard next door.",
-       variants=_variants(colours=["Cedar & Fig", "Wild Grass", "Smoked Cypress"])),
+       variants=_variants(colours=[gettext_noop("Cedar & Fig"),
+                                  gettext_noop("Wild Grass"),
+                                  gettext_noop("Smoked Cypress")])),
 
     _p(slug="handmade-incense-holder", name="Handmade Incense Holder",
        short_description="Stoneware · Chen Meilin", price=32, category="home",

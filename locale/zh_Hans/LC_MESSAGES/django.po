@@ -203,6 +203,90 @@ msgstr "高于 ¥100"
 msgid "In stock"
 msgstr "现货供应"
 
+#: .\frontend\mockdata\products.py:54
+msgid "Bone"
+msgstr "骨白"
+
+#: .\frontend\mockdata\products.py:54
+msgid "Ash"
+msgstr "灰烬"
+
+#: .\frontend\mockdata\products.py:55
+msgid "Clay"
+msgstr "泥土"
+
+#: .\frontend\mockdata\products.py:55
+msgid "Olive"
+msgstr "橄榄绿"
+
+#: .\frontend\mockdata\products.py:56
+msgid "Sand"
+msgstr "沙色"
+
+#: .\frontend\mockdata\products.py:58
+msgid "Smoke"
+msgstr "烟灰"
+
+#: .\frontend\mockdata\products.py:58
+msgid "Natural"
+msgstr "本色"
+
+#: .\frontend\mockdata\products.py:57
+msgid "Indigo"
+msgstr "靛蓝"
+
+#: .\frontend\mockdata\products.py:57
+msgid "Rust"
+msgstr "铁锈红"
+
+#: .\frontend\mockdata\products.py:56
+msgid "Ink"
+msgstr "墨色"
+
+#: .\frontend\mockdata\products.py:250
+msgid "Cedar & Fig"
+msgstr "雪松与无花果"
+
+#: .\frontend\mockdata\products.py:251
+msgid "Wild Grass"
+msgstr "野草"
+
+#: .\frontend\mockdata\products.py:252
+msgid "Smoked Cypress"
+msgstr "烟熏柏木"
+
+#: .\backend\products\models.py:387
+msgid "Stoneware"
+msgstr "炻器"
+
+#: .\backend\products\models.py:387
+msgid "Porcelain"
+msgstr "瓷器"
+
+#: .\backend\products\models.py:387
+msgid "Linen"
+msgstr "亚麻"
+
+#: .\backend\products\models.py:388
+msgid "Cotton"
+msgstr "棉"
+
+#: .\backend\products\models.py:388
+msgid "Wood"
+msgstr "木料"
+
+#: .\backend\products\models.py:388
+msgid "Brass"
+msgstr "黄铜"
+
+#: .\backend\products\models.py:389
+msgid "Rattan"
+msgstr "藤编"
+
+#: .\backend\products\models.py:389
+msgid "Wax"
+msgstr "蜡"
+
 #: .\frontend\mockdata\content.py:48
 msgid "About"
 msgstr "关于"

@@ -31,7 +31,7 @@ which is why every product carries at least two images in the catalogue.{% endco
   {% with colours=product.variants|colour_variants %}
     {% if colours %}
       <div class="card__swatches" aria-label="{% blocktranslate count n=colours|length %}{{ n }} colour available{% plural %}{{ n }} colours available{% endblocktranslate %}">
-        {% for v in colours %}<span class="swatch" style="background:{{ v.swatch }}" title="{{ v.label }}"></span>{% endfor %}
+        {% for v in colours %}<span class="swatch" style="background:{{ v.swatch }}" title="{% colour_label v.label %}"></span>{% endfor %}
       </div>
     {% endif %}
   {% endwith %}

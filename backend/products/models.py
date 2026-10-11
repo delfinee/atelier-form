@@ -12,6 +12,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
 from django.utils.text import slugify
+from django.utils.translation import gettext_noop
 
 from config.mixins import TimeStampedModel, UUIDModel
 from imagery.resolver import PLACEHOLDER_PREFIX, image_url
@@ -382,7 +383,11 @@ class ProductVariant(UUIDModel, TimeStampedModel):
 # The raw materials list runs to ~40 strings, which is unusable as a filter, so
 # the shop facets on a curated set of families instead.
 
-MATERIAL_FAMILIES = ["Stoneware", "Porcelain", "Linen", "Cotton", "Wood", "Brass", "Rattan", "Wax"]
+MATERIAL_FAMILIES = [
+    gettext_noop("Stoneware"), gettext_noop("Porcelain"), gettext_noop("Linen"),
+    gettext_noop("Cotton"), gettext_noop("Wood"), gettext_noop("Brass"),
+    gettext_noop("Rattan"), gettext_noop("Wax"),
+]
 
 MATERIAL_ALIASES = {
     "Stoneware": ["stoneware"], "Porcelain": ["porcelain"],

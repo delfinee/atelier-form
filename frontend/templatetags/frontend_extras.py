@@ -7,6 +7,7 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
 
+from frontend.catalogue_i18n import localize_colour_label
 from imagery.models import RATIOS as PIXEL_RATIOS
 from imagery.resolver import image_url
 
@@ -60,6 +61,11 @@ def colour_variants(variants) -> list:
 @register.filter
 def size_variants(variants) -> list:
     return [v for v in variants if v.group == "size"]
+
+
+@register.simple_tag
+def colour_label(label: str) -> str:
+    return localize_colour_label(label)
 
 
 @register.simple_tag

@@ -702,7 +702,7 @@
         btn.addEventListener("click", () => {
           $$("[data-variant]", group).forEach((b) => b.setAttribute("aria-pressed", "false"));
           btn.setAttribute("aria-pressed", "true");
-          if (output) output.textContent = btn.dataset.variant;
+          if (output) output.textContent = btn.dataset.displayLabel || btn.dataset.variant;
         });
       });
     });

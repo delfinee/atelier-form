@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TypedDict
 
+from django.utils.translation import gettext_noop
+
 
 class Collection(TypedDict):
     slug: str
@@ -18,35 +20,43 @@ class Collection(TypedDict):
 
 COLLECTIONS: list[Collection] = [
     {
-        "slug": "ceramics", "title": "Ceramics", "kind": "category",
-        "tagline": "Thrown, trimmed and fired one at a time.",
-        "description": "Stoneware and porcelain for the table, made in a Jingdezhen studio "
+        "slug": "ceramics", "title": gettext_noop("Ceramics"), "kind": "category",
+        "tagline": gettext_noop("Thrown, trimmed and fired one at a time."),
+        "description": gettext_noop(
+            "Stoneware and porcelain for the table, made in a Jingdezhen studio "
                        "where the clay is quarried an hour away and the glazes are mixed from "
                        "ash and iron. Expect small variations in colour and rim -- they are "
-                       "the record of a hand, not a fault.",
+                       "the record of a hand, not a fault."
+        ),
         "hero": "collection-ceramics", "tile": "category-ceramics", "featured": True,
     },
     {
-        "slug": "textiles", "title": "Textiles", "kind": "category",
-        "tagline": "Woven, dyed and washed until they soften.",
-        "description": "Linen and handwoven cotton, dyed with indigo grown in Yunnan and "
+        "slug": "textiles", "title": gettext_noop("Textiles"), "kind": "category",
+        "tagline": gettext_noop("Woven, dyed and washed until they soften."),
+        "description": gettext_noop(
+            "Linen and handwoven cotton, dyed with indigo grown in Yunnan and "
                        "finished so that nothing arrives stiff. These are pieces meant to be "
-                       "used daily and washed often.",
+                       "used daily and washed often."
+        ),
         "hero": "collection-textiles", "tile": "category-textiles", "featured": True,
     },
     {
         "slug": "home", "title": "Home", "kind": "category",
-        "tagline": "Objects for the quieter corners of a room.",
-        "description": "Candles poured in batches of forty, boards cut from reclaimed "
+        "tagline": gettext_noop("Objects for the quieter corners of a room."),
+        "description": gettext_noop(
+            "Candles poured in batches of forty, boards cut from reclaimed "
                        "courtyard beams, brass that is meant to darken. Small things that "
-                       "change the feeling of a room more than their size suggests.",
+                       "change the feeling of a room more than their size suggests."
+        ),
         "hero": "collection-home", "tile": "category-home", "featured": True,
     },
     {
-        "slug": "gifts", "title": "Gifts", "kind": "category",
-        "tagline": "Wrapped in unbleached paper and cotton string.",
-        "description": "Pieces that travel well as a gift, boxed by hand with a card you can "
-                       "write at checkout. Nothing here is sealed in plastic.",
+        "slug": "gifts", "title": gettext_noop("Gifts"), "kind": "category",
+        "tagline": gettext_noop("Wrapped in unbleached paper and cotton string."),
+        "description": gettext_noop(
+            "Pieces that travel well as a gift, boxed by hand with a card you can "
+                       "write at checkout. Nothing here is sealed in plastic."
+        ),
         "hero": "collection-gifts", "tile": "category-gifts", "featured": True,
     },
     {

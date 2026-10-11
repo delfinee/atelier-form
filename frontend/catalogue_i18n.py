@@ -4,30 +4,12 @@ from __future__ import annotations
 
 from copy import copy
 
-from django.utils.translation import get_language
+from django.utils.translation import get_language, gettext, pgettext
+
+from frontend.mockdata.collections import CATEGORIES
 
 
 COLLECTION_TRANSLATIONS = {
-    "ceramics": {
-        "name": "陶器",
-        "tagline": "逐件拉坯、修整与烧制。",
-        "description": "为餐桌而作的炻器与瓷器，来自景德镇的一间工作室。泥料取自一小时车程外，釉料则由灰烬与铁调配而成。颜色与器口会有细微差异，那是手作留下的痕迹，而非瑕疵。",
-    },
-    "textiles": {
-        "name": "织物",
-        "tagline": "经编织、染色与水洗，直至柔软。",
-        "description": "亚麻与手织棉布，以云南种植的蓝靛染色，并经过处理，不会以僵硬的状态抵达。适合每日使用，也经得起频繁清洗。",
-    },
-    "home": {
-        "name": "家居",
-        "tagline": "为房间里安静的角落而作。",
-        "description": "蜡烛每批浇注四十支，木板取自回收的庭院梁木，黄铜则有意让它逐渐变深。这些小物件虽不大，却比尺寸所暗示的更能改变房间的气息。",
-    },
-    "gifts": {
-        "name": "礼品",
-        "tagline": "以本色纸与棉绳包裹。",
-        "description": "适合作为礼物寄送的作品，手工装盒，并附有可在结算时书写的卡片。这里的任何东西都不会以塑料密封。",
-    },
     "earth": {
         "name": "大地系列",
         "tagline": "灰烬、泥土、蓝靛与本色亚麻。",
@@ -193,7 +175,25 @@ def is_chinese() -> bool:
 
 
 def localize_collection(collection):
-    if not _is_chinese() or collection.slug not in COLLECTION_TRANSLATIONS:
+    if not _is_chinese():
+        return collection
+
+    if collection.kind == "category":
+        source = next((item for item in CATEGORIES if item["slug"] == collection.slug), None)
+        if source is None:
+            return collection
+        localized = copy(collection)
+        for field, source_field in (("name", "title"), ("tagline", "tagline"),
+                                    ("description", "description")):
+            current = getattr(collection, field)
+            if current == source[source_field]:
+                value = (pgettext("category", "Home")
+                         if field == "name" and collection.slug == "home"
+                         else gettext(current))
+                setattr(localized, field, value)
+        return localized
+
+    if collection.slug not in COLLECTION_TRANSLATIONS:
         return collection
     localized = copy(collection)
     for field, value in COLLECTION_TRANSLATIONS[collection.slug].items():

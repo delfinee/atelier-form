@@ -79,6 +79,50 @@ msgstr "家居"
 msgid "Gifts"
 msgstr "礼品"
 
+#: .\frontend\mockdata\collections.py:24
+msgid "Thrown, trimmed and fired one at a time."
+msgstr "逐件拉坯、修整与烧制。"
+
+#: .\frontend\mockdata\collections.py:25
+msgid ""
+"Stoneware and porcelain for the table, made in a Jingdezhen studio where "
+"the clay is quarried an hour away and the glazes are mixed from ash and "
+"iron. Expect small variations in colour and rim -- they are the record of a "
+"hand, not a fault."
+msgstr "为餐桌而作的炻器与瓷器，来自景德镇的一间工作室。泥料取自一小时车程外，釉料则由灰烬与铁调配而成。颜色与器口会有细微差异，那是手作留下的痕迹，而非瑕疵。"
+
+#: .\frontend\mockdata\collections.py:35
+msgid "Woven, dyed and washed until they soften."
+msgstr "经编织、染色与水洗，直至柔软。"
+
+#: .\frontend\mockdata\collections.py:36
+msgid ""
+"Linen and handwoven cotton, dyed with indigo grown in Yunnan and finished "
+"so that nothing arrives stiff. These are pieces meant to be used daily and "
+"washed often."
+msgstr "亚麻与手织棉布，以云南种植的蓝靛染色，并经过处理，不会以僵硬的状态抵达。适合每日使用，也经得起频繁清洗。"
+
+#: .\frontend\mockdata\collections.py:45
+msgid "Objects for the quieter corners of a room."
+msgstr "为房间里安静的角落而作。"
+
+#: .\frontend\mockdata\collections.py:46
+msgid ""
+"Candles poured in batches of forty, boards cut from reclaimed courtyard "
+"beams, brass that is meant to darken. Small things that change the feeling "
+"of a room more than their size suggests."
+msgstr "蜡烛每批浇注四十支，木板取自回收的庭院梁木，黄铜则有意让它逐渐变深。这些小物件虽不大，却比尺寸所暗示的更能改变房间的气息。"
+
+#: .\frontend\mockdata\collections.py:55
+msgid "Wrapped in unbleached paper and cotton string."
+msgstr "以本色纸与棉绳包裹。"
+
+#: .\frontend\mockdata\collections.py:56
+msgid ""
+"Pieces that travel well as a gift, boxed by hand with a card you can write "
+"at checkout. Nothing here is sealed in plastic."
+msgstr "适合作为礼物寄送的作品，手工装盒，并附有可在结算时书写的卡片。这里的任何东西都不会以塑料密封。"
+
 #: .\frontend\mockdata\content.py:48
 msgid "About"
 msgstr "关于"

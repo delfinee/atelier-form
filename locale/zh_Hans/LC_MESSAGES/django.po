@@ -2296,8 +2296,8 @@ msgstr "该系列正处于两批之间。其余作品请见商店。"
 
 #: .\frontend\templates\frontend\shop\collections.html:11
 msgid ""
-"Four categories and one editorial grouping. Each one is small on purpose."
-msgstr "四个品类与一个专题系列。每一个都刻意保持小而精。"
+"Explore our categories and editorial collections. Each one is small on purpose."
+msgstr "探索我们的品类与专题系列。每一个都刻意保持小而精。"
 
 #: .\frontend\templates\frontend\shop\collections.html:27
 #, python-format

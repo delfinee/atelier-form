@@ -97,8 +97,8 @@ def _p(**kw: Any) -> Product:
 
 PRODUCTS: list[Product] = [
     # -- Ceramics ---------------------------------------------------------
-    _p(slug="hand-thrown-stoneware-mug", name="Hand-thrown Stoneware Mug",
-       short_description="Stoneware · Chen Meilin", price=42, category="ceramics",
+    _p(slug="hand-thrown-stoneware-mug", name=gettext_noop("Hand-thrown Stoneware Mug"),
+       short_description=gettext_noop("Stoneware · Chen Meilin"), price=42, category="ceramics",
        collection="earth", maker="chen-meilin", featured=True, new_arrival=True, added=21,
        materials=["Jingdezhen stoneware", "Ash glaze", "Unglazed foot"],
        dimensions="Ø 8.5 cm × 9 cm · 280 ml",
@@ -110,8 +110,8 @@ PRODUCTS: list[Product] = [
              "rather than cast, which is why the curve is a fraction different on every one.",
        variants=_variants(colours=["Bone", "Ash", "Clay", "Olive"])),
 
-    _p(slug="speckled-breakfast-bowl", name="Speckled Breakfast Bowl",
-       short_description="Stoneware · Chen Meilin", price=38, category="ceramics",
+    _p(slug="speckled-breakfast-bowl", name=gettext_noop("Speckled Breakfast Bowl"),
+       short_description=gettext_noop("Stoneware · Chen Meilin"), price=38, category="ceramics",
        collection="earth", maker="chen-meilin", featured=True, new_arrival=True, added=20,
        materials=["Speckled stoneware", "Matte glaze"],
        dimensions="Ø 15 cm × 7 cm · 500 ml",
@@ -121,8 +121,8 @@ PRODUCTS: list[Product] = [
              "which surfaces only above 1250°C -- a firing Meilin holds for nine hours.",
        variants=_variants(colours=["Bone", "Ash", "Olive"], sold_out=["Olive"])),
 
-    _p(slug="ceramic-pour-over-dripper", name="Ceramic Pour-Over Dripper",
-       short_description="Porcelain · Chen Meilin", price=68, category="ceramics",
+    _p(slug="ceramic-pour-over-dripper", name=gettext_noop("Ceramic Pour-Over Dripper"),
+       short_description=gettext_noop("Porcelain · Chen Meilin"), price=68, category="ceramics",
        collection="earth", maker="chen-meilin", featured=True, new_arrival=True, added=19,
        materials=["Porcelain", "Clear glaze"], dimensions="Ø 11.5 cm × 8 cm · 1–2 cups",
        description="A single-piece dripper with three ribs turned into the cone, so water "
@@ -131,8 +131,8 @@ PRODUCTS: list[Product] = [
              "them for a fortnight before settling on this shape.",
        stock_status="low-stock"),
 
-    _p(slug="ash-glazed-dinner-plate", name="Ash-Glazed Dinner Plate",
-       short_description="Stoneware · Chen Meilin", price=46, category="ceramics",
+    _p(slug="ash-glazed-dinner-plate", name=gettext_noop("Ash-Glazed Dinner Plate"),
+       short_description=gettext_noop("Stoneware · Chen Meilin"), price=46, category="ceramics",
        collection="earth", maker="chen-meilin", added=14,
        materials=["Stoneware", "Wood-ash glaze"], dimensions="Ø 26 cm × 2.5 cm",
        description="A everyday plate with a low, generous rim. The ash glaze moves in the "
@@ -141,8 +141,8 @@ PRODUCTS: list[Product] = [
              "old enough in Jingdezhen that nobody there thinks of it as unusual.",
        variants=_variants(colours=["Bone", "Sand", "Ash"])),
 
-    _p(slug="stoneware-serving-platter", name="Stoneware Serving Platter",
-       short_description="Stoneware · Chen Meilin", price=88, category="ceramics",
+    _p(slug="stoneware-serving-platter", name=gettext_noop("Stoneware Serving Platter"),
+       short_description=gettext_noop("Stoneware · Chen Meilin"), price=88, category="ceramics",
        maker="chen-meilin", added=8, stock_status="made-to-order",
        dispatch="Made to order · ships in 3–4 weeks",
        materials=["Stoneware", "Satin glaze"], dimensions="34 cm × 22 cm × 3 cm",
@@ -151,8 +151,8 @@ PRODUCTS: list[Product] = [
        story="Made only in small runs, when the large kiln is fired. Meilin will not fire it "
              "half empty, so these appear a few times a year."),
 
-    _p(slug="matte-ceramic-vase", name="Matte Ceramic Vase",
-       short_description="Stoneware · Chen Meilin", price=74, category="ceramics",
+    _p(slug="matte-ceramic-vase", name=gettext_noop("Matte Ceramic Vase"),
+       short_description=gettext_noop("Stoneware · Chen Meilin"), price=74, category="ceramics",
        collection="earth", maker="chen-meilin", featured=True, added=17,
        materials=["Stoneware", "Matte glaze"], dimensions="Ø 12 cm × 24 cm",
        description="A tall, narrow-necked vase that holds a few stems upright without "
@@ -161,8 +161,8 @@ PRODUCTS: list[Product] = [
              "Most of the year that means a single branch.",
        variants=_variants(colours=["Bone", "Smoke", "Clay"])),
 
-    _p(slug="tea-cup-set-of-two", name="Tea Cup Set of Two",
-       short_description="Porcelain · Chen Meilin", price=64, category="ceramics",
+    _p(slug="tea-cup-set-of-two", name=gettext_noop("Tea Cup Set of Two"),
+       short_description=gettext_noop("Porcelain · Chen Meilin"), price=64, category="ceramics",
        maker="chen-meilin", added=11,
        materials=["Porcelain", "Celadon glaze"], dimensions="Ø 7 cm × 5 cm · 120 ml each",
        description="Two handleless cups, thin at the lip and thicker at the base. Pale "
@@ -171,8 +171,8 @@ PRODUCTS: list[Product] = [
              "same marks from the same corner of the kiln."),
 
     # -- Textiles ---------------------------------------------------------
-    _p(slug="linen-market-tote", name="Linen Market Tote",
-       short_description="Washed linen · Ye Ruolan", price=58, category="textiles",
+    _p(slug="linen-market-tote", name=gettext_noop("Linen Market Tote"),
+       short_description=gettext_noop("Washed linen · Ye Ruolan"), price=58, category="textiles",
        maker="ye-ruolan", featured=True, new_arrival=True, added=18,
        materials=["European flax linen", "Cotton webbing handles"],
        dimensions="42 cm × 38 cm · 12 cm base",
@@ -182,8 +182,8 @@ PRODUCTS: list[Product] = [
              "vegetables and still look like something she wanted to carry.",
        variants=_variants(colours=["Natural", "Indigo", "Olive"])),
 
-    _p(slug="woven-cotton-throw", name="Woven Cotton Throw",
-       short_description="Handwoven cotton · Lu Wenjing", price=128, category="textiles",
+    _p(slug="woven-cotton-throw", name=gettext_noop("Woven Cotton Throw"),
+       short_description=gettext_noop("Handwoven cotton · Lu Wenjing"), price=128, category="textiles",
        collection="earth", maker="lu-wenjing", featured=True, new_arrival=True, added=22,
        materials=["Handwoven cotton", "Natural indigo dye", "Hand-knotted fringe"],
        dimensions="130 cm × 180 cm",
@@ -194,8 +194,8 @@ PRODUCTS: list[Product] = [
        variants=_variants(colours=["Indigo", "Natural", "Smoke"]),
        stock_status="low-stock"),
 
-    _p(slug="linen-cushion-cover", name="Linen Cushion Cover",
-       short_description="Washed linen · Ye Ruolan", price=54, category="textiles",
+    _p(slug="linen-cushion-cover", name=gettext_noop("Linen Cushion Cover"),
+       short_description=gettext_noop("Washed linen · Ye Ruolan"), price=54, category="textiles",
        maker="ye-ruolan", new_arrival=True, added=16,
        materials=["Stone-washed flax linen", "Coconut buttons"],
        dimensions="Available 45 cm or 60 cm square",
@@ -205,8 +205,8 @@ PRODUCTS: list[Product] = [
              "Ruolan's own -- the last of its kind in the neighbourhood.",
        variants=_variants(colours=["Bone", "Sand", "Olive", "Rust"], sizes=["45 cm", "60 cm"])),
 
-    _p(slug="stonewashed-table-runner", name="Stonewashed Table Runner",
-       short_description="Washed linen · Ye Ruolan", price=62, category="textiles",
+    _p(slug="stonewashed-table-runner", name=gettext_noop("Stonewashed Table Runner"),
+       short_description=gettext_noop("Washed linen · Ye Ruolan"), price=62, category="textiles",
        maker="ye-ruolan", added=9,
        materials=["Stone-washed flax linen", "Hand-hemmed edges"],
        dimensions="45 cm × 200 cm",
@@ -216,8 +216,8 @@ PRODUCTS: list[Product] = [
              "perfectly smooth, she says, has been finished by a machine.",
        variants=_variants(colours=["Natural", "Ash", "Olive"])),
 
-    _p(slug="hand-loomed-tea-towel", name="Hand-loomed Tea Towel",
-       short_description="Cotton & linen · Lu Wenjing", price=26, category="textiles",
+    _p(slug="hand-loomed-tea-towel", name=gettext_noop("Hand-loomed Tea Towel"),
+       short_description=gettext_noop("Cotton & linen · Lu Wenjing"), price=26, category="textiles",
        maker="lu-wenjing", added=6,
        materials=["Handwoven cotton-linen", "Natural dye"], dimensions="50 cm × 70 cm",
        description="Loosely woven so it dries fast, with a hanging loop set into the corner. "
@@ -226,8 +226,8 @@ PRODUCTS: list[Product] = [
              "the throws. No two runs are quite the same colour.",
        variants=_variants(colours=["Indigo", "Natural", "Rust"])),
 
-    _p(slug="quilted-linen-apron", name="Quilted Linen Apron",
-       short_description="Washed linen · Ye Ruolan", price=78, category="textiles",
+    _p(slug="quilted-linen-apron", name=gettext_noop("Quilted Linen Apron"),
+       short_description=gettext_noop("Washed linen · Ye Ruolan"), price=78, category="textiles",
        maker="ye-ruolan", added=12,
        materials=["Flax linen", "Cotton wadding", "Brass hardware"],
        dimensions="One size · adjustable neck strap · 85 cm long",
@@ -238,8 +238,8 @@ PRODUCTS: list[Product] = [
        variants=_variants(colours=["Ink", "Natural", "Olive"])),
 
     # -- Home -------------------------------------------------------------
-    _p(slug="soy-wax-studio-candle", name="Soy Wax Studio Candle",
-       short_description="Soy & rapeseed wax · Xu Anying", price=44, category="home",
+    _p(slug="soy-wax-studio-candle", name=gettext_noop("Soy Wax Studio Candle"),
+       short_description=gettext_noop("Soy & rapeseed wax · Xu Anying"), price=44, category="home",
        collection="earth", maker="xu-anying", featured=True, new_arrival=True, added=23,
        materials=["Soy and rapeseed wax", "Cotton wick", "Refillable stoneware vessel"],
        dimensions="Ø 8 cm × 9 cm · 220 g · approx. 45 hours",
@@ -251,8 +251,8 @@ PRODUCTS: list[Product] = [
                                   gettext_noop("Wild Grass"),
                                   gettext_noop("Smoked Cypress")])),
 
-    _p(slug="handmade-incense-holder", name="Handmade Incense Holder",
-       short_description="Stoneware · Chen Meilin", price=32, category="home",
+    _p(slug="handmade-incense-holder", name=gettext_noop("Handmade Incense Holder"),
+       short_description=gettext_noop("Stoneware · Chen Meilin"), price=32, category="home",
        maker="chen-meilin", added=13,
        materials=["Stoneware", "Unglazed exterior"], dimensions="Ø 9 cm × 2 cm",
        description="A shallow dish with an off-centre hole, sized for standard incense "
@@ -261,8 +261,8 @@ PRODUCTS: list[Product] = [
              "little for a bowl, exactly enough for one of these.",
        variants=_variants(colours=["Bone", "Smoke", "Clay"])),
 
-    _p(slug="olive-wood-serving-board", name="Olive Wood Serving Board",
-       short_description="Reclaimed timber · Zhao Hesheng", price=72, category="home",
+    _p(slug="olive-wood-serving-board", name=gettext_noop("Olive Wood Serving Board"),
+       short_description=gettext_noop("Reclaimed timber · Zhao Hesheng"), price=72, category="home",
        collection="earth", maker="zhao-hesheng", featured=True, added=15,
        materials=["Reclaimed hardwood", "Linseed oil finish"],
        dimensions="38 cm × 18 cm × 2 cm · varies slightly",
@@ -272,8 +272,8 @@ PRODUCTS: list[Product] = [
              "The grain, and occasionally an old nail hole, comes with the timber.",
        stock_status="low-stock"),
 
-    _p(slug="brass-oak-candle-snuffer", name="Brass & Oak Candle Snuffer",
-       short_description="Brass & oak · Zhao Hesheng", price=36, category="home",
+    _p(slug="brass-oak-candle-snuffer", name=gettext_noop("Brass & Oak Candle Snuffer"),
+       short_description=gettext_noop("Brass & oak · Zhao Hesheng"), price=36, category="home",
        maker="zhao-hesheng", added=7,
        materials=["Unlacquered brass", "Oak handle"], dimensions="24 cm long",
        description="An unlacquered brass bell on a turned oak handle. The brass will darken "
@@ -281,8 +281,8 @@ PRODUCTS: list[Product] = [
        story="Hesheng turns the handles from oak offcuts and has the bells spun by a "
              "metalworker he has used for eleven years."),
 
-    _p(slug="rattan-storage-basket", name="Rattan Storage Basket",
-       short_description="Woven rattan · Lu Wenjing", price=84, category="home",
+    _p(slug="rattan-storage-basket", name=gettext_noop("Rattan Storage Basket"),
+       short_description=gettext_noop("Woven rattan · Lu Wenjing"), price=84, category="home",
        maker="lu-wenjing", added=10, stock_status="made-to-order",
        dispatch="Made to order · ships in 2–3 weeks",
        materials=["Rattan", "Cotton rope handles"], dimensions="Ø 36 cm × 32 cm",
@@ -293,8 +293,8 @@ PRODUCTS: list[Product] = [
        variants=_variants(sizes=["Medium", "Large"])),
 
     # -- Gifts ------------------------------------------------------------
-    _p(slug="ceramic-ring-dish", name="Ceramic Ring Dish",
-       short_description="Porcelain · Chen Meilin", price=28, category="gifts",
+    _p(slug="ceramic-ring-dish", name=gettext_noop("Ceramic Ring Dish"),
+       short_description=gettext_noop("Porcelain · Chen Meilin"), price=28, category="gifts",
        maker="chen-meilin", added=5,
        materials=["Porcelain", "Gold-free celadon glaze"], dimensions="Ø 9 cm × 1.5 cm",
        description="A small pinched dish for rings, earrings or the change in your pocket. "
@@ -303,8 +303,8 @@ PRODUCTS: list[Product] = [
              "customers. Enough people asked to buy one that they became a product.",
        variants=_variants(colours=["Bone", "Sand", "Olive"])),
 
-    _p(slug="studio-gift-set", name="Studio Gift Set",
-       short_description="Three pieces, wrapped · Multiple makers", price=96, category="gifts",
+    _p(slug="studio-gift-set", name=gettext_noop("Studio Gift Set"),
+       short_description=gettext_noop("Three pieces, wrapped · Multiple makers"), price=96, category="gifts",
        maker="xu-anying", featured=True, added=4,
        materials=["Stoneware mug", "Soy wax candle", "Hand-loomed tea towel"],
        dimensions="Boxed 26 cm × 20 cm × 11 cm",
@@ -314,8 +314,8 @@ PRODUCTS: list[Product] = [
              "at the end of every year.",
        variants=_variants(colours=["Bone", "Olive"])),
 
-    _p(slug="beeswax-taper-pair", name="Beeswax Taper Pair",
-       short_description="Pure beeswax · Xu Anying", price=24, category="gifts",
+    _p(slug="beeswax-taper-pair", name=gettext_noop("Beeswax Taper Pair"),
+       short_description=gettext_noop("Pure beeswax · Xu Anying"), price=24, category="gifts",
        maker="xu-anying", added=3,
        materials=["Pure beeswax", "Cotton wick"], dimensions="2 cm × 25 cm · approx. 8 hours each",
        description="Two hand-dipped tapers in unbleached beeswax. They smell faintly of "

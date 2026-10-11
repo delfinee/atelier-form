@@ -79,16 +79,18 @@ def _base_queryset():
 # -- Products ------------------------------------------------------------
 
 def all_products() -> list[Product]:
-    return list(_base_queryset())
+    return [localize_product(product) for product in _base_queryset()]
 
 
 def get_product(slug: str) -> Product | None:
-    return _base_queryset().filter(slug=slug).first()
+    product = _base_queryset().filter(slug=slug).first()
+    return localize_product(product) if product else None
 
 
 def featured_products(limit: int | None = None) -> list[Product]:
     queryset = _base_queryset().filter(is_featured=True)
-    return list(queryset[:limit] if limit else queryset)
+    products = list(queryset[:limit] if limit else queryset)
+    return [localize_product(product) for product in products]
 
 
 def new_arrivals(limit: int = 8) -> list[Product]:
@@ -98,7 +100,8 @@ def new_arrivals(limit: int = 8) -> list[Product]:
 
 
 def products_by_maker(maker_slug: str) -> list[Product]:
-    return list(_base_queryset().filter(maker__slug=maker_slug))
+    products = list(_base_queryset().filter(maker__slug=maker_slug))
+    return [localize_product(product) for product in products]
 
 
 def related_products(product: Product, limit: int = 4) -> list[Product]:
@@ -106,7 +109,7 @@ def related_products(product: Product, limit: int = 4) -> list[Product]:
 
     Ranked in SQL so the whole catalogue is not pulled into memory as it grows.
     """
-    return list(
+    products = list(
         _base_queryset()
         .exclude(pk=product.pk)
         .annotate(
@@ -117,6 +120,7 @@ def related_products(product: Product, limit: int = 4) -> list[Product]:
         )
         .order_by("same_maker", "same_category", "-is_featured", "-sort_weight")[:limit]
     )
+    return [localize_product(item) for item in products]
 
 
 def filter_products(
@@ -296,7 +300,7 @@ def search(query: str) -> dict[str, list]:
         is_active=True))
 
     return {
-        "products": list(_base_queryset().search(q)),
+        "products": [localize_product(product) for product in _base_queryset().search(q)],
         "collections": collections,
         "makers": list(Maker.objects.filter(
             Q(name__icontains=q) | Q(discipline__icontains=q)
@@ -327,5 +331,5 @@ def catalogue_payload() -> dict[str, dict]:
             "url": reverse("product_detail", args=[p.slug]),
             "stock": p.stock_status,
         }
-        for p in _base_queryset()
+        for p in (localize_product(product) for product in _base_queryset())
     }

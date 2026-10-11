@@ -287,6 +287,144 @@ msgstr "藤编"
 msgid "Wax"
 msgstr "蜡"
 
+#: .\frontend\mockdata\products.py:100
+msgid "Hand-thrown Stoneware Mug"
+msgstr "手拉炻器马克杯"
+
+#: .\frontend\mockdata\products.py:113
+msgid "Speckled Breakfast Bowl"
+msgstr "斑点早餐碗"
+
+#: .\frontend\mockdata\products.py:124
+msgid "Ceramic Pour-Over Dripper"
+msgstr "陶瓷手冲滤杯"
+
+#: .\frontend\mockdata\products.py:134
+msgid "Ash-Glazed Dinner Plate"
+msgstr "灰釉餐盘"
+
+#: .\frontend\mockdata\products.py:144
+msgid "Stoneware Serving Platter"
+msgstr "炻器餐盘"
+
+#: .\frontend\mockdata\products.py:154
+msgid "Matte Ceramic Vase"
+msgstr "哑光陶瓷花瓶"
+
+#: .\frontend\mockdata\products.py:164
+msgid "Tea Cup Set of Two"
+msgstr "双人茶杯套装"
+
+#: .\frontend\mockdata\products.py:174
+msgid "Linen Market Tote"
+msgstr "亚麻购物袋"
+
+#: .\frontend\mockdata\products.py:185
+msgid "Woven Cotton Throw"
+msgstr "手织棉盖毯"
+
+#: .\frontend\mockdata\products.py:197
+msgid "Linen Cushion Cover"
+msgstr "亚麻靠垫套"
+
+#: .\frontend\mockdata\products.py:208
+msgid "Stonewashed Table Runner"
+msgstr "石洗亚麻桌旗"
+
+#: .\frontend\mockdata\products.py:219
+msgid "Hand-loomed Tea Towel"
+msgstr "手织茶巾"
+
+#: .\frontend\mockdata\products.py:229
+msgid "Quilted Linen Apron"
+msgstr "绗缝亚麻围裙"
+
+#: .\frontend\mockdata\products.py:241
+msgid "Soy Wax Studio Candle"
+msgstr "大豆蜡工作室香薰蜡烛"
+
+#: .\frontend\mockdata\products.py:254
+msgid "Handmade Incense Holder"
+msgstr "手作香座"
+
+#: .\frontend\mockdata\products.py:264
+msgid "Olive Wood Serving Board"
+msgstr "橄榄木餐板"
+
+#: .\frontend\mockdata\products.py:275
+msgid "Brass & Oak Candle Snuffer"
+msgstr "黄铜橡木烛剪"
+
+#: .\frontend\mockdata\products.py:284
+msgid "Rattan Storage Basket"
+msgstr "藤编收纳篮"
+
+#: .\frontend\mockdata\products.py:296
+msgid "Ceramic Ring Dish"
+msgstr "陶瓷首饰盘"
+
+#: .\frontend\mockdata\products.py:306
+msgid "Studio Gift Set"
+msgstr "工作室礼品套装"
+
+#: .\frontend\mockdata\products.py:317
+msgid "Beeswax Taper Pair"
+msgstr "蜂蜡长烛一对"
+
+#: .\frontend\mockdata\products.py:101
+#: .\frontend\mockdata\products.py:114
+#: .\frontend\mockdata\products.py:135
+#: .\frontend\mockdata\products.py:145
+#: .\frontend\mockdata\products.py:155
+#: .\frontend\mockdata\products.py:255
+msgid "Stoneware · Chen Meilin"
+msgstr "炻器 · 陈梅琳"
+
+#: .\frontend\mockdata\products.py:125
+#: .\frontend\mockdata\products.py:165
+#: .\frontend\mockdata\products.py:297
+msgid "Porcelain · Chen Meilin"
+msgstr "瓷器 · 陈梅琳"
+
+#: .\frontend\mockdata\products.py:175
+#: .\frontend\mockdata\products.py:198
+#: .\frontend\mockdata\products.py:209
+#: .\frontend\mockdata\products.py:230
+msgid "Washed linen · Ye Ruolan"
+msgstr "水洗亚麻 · 叶若兰"
+
+#: .\frontend\mockdata\products.py:186
+msgid "Handwoven cotton · Lu Wenjing"
+msgstr "手织棉 · 陆文静"
+
+#: .\frontend\mockdata\products.py:220
+msgid "Cotton & linen · Lu Wenjing"
+msgstr "棉与亚麻 · 陆文静"
+
+#: .\frontend\mockdata\products.py:242
+msgid "Soy & rapeseed wax · Xu Anying"
+msgstr "大豆蜡与菜籽蜡 · 徐安莹"
+
+#: .\frontend\mockdata\products.py:265
+msgid "Reclaimed timber · Zhao Hesheng"
+msgstr "再生木料 · 赵和生"
+
+#: .\frontend\mockdata\products.py:276
+msgid "Brass & oak · Zhao Hesheng"
+msgstr "黄铜与橡木 · 赵和生"
+
+#: .\frontend\mockdata\products.py:285
+msgid "Woven rattan · Lu Wenjing"
+msgstr "藤编 · 陆文静"
+
+#: .\frontend\mockdata\products.py:307
+msgid "Three pieces, wrapped · Multiple makers"
+msgstr "三件作品，手工包裹 · 多位匠人"
+
+#: .\frontend\mockdata\products.py:318
+msgid "Pure beeswax · Xu Anying"
+msgstr "纯蜂蜡 · 徐安莹"
+
 #: .\frontend\mockdata\content.py:48
 msgid "About"
 msgstr "关于"

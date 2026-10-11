@@ -1,8 +1,9 @@
 """Database-free checks for catalogue presentation translations."""
 
+from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from django.template import Context, Template
 from django.test import SimpleTestCase
@@ -10,10 +11,10 @@ from django.utils import translation
 from django.utils.translation import gettext
 
 from orders.serializers import CartItemSerializer
-from products.models import MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection
+from products.models import MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Product
 
 from frontend import services
-from frontend.catalogue_i18n import localize_collection, localize_colour_label
+from frontend.catalogue_i18n import localize_collection, localize_colour_label, localize_product
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
 from frontend.mockdata.products import PRODUCTS, SWATCHES
 from frontend.templatetags.frontend_extras import colour_label, stock_label
@@ -31,6 +32,30 @@ EDITORIAL_EXPECTED = (
     ('earth', '大地系列', '灰烬、泥土、蓝靛与本色亚麻。', '九件作品取自同一份精简的材料清单，以匠人工作室一日车程内能够找到的材料上釉与染色。组合在一起，它们呈现出骨白、灰烬、泥土与草色组成的统一色调。'),
     ('quiet-mornings', '静谧清晨', '献给一天开始的第一个小时。', '杯子、手冲壶与一支蜡烛，属于清晨尚未向你提出任何要求的那段时间。我们挑选它们，让这些作品在一张小桌上自然相称。'),
     ('studio-essentials', '工作室日用', '我们自己每天使用的作品。', '工作室真正用于日常的物件：洗过一百次的围裙、反复切割使用的木板，以及每天都会用到的毛巾。'),
+)
+
+PRODUCT_EXPECTED = (
+    ("hand-thrown-stoneware-mug", "Hand-thrown Stoneware Mug", "Stoneware · Chen Meilin", "手拉炻器马克杯", "炻器 · 陈梅琳"),
+    ("speckled-breakfast-bowl", "Speckled Breakfast Bowl", "Stoneware · Chen Meilin", "斑点早餐碗", "炻器 · 陈梅琳"),
+    ("ceramic-pour-over-dripper", "Ceramic Pour-Over Dripper", "Porcelain · Chen Meilin", "陶瓷手冲滤杯", "瓷器 · 陈梅琳"),
+    ("ash-glazed-dinner-plate", "Ash-Glazed Dinner Plate", "Stoneware · Chen Meilin", "灰釉餐盘", "炻器 · 陈梅琳"),
+    ("stoneware-serving-platter", "Stoneware Serving Platter", "Stoneware · Chen Meilin", "炻器餐盘", "炻器 · 陈梅琳"),
+    ("matte-ceramic-vase", "Matte Ceramic Vase", "Stoneware · Chen Meilin", "哑光陶瓷花瓶", "炻器 · 陈梅琳"),
+    ("tea-cup-set-of-two", "Tea Cup Set of Two", "Porcelain · Chen Meilin", "双人茶杯套装", "瓷器 · 陈梅琳"),
+    ("linen-market-tote", "Linen Market Tote", "Washed linen · Ye Ruolan", "亚麻购物袋", "水洗亚麻 · 叶若兰"),
+    ("woven-cotton-throw", "Woven Cotton Throw", "Handwoven cotton · Lu Wenjing", "手织棉盖毯", "手织棉 · 陆文静"),
+    ("linen-cushion-cover", "Linen Cushion Cover", "Washed linen · Ye Ruolan", "亚麻靠垫套", "水洗亚麻 · 叶若兰"),
+    ("stonewashed-table-runner", "Stonewashed Table Runner", "Washed linen · Ye Ruolan", "石洗亚麻桌旗", "水洗亚麻 · 叶若兰"),
+    ("hand-loomed-tea-towel", "Hand-loomed Tea Towel", "Cotton & linen · Lu Wenjing", "手织茶巾", "棉与亚麻 · 陆文静"),
+    ("quilted-linen-apron", "Quilted Linen Apron", "Washed linen · Ye Ruolan", "绗缝亚麻围裙", "水洗亚麻 · 叶若兰"),
+    ("soy-wax-studio-candle", "Soy Wax Studio Candle", "Soy & rapeseed wax · Xu Anying", "大豆蜡工作室香薰蜡烛", "大豆蜡与菜籽蜡 · 徐安莹"),
+    ("handmade-incense-holder", "Handmade Incense Holder", "Stoneware · Chen Meilin", "手作香座", "炻器 · 陈梅琳"),
+    ("olive-wood-serving-board", "Olive Wood Serving Board", "Reclaimed timber · Zhao Hesheng", "橄榄木餐板", "再生木料 · 赵和生"),
+    ("brass-oak-candle-snuffer", "Brass & Oak Candle Snuffer", "Brass & oak · Zhao Hesheng", "黄铜橡木烛剪", "黄铜与橡木 · 赵和生"),
+    ("rattan-storage-basket", "Rattan Storage Basket", "Woven rattan · Lu Wenjing", "藤编收纳篮", "藤编 · 陆文静"),
+    ("ceramic-ring-dish", "Ceramic Ring Dish", "Porcelain · Chen Meilin", "陶瓷首饰盘", "瓷器 · 陈梅琳"),
+    ("studio-gift-set", "Studio Gift Set", "Three pieces, wrapped · Multiple makers", "工作室礼品套装", "三件作品，手工包裹 · 多位匠人"),
+    ("beeswax-taper-pair", "Beeswax Taper Pair", "Pure beeswax · Xu Anying", "蜂蜡长烛一对", "纯蜂蜡 · 徐安莹"),
 )
 
 # Frozen before moving the English extras out of the seed command.
@@ -235,6 +260,204 @@ class CollectionLocalizationTests(SimpleTestCase):
         with translation.override("fr"):
             self.assertIs(localize_collection(category), category)
             self.assertIs(localize_collection(editorial), editorial)
+
+
+class ProductLocalizationTests(SimpleTestCase):
+    def make_product(self, expected=PRODUCT_EXPECTED[0], **overrides):
+        slug, name, short_description, _, _ = expected
+        values = {
+            "id": 37,
+            "slug": slug,
+            "name": name,
+            "short_description": short_description,
+            "description": "Canonical long description",
+            "story": "Canonical story",
+            "price": Decimal("42.00"),
+            "currency": "CNY",
+            "category_id": 3,
+            "maker_id": 4,
+            "materials": ["Stoneware", "Ash glaze"],
+            "dimensions": "8 cm × 9 cm",
+            "stock_status": "in-stock",
+            "stock_quantity": 12,
+            "is_active": True,
+            "is_featured": True,
+            "is_new_arrival": True,
+            "sort_weight": 9,
+        }
+        values.update(overrides)
+        return Product(**values)
+
+    def test_seeded_english_and_chinese_product_copy(self):
+        self.assertEqual(len(PRODUCTS), 21)
+        self.assertEqual(
+            [(item["slug"], item["name"], item["short_description"]) for item in PRODUCTS],
+            [expected[:3] for expected in PRODUCT_EXPECTED],
+        )
+        with translation.override("zh-hans"):
+            for expected in PRODUCT_EXPECTED:
+                with self.subTest(slug=expected[0]):
+                    source = self.make_product(expected)
+                    localized = localize_product(source)
+                    self.assertIsNot(localized, source)
+                    self.assertEqual((localized.name, localized.short_description), expected[3:])
+                    self.assertEqual((source.name, source.short_description), expected[1:3])
+
+    def test_product_language_switching(self):
+        source = self.make_product()
+        with translation.override("en"):
+            self.assertIs(localize_product(source), source)
+            self.assertEqual((source.name, source.short_description), PRODUCT_EXPECTED[0][1:3])
+        with translation.override("zh-hans"):
+            localized = localize_product(source)
+            self.assertEqual((localized.name, localized.short_description), PRODUCT_EXPECTED[0][3:])
+        with translation.override("en"):
+            self.assertIs(localize_product(source), source)
+            self.assertEqual((source.name, source.short_description), PRODUCT_EXPECTED[0][1:3])
+
+    def test_custom_product_fields_are_guarded_independently(self):
+        expected = PRODUCT_EXPECTED[0]
+        cases = (
+            ({"name": "Seller mug"}, ("Seller mug", expected[4])),
+            ({"short_description": "Seller description"}, (expected[3], "Seller description")),
+            ({"name": "Seller mug", "short_description": "Seller description"},
+             ("Seller mug", "Seller description")),
+        )
+        with translation.override("zh-hans"):
+            for overrides, localized_fields in cases:
+                with self.subTest(overrides=overrides):
+                    source = self.make_product(expected, **overrides)
+                    original = (source.name, source.short_description)
+                    localized = localize_product(source)
+                    self.assertEqual((localized.name, localized.short_description), localized_fields)
+                    self.assertEqual((source.name, source.short_description), original)
+
+    def test_unknown_product_and_machine_fields_are_preserved(self):
+        unknown = self.make_product(slug="seller-created-product")
+        with translation.override("zh-hans"):
+            self.assertIs(localize_product(unknown), unknown)
+
+            source = self.make_product()
+            machine_fields = (
+                source.pk, source.uuid, source.slug, source.price, source.currency,
+                source.category_id, source.maker_id, source.materials, source.dimensions,
+                source.stock_status, source.stock_quantity, source.is_active,
+                source.is_featured, source.is_new_arrival, source.sort_weight,
+                source.description, source.story,
+            )
+            localized = localize_product(source)
+            self.assertEqual(
+                (localized.pk, localized.uuid, localized.slug, localized.price,
+                 localized.currency, localized.category_id, localized.maker_id,
+                 localized.materials, localized.dimensions, localized.stock_status,
+                 localized.stock_quantity, localized.is_active, localized.is_featured,
+                 localized.is_new_arrival, localized.sort_weight, localized.description,
+                 localized.story),
+                machine_fields,
+            )
+
+    def service_product(self):
+        expected = PRODUCT_EXPECTED[0]
+        images = SimpleNamespace(all=lambda: [SimpleNamespace(url="/media/mug.jpg")])
+        return SimpleNamespace(
+            pk=37, slug=expected[0], name=expected[1], short_description=expected[2],
+            price=Decimal("42.00"), category=SimpleNamespace(slug="ceramics"),
+            maker=SimpleNamespace(slug="chen-meilin"), product_images=images,
+            stock_status="in-stock", is_featured=True, is_new_arrival=True,
+        )
+
+    def test_customer_facing_product_service_paths_localise_copies(self):
+        expected_name, expected_short = PRODUCT_EXPECTED[0][3:]
+
+        def assert_localized(result, source):
+            product = result[0] if isinstance(result, list) else result
+            self.assertEqual((product.name, product.short_description),
+                             (expected_name, expected_short))
+            self.assertEqual((source.name, source.short_description), PRODUCT_EXPECTED[0][1:3])
+
+        with translation.override("zh-hans"):
+            source = self.service_product()
+            with patch.object(services, "_base_queryset", return_value=[source]) as base:
+                assert_localized(services.all_products(), source)
+                base.assert_called_once_with()
+
+            source = self.service_product()
+            queryset = MagicMock()
+            queryset.filter.return_value.first.return_value = source
+            with patch.object(services, "_base_queryset", return_value=queryset) as base:
+                assert_localized(services.get_product(source.slug), source)
+                queryset.filter.assert_called_once_with(slug=source.slug)
+                base.assert_called_once_with()
+
+            source = self.service_product()
+            queryset = MagicMock()
+            queryset.filter.return_value.__iter__.return_value = iter([source])
+            with patch.object(services, "_base_queryset", return_value=queryset) as base:
+                assert_localized(services.featured_products(), source)
+                base.assert_called_once_with()
+
+            source = self.service_product()
+            queryset = MagicMock()
+            queryset.filter.return_value.order_by.return_value.__getitem__.return_value = [source]
+            with patch.object(services, "_base_queryset", return_value=queryset) as base:
+                assert_localized(services.new_arrivals(), source)
+                base.assert_called_once_with()
+
+            source = self.service_product()
+            queryset = MagicMock()
+            queryset.filter.return_value.__iter__.return_value = iter([source])
+            with patch.object(services, "_base_queryset", return_value=queryset) as base:
+                assert_localized(services.products_by_maker("chen-meilin"), source)
+                base.assert_called_once_with()
+
+            source = self.service_product()
+            queryset = MagicMock()
+            queryset.exclude.return_value.annotate.return_value.order_by.return_value.__getitem__.return_value = [source]
+            with patch.object(services, "_base_queryset", return_value=queryset) as base:
+                assert_localized(services.related_products(source), source)
+                base.assert_called_once_with()
+
+            source = self.service_product()
+            queryset = MagicMock()
+            queryset.distinct.return_value.order_by.return_value = [source]
+            with patch.object(services, "_base_queryset", return_value=queryset) as base:
+                assert_localized(services.filter_products(), source)
+                base.assert_called_once_with()
+
+    def test_search_queries_raw_text_then_localises_product_results(self):
+        source = self.service_product()
+        queryset = MagicMock()
+        queryset.search.return_value = [source]
+        with (translation.override("zh-hans"),
+              patch.object(services, "_base_queryset", return_value=queryset),
+              patch.object(services.Collection.objects, "filter", return_value=[]),
+              patch.object(services.Category.objects, "filter", return_value=[]),
+              patch.object(services.Maker.objects, "filter", return_value=[]),
+              patch.object(services.Article.objects, "published") as articles):
+            articles.return_value.filter.return_value = []
+            results = services.search("Stoneware")
+        queryset.search.assert_called_once_with("Stoneware")
+        self.assertEqual((results["products"][0].name,
+                          results["products"][0].short_description), PRODUCT_EXPECTED[0][3:])
+        self.assertEqual((source.name, source.short_description), PRODUCT_EXPECTED[0][1:3])
+
+    def test_catalogue_payload_translates_only_display_text(self):
+        source = self.service_product()
+        with (translation.override("zh-hans"),
+              patch.object(services, "_base_queryset", return_value=[source]) as base):
+            payload = services.catalogue_payload()[source.slug]
+        base.assert_called_once_with()
+        self.assertEqual(payload, {
+            "slug": source.slug,
+            "name": PRODUCT_EXPECTED[0][3],
+            "price": 42.0,
+            "category": "ceramics",
+            "label": PRODUCT_EXPECTED[0][4],
+            "image": "/media/mug.jpg",
+            "url": f"/products/{source.slug}/",
+            "stock": "in-stock",
+        })
+        self.assertEqual((source.name, source.short_description), PRODUCT_EXPECTED[0][1:3])
 
 
 class ShopLabelLocalizationTests(SimpleTestCase):

@@ -7,7 +7,7 @@ from copy import copy
 from django.utils.translation import get_language, gettext, pgettext
 
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
-from frontend.mockdata.products import PRODUCTS
+from frontend.mockdata.products import PRODUCTS, PRODUCTS_BY_SLUG
 
 
 MAKER_TRANSLATIONS = {
@@ -93,30 +93,6 @@ MAKER_TRANSLATIONS = {
     },
 }
 
-PRODUCT_TRANSLATIONS = {
-    "hand-thrown-stoneware-mug": ("手拉炻器马克杯", "炻器 · 陈梅琳"),
-    "speckled-breakfast-bowl": ("斑点早餐碗", "炻器 · 陈梅琳"),
-    "ceramic-pour-over-dripper": ("陶瓷手冲滤杯", "瓷器 · 陈梅琳"),
-    "ash-glazed-dinner-plate": ("灰釉餐盘", "炻器 · 陈梅琳"),
-    "stoneware-serving-platter": ("炻器餐盘", "炻器 · 陈梅琳"),
-    "matte-ceramic-vase": ("哑光陶瓷花瓶", "炻器 · 陈梅琳"),
-    "tea-cup-set-of-two": ("双人茶杯套装", "瓷器 · 陈梅琳"),
-    "linen-market-tote": ("亚麻购物袋", "水洗亚麻 · 叶若兰"),
-    "woven-cotton-throw": ("手织棉盖毯", "手织棉 · 陆文静"),
-    "linen-cushion-cover": ("亚麻靠垫套", "水洗亚麻 · 叶若兰"),
-    "stonewashed-table-runner": ("石洗亚麻桌旗", "水洗亚麻 · 叶若兰"),
-    "hand-loomed-tea-towel": ("手织茶巾", "棉与亚麻 · 陆文静"),
-    "quilted-linen-apron": ("绗缝亚麻围裙", "水洗亚麻 · 叶若兰"),
-    "soy-wax-studio-candle": ("大豆蜡工作室香薰蜡烛", "大豆蜡与菜籽蜡 · 徐安莹"),
-    "handmade-incense-holder": ("手作香座", "炻器 · 陈梅琳"),
-    "olive-wood-serving-board": ("橄榄木餐板", "再生木料 · 赵和生"),
-    "brass-oak-candle-snuffer": ("黄铜橡木烛剪", "黄铜与橡木 · 赵和生"),
-    "rattan-storage-basket": ("藤编收纳篮", "藤编 · 陆文静"),
-    "ceramic-ring-dish": ("陶瓷首饰盘", "瓷器 · 陈梅琳"),
-    "studio-gift-set": ("工作室礼品套装", "三件作品，手工包裹 · 多位匠人"),
-    "beeswax-taper-pair": ("蜂蜡长烛一对", "纯蜂蜡 · 徐安莹"),
-}
-
 _SEEDED_COLOUR_LABELS = frozenset(
     variant["label"] for product in PRODUCTS for variant in product["variants"]
     if variant["group"] == "colour"
@@ -198,10 +174,16 @@ def localize_maker(maker):
 
 
 def localize_product(product):
-    if not _is_chinese() or product.slug not in PRODUCT_TRANSLATIONS:
+    if not _is_chinese():
+        return product
+    source = PRODUCTS_BY_SLUG.get(product.slug)
+    if source is None:
         return product
     localized = copy(product)
-    localized.name, localized.short_description = PRODUCT_TRANSLATIONS[product.slug]
+    for field in ("name", "short_description"):
+        current = getattr(product, field)
+        if current == source[field]:
+            setattr(localized, field, gettext(current))
     return localized
 
 

@@ -6,26 +6,7 @@ from copy import copy
 
 from django.utils.translation import get_language, gettext, pgettext
 
-from frontend.mockdata.collections import CATEGORIES
-
-
-COLLECTION_TRANSLATIONS = {
-    "earth": {
-        "name": "大地系列",
-        "tagline": "灰烬、泥土、蓝靛与本色亚麻。",
-        "description": "九件作品取自同一份精简的材料清单，以匠人工作室一日车程内能够找到的材料上釉与染色。组合在一起，它们呈现出骨白、灰烬、泥土与草色组成的统一色调。",
-    },
-    "quiet-mornings": {
-        "name": "静谧清晨",
-        "tagline": "献给一天开始的第一个小时。",
-        "description": "杯子、手冲壶与一支蜡烛，属于清晨尚未向你提出任何要求的那段时间。我们挑选它们，让这些作品在一张小桌上自然相称。",
-    },
-    "studio-essentials": {
-        "name": "工作室日用",
-        "tagline": "我们自己每天使用的作品。",
-        "description": "工作室真正用于日常的物件：洗过一百次的围裙、反复切割使用的木板，以及每天都会用到的毛巾。",
-    },
-}
+from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
 
 
 MAKER_TRANSLATIONS = {
@@ -180,24 +161,32 @@ def localize_collection(collection):
 
     if collection.kind == "category":
         source = next((item for item in CATEGORIES if item["slug"] == collection.slug), None)
+    elif collection.kind == "editorial":
+        source = next(
+            (item for item in COLLECTIONS
+             if item["kind"] == "editorial" and item["slug"] == collection.slug),
+            None,
+        )
         if source is None:
-            return collection
-        localized = copy(collection)
-        for field, source_field in (("name", "title"), ("tagline", "tagline"),
-                                    ("description", "description")):
-            current = getattr(collection, field)
-            if current == source[source_field]:
-                value = (pgettext("category", "Home")
-                         if field == "name" and collection.slug == "home"
-                         else gettext(current))
-                setattr(localized, field, value)
-        return localized
-
-    if collection.slug not in COLLECTION_TRANSLATIONS:
+            source = next(
+                (item for item in EXTRA_COLLECTIONS if item["slug"] == collection.slug),
+                None,
+            )
+    else:
         return collection
+    if source is None:
+        return collection
+
     localized = copy(collection)
-    for field, value in COLLECTION_TRANSLATIONS[collection.slug].items():
-        setattr(localized, field, value)
+    english_name = source["title"] if "title" in source else source["name"]
+    for field, english in (("name", english_name), ("tagline", source["tagline"]),
+                           ("description", source["description"])):
+        current = getattr(collection, field)
+        if current == english:
+            value = (pgettext("category", "Home")
+                     if field == "name" and collection.kind == "category"
+                     and collection.slug == "home" else gettext(current))
+            setattr(localized, field, value)
     return localized
 
 

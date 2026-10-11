@@ -60,15 +60,39 @@ COLLECTIONS: list[Collection] = [
         "hero": "collection-gifts", "tile": "category-gifts", "featured": True,
     },
     {
-        "slug": "earth", "title": "The Earth Collection", "kind": "editorial",
-        "tagline": "Ash, clay, indigo and unbleached linen.",
-        "description": "Nine pieces built from the same short list of materials, glazed and "
-                       "dyed with what our makers can source within a day's drive of their own "
-                       "studios. Put together, they sit in a single tonal range -- bone, ash, "
-                       "clay and a green that comes from grass rather than a pigment jar.",
+        "slug": "earth", "title": gettext_noop("The Earth Collection"), "kind": "editorial",
+        "tagline": gettext_noop("Ash, clay, indigo and unbleached linen."),
+        "description": gettext_noop(
+            "Nine pieces built from the same short list of materials, glazed and "
+            "dyed with what our makers can source within a day's drive of their own "
+            "studios. Put together, they sit in a single tonal range -- bone, ash, "
+            "clay and a green that comes from grass rather than a pigment jar."
+        ),
         "hero": "collection-earth", "tile": "collection-earth", "featured": True,
     },
 ]
 
 COLLECTIONS_BY_SLUG: dict[str, Collection] = {c["slug"]: c for c in COLLECTIONS}
 CATEGORIES = [c for c in COLLECTIONS if c["kind"] == "category"]
+
+# Editorial groupings beyond the four browsing categories.
+EXTRA_COLLECTIONS = [
+    {"slug": "quiet-mornings", "name": gettext_noop("Quiet Mornings"),
+     "tagline": gettext_noop("For the first hour of the day."),
+     "description": gettext_noop(
+         "Cups, drippers and a candle for the part of the morning before anything "
+         "has been asked of you. Chosen so the pieces sit together on a small table."
+     ),
+     "hero": "collection-ceramics", "tile": "category-ceramics", "featured": True,
+     "members": ["hand-thrown-stoneware-mug", "ceramic-pour-over-dripper",
+                 "speckled-breakfast-bowl", "tea-cup-set-of-two", "soy-wax-studio-candle"]},
+    {"slug": "studio-essentials", "name": gettext_noop("Studio Essentials"),
+     "tagline": gettext_noop("The pieces we use ourselves."),
+     "description": gettext_noop(
+         "What is actually in daily use in the studio: an apron that has been "
+         "washed a hundred times, boards that get cut on, towels that get used."
+     ),
+     "hero": "collection-home", "tile": "category-home", "featured": False,
+     "members": ["quilted-linen-apron", "olive-wood-serving-board", "hand-loomed-tea-towel",
+                 "linen-market-tote", "brass-oak-candle-snuffer"]},
+]

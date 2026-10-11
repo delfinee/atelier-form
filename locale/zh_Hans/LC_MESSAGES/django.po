@@ -123,6 +123,50 @@ msgid ""
 "at checkout. Nothing here is sealed in plastic."
 msgstr "适合作为礼物寄送的作品，手工装盒，并附有可在结算时书写的卡片。这里的任何东西都不会以塑料密封。"
 
+#: .\frontend\mockdata\collections.py:63
+msgid "The Earth Collection"
+msgstr "大地系列"
+
+#: .\frontend\mockdata\collections.py:64
+msgid "Ash, clay, indigo and unbleached linen."
+msgstr "灰烬、泥土、蓝靛与本色亚麻。"
+
+#: .\frontend\mockdata\collections.py:65
+msgid ""
+"Nine pieces built from the same short list of materials, glazed and dyed "
+"with what our makers can source within a day's drive of their own studios. "
+"Put together, they sit in a single tonal range -- bone, ash, clay and a "
+"green that comes from grass rather than a pigment jar."
+msgstr "九件作品取自同一份精简的材料清单，以匠人工作室一日车程内能够找到的材料上釉与染色。组合在一起，它们呈现出骨白、灰烬、泥土与草色组成的统一色调。"
+
+#: .\frontend\mockdata\collections.py:80
+msgid "Quiet Mornings"
+msgstr "静谧清晨"
+
+#: .\frontend\mockdata\collections.py:81
+msgid "For the first hour of the day."
+msgstr "献给一天开始的第一个小时。"
+
+#: .\frontend\mockdata\collections.py:82
+msgid ""
+"Cups, drippers and a candle for the part of the morning before anything has "
+"been asked of you. Chosen so the pieces sit together on a small table."
+msgstr "杯子、手冲壶与一支蜡烛，属于清晨尚未向你提出任何要求的那段时间。我们挑选它们，让这些作品在一张小桌上自然相称。"
+
+#: .\frontend\mockdata\collections.py:89
+msgid "Studio Essentials"
+msgstr "工作室日用"
+
+#: .\frontend\mockdata\collections.py:90
+msgid "The pieces we use ourselves."
+msgstr "我们自己每天使用的作品。"
+
+#: .\frontend\mockdata\collections.py:91
+msgid ""
+"What is actually in daily use in the studio: an apron that has been washed "
+"a hundred times, boards that get cut on, towels that get used."
+msgstr "工作室真正用于日常的物件：洗过一百次的围裙、反复切割使用的木板，以及每天都会用到的毛巾。"
+
 #: .\frontend\mockdata\content.py:48
 msgid "About"
 msgstr "关于"

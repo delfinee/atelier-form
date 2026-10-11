@@ -19,7 +19,7 @@ from products.models import (
     MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product,
 )
 
-from frontend import services
+from frontend import services, views
 from frontend.catalogue_i18n import (
     localize_article, localize_collection, localize_colour_label, localize_faq_group,
     localize_maker, localize_product,
@@ -1975,3 +1975,76 @@ class ArticleLocalizationTests(SimpleTestCase):
             block["text"] in {english for _, english, _ in expected["body"]}
             for block in localized.body
         ))
+
+
+STATIC_UI_EXPECTED = (
+    ("Title (optional)", "标题（可选）"),
+    ("Review (optional)", "评价内容（可选）"),
+    (
+        "You can review this product after purchasing it and completing payment.",
+        "购买并完成付款后，您可以评价此商品。",
+    ),
+    (
+        "You have already submitted a review for this product.",
+        "您已经评价过此商品。",
+    ),
+    (
+        "to review a product you have purchased. Reviews are available after payment.",
+        "即可评价您已购买的商品。完成付款后方可评价。",
+    ),
+    (
+        "Use at least eight characters. Avoid common passwords, only numbers, or passwords similar to your name or email.",
+        "请至少使用八个字符。请避免使用常见密码、纯数字密码，或与您的姓名或电子邮箱相似的密码。",
+    ),
+    ("Privacy Policy", "隐私政策"),
+    ("Terms of Service", "服务条款"),
+)
+
+
+class StaticUILocalizationTests(SimpleTestCase):
+    def test_all_new_static_ui_translations_and_language_switching(self):
+        with translation.override("en"):
+            self.assertEqual(
+                [gettext(english) for english, _ in STATIC_UI_EXPECTED],
+                [english for english, _ in STATIC_UI_EXPECTED],
+            )
+        with translation.override("zh-hans"):
+            self.assertEqual(
+                [gettext(english) for english, _ in STATIC_UI_EXPECTED],
+                [chinese for _, chinese in STATIC_UI_EXPECTED],
+            )
+        with translation.override("en"):
+            self.assertEqual(
+                [gettext(english) for english, _ in STATIC_UI_EXPECTED],
+                [english for english, _ in STATIC_UI_EXPECTED],
+            )
+
+    def test_legal_titles_are_translated_at_request_time(self):
+        expected = {
+            "en": {"privacy": "Privacy Policy", "terms": "Terms of Service"},
+            "zh-hans": {"privacy": "隐私政策", "terms": "服务条款"},
+        }
+        request = SimpleNamespace()
+        response = object()
+        for language, titles in expected.items():
+            for slug, title in titles.items():
+                with (
+                    self.subTest(language=language, slug=slug),
+                    translation.override(language),
+                    patch.object(views, "render", return_value=response) as render,
+                ):
+                    self.assertIs(views.legal(request, slug), response)
+                    render.assert_called_once_with(
+                        request,
+                        "frontend/pages/legal.html",
+                        {
+                            "title": title,
+                            "slug": slug,
+                            "meta_title": f"{title} — {views.SITE['brand']}",
+                        },
+                    )
+
+    def test_previously_translated_static_ui_values_are_preserved(self):
+        with translation.override("zh-hans"):
+            self.assertEqual(gettext("Home, studio, parents'"), "家、工作室、父母家")
+            self.assertEqual(gettext("All orders"), "全部订单")

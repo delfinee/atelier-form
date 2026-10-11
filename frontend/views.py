@@ -550,7 +550,7 @@ def care_guide(request):
 
 
 def legal(request, slug):
-    titles = {"privacy": "Privacy Policy", "terms": "Terms of Service"}
+    titles = {"privacy": _("Privacy Policy"), "terms": _("Terms of Service")}
     return render(request, "frontend/pages/legal.html", {
         "title": titles[slug], "slug": slug,
         "meta_title": f"{titles[slug]} — {SITE['brand']}",

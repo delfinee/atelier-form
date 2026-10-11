@@ -3494,6 +3494,38 @@ msgstr "使用它们的理由，其实不只关乎物件本身。在一个原本
 msgid "Our suggestion is unglamorous: take the good plates out of the high cupboard and put them where the everyday ones are. Within a month you will stop noticing, which is the point."
 msgstr "我们的建议并不华丽：把好盘子从高处的柜子里拿出来，放到日常餐具的位置。一个月内，你就不会再特意注意它们，而这正是意义所在。"
 
+#: .\frontend\templates\frontend\product\detail.html
+msgid "Title (optional)"
+msgstr "标题（可选）"
+
+#: .\frontend\templates\frontend\product\detail.html
+msgid "Review (optional)"
+msgstr "评价内容（可选）"
+
+#: .\frontend\templates\frontend\product\detail.html
+msgid "You can review this product after purchasing it and completing payment."
+msgstr "购买并完成付款后，您可以评价此商品。"
+
+#: .\frontend\templates\frontend\product\detail.html
+msgid "You have already submitted a review for this product."
+msgstr "您已经评价过此商品。"
+
+#: .\frontend\templates\frontend\product\detail.html
+msgid "to review a product you have purchased. Reviews are available after payment."
+msgstr "即可评价您已购买的商品。完成付款后方可评价。"
+
+#: .\frontend\templates\frontend\account\auth.html
+msgid "Use at least eight characters. Avoid common passwords, only numbers, or passwords similar to your name or email."
+msgstr "请至少使用八个字符。请避免使用常见密码、纯数字密码，或与您的姓名或电子邮箱相似的密码。"
+
+#: .\frontend\views.py
+msgid "Privacy Policy"
+msgstr "隐私政策"
+
+#: .\frontend\views.py
+msgid "Terms of Service"
+msgstr "服务条款"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is "
 #~ "accepted and logged."

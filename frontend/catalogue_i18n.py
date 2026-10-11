@@ -180,9 +180,17 @@ def localize_product(product):
     if source is None:
         return product
     localized = copy(product)
-    for field in ("name", "short_description"):
+    fields = (
+        ("name", "name"),
+        ("short_description", "short_description"),
+        ("description", "description"),
+        ("story", "story"),
+        ("care_instructions", "care"),
+        ("shipping_information", "dispatch"),
+    )
+    for field, source_field in fields:
         current = getattr(product, field)
-        if current == source[field]:
+        if current == source[source_field]:
             setattr(localized, field, gettext(current))
     return localized
 

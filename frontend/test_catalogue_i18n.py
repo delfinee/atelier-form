@@ -16,7 +16,7 @@ from products.models import MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Colle
 from frontend import services
 from frontend.catalogue_i18n import localize_collection, localize_colour_label, localize_product
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
-from frontend.mockdata.products import PRODUCTS, SWATCHES
+from frontend.mockdata.products import CARE_BY_CATEGORY, PRODUCTS, SWATCHES
 from frontend.templatetags.frontend_extras import colour_label, stock_label
 
 
@@ -56,6 +56,43 @@ PRODUCT_EXPECTED = (
     ("ceramic-ring-dish", "Ceramic Ring Dish", "Porcelain · Chen Meilin", "陶瓷首饰盘", "瓷器 · 陈梅琳"),
     ("studio-gift-set", "Studio Gift Set", "Three pieces, wrapped · Multiple makers", "工作室礼品套装", "三件作品，手工包裹 · 多位匠人"),
     ("beeswax-taper-pair", "Beeswax Taper Pair", "Pure beeswax · Xu Anying", "蜂蜡长烛一对", "纯蜂蜡 · 徐安莹"),
+)
+
+PRODUCT_DETAIL_EXPECTED = (
+    ("hand-thrown-stoneware-mug", "A mug with a little weight to it, thrown to sit low in the hand. The glaze pools slightly where the wall meets the base, so the colour is never quite even across a set.", "Meilin threw the first of these for herself, then kept making them because visitors to the studio would not put them down. The handle is pulled by hand rather than cast, which is why the curve is a fraction different on every one.", "一只略有分量的马克杯，拉坯成低矮杯身，握在手中安稳贴合。釉料会在杯壁与杯底交接处略微积聚，因此同一套杯子的色泽也不会完全一致。", "梅琳最初为自己拉坯制作了这只杯子，后来到访工作室的人总是爱不释手，她便一直做了下去。杯把由手工拉制而非模具浇铸，因此每一只的弧度都会有细微差异。"),
+    ("speckled-breakfast-bowl", "Wide enough for oats and deep enough for soup. The iron in the clay breaks through the glaze as fine dark flecks during firing.", "The speckle is not added. It is iron already present in the local clay, which surfaces only above 1250°C -- a firing Meilin holds for nine hours.", "宽度足以盛燕麦粥，深度也适合盛汤。烧制时，陶土中的铁质会透过釉面，形成细小的深色斑点。", "斑点并非额外添加，而是当地陶土中原有的铁质，在温度超过 1250°C 时才会显现；梅琳会将这一烧制温度保持九小时。"),
+    ("ceramic-pour-over-dripper", "A single-piece dripper with three ribs turned into the cone, so water moves evenly through the bed rather than channelling down one side.", "Six prototypes went into the angle of the cone. Meilin brewed on every one of them for a fortnight before settling on this shape.", "一体成型的滤杯，锥形内壁设有三道导流凸棱，让水流均匀通过咖啡粉层，避免沿一侧集中流下。", "为了确定锥体角度，前后做了六个原型。梅琳连续两周用这六个原型逐一冲煮测试，最终才选定现在的形状。"),
+    ("ash-glazed-dinner-plate", "A everyday plate with a low, generous rim. The ash glaze moves in the kiln, so the edge is usually a shade lighter than the well.", "The glaze is mixed from ash swept out of the studio's own kiln -- a practice old enough in Jingdezhen that nobody there thinks of it as unusual.", "一只适合日常使用的餐盘，盘沿低而宽。灰釉在窑中流动，因此边缘通常比盘心浅一个色调。", "釉料由工作室自家窑炉中清扫出的灰烬调制而成——这项做法在景德镇由来已久，当地人并不觉得稀奇。"),
+    ("stoneware-serving-platter", "An oval platter for bread, roasted vegetables or a whole fish. Thrown, then pressed gently out of round while still soft.", "Made only in small runs, when the large kiln is fired. Meilin will not fire it half empty, so these appear a few times a year.", "椭圆形餐盘，适合盛放面包、烤蔬菜或整条鱼。先拉坯成型，再趁陶土尚软时轻轻压成略不规则的形状。", "只有在大型窑炉烧制时才会小批量制作。梅琳不会让窑炉半空着烧，因此这种餐盘一年只会出现几次。"),
+    ("matte-ceramic-vase", "A tall, narrow-necked vase that holds a few stems upright without propping. Matte outside, glossed inside so it holds water.", "Meilin keeps one on the windowsill of the studio with whatever is in season. Most of the year that means a single branch.", "高挑的细颈花瓶，无需支撑便能让几枝花材直立。外壁为哑光质感，内壁施亮釉，可以盛水。", "梅琳在工作室窗台上放着一只，插上当季的花材。一年中的大部分时候，那意味着一根枝条。"),
+    ("tea-cup-set-of-two", "Two handleless cups, thin at the lip and thicker at the base. Pale celadon that shifts towards green where the glaze gathers.", "Thrown in pairs and fired side by side, so the two cups in a set carry the same marks from the same corner of the kiln.", "两只无柄茶杯，杯口较薄，杯底较厚。淡青瓷釉在釉料积聚处会呈现更深的绿色。", "成对拉坯，并排烧制，因此一套中的两只杯子会留下来自窑炉同一角落的相同痕迹。"),
+    ("linen-market-tote", "A flat-bottomed tote in heavyweight linen, with an inside pocket and handles long enough to carry over a shoulder.", "Ruolan made the first one because nothing she owned would hold a week of vegetables and still look like something she wanted to carry.", "采用厚实亚麻制成的平底托特包，设有内袋，提手长度足以肩背。", "若兰之所以做出第一只，是因为她手头没有一款包，既能装下一周采购的蔬菜，又好看得让她愿意随身携带。"),
+    ("woven-cotton-throw", "Woven in two panels and joined by hand down the centre. Heavy enough for a bed, soft enough for a chair.", "Wenjing dips the yarn before it is ever woven, which is why the colour sits inside the cloth rather than on it, and deepens rather than fades.", "由两幅织片拼成，中间以手工缝合。厚实得可铺在床上，也柔软得适合搭在椅上。", "文静在织造之前就将纱线浸染，因此色彩深入织物内部而非停留在表面，并会随着使用加深而不是褪去。"),
+    ("linen-cushion-cover", "A simple envelope cover with a buttoned back. Washed twice before it leaves the studio so it arrives already soft.", "The buttons are coconut shell, cut and drilled by a workshop two streets from Ruolan's own -- the last of its kind in the neighbourhood.", "简洁的信封式靠垫套，背面以纽扣开合。离开工作室前经过两次水洗，送到手中时已柔软舒适。", "纽扣由椰壳制成，在距离若兰工作室两条街的一家作坊切割并钻孔——那是附近最后一家这样的作坊。"),
+    ("stonewashed-table-runner", "A long runner with a deep hand-turned hem. Creases readily, which is rather the point.", "Ruolan does not press these flat before packing. A runner that arrives perfectly smooth, she says, has been finished by a machine.", "一条长桌旗，饰有宽大的手工折边。它很容易留下褶皱，而这正是设计的本意。", "若兰在包装前不会把它们熨平。她说，一条到手时平整无痕的桌旗，是机器加工出来的。"),
+    ("hand-loomed-tea-towel", "Loosely woven so it dries fast, with a hanging loop set into the corner. Gets better with washing.", "Woven on the narrow loom Wenjing keeps for offcuts, using yarn left over from the throws. No two runs are quite the same colour.", "织法疏松，干得快，角落设有挂环。越洗越好用。", "使用文静专门处理余料的窄幅织机织成，纱线来自盖毯制作剩余的材料。每一批的颜色都不完全相同。"),
+    ("quilted-linen-apron", "A cross-back apron with a lightly quilted front panel and two deep pockets. Adjustable at the neck, ties at the waist.", "Designed with a baker in Hangzhou who wanted something that would take flour, heat and a hot pan handle without falling apart in a year.", "交叉背带式围裙，前片带轻薄绗缝，设有两个深口袋。颈带可调节，腰间系带固定。", "与杭州的一位烘焙师共同设计；她想要一件能经受面粉、高温和滚烫锅柄，又不会在一年内散架的围裙。"),
+    ("soy-wax-studio-candle", "Cedar, dry earth and a little green fig. Poured into a stoneware vessel worth keeping once the wax is gone.", "Anying built this scent around the smell of her workshop after rain -- wet stone, cut wood, and the fig tree in the courtyard next door.", "雪松、干燥泥土与一丝青无花果的香气。蜡烛浇注在炻器容器中，蜡燃尽后仍值得继续使用。", "安莹以雨后工作室的气味为灵感调制这款香气——潮湿的石头、切开的木材，以及隔壁庭院里的无花果树。"),
+    ("handmade-incense-holder", "A shallow dish with an off-centre hole, sized for standard incense sticks. Unglazed outside so it keeps a little grip on the table.", "Meilin makes these from the clay left at the end of a throwing session -- too little for a bowl, exactly enough for one of these.", "浅盘设有偏离中心的小孔，适配标准线香。外壁不施釉，与桌面接触时能增加一些摩擦力。", "梅琳用每次拉坯结束时剩下的陶土制作这些香座——做一只碗太少，做一个香座却刚刚好。"),
+    ("olive-wood-serving-board", "A long board with a shaped handle and a lip cut into the underside so it lifts easily off a flat table.", "Cut from beams salvaged during the restoration of a Huizhou courtyard house. The grain, and occasionally an old nail hole, comes with the timber.", "一块带造型手柄的长餐板，底部切出一道托边，方便从平坦桌面上拿起。", "取材自修复一座徽州院落时回收的梁木。木纹，以及偶尔可见的旧钉孔，都是木材本身留下的痕迹。"),
+    ("brass-oak-candle-snuffer", "An unlacquered brass bell on a turned oak handle. The brass will darken with handling, which is how it is meant to go.", "Hesheng turns the handles from oak offcuts and has the bells spun by a metalworker he has used for eleven years.", "旋制橡木手柄上装有一只未上漆的黄铜钟罩。黄铜会随着触摸逐渐变暗，这正是它应有的变化。", "和生用橡木余料车制手柄，钟罩则由一位与他合作了十一年的金工匠人旋压成型。"),
+    ("rattan-storage-basket", "A deep round basket with soft rope handles, woven closely enough to hold its shape when empty.", "Woven by a group of five weavers in a village outside Dali, in the weeks between planting and harvest.", "深圆形篮筐配柔软绳把手，编织紧密，即使空着也能保持形状。", "由大理郊外一个村庄的五位编织匠人在播种与收获之间的农闲时节编成。"),
+    ("ceramic-ring-dish", "A small pinched dish for rings, earrings or the change in your pocket. Pinched rather than thrown, so the rim is deliberately uneven.", "The first of these were made as thank-you gifts for the studio's earliest customers. Enough people asked to buy one that they became a product.", "一只用于放置戒指、耳环或口袋零钱的手捏小碟。采用手捏而非拉坯成型，因此碟沿特意保留不规则感。", "最初一批是为感谢工作室早期顾客而制作的礼物。后来有足够多的人询问能否购买，它们便成为了正式商品。"),
+    ("studio-gift-set", "A mug, a small candle and a tea towel, wrapped in unbleached paper and tied with cotton string. A card can be written at checkout.", "The set we send most often, and the one the studio sends to its own suppliers at the end of every year.", "一只马克杯、一支小蜡烛和一条茶巾，以未漂白纸张包裹，并用棉绳系好。可在结账时填写卡片内容。", "这是我们最常寄出的礼盒，也是工作室每年年末寄给自家供应商的那一款。"),
+    ("beeswax-taper-pair", "Two hand-dipped tapers in unbleached beeswax. They smell faintly of honey when lit and drip very little.", "Dipped forty times each, one layer at a time, over the course of an afternoon.", "两支以未漂白蜂蜡手工浸制的长烛。点燃时带有淡淡蜂蜜香，且极少滴蜡。", "每支都要分层浸制四十次，整个过程用去一个下午。"),
+)
+
+CARE_EXPECTED = (
+    ("ceramics", "Dishwasher safe, though hand washing keeps the glaze bright. Avoid thermal shock -- let a hot piece cool before rinsing. Not for direct flame.", "可用洗碗机清洗，但手洗更能保持釉色明亮。避免骤冷骤热——热器皿应冷却后再冲洗。不可直接接触明火。"),
+    ("textiles", "Machine wash cool on a gentle cycle with a mild detergent. Line dry in shade. Warm iron while slightly damp if you want a crisper finish.", "使用温和洗涤剂，以低温轻柔机洗。置于阴凉处晾干。如需更挺括的质感，可在织物尚微湿时用中温熨烫。"),
+    ("home", "Wipe with a soft, barely damp cloth. Keep out of prolonged direct sun. Re-oil natural wood two or three times a year to keep it from drying out.", "用柔软、仅微微湿润的布擦拭。避免长时间阳光直射。天然木材每年重新上油两到三次，以免过度干燥。"),
+    ("gifts", "Care varies by piece -- each item ships with its own short care card.", "护理方式因单品而异——每件商品发货时都会附带一张简短的专属护理卡。"),
+)
+
+DISPATCH_EXPECTED = (
+    ("Ships in 2–4 working days", "2–4 个工作日内发货"),
+    ("Made to order · ships in 3–4 weeks", "按订单制作 · 3–4 周内发货"),
+    ("Made to order · ships in 2–3 weeks", "按订单制作 · 2–3 周内发货"),
 )
 
 # Frozen before moving the English extras out of the seed command.
@@ -265,19 +302,22 @@ class CollectionLocalizationTests(SimpleTestCase):
 class ProductLocalizationTests(SimpleTestCase):
     def make_product(self, expected=PRODUCT_EXPECTED[0], **overrides):
         slug, name, short_description, _, _ = expected
+        detail = next(item for item in PRODUCT_DETAIL_EXPECTED if item[0] == slug)
         values = {
             "id": 37,
             "slug": slug,
             "name": name,
             "short_description": short_description,
-            "description": "Canonical long description",
-            "story": "Canonical story",
+            "description": detail[1],
+            "story": detail[2],
             "price": Decimal("42.00"),
             "currency": "CNY",
             "category_id": 3,
             "maker_id": 4,
             "materials": ["Stoneware", "Ash glaze"],
             "dimensions": "8 cm × 9 cm",
+            "care_instructions": CARE_EXPECTED[0][1],
+            "shipping_information": DISPATCH_EXPECTED[0][0],
             "stock_status": "in-stock",
             "stock_quantity": 12,
             "is_active": True,
@@ -343,7 +383,6 @@ class ProductLocalizationTests(SimpleTestCase):
                 source.category_id, source.maker_id, source.materials, source.dimensions,
                 source.stock_status, source.stock_quantity, source.is_active,
                 source.is_featured, source.is_new_arrival, source.sort_weight,
-                source.description, source.story,
             )
             localized = localize_product(source)
             self.assertEqual(
@@ -351,8 +390,7 @@ class ProductLocalizationTests(SimpleTestCase):
                  localized.currency, localized.category_id, localized.maker_id,
                  localized.materials, localized.dimensions, localized.stock_status,
                  localized.stock_quantity, localized.is_active, localized.is_featured,
-                 localized.is_new_arrival, localized.sort_weight, localized.description,
-                 localized.story),
+                 localized.is_new_arrival, localized.sort_weight),
                 machine_fields,
             )
 
@@ -361,6 +399,9 @@ class ProductLocalizationTests(SimpleTestCase):
         images = SimpleNamespace(all=lambda: [SimpleNamespace(url="/media/mug.jpg")])
         return SimpleNamespace(
             pk=37, slug=expected[0], name=expected[1], short_description=expected[2],
+            description=PRODUCT_DETAIL_EXPECTED[0][1], story=PRODUCT_DETAIL_EXPECTED[0][2],
+            care_instructions=CARE_EXPECTED[0][1],
+            shipping_information=DISPATCH_EXPECTED[0][0],
             price=Decimal("42.00"), category=SimpleNamespace(slug="ceramics"),
             maker=SimpleNamespace(slug="chen-meilin"), product_images=images,
             stock_status="in-stock", is_featured=True, is_new_arrival=True,
@@ -458,6 +499,109 @@ class ProductLocalizationTests(SimpleTestCase):
             "stock": "in-stock",
         })
         self.assertEqual((source.name, source.short_description), PRODUCT_EXPECTED[0][1:3])
+
+    def test_all_product_detail_content_in_english_and_chinese(self):
+        self.assertEqual(
+            [(item["slug"], item["description"], item["story"]) for item in PRODUCTS],
+            [expected[:3] for expected in PRODUCT_DETAIL_EXPECTED],
+        )
+        for detail in PRODUCT_DETAIL_EXPECTED:
+            product_expected = next(item for item in PRODUCT_EXPECTED if item[0] == detail[0])
+            source = self.make_product(product_expected)
+            with self.subTest(slug=detail[0], language="en"):
+                with translation.override("en"):
+                    self.assertIs(localize_product(source), source)
+                    self.assertEqual((source.description, source.story), detail[1:3])
+            with self.subTest(slug=detail[0], language="zh-hans"):
+                with translation.override("zh-hans"):
+                    localized = localize_product(source)
+                self.assertEqual((localized.description, localized.story), detail[3:])
+                self.assertEqual((source.description, source.story), detail[1:3])
+
+    def test_all_care_and_dispatch_content(self):
+        self.assertEqual(CARE_BY_CATEGORY,
+                         {category: english for category, english, _ in CARE_EXPECTED})
+        representatives = {
+            "ceramics": "hand-thrown-stoneware-mug",
+            "textiles": "linen-market-tote",
+            "home": "soy-wax-studio-candle",
+            "gifts": "ceramic-ring-dish",
+        }
+        with translation.override("zh-hans"):
+            for category, english, chinese in CARE_EXPECTED:
+                expected = next(item for item in PRODUCT_EXPECTED
+                                if item[0] == representatives[category])
+                source = self.make_product(expected, care_instructions=english)
+                localized = localize_product(source)
+                with self.subTest(category=category):
+                    self.assertEqual(localized.care_instructions, chinese)
+                    self.assertEqual(localized.care, chinese)
+                    self.assertEqual(source.care_instructions, english)
+
+            dispatch_products = (
+                ("hand-thrown-stoneware-mug", DISPATCH_EXPECTED[0]),
+                ("stoneware-serving-platter", DISPATCH_EXPECTED[1]),
+                ("rattan-storage-basket", DISPATCH_EXPECTED[2]),
+            )
+            self.assertEqual({item["dispatch"] for item in PRODUCTS},
+                             {english for english, _ in DISPATCH_EXPECTED})
+            for slug, (english, chinese) in dispatch_products:
+                expected = next(item for item in PRODUCT_EXPECTED if item[0] == slug)
+                source = self.make_product(expected, shipping_information=english)
+                localized = localize_product(source)
+                with self.subTest(slug=slug):
+                    self.assertEqual(localized.shipping_information, chinese)
+                    self.assertEqual(localized.dispatch, chinese)
+                    self.assertEqual(source.shipping_information, english)
+
+    def test_product_detail_language_switching(self):
+        source = self.make_product()
+        english = (PRODUCT_DETAIL_EXPECTED[0][1], PRODUCT_DETAIL_EXPECTED[0][2],
+                   CARE_EXPECTED[0][1], DISPATCH_EXPECTED[0][0])
+        chinese = (PRODUCT_DETAIL_EXPECTED[0][3], PRODUCT_DETAIL_EXPECTED[0][4],
+                   CARE_EXPECTED[0][2], DISPATCH_EXPECTED[0][1])
+        with translation.override("en"):
+            self.assertEqual((source.description, source.story, source.care,
+                              source.dispatch), english)
+            self.assertIs(localize_product(source), source)
+        with translation.override("zh-hans"):
+            localized = localize_product(source)
+            self.assertEqual((localized.description, localized.story, localized.care,
+                              localized.dispatch), chinese)
+        with translation.override("en"):
+            self.assertIs(localize_product(source), source)
+            self.assertEqual((source.description, source.story, source.care,
+                              source.dispatch), english)
+
+    def test_custom_product_detail_fields_are_guarded_independently(self):
+        chinese = (PRODUCT_DETAIL_EXPECTED[0][3], PRODUCT_DETAIL_EXPECTED[0][4],
+                   CARE_EXPECTED[0][2], DISPATCH_EXPECTED[0][1])
+        cases = (
+            ({"description": "Seller description"},
+             ("Seller description", chinese[1], chinese[2], chinese[3])),
+            ({"story": "Seller story"},
+             (chinese[0], "Seller story", chinese[2], chinese[3])),
+            ({"care_instructions": "Seller care"},
+             (chinese[0], chinese[1], "Seller care", chinese[3])),
+            ({"shipping_information": "Seller dispatch"},
+             (chinese[0], chinese[1], chinese[2], "Seller dispatch")),
+            ({"description": "Seller description", "story": "Seller story",
+              "care_instructions": "Seller care", "shipping_information": "Seller dispatch"},
+             ("Seller description", "Seller story", "Seller care", "Seller dispatch")),
+        )
+        with translation.override("zh-hans"):
+            for overrides, expected_fields in cases:
+                with self.subTest(overrides=overrides):
+                    source = self.make_product(**overrides)
+                    original = (source.description, source.story, source.care_instructions,
+                                source.shipping_information)
+                    localized = localize_product(source)
+                    self.assertEqual((localized.description, localized.story,
+                                      localized.care_instructions,
+                                      localized.shipping_information), expected_fields)
+                    self.assertEqual((source.description, source.story,
+                                      source.care_instructions,
+                                      source.shipping_information), original)
 
 
 class ShopLabelLocalizationTests(SimpleTestCase):

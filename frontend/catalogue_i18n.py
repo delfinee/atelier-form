@@ -7,6 +7,7 @@ from copy import copy
 from django.utils.translation import get_language, gettext, pgettext
 
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
+from frontend.mockdata.faqs import FAQ_GROUPS_BY_SLUG
 from frontend.mockdata.makers import MAKERS_BY_SLUG
 from frontend.mockdata.products import PRODUCTS, PRODUCTS_BY_SLUG
 
@@ -19,15 +20,6 @@ _SEEDED_COLOUR_LABELS = frozenset(
 def localize_colour_label(label: str) -> str:
     """Translate a recognised colour for display without changing its stored label."""
     return gettext(label) if label in _SEEDED_COLOUR_LABELS else label
-
-FAQ_GROUP_TRANSLATIONS = {
-    "orders": ("订单", "下单、修改与取消。"),
-    "shipping": ("配送", "时效、费用与物流查询。"),
-    "returns": ("退货", "改变主意与收到破损商品。"),
-    "product-care": ("作品保养", "让作品长久保持良好状态。"),
-    "handmade-variations": ("手作差异", "什么是正常差异，什么属于瑕疵。"),
-    "gifting": ("礼赠", "留言、包装与礼品订单。"),
-}
 
 ARTICLE_TRANSLATIONS = {
     "why-no-two-glazes-match": ("为什么没有两种釉色完全相同", "手工灰釉记录着烧制它的过程。我们为什么不再追求完全一致？"),
@@ -127,12 +119,52 @@ def localize_product(product):
     return localized
 
 
+class _LocalizedFAQGroup:
+    """Presentation wrapper for the model's read-only ``items`` property."""
+
+    def __init__(self, source, *, title, blurb, items):
+        self._source = source
+        self.title = title
+        self.blurb = blurb
+        self.items = items
+
+    def __getattr__(self, name):
+        return getattr(self._source, name)
+
+    def __str__(self):
+        return str(self._source)
+
+
+def _active_faq_items(group):
+    prefetched = getattr(group, "_prefetched_objects_cache", {}).get("faqs")
+    items = prefetched if prefetched is not None else group.items
+    return [item for item in items if item.is_active]
+
+
 def localize_faq_group(group):
-    if not is_chinese() or group.slug not in FAQ_GROUP_TRANSLATIONS:
+    if not _is_chinese():
         return group
-    localized = copy(group)
-    localized.title, localized.blurb = FAQ_GROUP_TRANSLATIONS[group.slug]
-    return localized
+    source = FAQ_GROUPS_BY_SLUG.get(group.slug)
+    if source is None:
+        return group
+
+    title = gettext(group.title) if group.title == source["title"] else group.title
+    blurb = gettext(group.blurb) if group.blurb == source["blurb"] else group.blurb
+    items = _active_faq_items(group)
+    localized_items = items
+    if len(items) == len(source["items"]):
+        localized_items = []
+        for item, canonical in zip(items, source["items"], strict=True):
+            localized = copy(item)
+            if item.question == canonical["q"]:
+                localized.question = gettext(item.question)
+            if item.answer == canonical["a"]:
+                localized.answer = gettext(item.answer)
+            localized_items.append(localized)
+
+    return _LocalizedFAQGroup(
+        group, title=title, blurb=blurb, items=localized_items,
+    )
 
 
 def localize_article(article):

@@ -3094,6 +3094,234 @@ msgstr "平铺晾干后只轻轻熨烫一次，保留自然的褶皱。"
 msgid "Checked seam by seam before it is folded and wrapped."
 msgstr "逐条检查缝线，再折叠包裹。"
 
+#: .\frontend\mockdata\faqs.py:18
+msgid "Placing, changing and cancelling."
+msgstr "下单、修改与取消。"
+
+#: .\frontend\mockdata\faqs.py:20
+msgid "Can I change or cancel my order?"
+msgstr "我可以修改或取消订单吗？"
+
+#: .\frontend\mockdata\faqs.py:21
+msgid "Yes, within 12 hours of placing it, as long as it has not been packed. Email the studio with your order number and we will sort it out. After 12 hours a made-to-order piece may already be in production."
+msgstr "可以。下单后 12 小时内，且订单尚未打包时，您可以修改或取消订单。请将订单编号发送至工作室邮箱，我们会为您处理。超过 12 小时后，按订单制作的商品可能已经开始生产。"
+
+#: .\frontend\mockdata\faqs.py:24
+msgid "I ordered several pieces. Will they arrive together?"
+msgstr "我订购了多件商品，它们会一起送达吗？"
+
+#: .\frontend\mockdata\faqs.py:25
+msgid "Not always. In-stock items ship immediately and made-to-order pieces follow when they are ready. You are only charged delivery once."
+msgstr "不一定。现货商品会立即发出，按订单制作的商品则会在完成后寄出。您只需支付一次配送费。"
+
+#: .\frontend\mockdata\faqs.py:27
+msgid "Do you take custom or commission requests?"
+msgstr "你们接受定制或委托制作吗？"
+
+#: .\frontend\mockdata\faqs.py:28
+msgid "For some pieces, yes. Use the enquiry link on the product page and the maker will reply with what is possible and a quotation. Commissions typically take four to eight weeks."
+msgstr "部分商品可以。请使用商品页面上的咨询链接，匠人会回复可行方案和报价。委托制作通常需要 4–8 周。"
+
+#: .\frontend\mockdata\faqs.py:31
+msgid "Can I order a piece that is sold out?"
+msgstr "我可以订购已售罄的商品吗？"
+
+#: .\frontend\mockdata\faqs.py:32
+msgid "Sold-out pieces return when the maker next fires or weaves a batch. Add your email on the product page and you will hear when it does."
+msgstr "已售罄的商品会在匠人下一次烧制或织造一批时重新上架。在商品页面留下您的电子邮箱，补货时我们会通知您。"
+
+#: .\frontend\mockdata\faqs.py:35
+msgid "Timings, costs and tracking."
+msgstr "时效、费用与物流查询。"
+
+#: .\frontend\mockdata\faqs.py:37
+msgid "How long does delivery take?"
+msgstr "配送需要多长时间？"
+
+#: .\frontend\mockdata\faqs.py:38
+msgid "In-stock orders are dispatched in 2–4 working days and arrive within a week domestically. Made-to-order pieces state their own lead time on the product page."
+msgstr "现货订单会在 2–4 个工作日内发出，并在一周内送达国内地址。按订单制作的商品会在商品页面注明各自的交付周期。"
+
+#: .\frontend\mockdata\faqs.py:40
+msgid "How much does delivery cost?"
+msgstr "配送费是多少？"
+
+#: .\frontend\mockdata\faqs.py:41
+msgid "Standard delivery is ¥8. It is complimentary on orders above ¥80. Express delivery is ¥18 and dispatches the next working day where stock allows."
+msgstr "标准配送费为 ¥8。订单金额超过 ¥80 可免配送费。加急配送费为 ¥18，并会在库存允许的情况下于下一个工作日发出。"
+
+#: .\frontend\mockdata\faqs.py:43
+msgid "Do you ship internationally?"
+msgstr "可以寄送到海外吗？"
+
+#: .\frontend\mockdata\faqs.py:44
+msgid "Yes, to most countries. Duties and import taxes are not included and are paid by the recipient on arrival."
+msgstr "可以，我们可寄送至大多数国家。关税和进口税不包含在费用中，需由收件人在收货时支付。"
+
+#: .\frontend\mockdata\faqs.py:46
+msgid "How is fragile work packed?"
+msgstr "易碎作品如何包装？"
+
+#: .\frontend\mockdata\faqs.py:47
+msgid "Ceramics are wrapped in recycled tissue and moulded pulp, inside a double-walled box. No plastic, no polystyrene."
+msgstr "陶瓷会用再生薄纸和模塑纸浆包裹，再装入双层瓦楞纸箱。全程不使用塑料或聚苯乙烯泡沫。"
+
+#: .\frontend\mockdata\faqs.py:50
+msgid "Changing your mind, and breakages."
+msgstr "改变主意与收到破损商品。"
+
+#: .\frontend\mockdata\faqs.py:52
+msgid "What is your returns window?"
+msgstr "退货期限是多久？"
+
+#: .\frontend\mockdata\faqs.py:53
+msgid "Thirty days from delivery, for unused pieces in their original packaging. Tell us before you send anything back so we can issue a return reference."
+msgstr "自收货之日起 30 天内，未使用且保留原包装的商品可以退货。寄回任何商品前请先联系我们，以便我们提供退货编号。"
+
+#: .\frontend\mockdata\faqs.py:55
+msgid "Something arrived broken."
+msgstr "收到的商品破损了。"
+
+#: .\frontend\mockdata\faqs.py:56
+msgid "Send a photograph within 48 hours of delivery and we will replace it or refund you in full. You do not need to return the damaged piece."
+msgstr "请在收货后 48 小时内发送照片，我们会为您更换商品或全额退款。您无需寄回破损商品。"
+
+#: .\frontend\mockdata\faqs.py:58
+msgid "Can I return a made-to-order or commissioned piece?"
+msgstr "按订单制作或委托制作的商品可以退货吗？"
+
+#: .\frontend\mockdata\faqs.py:59
+msgid "Only if it is faulty. These are made specifically for you, so we cannot resell them. The product page says clearly when this applies."
+msgstr "只有商品存在瑕疵时才可以。这些商品是专门为您制作的，无法再次销售。适用此规则时，商品页面会明确说明。"
+
+#: .\frontend\mockdata\faqs.py:61
+msgid "Who pays return postage?"
+msgstr "退货邮费由谁承担？"
+
+#: .\frontend\mockdata\faqs.py:62
+msgid "We do, if the piece is faulty or not what you ordered. For a change of mind, return postage is yours."
+msgstr "如果商品有瑕疵或与您订购的不符，退货邮费由我们承担。如果只是改变主意，退货邮费由您承担。"
+
+#: .\frontend\mockdata\faqs.py:65
+msgid "Product Care"
+msgstr "作品保养"
+
+#: .\frontend\mockdata\faqs.py:65
+msgid "Keeping pieces well for years."
+msgstr "让作品长久保持良好状态。"
+
+#: .\frontend\mockdata\faqs.py:67
+msgid "Is your stoneware dishwasher safe?"
+msgstr "炻器可以用洗碗机清洗吗？"
+
+#: .\frontend\mockdata\faqs.py:68
+msgid "Yes. It is fired to full vitrification. Hand washing keeps a matte glaze looking its best for longer, but the machine will not harm it."
+msgstr "可以。炻器已经烧至完全玻化。手洗能让哑光釉面更长久地保持最佳状态，但洗碗机不会损坏它。"
+
+#: .\frontend\mockdata\faqs.py:70
+msgid "How should I wash linen?"
+msgstr "亚麻制品应该如何清洗？"
+
+#: .\frontend\mockdata\faqs.py:71
+msgid "Cool machine wash on a gentle cycle, mild detergent, no fabric softener. Line dry in shade. It softens with every wash."
+msgstr "使用温和洗涤剂，以低温轻柔模式机洗，不要使用衣物柔顺剂。置于阴凉处晾干。每洗一次，它都会更加柔软。"
+
+#: .\frontend\mockdata\faqs.py:73
+msgid "My candle is tunnelling."
+msgstr "我的蜡烛出现了隧道现象。"
+
+#: .\frontend\mockdata\faqs.py:74
+msgid "Let the first burn run until the melt pool reaches the edge -- usually two to three hours. Wax has a memory, and the first burn sets it."
+msgstr "第一次燃烧时，请让融蜡池延伸到容器边缘，通常需要两到三个小时。蜡具有记忆效应，第一次燃烧会决定之后的燃烧方式。"
+
+#: .\frontend\mockdata\faqs.py:76
+msgid "The brass has darkened."
+msgstr "黄铜变暗了。"
+
+#: .\frontend\mockdata\faqs.py:77
+msgid "It is unlacquered, so that is expected and reversible. A little lemon juice and bicarbonate returns the shine if you want it back."
+msgstr "黄铜没有上漆，因此变暗属于正常现象，也可以恢复。如果想让它重新亮起来，可使用少量柠檬汁和小苏打。"
+
+#: .\frontend\mockdata\faqs.py:80
+msgid "Handmade Variations"
+msgstr "手作差异"
+
+#: .\frontend\mockdata\faqs.py:81
+msgid "What is a variation, and what is a fault."
+msgstr "什么是正常差异，什么属于瑕疵。"
+
+#: .\frontend\mockdata\faqs.py:83
+msgid "My piece does not look exactly like the photograph."
+msgstr "我的商品看起来与照片不完全一样。"
+
+#: .\frontend\mockdata\faqs.py:84
+msgid "It will not. Glaze colour, speckle, and dye depth vary between firings and dye baths. We photograph a typical piece rather than the best one in a batch."
+msgstr "本来就不会完全一样。不同批次的烧制和染浴会造成釉色、斑点和染色深浅的差异。我们拍摄的是具有代表性的作品，而不是一批中最好的一件。"
+
+#: .\frontend\mockdata\faqs.py:86
+msgid "Are the dimensions exact?"
+msgstr "尺寸是完全准确的吗？"
+
+#: .\frontend\mockdata\faqs.py:87
+msgid "Within about 5%. Every piece is thrown or cut by hand, and clay shrinks by roughly a tenth in the firing."
+msgstr "误差约在 5% 以内。每件作品都由手工拉坯或裁切，陶土在烧制过程中还会收缩约十分之一。"
+
+#: .\frontend\mockdata\faqs.py:89
+msgid "There are fine lines in the glaze."
+msgstr "釉面上有细纹。"
+
+#: .\frontend\mockdata\faqs.py:90
+msgid "That is crazing, and on a vitrified body it is cosmetic. It does not affect strength or whether the piece holds water."
+msgstr "这是开片。对于已经玻化的坯体，这只是外观上的变化，不会影响强度或盛水性能。"
+
+#: .\frontend\mockdata\faqs.py:92
+msgid "What actually counts as a fault?"
+msgstr "什么情况才算瑕疵？"
+
+#: .\frontend\mockdata\faqs.py:93
+msgid "A chip, a crack through the body, a piece that does not sit flat, or a seam that has failed. Any of those, tell us and we will replace it."
+msgstr "崩口、贯穿坯体的裂纹、无法平稳放置，或接缝开裂，都属于瑕疵。遇到任何一种情况，请告诉我们，我们会为您更换。"
+
+#: .\frontend\mockdata\faqs.py:96
+msgid "Gifting"
+msgstr "礼赠"
+
+#: .\frontend\mockdata\faqs.py:96
+msgid "Notes, wrapping and gift orders."
+msgstr "留言、包装与礼品订单。"
+
+#: .\frontend\mockdata\faqs.py:98
+msgid "Can you include a handwritten note?"
+msgstr "可以附上手写留言吗？"
+
+#: .\frontend\mockdata\faqs.py:99
+msgid "Yes. Add your message at checkout and it is written onto a card by hand, unsigned by us, and tucked into the parcel."
+msgstr "可以。结账时填写留言，我们会将其手写在卡片上，不署工作室名，并放入包裹中。"
+
+#: .\frontend\mockdata\faqs.py:101
+msgid "Will the recipient see the price?"
+msgstr "收件人会看到价格吗？"
+
+#: .\frontend\mockdata\faqs.py:102
+msgid "No. Parcels never contain an invoice. Pricing is emailed to you only."
+msgstr "不会。包裹中绝不会放入发票。价格信息只会通过电子邮件发送给您。"
+
+#: .\frontend\mockdata\faqs.py:103
+msgid "Is gift wrapping extra?"
+msgstr "礼品包装需要额外收费吗？"
+
+#: .\frontend\mockdata\faqs.py:104
+msgid "No. Everything is wrapped in unbleached paper and cotton string as standard. There is nothing extra to add."
+msgstr "不需要。所有商品都会按标准使用未漂白纸张和棉绳包装，无需另行添加。"
+
+#: .\frontend\mockdata\faqs.py:106
+msgid "Do you sell gift cards?"
+msgstr "你们销售礼品卡吗？"
+
+#: .\frontend\mockdata\faqs.py:107
+msgid "Yes, in ¥50, ¥100 and ¥200. They are emailed to the recipient on a date you choose and do not expire."
+msgstr "有 ¥50、¥100 和 ¥200 三种面额。礼品卡会在您选择的日期通过电子邮件发送给收件人，且不会过期。"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is "
 #~ "accepted and logged."

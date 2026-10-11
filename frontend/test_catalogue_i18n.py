@@ -10,6 +10,7 @@ from django.test import SimpleTestCase
 from django.utils import translation
 from django.utils.translation import gettext
 
+from content.models import FAQ, FAQGroup
 from orders.serializers import CartItemSerializer
 from products.models import (
     MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product,
@@ -17,9 +18,11 @@ from products.models import (
 
 from frontend import services
 from frontend.catalogue_i18n import (
-    localize_collection, localize_colour_label, localize_maker, localize_product,
+    localize_collection, localize_colour_label, localize_faq_group, localize_maker,
+    localize_product,
 )
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
+from frontend.mockdata.faqs import FAQ_GROUPS
 from frontend.mockdata.makers import MAKERS
 from frontend.mockdata.products import CARE_BY_CATEGORY, PRODUCTS, SWATCHES
 from frontend.templatetags.frontend_extras import colour_label, stock_label
@@ -227,6 +230,222 @@ MAKER_EXPECTED = ({'slug': 'chen-meilin',
               ('Dried flat and pressed once, lightly, to keep the natural crumple.',
                '平铺晾干后只轻轻熨烫一次，保留自然的褶皱。'),
               ('Checked seam by seam before it is folded and wrapped.', '逐条检查缝线，再折叠包裹。'))})
+
+
+# Approved FAQ copy is fixed here, independent of the runtime translation source.
+FAQ_EXPECTED = (
+    {
+        "slug": "orders",
+        "title": ("Orders", "订单"),
+        "blurb": ("Placing, changing and cancelling.", "下单、修改与取消。"),
+        "items": (
+            (
+                "Can I change or cancel my order?",
+                "我可以修改或取消订单吗？",
+                "Yes, within 12 hours of placing it, as long as it has not been packed. Email "
+                "the studio with your order number and we will sort it out. After 12 hours a "
+                "made-to-order piece may already be in production.",
+                "可以。下单后 12 小时内，且订单尚未打包时，您可以修改或取消订单。请将订单编号发送至工作室邮箱，我们会为您处理。超过 12 小时后，按订单制作的商品可能已经开始生产。",
+            ),
+            (
+                "I ordered several pieces. Will they arrive together?",
+                "我订购了多件商品，它们会一起送达吗？",
+                "Not always. In-stock items ship immediately and made-to-order pieces follow "
+                "when they are ready. You are only charged delivery once.",
+                "不一定。现货商品会立即发出，按订单制作的商品则会在完成后寄出。您只需支付一次配送费。",
+            ),
+            (
+                "Do you take custom or commission requests?",
+                "你们接受定制或委托制作吗？",
+                "For some pieces, yes. Use the enquiry link on the product page and the maker "
+                "will reply with what is possible and a quotation. Commissions typically take "
+                "four to eight weeks.",
+                "部分商品可以。请使用商品页面上的咨询链接，匠人会回复可行方案和报价。委托制作通常需要 4–8 周。",
+            ),
+            (
+                "Can I order a piece that is sold out?",
+                "我可以订购已售罄的商品吗？",
+                "Sold-out pieces return when the maker next fires or weaves a batch. Add your "
+                "email on the product page and you will hear when it does.",
+                "已售罄的商品会在匠人下一次烧制或织造一批时重新上架。在商品页面留下您的电子邮箱，补货时我们会通知您。",
+            ),
+        ),
+    },
+    {
+        "slug": "shipping",
+        "title": ("Shipping", "配送"),
+        "blurb": ("Timings, costs and tracking.", "时效、费用与物流查询。"),
+        "items": (
+            (
+                "How long does delivery take?",
+                "配送需要多长时间？",
+                "In-stock orders are dispatched in 2–4 working days and arrive within a week "
+                "domestically. Made-to-order pieces state their own lead time on the product page.",
+                "现货订单会在 2–4 个工作日内发出，并在一周内送达国内地址。按订单制作的商品会在商品页面注明各自的交付周期。",
+            ),
+            (
+                "How much does delivery cost?",
+                "配送费是多少？",
+                "Standard delivery is ¥8. It is complimentary on orders above ¥80. Express "
+                "delivery is ¥18 and dispatches the next working day where stock allows.",
+                "标准配送费为 ¥8。订单金额超过 ¥80 可免配送费。加急配送费为 ¥18，并会在库存允许的情况下于下一个工作日发出。",
+            ),
+            (
+                "Do you ship internationally?",
+                "可以寄送到海外吗？",
+                "Yes, to most countries. Duties and import taxes are not included and are paid "
+                "by the recipient on arrival.",
+                "可以，我们可寄送至大多数国家。关税和进口税不包含在费用中，需由收件人在收货时支付。",
+            ),
+            (
+                "How is fragile work packed?",
+                "易碎作品如何包装？",
+                "Ceramics are wrapped in recycled tissue and moulded pulp, inside a "
+                "double-walled box. No plastic, no polystyrene.",
+                "陶瓷会用再生薄纸和模塑纸浆包裹，再装入双层瓦楞纸箱。全程不使用塑料或聚苯乙烯泡沫。",
+            ),
+        ),
+    },
+    {
+        "slug": "returns",
+        "title": ("Returns", "退货"),
+        "blurb": ("Changing your mind, and breakages.", "改变主意与收到破损商品。"),
+        "items": (
+            (
+                "What is your returns window?",
+                "退货期限是多久？",
+                "Thirty days from delivery, for unused pieces in their original packaging. "
+                "Tell us before you send anything back so we can issue a return reference.",
+                "自收货之日起 30 天内，未使用且保留原包装的商品可以退货。寄回任何商品前请先联系我们，以便我们提供退货编号。",
+            ),
+            (
+                "Something arrived broken.",
+                "收到的商品破损了。",
+                "Send a photograph within 48 hours of delivery and we will replace it or refund "
+                "you in full. You do not need to return the damaged piece.",
+                "请在收货后 48 小时内发送照片，我们会为您更换商品或全额退款。您无需寄回破损商品。",
+            ),
+            (
+                "Can I return a made-to-order or commissioned piece?",
+                "按订单制作或委托制作的商品可以退货吗？",
+                "Only if it is faulty. These are made specifically for you, so we cannot resell "
+                "them. The product page says clearly when this applies.",
+                "只有商品存在瑕疵时才可以。这些商品是专门为您制作的，无法再次销售。适用此规则时，商品页面会明确说明。",
+            ),
+            (
+                "Who pays return postage?",
+                "退货邮费由谁承担？",
+                "We do, if the piece is faulty or not what you ordered. For a change of mind, "
+                "return postage is yours.",
+                "如果商品有瑕疵或与您订购的不符，退货邮费由我们承担。如果只是改变主意，退货邮费由您承担。",
+            ),
+        ),
+    },
+    {
+        "slug": "product-care",
+        "title": ("Product Care", "作品保养"),
+        "blurb": ("Keeping pieces well for years.", "让作品长久保持良好状态。"),
+        "items": (
+            (
+                "Is your stoneware dishwasher safe?",
+                "炻器可以用洗碗机清洗吗？",
+                "Yes. It is fired to full vitrification. Hand washing keeps a matte glaze "
+                "looking its best for longer, but the machine will not harm it.",
+                "可以。炻器已经烧至完全玻化。手洗能让哑光釉面更长久地保持最佳状态，但洗碗机不会损坏它。",
+            ),
+            (
+                "How should I wash linen?",
+                "亚麻制品应该如何清洗？",
+                "Cool machine wash on a gentle cycle, mild detergent, no fabric softener. Line "
+                "dry in shade. It softens with every wash.",
+                "使用温和洗涤剂，以低温轻柔模式机洗，不要使用衣物柔顺剂。置于阴凉处晾干。每洗一次，它都会更加柔软。",
+            ),
+            (
+                "My candle is tunnelling.",
+                "我的蜡烛出现了隧道现象。",
+                "Let the first burn run until the melt pool reaches the edge -- usually two to "
+                "three hours. Wax has a memory, and the first burn sets it.",
+                "第一次燃烧时，请让融蜡池延伸到容器边缘，通常需要两到三个小时。蜡具有记忆效应，第一次燃烧会决定之后的燃烧方式。",
+            ),
+            (
+                "The brass has darkened.",
+                "黄铜变暗了。",
+                "It is unlacquered, so that is expected and reversible. A little lemon juice and "
+                "bicarbonate returns the shine if you want it back.",
+                "黄铜没有上漆，因此变暗属于正常现象，也可以恢复。如果想让它重新亮起来，可使用少量柠檬汁和小苏打。",
+            ),
+        ),
+    },
+    {
+        "slug": "handmade-variations",
+        "title": ("Handmade Variations", "手作差异"),
+        "blurb": ("What is a variation, and what is a fault.", "什么是正常差异，什么属于瑕疵。"),
+        "items": (
+            (
+                "My piece does not look exactly like the photograph.",
+                "我的商品看起来与照片不完全一样。",
+                "It will not. Glaze colour, speckle, and dye depth vary between firings and dye "
+                "baths. We photograph a typical piece rather than the best one in a batch.",
+                "本来就不会完全一样。不同批次的烧制和染浴会造成釉色、斑点和染色深浅的差异。我们拍摄的是具有代表性的作品，而不是一批中最好的一件。",
+            ),
+            (
+                "Are the dimensions exact?",
+                "尺寸是完全准确的吗？",
+                "Within about 5%. Every piece is thrown or cut by hand, and clay shrinks by "
+                "roughly a tenth in the firing.",
+                "误差约在 5% 以内。每件作品都由手工拉坯或裁切，陶土在烧制过程中还会收缩约十分之一。",
+            ),
+            (
+                "There are fine lines in the glaze.",
+                "釉面上有细纹。",
+                "That is crazing, and on a vitrified body it is cosmetic. It does not affect "
+                "strength or whether the piece holds water.",
+                "这是开片。对于已经玻化的坯体，这只是外观上的变化，不会影响强度或盛水性能。",
+            ),
+            (
+                "What actually counts as a fault?",
+                "什么情况才算瑕疵？",
+                "A chip, a crack through the body, a piece that does not sit flat, or a seam "
+                "that has failed. Any of those, tell us and we will replace it.",
+                "崩口、贯穿坯体的裂纹、无法平稳放置，或接缝开裂，都属于瑕疵。遇到任何一种情况，请告诉我们，我们会为您更换。",
+            ),
+        ),
+    },
+    {
+        "slug": "gifting",
+        "title": ("Gifting", "礼赠"),
+        "blurb": ("Notes, wrapping and gift orders.", "留言、包装与礼品订单。"),
+        "items": (
+            (
+                "Can you include a handwritten note?",
+                "可以附上手写留言吗？",
+                "Yes. Add your message at checkout and it is written onto a card by hand, "
+                "unsigned by us, and tucked into the parcel.",
+                "可以。结账时填写留言，我们会将其手写在卡片上，不署工作室名，并放入包裹中。",
+            ),
+            (
+                "Will the recipient see the price?",
+                "收件人会看到价格吗？",
+                "No. Parcels never contain an invoice. Pricing is emailed to you only.",
+                "不会。包裹中绝不会放入发票。价格信息只会通过电子邮件发送给您。",
+            ),
+            (
+                "Is gift wrapping extra?",
+                "礼品包装需要额外收费吗？",
+                "No. Everything is wrapped in unbleached paper and cotton string as standard. "
+                "There is nothing extra to add.",
+                "不需要。所有商品都会按标准使用未漂白纸张和棉绳包装，无需另行添加。",
+            ),
+            (
+                "Do you sell gift cards?",
+                "你们销售礼品卡吗？",
+                "Yes, in ¥50, ¥100 and ¥200. They are emailed to the recipient on a date you "
+                "choose and do not expire.",
+                "有 ¥50、¥100 和 ¥200 三种面额。礼品卡会在您选择的日期通过电子邮件发送给收件人，且不会过期。",
+            ),
+        ),
+    },
+)
 
 
 class CollectionLocalizationTests(SimpleTestCase):
@@ -604,6 +823,198 @@ class MakerLocalizationTests(SimpleTestCase):
                 | services.Q(tagline__icontains="Chen"),
                 is_active=True,
             )
+
+
+class FAQLocalizationTests(SimpleTestCase):
+    @staticmethod
+    def make_group(expected=FAQ_EXPECTED[0], *, group_overrides=None):
+        group_values = {
+            "id": 31,
+            "slug": expected["slug"],
+            "title": expected["title"][0],
+            "blurb": expected["blurb"][0],
+            "sort_order": 2,
+            "is_active": True,
+        }
+        group_values.update(group_overrides or {})
+        group = FAQGroup(**group_values)
+        items = [
+            FAQ(
+                id=100 + index, group=group, question=item[0], answer=item[2],
+                sort_order=index, is_active=True,
+            )
+            for index, item in enumerate(expected["items"])
+        ]
+        group._prefetched_objects_cache = {"faqs": items}
+        return group, items
+
+    @staticmethod
+    def item_copy(items):
+        return [(item.question, item.answer, item.sort_order, item.is_active) for item in items]
+
+    def test_all_seeded_faq_copy_in_english_and_chinese(self):
+        self.assertEqual(len(FAQ_GROUPS), 6)
+        self.assertEqual(sum(len(group["items"]) for group in FAQ_GROUPS), 24)
+        for seed, expected in zip(FAQ_GROUPS, FAQ_EXPECTED, strict=True):
+            with self.subTest(slug=expected["slug"]):
+                self.assertEqual(
+                    (seed["slug"], seed["title"], seed["blurb"]),
+                    (expected["slug"], expected["title"][0], expected["blurb"][0]),
+                )
+                self.assertEqual(
+                    [(item["q"], item["a"]) for item in seed["items"]],
+                    [(item[0], item[2]) for item in expected["items"]],
+                )
+                source, source_items = self.make_group(expected)
+                original_items = self.item_copy(source_items)
+                with translation.override("en"):
+                    self.assertIs(localize_faq_group(source), source)
+                with translation.override("zh-hans"):
+                    localized = localize_faq_group(source)
+                self.assertEqual((localized.title, localized.blurb),
+                                 (expected["title"][1], expected["blurb"][1]))
+                self.assertEqual(
+                    [(item.q, item.a) for item in localized.items],
+                    [(item[1], item[3]) for item in expected["items"]],
+                )
+                self.assertEqual((source.title, source.blurb),
+                                 (expected["title"][0], expected["blurb"][0]))
+                self.assertEqual(self.item_copy(source_items), original_items)
+                self.assertEqual(
+                    (localized.slug, localized.pk, localized.sort_order, localized.is_active),
+                    (source.slug, source.pk, source.sort_order, source.is_active),
+                )
+
+    def test_faq_language_switching_uses_the_same_source_objects(self):
+        expected = FAQ_EXPECTED[0]
+        source, source_items = self.make_group(expected)
+        english_items = [(item[0], item[2]) for item in expected["items"]]
+        chinese_items = [(item[1], item[3]) for item in expected["items"]]
+        with translation.override("en"):
+            self.assertIs(localize_faq_group(source), source)
+            self.assertEqual([(item.q, item.a) for item in source_items], english_items)
+        with translation.override("zh-hans"):
+            localized = localize_faq_group(source)
+            self.assertEqual([(item.q, item.a) for item in localized.items], chinese_items)
+        with translation.override("en"):
+            self.assertIs(localize_faq_group(source), source)
+            self.assertEqual([(item.q, item.a) for item in source_items], english_items)
+        self.assertEqual([(item.q, item.a) for item in source_items], english_items)
+
+    def test_custom_group_title_and_blurb_are_guarded_independently(self):
+        expected = FAQ_EXPECTED[0]
+        cases = (
+            ({"title": "Seller title"}, ("Seller title", expected["blurb"][1])),
+            ({"blurb": "Seller blurb"}, (expected["title"][1], "Seller blurb")),
+            ({"title": "Seller title", "blurb": "Seller blurb"},
+             ("Seller title", "Seller blurb")),
+        )
+        with translation.override("zh-hans"):
+            for overrides, wanted in cases:
+                with self.subTest(overrides=overrides):
+                    source, _ = self.make_group(expected, group_overrides=overrides)
+                    localized = localize_faq_group(source)
+                    self.assertEqual((localized.title, localized.blurb), wanted)
+                    self.assertEqual(
+                        (source.title, source.blurb),
+                        (overrides.get("title", expected["title"][0]),
+                         overrides.get("blurb", expected["blurb"][0])),
+                    )
+
+    def test_custom_questions_and_answers_are_guarded_independently(self):
+        expected = FAQ_EXPECTED[0]
+        cases = (
+            ({"question": "Seller question"},
+             ("Seller question", expected["items"][0][3])),
+            ({"answer": "Seller answer"},
+             (expected["items"][0][1], "Seller answer")),
+            ({"question": "Seller question", "answer": "Seller answer"},
+             ("Seller question", "Seller answer")),
+        )
+        with translation.override("zh-hans"):
+            for overrides, wanted in cases:
+                with self.subTest(overrides=overrides):
+                    source, items = self.make_group(expected)
+                    for field, value in overrides.items():
+                        setattr(items[0], field, value)
+                    original = self.item_copy(items)
+                    localized = localize_faq_group(source)
+                    self.assertEqual((localized.items[0].q, localized.items[0].a), wanted)
+                    self.assertEqual(self.item_copy(items), original)
+
+    def test_inserted_removed_reordered_and_unknown_faqs_are_not_mismatched(self):
+        expected = FAQ_EXPECTED[0]
+        with translation.override("zh-hans"):
+            inserted, items = self.make_group(expected)
+            items.append(FAQ(id=999, group=inserted, question="Inserted question",
+                             answer="Inserted answer", sort_order=4, is_active=True))
+            inserted_localized = localize_faq_group(inserted)
+            self.assertEqual([(item.q, item.a) for item in inserted_localized.items],
+                             [(item.q, item.a) for item in items])
+
+            removed, items = self.make_group(expected)
+            removed._prefetched_objects_cache["faqs"] = items[:-1]
+            removed_localized = localize_faq_group(removed)
+            self.assertEqual([(item.q, item.a) for item in removed_localized.items],
+                             [(item.q, item.a) for item in items[:-1]])
+
+            reordered, items = self.make_group(expected)
+            reordered_items = list(reversed(items))
+            reordered._prefetched_objects_cache["faqs"] = reordered_items
+            reordered_localized = localize_faq_group(reordered)
+            self.assertEqual([(item.q, item.a) for item in reordered_localized.items],
+                             [(item.q, item.a) for item in reordered_items])
+
+            unknown, _ = self.make_group(
+                expected, group_overrides={"slug": "seller-faq-group"},
+            )
+            self.assertIs(localize_faq_group(unknown), unknown)
+
+    def test_active_filtering_and_order_use_prefetched_items_without_database_queries(self):
+        expected = FAQ_EXPECTED[0]
+        source, items = self.make_group(expected)
+        inactive = FAQ(id=998, group=source, question="Inactive question",
+                       answer="Inactive answer", sort_order=2, is_active=False)
+        source._prefetched_objects_cache["faqs"] = [items[0], inactive, *items[1:]]
+        with translation.override("zh-hans"):
+            localized = localize_faq_group(source)
+        self.assertEqual([item.pk for item in localized.items], [item.pk for item in items])
+        self.assertEqual(
+            [(item.q, item.a) for item in localized.items],
+            [(item[1], item[3]) for item in expected["items"]],
+        )
+        self.assertNotIn(inactive, localized.items)
+
+    def test_faq_and_contact_template_contracts_accept_the_presentation_wrapper(self):
+        expected = FAQ_EXPECTED[0]
+        source, _ = self.make_group(expected)
+        with translation.override("zh-hans"):
+            localized = localize_faq_group(source)
+
+        faq_source = (Path(__file__).parent / "templates/frontend/pages/faq.html").read_text(
+            encoding="utf-8",
+        )
+        contact_source = (
+            Path(__file__).parent / "templates/frontend/pages/contact.html"
+        ).read_text(encoding="utf-8")
+        self.assertIn("{% for item in group.items %}", faq_source)
+        self.assertIn("{{ item.q }}", faq_source)
+        self.assertIn("{{ item.a }}", faq_source)
+        self.assertIn("group.items|length", contact_source)
+
+        faq_template = Template(
+            "{% for group in faq_groups %}{{ group.title }}|{{ group.blurb }}|"
+            "{% for item in group.items %}{{ item.q }}|{{ item.a }}|{% endfor %}{% endfor %}",
+        )
+        contact_template = Template(
+            "{% for group in faq_groups %}{{ group.title }}:{{ group.items|length }}{% endfor %}",
+        )
+        faq_html = faq_template.render(Context({"faq_groups": [localized]}))
+        contact_html = contact_template.render(Context({"faq_groups": [localized]}))
+        self.assertIn(expected["title"][1], faq_html)
+        self.assertIn(expected["items"][0][1], faq_html)
+        self.assertIn(expected["items"][0][3], faq_html)
+        self.assertEqual(contact_html, f'{expected["title"][1]}:4')
 
 
 class ProductLocalizationTests(SimpleTestCase):

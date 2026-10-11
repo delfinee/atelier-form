@@ -167,6 +167,42 @@ msgid ""
 "a hundred times, boards that get cut on, towels that get used."
 msgstr "工作室真正用于日常的物件：洗过一百次的围裙、反复切割使用的木板，以及每天都会用到的毛巾。"
 
+#: .\frontend\services.py:33
+msgid "Featured"
+msgstr "精选"
+
+#: .\frontend\services.py:34
+msgid "Newest"
+msgstr "最新上架"
+
+#: .\frontend\services.py:35
+msgid "Price: Low to High"
+msgstr "价格：从低到高"
+
+#: .\frontend\services.py:36
+msgid "Price: High to Low"
+msgstr "价格：从高到低"
+
+#: .\frontend\services.py:46
+msgid "Under ¥40"
+msgstr "低于 ¥40"
+
+#: .\frontend\services.py:47
+msgid "¥40 – ¥70"
+msgstr "¥40 – ¥70"
+
+#: .\frontend\services.py:48
+msgid "¥70 – ¥100"
+msgstr "¥70 – ¥100"
+
+#: .\frontend\services.py:49
+msgid "Over ¥100"
+msgstr "高于 ¥100"
+
+#: .\frontend\services.py:40
+msgid "In stock"
+msgstr "现货供应"
+
 #: .\frontend\mockdata\content.py:48
 msgid "About"
 msgstr "关于"

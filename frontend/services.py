@@ -17,6 +17,7 @@ from decimal import Decimal
 from typing import Any, Iterable, cast
 
 from django.db.models import Case, IntegerField, Q, When
+from django.utils.translation import gettext, gettext_noop
 
 from content.models import Article, ArticleQuerySet
 from .catalogue_i18n import (
@@ -29,23 +30,23 @@ from products.models import (
 )
 
 SORT_OPTIONS = [
-    ("featured", "Featured"),
-    ("newest", "Newest"),
-    ("price-asc", "Price: Low to High"),
-    ("price-desc", "Price: High to Low"),
+    ("featured", gettext_noop("Featured")),
+    ("newest", gettext_noop("Newest")),
+    ("price-asc", gettext_noop("Price: Low to High")),
+    ("price-desc", gettext_noop("Price: High to Low")),
 ]
 
 AVAILABILITY_OPTIONS = [
-    ("in-stock", "In stock"),
-    ("low-stock", "Low stock"),
-    ("made-to-order", "Made to order"),
+    ("in-stock", gettext_noop("In stock")),
+    ("low-stock", gettext_noop("Low stock")),
+    ("made-to-order", gettext_noop("Made to order")),
 ]
 
 PRICE_BANDS = [
-    ("under-40", "Under ¥40", 0, 40),
-    ("40-70", "¥40 – ¥70", 40, 70),
-    ("70-100", "¥70 – ¥100", 70, 100),
-    ("over-100", "Over ¥100", 100, 10_000),
+    ("under-40", gettext_noop("Under ¥40"), 0, 40),
+    ("40-70", gettext_noop("¥40 – ¥70"), 40, 70),
+    ("70-100", gettext_noop("¥70 – ¥100"), 70, 100),
+    ("over-100", gettext_noop("Over ¥100"), 100, 10_000),
 ]
 
 POPULAR_SEARCHES = ["Stoneware mug", "Indigo", "Candle", "Linen", "Gifts under ¥50"]
@@ -59,26 +60,15 @@ _SORT_FIELDS = {
 
 
 def localized_sort_options() -> list[tuple[str, str]]:
-    labels = {
-        "Featured": "精选", "Newest": "最新上架",
-        "Price: Low to High": "价格：从低到高",
-        "Price: High to Low": "价格：从高到低",
-    }
-    return [(value, labels.get(label, label) if is_chinese() else label)
-            for value, label in SORT_OPTIONS]
+    return [(value, gettext(label)) for value, label in SORT_OPTIONS]
 
 
 def _price_label(label: str) -> str:
-    if not is_chinese():
-        return label
-    return {"Under ¥40": "低于 ¥40", "Over ¥100": "高于 ¥100"}.get(label, label)
+    return gettext(label)
 
 
 def _availability_label(label: str) -> str:
-    if not is_chinese():
-        return label
-    return {"In stock": "现货供应", "Low stock": "库存紧张",
-            "Made to order": "订制生产"}.get(label, label)
+    return gettext(label)
 
 
 def _base_queryset():

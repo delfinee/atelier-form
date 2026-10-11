@@ -6,8 +6,10 @@ from django.utils.translation import gettext
 
 from products.models import Category, Collection
 
+from frontend import services
 from frontend.catalogue_i18n import localize_collection
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
+from frontend.templatetags.frontend_extras import stock_label
 
 
 # Approved Chinese copy is fixed here, independent of the runtime translation source.
@@ -226,3 +228,101 @@ class CollectionLocalizationTests(SimpleTestCase):
         with translation.override("fr"):
             self.assertIs(localize_collection(category), category)
             self.assertIs(localize_collection(editorial), editorial)
+
+
+class ShopLabelLocalizationTests(SimpleTestCase):
+    SORT_EN = [
+        ("featured", "Featured"),
+        ("newest", "Newest"),
+        ("price-asc", "Price: Low to High"),
+        ("price-desc", "Price: High to Low"),
+    ]
+    SORT_ZH = [
+        ("featured", "精选"),
+        ("newest", "最新上架"),
+        ("price-asc", "价格：从低到高"),
+        ("price-desc", "价格：从高到低"),
+    ]
+    PRICE_EN = [
+        ("under-40", "Under ¥40", 0, 40),
+        ("40-70", "¥40 – ¥70", 40, 70),
+        ("70-100", "¥70 – ¥100", 70, 100),
+        ("over-100", "Over ¥100", 100, 10_000),
+    ]
+    PRICE_ZH = [
+        ("under-40", "低于 ¥40"),
+        ("40-70", "¥40 – ¥70"),
+        ("70-100", "¥70 – ¥100"),
+        ("over-100", "高于 ¥100"),
+    ]
+    AVAILABILITY_EN = [
+        ("in-stock", "In stock"),
+        ("low-stock", "Low stock"),
+        ("made-to-order", "Made to order"),
+    ]
+    AVAILABILITY_ZH = [
+        ("in-stock", "现货供应"),
+        ("low-stock", "库存紧张"),
+        ("made-to-order", "订制生产"),
+    ]
+
+    def price_options(self):
+        return [(value, services._price_label(label))
+                for value, label, _, _ in services.PRICE_BANDS]
+
+    def availability_options(self):
+        return [(value, services._availability_label(label))
+                for value, label in services.AVAILABILITY_OPTIONS]
+
+    def test_sort_ids_and_labels(self):
+        self.assertEqual(services.SORT_OPTIONS, self.SORT_EN)
+        self.assertEqual(set(services._SORT_FIELDS), {value for value, _ in self.SORT_EN})
+        with translation.override("en"):
+            self.assertEqual(services.localized_sort_options(), self.SORT_EN)
+        with translation.override("zh-hans"):
+            self.assertEqual(services.localized_sort_options(), self.SORT_ZH)
+
+    def test_price_ids_bounds_and_labels(self):
+        self.assertEqual(services.PRICE_BANDS, self.PRICE_EN)
+        with translation.override("en"):
+            self.assertEqual(self.price_options(), [(value, label) for value, label, _, _ in self.PRICE_EN])
+        with translation.override("zh-hans"):
+            self.assertEqual(self.price_options(), self.PRICE_ZH)
+
+    def test_availability_ids_and_labels(self):
+        self.assertEqual(services.AVAILABILITY_OPTIONS, self.AVAILABILITY_EN)
+        with translation.override("en"):
+            self.assertEqual(self.availability_options(), self.AVAILABILITY_EN)
+        with translation.override("zh-hans"):
+            self.assertEqual(self.availability_options(), self.AVAILABILITY_ZH)
+
+    def test_stock_label_and_unknown_statuses(self):
+        status_codes = ("in-stock", "low-stock", "made-to-order")
+        with translation.override("en"):
+            self.assertEqual([stock_label(code) for code in status_codes],
+                             [label for _, label in self.AVAILABILITY_EN])
+        with translation.override("zh-hans"):
+            self.assertEqual([stock_label(code) for code in status_codes],
+                             [label for _, label in self.AVAILABILITY_ZH])
+            self.assertEqual(stock_label("sold-out"), "")
+            self.assertEqual(stock_label("unknown"), "")
+
+    def test_language_switching_keeps_display_only_changes(self):
+        def displayed():
+            return (services.localized_sort_options(), self.price_options(),
+                    self.availability_options(), stock_label("in-stock"))
+
+        with translation.override("en"):
+            english = displayed()
+        with translation.override("zh-hans"):
+            chinese = displayed()
+        with translation.override("en"):
+            self.assertEqual(displayed(), english)
+        self.assertEqual(english, (self.SORT_EN,
+                                   [(value, label) for value, label, _, _ in self.PRICE_EN],
+                                   self.AVAILABILITY_EN, "In stock"))
+        self.assertEqual(chinese, (self.SORT_ZH, self.PRICE_ZH,
+                                   self.AVAILABILITY_ZH, "现货供应"))
+        self.assertEqual(services.SORT_OPTIONS, self.SORT_EN)
+        self.assertEqual(services.PRICE_BANDS, self.PRICE_EN)
+        self.assertEqual(services.AVAILABILITY_OPTIONS, self.AVAILABILITY_EN)

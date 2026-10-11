@@ -5,6 +5,7 @@ from __future__ import annotations
 from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext
 
 from imagery.models import RATIOS as PIXEL_RATIOS
 from imagery.resolver import image_url
@@ -63,8 +64,9 @@ def size_variants(variants) -> list:
 
 @register.simple_tag
 def stock_label(status: str) -> str:
-    return {"in-stock": "In stock", "low-stock": "Low stock",
-            "made-to-order": "Made to order"}.get(status, "")
+    label = {"in-stock": "In stock", "low-stock": "Low stock",
+             "made-to-order": "Made to order"}.get(status)
+    return gettext(label) if label else ""
 
 
 @register.simple_tag(takes_context=True)

@@ -1,8 +1,11 @@
 """Database-free checks for catalogue presentation translations."""
 
+import ast
+from datetime import datetime, timezone as datetime_timezone
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
+from uuid import UUID
 from unittest.mock import MagicMock, patch
 
 from django.template import Context, Template
@@ -10,7 +13,7 @@ from django.test import SimpleTestCase
 from django.utils import translation
 from django.utils.translation import gettext
 
-from content.models import FAQ, FAQGroup
+from content.models import FAQ, Article, FAQGroup
 from orders.serializers import CartItemSerializer
 from products.models import (
     MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product,
@@ -18,11 +21,12 @@ from products.models import (
 
 from frontend import services
 from frontend.catalogue_i18n import (
-    localize_collection, localize_colour_label, localize_faq_group, localize_maker,
-    localize_product,
+    localize_article, localize_collection, localize_colour_label, localize_faq_group,
+    localize_maker, localize_product,
 )
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
 from frontend.mockdata.faqs import FAQ_GROUPS
+from frontend.mockdata.journal import ARTICLES
 from frontend.mockdata.makers import MAKERS
 from frontend.mockdata.products import CARE_BY_CATEGORY, PRODUCTS, SWATCHES
 from frontend.templatetags.frontend_extras import colour_label, stock_label
@@ -1570,3 +1574,404 @@ class ColourAndMaterialLocalizationTests(SimpleTestCase):
             self.assertEqual(display("finish", "Ash", "zh-hans"), ("Ash", "Ash"))
         self.assertEqual(display("colour", "Bone", "zh-hans"), ("骨白", "Bone"))
         self.assertIn("variant_uuid", CartItemSerializer().fields)
+
+
+ARTICLE_EXPECTED = (
+    {
+        "slug": "why-no-two-glazes-match",
+        "title": ("Why no two glazes match", "为什么没有两种釉色完全相同"),
+        "standfirst": (
+            "A wood-ash glaze is a record of the firing that made it. Here is why we stopped trying to make them identical.",
+            "手工灰釉记录着烧制它的过程。我们为什么不再追求完全一致？",
+        ),
+        "category": ("Craft", "工艺"),
+        "read_time": ("6 min", "6 分钟"),
+        "author": ("Chen Meilin", "陈梅琳"),
+        "date": ("12 August 2026", "2026年8月12日"),
+        "image": "journal-why-no-two-glazes-match",
+        "featured": True,
+        "body": (
+            ("paragraph", "Ask a factory to make five hundred mugs the same colour and it will. Ask a kiln to do it and you will get something more interesting and less obedient.", "让工厂把五百只马克杯做成同一种颜色，它可以做到。让窑炉这样做，你得到的会是更有意思、也更不听话的东西。"),
+            ("heading", "What the kiln decides", "窑炉的决定"),
+            ("paragraph", "Ash glaze is mixed from what is swept out of the kiln after a firing -- wood ash, feldspar, a little iron oxide, water. The proportions are consistent. What is not consistent is where a piece sits in the kiln, how the flame moves around it, and how fast that corner cools over the two days afterwards.", "灰釉由每次烧制后从窑炉中清扫出的材料调配而成——木灰、长石、少量氧化铁和水。配比始终一致。无法保持一致的是器物在窑中的位置、火焰绕过它的方式，以及之后两天里那个角落冷却的速度。"),
+            ("paragraph", "A mug on the top shelf near the flue will come out a shade greener than the same mug, from the same batch of glaze, on the bottom shelf. Neither is the correct one.", "靠近烟道的上层窑架上，一只马克杯出窑时会比下层窑架上那只使用同批釉料的同款杯子更偏绿一些。两者都不是唯一正确的样子。"),
+            ("quote", "We fire to a range, not a number. The kiln finishes the piece, and it does not take instruction.", "我们烧制的是一个范围，而不是一个数字。器物由窑炉完成，它不听从指令。"),
+            ("heading", "Living with variation", "与差异共处"),
+            ("paragraph", "This has a practical consequence for anyone buying a set. If you order four bowls, you will get four bowls that clearly belong together and are clearly not identical. Over a few years of use they diverge further -- the ones you reach for most develop a slightly different surface.", "这会给购买成套器物的人带来一个实际结果。如果你订购四只碗，收到的四只显然属于一套，也显然并不完全相同。使用几年后，它们之间的差异还会加深——你最常拿取的那些，表面会逐渐呈现稍有不同的状态。"),
+            ("paragraph", "We used to photograph the most even piece of a batch. We now photograph a middling one, because it is closer to what arrives.", "过去，我们会拍摄一批中最均匀的那一件。现在，我们拍摄处于中间状态的一件，因为它更接近你实际收到的样子。"),
+        ),
+    },
+    {
+        "slug": "an-indigo-vat-in-dali",
+        "title": ("An indigo vat in Dali", "大理的一口靛蓝染缸"),
+        "standfirst": (
+            "Lu Wenjing keeps four fermenting vats behind her house. Feeding them is a weekly job that has no shortcut.",
+            "陆文静在家后院养着四口发酵染缸，每周照料，没有捷径。",
+        ),
+        "category": ("Makers", "匠人"),
+        "read_time": ("8 min", "8 分钟"),
+        "author": ("Atelier Form", "Atelier Form"),
+        "date": ("29 July 2026", "2026年7月29日"),
+        "image": "journal-an-indigo-vat-in-dali",
+        "featured": True,
+        "body": (
+            ("paragraph", "The vats are clay, sunk to the rim in the ground behind the house, and they are alive in a fairly literal sense. Indigo does not dissolve in water. It has to be reduced by bacteria first, and those bacteria need feeding, warmth and time.", "这些染缸由陶土制成，埋在屋后的地里，缸口与地面齐平；从相当直观的意义上说，它们是活的。靛蓝不溶于水，必须先由细菌还原，而这些细菌需要养料、温度和时间。"),
+            ("heading", "A weekly rhythm", "每周的节奏"),
+            ("paragraph", "Every Monday Wenjing adds wheat bran and lime, stirs each vat and checks the surface for the coppery film that says the vat is working. A healthy vat smells sweet. An unhappy one smells of nothing at all, which is worse.", "每逢星期一，文静都会加入麦麸和石灰，搅动每口染缸，并查看表面是否出现说明染缸运作正常的铜色薄膜。健康的染缸带着甜香；状态不佳的染缸则什么气味也没有，而这更糟。"),
+            ("paragraph", "Cloth goes in yellow-green and turns blue in the air, in front of you, over about twenty seconds. Six dips gives a pale sky. Fourteen gives the near-black indigo on our heaviest throws.", "布料入缸时呈黄绿色，在你眼前接触空气后变成蓝色，整个过程约二十秒。浸染六次会得到浅淡的天蓝色；十四次则会得到我们最厚重盖毯上近乎黑色的靛蓝。"),
+            ("heading", "Why it fades the way it does", "为什么会这样褪色"),
+            ("paragraph", "Indigo sits on the outside of the fibre rather than inside it. That is why indigo cloth wears at the folds and the edges first, and why a piece you use every week will look different from one kept in a cupboard. It is also why it will never look worse -- only more specific to you.", "靛蓝附着在纤维外部，而非进入纤维内部。因此靛蓝织物会先在折叠处和边缘磨损，每周使用的织物也会与一直收在柜中的那件呈现不同面貌。也正因如此，它永远不会变得更糟——只会越来越带有属于你的痕迹。"),
+        ),
+    },
+    {
+        "slug": "how-to-care-for-handmade-ceramics",
+        "title": ("How to care for handmade ceramics", "如何保养手作陶器"),
+        "standfirst": (
+            "Most of what shortens the life of a handmade piece is heat, not use.",
+            "真正缩短手作器物寿命的，多数是高温，而不是日常使用。",
+        ),
+        "category": ("Care", "保养"),
+        "read_time": ("4 min", "4 分钟"),
+        "author": ("Atelier Form", "Atelier Form"),
+        "date": ("14 July 2026", "2026年7月14日"),
+        "image": "journal-how-to-care-for-handmade-ceramics",
+        "featured": False,
+        "body": (
+            ("paragraph", "Our stoneware is fired high enough to be fully vitrified, which means it is dishwasher safe and will not absorb water or odours. You can put it in the machine without thinking about it.", "我们的炻器以足够高的温度烧至完全玻化，这意味着它可以放入洗碗机，也不会吸收水分或气味。放进机器清洗时，无需多虑。"),
+            ("paragraph", "The thing that will actually damage a piece is thermal shock -- a hot bowl into cold water, or a cold plate into a hot oven. Glaze and clay expand at slightly different rates, and a sharp change can craze the surface or, occasionally, crack the piece outright. Let things cool first.", "真正会损坏器物的是热震——把热碗放入冷水，或把冷盘放进热烤箱。釉料与陶土的膨胀速度略有不同，温度骤变可能使釉面产生开片，偶尔甚至会让器物彻底开裂。先让它们冷却。"),
+            ("paragraph", "Unglazed feet will pick up marks from the table over time. That is normal and, in our view, an improvement. If it bothers you, a light rub with a damp cloth and a little bicarbonate lifts most of it.", "未施釉的圈足会随时间从桌面沾上痕迹。这很正常，在我们看来反而更好看。如果你介意，用湿布蘸少量小苏打轻轻擦拭，就能去除大部分痕迹。"),
+            ("paragraph", "Fine crazing -- a web of hairline lines in the glaze -- is not a crack and does not affect whether a piece holds water. In a vitrified body it is cosmetic.", "细密的开片——釉面上如网状分布的发丝纹——并不是裂缝，也不影响器物盛水。对于已经玻化的坯体，它只是外观上的变化。"),
+        ),
+    },
+    {
+        "slug": "the-case-for-buying-less",
+        "title": ("The case for buying less", "少买一些的理由"),
+        "standfirst": (
+            "We make about four hundred pieces a month. Here is why we have no plans to make four thousand.",
+            "我们每月制作约四百件作品，这就是不打算制作四千件的原因。",
+        ),
+        "category": ("Studio", "工作室"),
+        "read_time": ("7 min", "7 分钟"),
+        "author": ("Atelier Form", "Atelier Form"),
+        "date": ("30 June 2026", "2026年6月30日"),
+        "image": "journal-the-case-for-buying-less",
+        "featured": True,
+        "body": (
+            ("paragraph", "Every year we are asked why we do not scale. The honest answer is that the thing people like about the work is a direct consequence of how little of it there is.", "每年都有人问我们为什么不扩大规模。坦率地说，人们喜欢这些作品，正是因为它们数量有限。"),
+            ("paragraph", "A studio making four hundred pieces a month can afford to lose a firing. It can let a maker spend a season on a shape that may not sell. It can turn down the wholesale order that would have paid for a second kiln but required the glaze to be standardised first.", "一家每月制作四百件作品的工作室，经得起一次烧制失败。它可以让匠人用一整个季节琢磨一种未必卖得出去的器形；也可以拒绝一笔本可支付第二座窑炉费用、却要求先把釉色标准化的批发订单。"),
+            ("paragraph", "None of that survives contact with volume. The pieces would still be competent. They would stop being specific.", "一旦产量扩大，这些都无法维持。器物依然会做得合格，却不再具有鲜明的个性。"),
+            ("paragraph", "This has a cost, and we would rather be plain about it: some things sell out and do not come back for months, and made-to-order items really do take three weeks. We think that is the better trade.", "这会带来代价，我们愿意坦白说明：有些作品售罄后要几个月才会回来，按订单制作的商品也确实需要三周。我们认为，这样的取舍更好。"),
+        ),
+    },
+    {
+        "slug": "a-table-set-for-nothing-in-particular",
+        "title": ("A table set for nothing in particular", "一张没有特别理由的餐桌"),
+        "standfirst": (
+            "Notes on using the good plates on a Tuesday.",
+            "在星期二也用上那些好盘子。",
+        ),
+        "category": ("Interiors", "室内"),
+        "read_time": ("5 min", "5 分钟"),
+        "author": ("Atelier Form", "Atelier Form"),
+        "date": ("6 June 2026", "2026年6月6日"),
+        "image": "journal-a-table-set-for-nothing-in-particular",
+        "featured": False,
+        "body": (
+            ("paragraph", "There is a particular cupboard, in a lot of houses, where the good things live. They come out twice a year and spend the rest of their life being protected from the very thing they were made for.", "许多家里都有一个专门的柜子，里面放着那些好东西。它们一年只拿出来两次，其余时间都被保护着，远离它们原本被制作出来要服务的用途。"),
+            ("paragraph", "Handmade pieces are, counter-intuitively, better suited to daily use than to occasional display. They are not delicate. High-fired stoneware is tougher than most factory porcelain, and washed linen is at its best after fifty washes rather than five.", "有些反直觉的是，手工作品比起偶尔陈列，其实更适合日常使用。它们并不娇贵。高温烧制的炻器比大多数工厂瓷器更坚实，水洗亚麻也要洗过五十次，而不是五次，才会呈现最好的状态。"),
+            ("paragraph", "The argument for using them is not really about the objects. It is that a weeknight dinner eaten off something someone made by hand is a different kind of evening, at no additional cost, on a day that had nothing else to recommend it.", "使用它们的理由，其实不只关乎物件本身。在一个原本平淡无奇的工作日里，用某个人亲手制作的器皿吃一顿晚餐，不需增加任何花费，却会让那个夜晚变得不同。"),
+            ("paragraph", "Our suggestion is unglamorous: take the good plates out of the high cupboard and put them where the everyday ones are. Within a month you will stop noticing, which is the point.", "我们的建议并不华丽：把好盘子从高处的柜子里拿出来，放到日常餐具的位置。一个月内，你就不会再特意注意它们，而这正是意义所在。"),
+        ),
+    },
+)
+
+
+class ArticleLocalizationTests(SimpleTestCase):
+    @staticmethod
+    def make_article(expected=ARTICLE_EXPECTED[0], **overrides):
+        values = {
+            "id": 71,
+            "uuid": UUID("11111111-2222-3333-4444-555555555555"),
+            "slug": expected["slug"],
+            "title": expected["title"][0],
+            "standfirst": expected["standfirst"][0],
+            "category": expected["category"][0],
+            "author": expected["author"][0],
+            "cover_image": expected["image"],
+            "read_time": expected["read_time"][0],
+            "body": [{"type": kind, "text": english}
+                     for kind, english, _ in expected["body"]],
+            "is_featured": expected["featured"],
+            "is_published": True,
+            "published_at": datetime.strptime(
+                expected["date"][0], "%d %B %Y",
+            ).replace(tzinfo=datetime_timezone.utc),
+        }
+        values.update(overrides)
+        return Article(**values)
+
+    @staticmethod
+    def scalar_fields(article):
+        return (
+            article.title, article.standfirst, article.category,
+            article.read_time, article.author,
+        )
+
+    def test_all_canonical_english_seed_content_is_unchanged(self):
+        self.assertEqual(len(ARTICLES), 5)
+        for seed, expected in zip(ARTICLES, ARTICLE_EXPECTED, strict=True):
+            with self.subTest(slug=expected["slug"]):
+                self.assertEqual(
+                    (seed["slug"], seed["title"], seed["standfirst"],
+                     seed["category"], seed["read_time"], seed["author"],
+                     seed["date"], seed["image"], seed["featured"]),
+                    (expected["slug"], expected["title"][0],
+                     expected["standfirst"][0], expected["category"][0],
+                     expected["read_time"][0], expected["author"][0],
+                     expected["date"][0], expected["image"], expected["featured"]),
+                )
+                self.assertEqual(
+                    [(block["type"], block["text"]) for block in seed["body"]],
+                    [(kind, english) for kind, english, _ in expected["body"]],
+                )
+
+    def test_all_five_articles_and_every_body_block_translate(self):
+        for expected in ARTICLE_EXPECTED:
+            with self.subTest(slug=expected["slug"]):
+                source = self.make_article(expected)
+                original_body = [dict(block) for block in source.body]
+                original_dict_ids = [id(block) for block in source.body]
+                with translation.override("zh-hans"):
+                    localized = localize_article(source)
+                self.assertEqual(
+                    self.scalar_fields(localized),
+                    (expected["title"][1], expected["standfirst"][1],
+                     expected["category"][1], expected["read_time"][1],
+                     expected["author"][1]),
+                )
+                self.assertEqual(
+                    [(block["type"], block["text"]) for block in localized.body],
+                    [(kind, chinese) for kind, _, chinese in expected["body"]],
+                )
+                self.assertEqual(source.body, original_body)
+                self.assertEqual([id(block) for block in source.body], original_dict_ids)
+                self.assertIsNot(localized.body, source.body)
+                self.assertTrue(all(
+                    localized_block is not source_block
+                    for localized_block, source_block in zip(
+                        localized.body, source.body, strict=True,
+                    )
+                ))
+
+    def test_language_switching_preserves_all_ten_approved_title_strings(self):
+        for expected in ARTICLE_EXPECTED:
+            source = self.make_article(expected)
+            with self.subTest(slug=expected["slug"]):
+                with translation.override("en"):
+                    self.assertIs(localize_article(source), source)
+                    self.assertEqual(
+                        (source.title, source.standfirst),
+                        (expected["title"][0], expected["standfirst"][0]),
+                    )
+                with translation.override("zh-hans"):
+                    localized = localize_article(source)
+                    self.assertEqual(
+                        (localized.title, localized.standfirst),
+                        (expected["title"][1], expected["standfirst"][1]),
+                    )
+                with translation.override("en"):
+                    self.assertIs(localize_article(source), source)
+                    self.assertEqual(
+                        (source.title, source.standfirst),
+                        (expected["title"][0], expected["standfirst"][0]),
+                    )
+
+    def test_custom_scalar_fields_are_guarded_independently(self):
+        expected = ARTICLE_EXPECTED[0]
+        field_names = ("title", "standfirst", "category", "read_time", "author")
+        chinese = (
+            expected["title"][1], expected["standfirst"][1],
+            expected["category"][1], expected["read_time"][1],
+            expected["author"][1],
+        )
+        with translation.override("zh-hans"):
+            for field in field_names:
+                with self.subTest(field=field):
+                    source = self.make_article(expected, **{field: "Editor copy"})
+                    localized = localize_article(source)
+                    wanted = dict(zip(field_names, chinese, strict=True))
+                    wanted[field] = "Editor copy"
+                    self.assertEqual(
+                        self.scalar_fields(localized),
+                        tuple(wanted[name] for name in field_names),
+                    )
+                    self.assertEqual(getattr(source, field), "Editor copy")
+
+    def test_custom_body_text_is_preserved_independently_without_mutation(self):
+        expected = ARTICLE_EXPECTED[0]
+        source = self.make_article(expected)
+        source.body[2]["text"] = "Editor-written kiln paragraph."
+        original_body = [dict(block) for block in source.body]
+        with translation.override("zh-hans"):
+            localized = localize_article(source)
+        self.assertEqual(localized.body[2]["text"], "Editor-written kiln paragraph.")
+        self.assertEqual(localized.body[0]["text"], expected["body"][0][2])
+        self.assertEqual(localized.body[-1]["text"], expected["body"][-1][2])
+        self.assertEqual(source.body, original_body)
+        self.assertIsNot(localized.body, source.body)
+        self.assertTrue(all(
+            localized_block is not source_block
+            for localized_block, source_block in zip(
+                localized.body, source.body, strict=True,
+            )
+        ))
+
+    def test_changed_body_structures_are_preserved_as_a_whole(self):
+        expected = ARTICLE_EXPECTED[0]
+        cases = {}
+        inserted = self.make_article(expected).body
+        inserted.insert(1, {"type": "paragraph", "text": "Inserted block"})
+        cases["inserted"] = inserted
+        cases["missing"] = self.make_article(expected).body[:-1]
+        reordered = self.make_article(expected).body
+        reordered[0], reordered[1] = reordered[1], reordered[0]
+        cases["reordered"] = reordered
+        modified_type = self.make_article(expected).body
+        modified_type[0] = {**modified_type[0], "type": "quote"}
+        cases["modified-type"] = modified_type
+
+        with translation.override("zh-hans"):
+            for label, body in cases.items():
+                with self.subTest(case=label):
+                    source = self.make_article(expected, body=body)
+                    localized = localize_article(source)
+                    self.assertIs(localized.body, source.body)
+                    self.assertEqual(localized.body, body)
+
+    def test_none_unknown_slug_and_non_chinese_languages_return_original(self):
+        source = self.make_article(slug="editor-created-article")
+        with translation.override("zh-hans"):
+            self.assertIsNone(localize_article(None))
+            self.assertIs(localize_article(source), source)
+        canonical = self.make_article()
+        with translation.override("fr"):
+            self.assertIs(localize_article(canonical), canonical)
+
+    def test_presentation_metadata_and_template_contracts_are_preserved(self):
+        expected = ARTICLE_EXPECTED[0]
+        source = self.make_article(expected)
+        with translation.override("zh-hans"):
+            localized = localize_article(source)
+        self.assertEqual(localized.excerpt, expected["standfirst"][1])
+        self.assertEqual(localized.date, expected["date"][1])
+        self.assertEqual(
+            (localized.pk, localized.uuid, localized.slug, localized.image,
+             localized.cover_image, localized.featured, localized.is_featured,
+             localized.is_published, localized.published_at),
+            (source.pk, source.uuid, source.slug, source.image,
+             source.cover_image, source.featured, source.is_featured,
+             source.is_published, source.published_at),
+        )
+        self.assertEqual(str(localized), expected["title"][1])
+
+        index_source = (
+            Path(__file__).parent / "templates/frontend/journal/index.html"
+        ).read_text(encoding="utf-8")
+        detail_source = (
+            Path(__file__).parent / "templates/frontend/journal/detail.html"
+        ).read_text(encoding="utf-8")
+        for field in ("category", "read_time", "title", "standfirst"):
+            self.assertIn(f"article.{field}", index_source)
+            self.assertIn(f"article.{field}", detail_source)
+        for field in ("author", "date", "body"):
+            self.assertIn(f"article.{field}", detail_source)
+
+        template = Template(
+            "{{ article.category }}|{{ article.read_time }}|{{ article.author }}|"
+            "{{ article.date }}|{{ article.title }}|{{ article.standfirst }}|"
+            "{% for block in article.body %}{{ block.type }}:{{ block.text }}|{% endfor %}",
+        )
+        rendered = template.render(Context({"article": localized}))
+        self.assertIn(expected["title"][1], rendered)
+        self.assertIn(expected["standfirst"][1], rendered)
+        self.assertIn(expected["date"][1], rendered)
+        self.assertIn(f"heading:{expected['body'][1][2]}", rendered)
+        self.assertIn(f"quote:{expected['body'][4][2]}", rendered)
+
+    def test_article_services_keep_queries_and_localise_display_results(self):
+        lead = self.make_article(ARTICLE_EXPECTED[0])
+        related = self.make_article(ARTICLE_EXPECTED[1], id=72)
+        manager = MagicMock()
+        with translation.override("zh-hans"), patch.object(
+            services.Article, "objects", manager,
+        ):
+            manager.published.return_value = [lead]
+            all_result = services.all_articles()
+            self.assertEqual(all_result[0].title, ARTICLE_EXPECTED[0]["title"][1])
+            manager.published.assert_called_once_with()
+
+            manager.reset_mock()
+            published = MagicMock()
+            published.filter.return_value.first.return_value = lead
+            manager.published.return_value = published
+            detail_result = services.get_article(lead.slug)
+            self.assertEqual(detail_result.title, ARTICLE_EXPECTED[0]["title"][1])
+            published.filter.assert_called_once_with(slug=lead.slug)
+            published.filter.return_value.first.assert_called_once_with()
+
+            manager.reset_mock()
+            published = MagicMock()
+            published.exclude.return_value.__getitem__.return_value = [related]
+            manager.published.return_value = published
+            related_result = services.related_articles(lead)
+            self.assertEqual(related_result[0].title, ARTICLE_EXPECTED[1]["title"][1])
+            published.exclude.assert_called_once_with(pk=lead.pk)
+            published.exclude.return_value.__getitem__.assert_called_once_with(
+                slice(None, 2, None),
+            )
+
+        self.assertEqual(lead.title, ARTICLE_EXPECTED[0]["title"][0])
+        self.assertEqual(related.title, ARTICLE_EXPECTED[1]["title"][0])
+
+    def test_every_body_text_is_a_literal_gettext_noop_argument(self):
+        source = (
+            Path(__file__).parent / "mockdata/journal.py"
+        ).read_text(encoding="utf-8")
+        tree = ast.parse(source)
+        static_messages = {
+            node.args[0].value
+            for node in ast.walk(tree)
+            if (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "gettext_noop"
+                and node.args
+                and isinstance(node.args[0], ast.Constant)
+                and isinstance(node.args[0].value, str)
+            )
+        }
+        body_messages = {
+            english
+            for article in ARTICLE_EXPECTED
+            for _, english, _ in article["body"]
+        }
+        self.assertEqual(body_messages - static_messages, set())
+
+    def test_same_type_body_reordering_preserves_the_complete_body(self):
+        expected = ARTICLE_EXPECTED[0]
+        source = self.make_article(expected)
+        source.body[2], source.body[3] = source.body[3], source.body[2]
+        original_body = [dict(block) for block in source.body]
+        original_dict_ids = [id(block) for block in source.body]
+
+        with translation.override("zh-hans"):
+            localized = localize_article(source)
+
+        self.assertIs(localized.body, source.body)
+        self.assertEqual(localized.body, original_body)
+        self.assertEqual(source.body, original_body)
+        self.assertEqual([id(block) for block in source.body], original_dict_ids)
+        self.assertTrue(all(
+            block["text"] in {english for _, english, _ in expected["body"]}
+            for block in localized.body
+        ))

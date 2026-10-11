@@ -3322,6 +3322,178 @@ msgstr "你们销售礼品卡吗？"
 msgid "Yes, in ¥50, ¥100 and ¥200. They are emailed to the recipient on a date you choose and do not expire."
 msgstr "有 ¥50、¥100 和 ¥200 三种面额。礼品卡会在您选择的日期通过电子邮件发送给收件人，且不会过期。"
 
+#: .\frontend\mockdata\journal.py
+msgid "Why no two glazes match"
+msgstr "为什么没有两种釉色完全相同"
+
+#: .\frontend\mockdata\journal.py
+msgid "A wood-ash glaze is a record of the firing that made it. Here is why we stopped trying to make them identical."
+msgstr "手工灰釉记录着烧制它的过程。我们为什么不再追求完全一致？"
+
+#: .\frontend\mockdata\journal.py
+msgid "Craft"
+msgstr "工艺"
+
+#: .\frontend\mockdata\journal.py
+msgid "6 min"
+msgstr "6 分钟"
+
+#: .\frontend\mockdata\journal.py
+msgid "Ask a factory to make five hundred mugs the same colour and it will. Ask a kiln to do it and you will get something more interesting and less obedient."
+msgstr "让工厂把五百只马克杯做成同一种颜色，它可以做到。让窑炉这样做，你得到的会是更有意思、也更不听话的东西。"
+
+#: .\frontend\mockdata\journal.py
+msgid "What the kiln decides"
+msgstr "窑炉的决定"
+
+#: .\frontend\mockdata\journal.py
+msgid "Ash glaze is mixed from what is swept out of the kiln after a firing -- wood ash, feldspar, a little iron oxide, water. The proportions are consistent. What is not consistent is where a piece sits in the kiln, how the flame moves around it, and how fast that corner cools over the two days afterwards."
+msgstr "灰釉由每次烧制后从窑炉中清扫出的材料调配而成——木灰、长石、少量氧化铁和水。配比始终一致。无法保持一致的是器物在窑中的位置、火焰绕过它的方式，以及之后两天里那个角落冷却的速度。"
+
+#: .\frontend\mockdata\journal.py
+msgid "A mug on the top shelf near the flue will come out a shade greener than the same mug, from the same batch of glaze, on the bottom shelf. Neither is the correct one."
+msgstr "靠近烟道的上层窑架上，一只马克杯出窑时会比下层窑架上那只使用同批釉料的同款杯子更偏绿一些。两者都不是唯一正确的样子。"
+
+#: .\frontend\mockdata\journal.py
+msgid "We fire to a range, not a number. The kiln finishes the piece, and it does not take instruction."
+msgstr "我们烧制的是一个范围，而不是一个数字。器物由窑炉完成，它不听从指令。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Living with variation"
+msgstr "与差异共处"
+
+#: .\frontend\mockdata\journal.py
+msgid "This has a practical consequence for anyone buying a set. If you order four bowls, you will get four bowls that clearly belong together and are clearly not identical. Over a few years of use they diverge further -- the ones you reach for most develop a slightly different surface."
+msgstr "这会给购买成套器物的人带来一个实际结果。如果你订购四只碗，收到的四只显然属于一套，也显然并不完全相同。使用几年后，它们之间的差异还会加深——你最常拿取的那些，表面会逐渐呈现稍有不同的状态。"
+
+#: .\frontend\mockdata\journal.py
+msgid "We used to photograph the most even piece of a batch. We now photograph a middling one, because it is closer to what arrives."
+msgstr "过去，我们会拍摄一批中最均匀的那一件。现在，我们拍摄处于中间状态的一件，因为它更接近你实际收到的样子。"
+
+#: .\frontend\mockdata\journal.py
+msgid "An indigo vat in Dali"
+msgstr "大理的一口靛蓝染缸"
+
+#: .\frontend\mockdata\journal.py
+msgid "Lu Wenjing keeps four fermenting vats behind her house. Feeding them is a weekly job that has no shortcut."
+msgstr "陆文静在家后院养着四口发酵染缸，每周照料，没有捷径。"
+
+#: .\frontend\mockdata\journal.py
+msgid "8 min"
+msgstr "8 分钟"
+
+#: .\frontend\mockdata\journal.py
+msgid "The vats are clay, sunk to the rim in the ground behind the house, and they are alive in a fairly literal sense. Indigo does not dissolve in water. It has to be reduced by bacteria first, and those bacteria need feeding, warmth and time."
+msgstr "这些染缸由陶土制成，埋在屋后的地里，缸口与地面齐平；从相当直观的意义上说，它们是活的。靛蓝不溶于水，必须先由细菌还原，而这些细菌需要养料、温度和时间。"
+
+#: .\frontend\mockdata\journal.py
+msgid "A weekly rhythm"
+msgstr "每周的节奏"
+
+#: .\frontend\mockdata\journal.py
+msgid "Every Monday Wenjing adds wheat bran and lime, stirs each vat and checks the surface for the coppery film that says the vat is working. A healthy vat smells sweet. An unhappy one smells of nothing at all, which is worse."
+msgstr "每逢星期一，文静都会加入麦麸和石灰，搅动每口染缸，并查看表面是否出现说明染缸运作正常的铜色薄膜。健康的染缸带着甜香；状态不佳的染缸则什么气味也没有，而这更糟。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Cloth goes in yellow-green and turns blue in the air, in front of you, over about twenty seconds. Six dips gives a pale sky. Fourteen gives the near-black indigo on our heaviest throws."
+msgstr "布料入缸时呈黄绿色，在你眼前接触空气后变成蓝色，整个过程约二十秒。浸染六次会得到浅淡的天蓝色；十四次则会得到我们最厚重盖毯上近乎黑色的靛蓝。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Why it fades the way it does"
+msgstr "为什么会这样褪色"
+
+#: .\frontend\mockdata\journal.py
+msgid "Indigo sits on the outside of the fibre rather than inside it. That is why indigo cloth wears at the folds and the edges first, and why a piece you use every week will look different from one kept in a cupboard. It is also why it will never look worse -- only more specific to you."
+msgstr "靛蓝附着在纤维外部，而非进入纤维内部。因此靛蓝织物会先在折叠处和边缘磨损，每周使用的织物也会与一直收在柜中的那件呈现不同面貌。也正因如此，它永远不会变得更糟——只会越来越带有属于你的痕迹。"
+
+#: .\frontend\mockdata\journal.py
+msgid "How to care for handmade ceramics"
+msgstr "如何保养手作陶器"
+
+#: .\frontend\mockdata\journal.py
+msgid "Most of what shortens the life of a handmade piece is heat, not use."
+msgstr "真正缩短手作器物寿命的，多数是高温，而不是日常使用。"
+
+#: .\frontend\mockdata\journal.py
+msgid "4 min"
+msgstr "4 分钟"
+
+#: .\frontend\mockdata\journal.py
+msgid "Our stoneware is fired high enough to be fully vitrified, which means it is dishwasher safe and will not absorb water or odours. You can put it in the machine without thinking about it."
+msgstr "我们的炻器以足够高的温度烧至完全玻化，这意味着它可以放入洗碗机，也不会吸收水分或气味。放进机器清洗时，无需多虑。"
+
+#: .\frontend\mockdata\journal.py
+msgid "The thing that will actually damage a piece is thermal shock -- a hot bowl into cold water, or a cold plate into a hot oven. Glaze and clay expand at slightly different rates, and a sharp change can craze the surface or, occasionally, crack the piece outright. Let things cool first."
+msgstr "真正会损坏器物的是热震——把热碗放入冷水，或把冷盘放进热烤箱。釉料与陶土的膨胀速度略有不同，温度骤变可能使釉面产生开片，偶尔甚至会让器物彻底开裂。先让它们冷却。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Unglazed feet will pick up marks from the table over time. That is normal and, in our view, an improvement. If it bothers you, a light rub with a damp cloth and a little bicarbonate lifts most of it."
+msgstr "未施釉的圈足会随时间从桌面沾上痕迹。这很正常，在我们看来反而更好看。如果你介意，用湿布蘸少量小苏打轻轻擦拭，就能去除大部分痕迹。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Fine crazing -- a web of hairline lines in the glaze -- is not a crack and does not affect whether a piece holds water. In a vitrified body it is cosmetic."
+msgstr "细密的开片——釉面上如网状分布的发丝纹——并不是裂缝，也不影响器物盛水。对于已经玻化的坯体，它只是外观上的变化。"
+
+#: .\frontend\mockdata\journal.py
+msgid "The case for buying less"
+msgstr "少买一些的理由"
+
+#: .\frontend\mockdata\journal.py
+msgid "We make about four hundred pieces a month. Here is why we have no plans to make four thousand."
+msgstr "我们每月制作约四百件作品，这就是不打算制作四千件的原因。"
+
+#: .\frontend\mockdata\journal.py
+msgid "7 min"
+msgstr "7 分钟"
+
+#: .\frontend\mockdata\journal.py
+msgid "Every year we are asked why we do not scale. The honest answer is that the thing people like about the work is a direct consequence of how little of it there is."
+msgstr "每年都有人问我们为什么不扩大规模。坦率地说，人们喜欢这些作品，正是因为它们数量有限。"
+
+#: .\frontend\mockdata\journal.py
+msgid "A studio making four hundred pieces a month can afford to lose a firing. It can let a maker spend a season on a shape that may not sell. It can turn down the wholesale order that would have paid for a second kiln but required the glaze to be standardised first."
+msgstr "一家每月制作四百件作品的工作室，经得起一次烧制失败。它可以让匠人用一整个季节琢磨一种未必卖得出去的器形；也可以拒绝一笔本可支付第二座窑炉费用、却要求先把釉色标准化的批发订单。"
+
+#: .\frontend\mockdata\journal.py
+msgid "None of that survives contact with volume. The pieces would still be competent. They would stop being specific."
+msgstr "一旦产量扩大，这些都无法维持。器物依然会做得合格，却不再具有鲜明的个性。"
+
+#: .\frontend\mockdata\journal.py
+msgid "This has a cost, and we would rather be plain about it: some things sell out and do not come back for months, and made-to-order items really do take three weeks. We think that is the better trade."
+msgstr "这会带来代价，我们愿意坦白说明：有些作品售罄后要几个月才会回来，按订单制作的商品也确实需要三周。我们认为，这样的取舍更好。"
+
+#: .\frontend\mockdata\journal.py
+msgid "A table set for nothing in particular"
+msgstr "一张没有特别理由的餐桌"
+
+#: .\frontend\mockdata\journal.py
+msgid "Notes on using the good plates on a Tuesday."
+msgstr "在星期二也用上那些好盘子。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Interiors"
+msgstr "室内"
+
+#: .\frontend\mockdata\journal.py
+msgid "5 min"
+msgstr "5 分钟"
+
+#: .\frontend\mockdata\journal.py
+msgid "There is a particular cupboard, in a lot of houses, where the good things live. They come out twice a year and spend the rest of their life being protected from the very thing they were made for."
+msgstr "许多家里都有一个专门的柜子，里面放着那些好东西。它们一年只拿出来两次，其余时间都被保护着，远离它们原本被制作出来要服务的用途。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Handmade pieces are, counter-intuitively, better suited to daily use than to occasional display. They are not delicate. High-fired stoneware is tougher than most factory porcelain, and washed linen is at its best after fifty washes rather than five."
+msgstr "有些反直觉的是，手工作品比起偶尔陈列，其实更适合日常使用。它们并不娇贵。高温烧制的炻器比大多数工厂瓷器更坚实，水洗亚麻也要洗过五十次，而不是五次，才会呈现最好的状态。"
+
+#: .\frontend\mockdata\journal.py
+msgid "The argument for using them is not really about the objects. It is that a weeknight dinner eaten off something someone made by hand is a different kind of evening, at no additional cost, on a day that had nothing else to recommend it."
+msgstr "使用它们的理由，其实不只关乎物件本身。在一个原本平淡无奇的工作日里，用某个人亲手制作的器皿吃一顿晚餐，不需增加任何花费，却会让那个夜晚变得不同。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Our suggestion is unglamorous: take the good plates out of the high cupboard and put them where the everyday ones are. Within a month you will stop noticing, which is the point."
+msgstr "我们的建议并不华丽：把好盘子从高处的柜子里拿出来，放到日常餐具的位置。一个月内，你就不会再特意注意它们，而这正是意义所在。"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is "
 #~ "accepted and logged."

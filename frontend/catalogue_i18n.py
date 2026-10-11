@@ -8,6 +8,7 @@ from django.utils.translation import get_language, gettext, pgettext
 
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
 from frontend.mockdata.faqs import FAQ_GROUPS_BY_SLUG
+from frontend.mockdata.journal import ARTICLES_BY_SLUG
 from frontend.mockdata.makers import MAKERS_BY_SLUG
 from frontend.mockdata.products import PRODUCTS, PRODUCTS_BY_SLUG
 
@@ -20,15 +21,6 @@ _SEEDED_COLOUR_LABELS = frozenset(
 def localize_colour_label(label: str) -> str:
     """Translate a recognised colour for display without changing its stored label."""
     return gettext(label) if label in _SEEDED_COLOUR_LABELS else label
-
-ARTICLE_TRANSLATIONS = {
-    "why-no-two-glazes-match": ("为什么没有两种釉色完全相同", "手工灰釉记录着烧制它的过程。我们为什么不再追求完全一致？"),
-    "an-indigo-vat-in-dali": ("大理的一口靛蓝染缸", "陆文静在家后院养着四口发酵染缸，每周照料，没有捷径。"),
-    "how-to-care-for-handmade-ceramics": ("如何保养手作陶器", "真正缩短手作器物寿命的，多数是高温，而不是日常使用。"),
-    "the-case-for-buying-less": ("少买一些的理由", "我们每月制作约四百件作品，这就是不打算制作四千件的原因。"),
-    "a-table-set-for-nothing-in-particular": ("一张没有特别理由的餐桌", "在星期二也用上那些好盘子。"),
-}
-
 
 def _is_chinese() -> bool:
     return (get_language() or "").lower().startswith("zh")
@@ -168,8 +160,61 @@ def localize_faq_group(group):
 
 
 def localize_article(article):
-    if not is_chinese() or not article or article.slug not in ARTICLE_TRANSLATIONS:
+    if not is_chinese() or not article:
         return article
-    localized = copy(article)
-    localized.title, localized.standfirst = ARTICLE_TRANSLATIONS[article.slug]
-    return localized
+    source = ARTICLES_BY_SLUG.get(article.slug)
+    if source is None:
+        return article
+
+    values = {}
+    for field in ("title", "standfirst", "category", "read_time", "author"):
+        current = getattr(article, field)
+        values[field] = gettext(current) if current == source[field] else current
+
+    body = article.body
+    canonical_body = source["body"]
+    structure_matches = (
+        isinstance(body, list)
+        and len(body) == len(canonical_body)
+        and all(
+            isinstance(block, dict) and block.get("type") == canonical.get("type")
+            for block, canonical in zip(body, canonical_body, strict=True)
+        )
+    )
+    canonical_texts = {block["text"] for block in canonical_body}
+    has_relocated_text = structure_matches and any(
+        block.get("text") != canonical["text"]
+        and block.get("text") in canonical_texts
+        for block, canonical in zip(body, canonical_body, strict=True)
+    )
+    if structure_matches and not has_relocated_text:
+        body = []
+        for block, canonical in zip(article.body, canonical_body, strict=True):
+            localized_block = dict(block)
+            if block.get("text") == canonical["text"]:
+                localized_block["text"] = gettext(block["text"])
+            body.append(localized_block)
+
+    return _LocalizedArticle(article, body=body, **values)
+
+
+class _LocalizedArticle:
+    """Read-only presentation wrapper for localised article fields and date."""
+
+    def __init__(self, source, *, title, standfirst, category, read_time, author, body):
+        self._source = source
+        self.title = title
+        self.standfirst = standfirst
+        self.excerpt = standfirst
+        self.category = category
+        self.read_time = read_time
+        self.author = author
+        self.body = body
+        published = source.published_at
+        self.date = f"{published.year}年{published.month}月{published.day}日"
+
+    def __getattr__(self, name):
+        return getattr(self._source, name)
+
+    def __str__(self):
+        return self.title

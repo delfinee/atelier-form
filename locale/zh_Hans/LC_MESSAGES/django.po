@@ -2654,6 +2654,10 @@ msgstr "评价您购买的作品"
 msgid "Rating"
 msgstr "评分"
 
+#: .\frontend\review_forms.py:25
+msgid "Choose a rating from 1 to 5."
+msgstr "请选择 1 至 5 星的评分。"
+
 #: .\frontend\templates\frontend\product\detail.html:185
 msgid "Choose"
 msgstr "请选择"

@@ -33,6 +33,7 @@ from frontend.mockdata.faqs import FAQ_GROUPS
 from frontend.mockdata.journal import ARTICLES
 from frontend.mockdata.makers import MAKERS
 from frontend.mockdata.products import CARE_BY_CATEGORY, PRODUCTS, SWATCHES
+from frontend.review_forms import ReviewForm
 from frontend.templatetags.frontend_extras import colour_label, stock_label
 
 
@@ -2655,3 +2656,251 @@ class PublicPageAndNewsletterLocalizationTests(SimpleTestCase):
                             subscriber.resubscribe.assert_called_once_with()
                         else:
                             subscriber.resubscribe.assert_not_called()
+
+
+class ReviewRatingAndSearchLocalizationTests(SimpleTestCase):
+    query_input = "  Clay  "
+    filtered_query = "Clay"
+
+    @staticmethod
+    def make_category():
+        seed = CATEGORIES[0]
+        return Category(
+            id=81, slug=seed["slug"], name=seed["title"],
+            tagline=seed["tagline"], description=seed["description"],
+            hero_image=seed["hero"], tile_image=seed["tile"],
+            is_active=True, sort_order=2,
+        )
+
+    @staticmethod
+    def make_editorial():
+        seed = next(item for item in COLLECTIONS if item["kind"] == "editorial")
+        return Collection(
+            id=82, slug=seed["slug"], name=seed["title"],
+            tagline=seed["tagline"], description=seed["description"],
+            story=seed.get("story", ""), hero_image=seed["hero"],
+            tile_image=seed["tile"], is_active=True,
+            is_featured=seed["featured"], sort_order=3,
+        )
+
+    @staticmethod
+    def make_article():
+        return ArticleLocalizationTests.make_article(ARTICLE_EXPECTED[0], id=83)
+
+    def run_mocked_search(self, language, *, editor_customised=False):
+        editorial = self.make_editorial()
+        category = self.make_category()
+        article = self.make_article()
+        if editor_customised:
+            editorial.tagline = "Editor-selected collection tagline."
+            article.title = "Editor-selected journal title."
+
+        product = SimpleNamespace(slug="product-result")
+        maker = SimpleNamespace(slug="maker-result")
+        product_queryset = MagicMock()
+        product_queryset.search.return_value = [product]
+        published = MagicMock()
+        published.filter.return_value = [article]
+
+        with (
+            translation.override(language),
+            patch.object(services, "_base_queryset", return_value=product_queryset) as base,
+            patch.object(
+                services.Collection.objects, "filter", return_value=[editorial],
+            ) as collection_filter,
+            patch.object(
+                services.Category.objects, "filter", return_value=[category],
+            ) as category_filter,
+            patch.object(
+                services.Maker.objects, "filter", return_value=[maker],
+            ) as maker_filter,
+            patch.object(
+                services.Article.objects, "published", return_value=published,
+            ) as article_published,
+        ):
+            results = services.search(self.query_input)
+
+        return {
+            "results": results,
+            "sources": (product, editorial, category, maker, article),
+            "queries": (
+                base, product_queryset, collection_filter, category_filter,
+                maker_filter, article_published, published,
+            ),
+        }
+
+    def assert_search_queries_unchanged(self, state):
+        (
+            base, product_queryset, collection_filter, category_filter,
+            maker_filter, article_published, published,
+        ) = state["queries"]
+        base.assert_called_once_with()
+        product_queryset.search.assert_called_once_with(self.filtered_query)
+        collection_query = (
+            services.Q(name__icontains=self.filtered_query)
+            | services.Q(tagline__icontains=self.filtered_query)
+            | services.Q(description__icontains=self.filtered_query)
+        )
+        collection_filter.assert_called_once_with(collection_query, is_active=True)
+        category_filter.assert_called_once_with(collection_query, is_active=True)
+        maker_filter.assert_called_once_with(
+            services.Q(name__icontains=self.filtered_query)
+            | services.Q(discipline__icontains=self.filtered_query)
+            | services.Q(location__icontains=self.filtered_query)
+            | services.Q(tagline__icontains=self.filtered_query),
+            is_active=True,
+        )
+        article_published.assert_called_once_with()
+        published.filter.assert_called_once_with(
+            services.Q(title__icontains=self.filtered_query)
+            | services.Q(standfirst__icontains=self.filtered_query)
+            | services.Q(category__icontains=self.filtered_query)
+        )
+
+    def test_actual_review_form_rating_errors_switch_languages(self):
+        expected = {
+            "en": "Choose a rating from 1 to 5.",
+            "zh-hans": "请选择 1 至 5 星的评分。",
+        }
+        cases = (("required", {}), ("invalid_choice", {"rating": "9"}))
+        for language, message in expected.items():
+            for code, data in cases:
+                with self.subTest(language=language, code=code), translation.override(language):
+                    form = ReviewForm(data)
+                    self.assertFalse(form.is_valid())
+                    errors = form.errors.as_data()["rating"]
+                    self.assertEqual([error.code for error in errors], [code])
+                    self.assertEqual(list(form.errors["rating"]), [message])
+
+    def test_search_localises_collection_and_article_presentation_only(self):
+        state = self.run_mocked_search("zh-hans")
+        results = state["results"]
+        product, editorial, category, maker, article = state["sources"]
+
+        self.assertEqual(list(results), ["products", "collections", "makers", "articles"])
+        self.assertEqual(
+            {key: len(value) for key, value in results.items()},
+            {"products": 1, "collections": 2, "makers": 1, "articles": 1},
+        )
+        self.assertIs(results["products"][0], product)
+        self.assertIs(results["makers"][0], maker)
+        self.assertEqual(
+            [(item.slug, item.name, item.tagline, item.description)
+             for item in results["collections"]],
+            [
+                (EDITORIAL_EXPECTED[0][0], *EDITORIAL_EXPECTED[0][1:]),
+                (CATEGORY_EXPECTED[0][0], *CATEGORY_EXPECTED[0][1:]),
+            ],
+        )
+        localized_article = results["articles"][0]
+        self.assertEqual(
+            (localized_article.slug, localized_article.title,
+             localized_article.standfirst, localized_article.category,
+             localized_article.read_time, localized_article.author),
+            (
+                ARTICLE_EXPECTED[0]["slug"], ARTICLE_EXPECTED[0]["title"][1],
+                ARTICLE_EXPECTED[0]["standfirst"][1],
+                ARTICLE_EXPECTED[0]["category"][1],
+                ARTICLE_EXPECTED[0]["read_time"][1],
+                ARTICLE_EXPECTED[0]["author"][1],
+            ),
+        )
+        editorial_seed = next(
+            item for item in COLLECTIONS if item["kind"] == "editorial"
+        )
+        self.assertEqual(
+            (editorial.name, editorial.tagline, editorial.description),
+            (editorial_seed["title"], editorial_seed["tagline"],
+             editorial_seed["description"]),
+        )
+        self.assertEqual(
+            (category.name, category.tagline, category.description),
+            (CATEGORIES[0]["title"], CATEGORIES[0]["tagline"], CATEGORIES[0]["description"]),
+        )
+        self.assertEqual(
+            (article.title, article.standfirst, article.slug),
+            (ARTICLE_EXPECTED[0]["title"][0], ARTICLE_EXPECTED[0]["standfirst"][0],
+             ARTICLE_EXPECTED[0]["slug"]),
+        )
+        self.assertEqual(
+            [item.pk for item in results["collections"]], [editorial.pk, category.pk],
+        )
+        self.assertEqual(localized_article.pk, article.pk)
+        self.assert_search_queries_unchanged(state)
+
+    def test_search_keeps_english_and_editor_customised_fields(self):
+        english = self.run_mocked_search("en")
+        english_results = english["results"]
+        _, editorial, category, _, article = english["sources"]
+        self.assertEqual(english_results["collections"], [editorial, category])
+        self.assertEqual(english_results["articles"], [article])
+        self.assertIs(english_results["collections"][0], editorial)
+        self.assertIs(english_results["articles"][0], article)
+        self.assert_search_queries_unchanged(english)
+
+        customised = self.run_mocked_search("zh-hans", editor_customised=True)
+        results = customised["results"]
+        _, source_collection, _, _, source_article = customised["sources"]
+        self.assertEqual(
+            (results["collections"][0].name, results["collections"][0].tagline),
+            (EDITORIAL_EXPECTED[0][1], "Editor-selected collection tagline."),
+        )
+        self.assertEqual(
+            (results["articles"][0].title, results["articles"][0].standfirst),
+            ("Editor-selected journal title.", ARTICLE_EXPECTED[0]["standfirst"][1]),
+        )
+        self.assertEqual(source_collection.tagline, "Editor-selected collection tagline.")
+        self.assertEqual(source_article.title, "Editor-selected journal title.")
+        self.assertIsNot(results["collections"][0], source_collection)
+        self.assertIsNot(results["articles"][0], source_article)
+        self.assert_search_queries_unchanged(customised)
+
+    def test_search_page_and_api_accept_localised_presentation_objects(self):
+        category = self.make_category()
+        article = self.make_article()
+        with translation.override("zh-hans"):
+            localized_category = localize_collection(category)
+            localized_article = localize_article(article)
+        results = {
+            "products": [], "collections": [localized_category],
+            "makers": [], "articles": [localized_article],
+        }
+        request = SimpleNamespace(method="GET", GET={"q": self.filtered_query})
+        rendered_response = object()
+        with (
+            patch.object(views.services, "search", return_value=results) as search,
+            patch.object(views, "render", return_value=rendered_response) as render,
+        ):
+            self.assertIs(views.search(request), rendered_response)
+        search.assert_called_once_with(self.filtered_query)
+        render.assert_called_once_with(
+            request,
+            "frontend/search/results.html",
+            {
+                "query": self.filtered_query,
+                "results": results,
+                "total": 2,
+                "popular": views.services.POPULAR_SEARCHES,
+                "meta_title": "Search — Atelier Form",
+            },
+        )
+
+        with patch.object(views.services, "search", return_value=results) as search:
+            response = views.search_api(request)
+        search.assert_called_once_with(self.filtered_query)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            json.loads(response.content),
+            {
+                "products": [],
+                "collections": [{
+                    "title": CATEGORY_EXPECTED[0][1],
+                    "url": f"/collections/{CATEGORY_EXPECTED[0][0]}/",
+                }],
+                "makers": [],
+                "articles": [{
+                    "title": ARTICLE_EXPECTED[0]["title"][1],
+                    "url": f"/journal/{ARTICLE_EXPECTED[0]['slug']}/",
+                }],
+            },
+        )

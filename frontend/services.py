@@ -305,10 +305,15 @@ def search(query: str) -> dict[str, list]:
 
     return {
         "products": [localize_product(product) for product in _base_queryset().search(q)],
-        "collections": collections,
+        "collections": [localize_collection(collection) for collection in collections],
         "makers": [localize_maker(maker) for maker in makers],
-        "articles": list(cast(ArticleQuerySet, Article.objects).published().filter(
-            Q(title__icontains=q) | Q(standfirst__icontains=q) | Q(category__icontains=q))),
+        "articles": [
+            localize_article(article)
+            for article in cast(ArticleQuerySet, Article.objects).published().filter(
+                Q(title__icontains=q) | Q(standfirst__icontains=q)
+                | Q(category__icontains=q)
+            )
+        ],
     }
 
 

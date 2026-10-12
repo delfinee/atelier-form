@@ -3711,6 +3711,72 @@ msgstr "已从心愿单移除。"
 msgid "Sign in to save pieces to your wishlist."
 msgstr "登录后即可将作品保存到心愿单。"
 
+#: backend/config/exceptions.py
+msgid "Not enough stock available."
+msgstr "库存不足。"
+
+#: backend/config/exceptions.py backend/orders/api.py
+msgid "Your bag is empty."
+msgstr "您的购物袋是空的。"
+
+#: backend/config/exceptions.py
+msgid "An unexpected error occurred."
+msgstr "发生意外错误，请稍后重试。"
+
+#: backend/config/exceptions.py
+msgid "Validation failed."
+msgstr "输入内容验证失败。"
+
+#: backend/orders/api.py backend/accounts/api.py
+msgid "Product not found."
+msgstr "未找到该商品。"
+
+#: backend/orders/api.py
+msgid "That line is not in your bag."
+msgstr "您的购物袋中没有此商品。"
+
+#: backend/orders/api.py
+msgid "Delivery address not found."
+msgstr "未找到配送地址。"
+
+#: backend/orders/services.py
+msgid "That option is not available for this product."
+msgstr "该商品没有此选项。"
+
+#: backend/orders/services.py
+#, python-format
+msgid "Only %(available)d of %(name)s is available."
+msgid_plural "Only %(available)d of %(name)s are available."
+msgstr[0] "%(name)s 仅剩 %(available)d 件。"
+
+#: backend/orders/services.py
+#, python-format
+msgid "%(name)s is out of stock."
+msgstr "%(name)s 已售罄。"
+
+#: backend/orders/services.py
+#, python-format
+msgid "%(name)s is no longer available."
+msgstr "%(name)s 已不再供应。"
+
+#: backend/orders/services.py
+#, python-format
+msgid "Only %(available)d of %(name)s remain — please adjust your bag."
+msgstr "%(name)s 仅剩 %(available)d 件，请调整购物袋中的数量。"
+
+#: backend/orders/services.py
+#, python-format
+msgid "%(name)s sold out while you were checking out."
+msgstr "结算过程中，%(name)s 已售罄。"
+
+#: backend/orders/serializers.py
+msgid "Provide either shipping_address_uuid or shipping_address."
+msgstr "请提供 shipping_address_uuid 或 shipping_address。"
+
+#: backend/accounts/api.py
+msgid "That product is not in your wishlist."
+msgstr "该商品不在您的心愿单中。"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is "
 #~ "accepted and logged."

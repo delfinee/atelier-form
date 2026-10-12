@@ -2,6 +2,7 @@
 
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
+from django.utils.translation import gettext
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
@@ -149,7 +150,7 @@ class WishlistViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 def wishlist_add(request, slug):
     product = Product.objects.active().filter(slug=slug).first()
     if product is None:
-        return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": gettext("Product not found.")}, status=status.HTTP_404_NOT_FOUND)
     try:
         item, created = WishlistItem.objects.get_or_create(user=request.user, product=product)
     except IntegrityError:
@@ -165,6 +166,6 @@ def wishlist_add(request, slug):
 def wishlist_remove(request, slug):
     deleted, _ = WishlistItem.objects.filter(user=request.user, product__slug=slug).delete()
     if not deleted:
-        return Response({"detail": "That product is not in your wishlist."},
+        return Response({"detail": gettext("That product is not in your wishlist.")},
                         status=status.HTTP_404_NOT_FOUND)
     return Response(status=status.HTTP_204_NO_CONTENT)

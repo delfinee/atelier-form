@@ -16,16 +16,24 @@ from unittest.mock import MagicMock, patch
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.storage.cookie import CookieStorage
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError
+from django.http import Http404
 from django.template import Context, Template
 from django.template.loader import get_template
 from django.test import RequestFactory, SimpleTestCase
 from django.utils import translation
+from django.utils.functional import Promise
 from django.utils.translation import gettext, ngettext, npgettext, pgettext
+from rest_framework import exceptions as drf_exceptions
+from rest_framework.test import APIRequestFactory, force_authenticate
 
+from accounts import api as accounts_api
+from config import exceptions as api_errors
 from content.models import FAQ, Article, FAQGroup
-from orders.serializers import CartItemSerializer
+from orders import api as orders_api, services as order_services
+from orders.models import CartItem
+from orders.serializers import CartItemSerializer, CartSerializer, CheckoutSerializer
 from products.models import (
     MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product, ProductVariant,
 )
@@ -3608,3 +3616,323 @@ function element(extra = {}) {
   console.log("PASS: 4 language/fallback cases; actual commerce use sites");
 })().catch(error => { console.error(error); process.exitCode = 1; });
 """
+
+
+
+class CommerceAPIErrorLocalizationTests(SimpleTestCase):
+    @staticmethod
+    def request(method, language, data=None):
+        request = getattr(APIRequestFactory(), method)("/api/cart/", data=data or {}, format="json")
+        request.LANGUAGE_CODE = language
+        force_authenticate(request, user=SimpleNamespace(is_authenticated=True, pk=17))
+        return request
+
+    @staticmethod
+    def cart_fixture():
+        items = []
+        for index, (group, label) in enumerate((
+            ("size", "Medium"), ("size", "Large"), ("colour", "Bone"),
+            ("size", "45 cm"), ("size", "60 cm"), ("size", "Custom size"),
+            ("colour", "Custom blue"),
+        ), 1):
+            product = Product(slug="custom-product", name="Original product")
+            variant = ProductVariant(
+                uuid=UUID(int=index), product=product, group=group, label=label, sku=f"SKU-{index}",
+            )
+            items.append(SimpleNamespace(
+                id=index, variant=variant, product=product, quantity=2, unit_price=Decimal("10.00"),
+                line_total=Decimal("20.00"), available_quantity=8,
+            ))
+        return SimpleNamespace(
+            uuid=UUID(int=100), items=items, item_count=14, subtotal=Decimal("140.00"),
+            shipping_amount=lambda: Decimal("10.00"), total=lambda: Decimal("150.00"),
+            updated_at=datetime(2026, 10, 1, tzinfo=datetime_timezone.utc),
+        )
+
+    def test_actual_cart_get_translates_nested_labels_without_mutation(self):
+        cart = self.cart_fixture()
+        snapshots = [dict(item.variant.__dict__) for item in cart.items]
+        english = ["Medium", "Large", "Bone", "45 cm", "60 cm", "Custom size", "Custom blue"]
+        chinese = ["中号", "大号", "骨白", "45 cm", "60 cm", "Custom size", "Custom blue"]
+        baseline = None
+        for language in ("en", "zh-hans", "zh-cn", "en"):
+            with (self.subTest(language=language), translation.override(language),
+                  patch.object(order_services, "get_cart", return_value=cart) as get_cart,
+                  patch.object(orders_api, "CartSerializer", wraps=CartSerializer) as serializer,
+                  patch.object(CartItemSerializer, "get_image", return_value="/fixed.svg")):
+                response = orders_api.CartView.as_view()(self.request("get", language))
+                actual_request = get_cart.call_args.args[0]
+                self.assertEqual(actual_request.LANGUAGE_CODE, language)
+                serializer.assert_called_once_with(cart, context={"request": actual_request})
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(set(response.data), {
+                    "uuid", "items", "item_count", "subtotal", "shipping", "total", "updated_at",
+                })
+                self.assertEqual([item["variant_label"] for item in response.data["items"]],
+                                 english if language == "en" else chinese)
+                self.assertEqual(response.data["item_count"], 14)
+                self.assertEqual(response.data["subtotal"], "140.00")
+                self.assertEqual(response.data["shipping"], Decimal("10.00"))
+                self.assertEqual(response.data["total"], Decimal("150.00"))
+                stable = {**response.data, "items": [
+                    {k: v for k, v in item.items() if k != "variant_label"}
+                    for item in response.data["items"]
+                ]}
+                if baseline is None:
+                    baseline = stable
+                self.assertEqual(stable, baseline)
+                for index, item in enumerate(response.data["items"], 1):
+                    self.assertEqual(item["variant_uuid"], str(UUID(int=index)))
+                    self.assertEqual(item["product_slug"], "custom-product")
+                    self.assertEqual(item["quantity"], 2)
+                    self.assertEqual(item["unit_price"], "10.00")
+                    self.assertEqual(item["line_total"], "20.00")
+                self.assertEqual([dict(item.variant.__dict__) for item in cart.items], snapshots)
+
+    def test_three_cart_mutation_handlers_forward_actual_request_without_writes(self):
+        cart = self.cart_fixture()
+        cases = (
+            (orders_api.CartItemsView, "post", {"product_slug": "custom-product", "variant": "Medium", "quantity": 2}, 201),
+            (orders_api.CartItemDetailView, "patch", {"quantity": 2}, 200),
+            (orders_api.CartItemDetailView, "delete", {}, 200),
+        )
+        for view, method, data, expected_status in cases:
+            with (self.subTest(method=method), translation.override("zh-hans"),
+                  patch.object(order_services, "get_cart", return_value=cart) as get_cart,
+                  patch.object(order_services, "add_item") as add,
+                  patch.object(order_services, "set_quantity") as quantity,
+                  patch.object(order_services, "remove_item", return_value=True) as remove,
+                  patch.object(orders_api, "CartSerializer", wraps=CartSerializer) as serializer,
+                  patch.object(CartItemSerializer, "get_image", return_value="/fixed.svg")):
+                kwargs = {} if method == "post" else {"item_id": 5}
+                response = view.as_view()(self.request(method, "zh-hans", data), **kwargs)
+                request = get_cart.call_args.args[0]
+                serializer.assert_called_once_with(cart, context={"request": request})
+                self.assertEqual(response.status_code, expected_status)
+                self.assertEqual(response.data["items"][0]["variant_label"], "中号")
+                if method == "post":
+                    add.assert_called_once_with(cart, product_slug="custom-product", variant_id="Medium", quantity=2)
+                    quantity.assert_not_called()
+                    remove.assert_not_called()
+                elif method == "patch":
+                    quantity.assert_called_once_with(cart, 5, 2)
+                    add.assert_not_called()
+                    remove.assert_not_called()
+                else:
+                    remove.assert_called_once_with(cart, 5)
+                    add.assert_not_called()
+                    quantity.assert_not_called()
+
+    def test_cart_missing_product_and_line_keep_404_detail_shape(self):
+        for language in ("en", "zh-hans", "en"):
+            product_message = "未找到该商品。" if language == "zh-hans" else "Product not found."
+            line_message = "您的购物袋中没有此商品。" if language == "zh-hans" else "That line is not in your bag."
+            with (self.subTest(language=language), translation.override(language),
+                  patch.object(order_services, "get_cart", return_value=object()),
+                  patch.object(order_services, "add_item", side_effect=Product.DoesNotExist),
+                  patch.object(order_services, "set_quantity", side_effect=CartItem.DoesNotExist),
+                  patch.object(order_services, "remove_item", return_value=False)):
+                responses = [
+                    (orders_api.CartItemsView.as_view()(self.request("post", language, {"product_slug": "missing"})), product_message),
+                    (orders_api.CartItemDetailView.as_view()(self.request("patch", language, {"quantity": 2}), item_id=5), line_message),
+                    (orders_api.CartItemDetailView.as_view()(self.request("delete", language), item_id=5), line_message),
+                ]
+                for response, expected in responses:
+                    self.assertEqual(response.status_code, 404)
+                    self.assertEqual(response.data, {"detail": expected})
+
+    def test_checkout_rejections_keep_status_without_order_or_payment_calls(self):
+        data = {"email": "person@example.com", "shipping_address_uuid": str(UUID(int=4))}
+        for language in ("en", "zh-hans", "en"):
+            for empty in (True, False):
+                cart = None if empty else MagicMock()
+                with (self.subTest(language=language, empty=empty), translation.override(language),
+                      patch.object(order_services, "get_cart", return_value=cart) as get_cart,
+                      patch.object(orders_api.CheckoutView, "_resolve_address", return_value=None) as address,
+                      patch.object(order_services, "create_order") as create,
+                      patch.object(orders_api, "get_payment_provider") as payment):
+                    response = orders_api.CheckoutView.as_view()(self.request("post", language, data))
+                    expected = (("您的购物袋是空的。" if language == "zh-hans" else "Your bag is empty.")
+                                if empty else ("未找到配送地址。" if language == "zh-hans" else "Delivery address not found."))
+                    self.assertEqual(response.status_code, 400 if empty else 404)
+                    self.assertEqual(response.data, {"detail": expected})
+                    self.assertEqual(get_cart.call_args.kwargs, {"create": False})
+                    create.assert_not_called()
+                    payment.assert_not_called()
+                    if empty:
+                        address.assert_not_called()
+
+    def test_wishlist_missing_responses_keep_ownership_and_status(self):
+        for language in ("en", "zh-hans", "en"):
+            with (self.subTest(language=language), translation.override(language),
+                  patch.object(accounts_api.Product.objects, "active") as products,
+                  patch.object(accounts_api.WishlistItem.objects, "filter") as items,
+                  patch.object(accounts_api.WishlistItem.objects, "get_or_create") as create):
+                products.return_value.filter.return_value.first.return_value = None
+                items.return_value.delete.return_value = (0, {})
+                added = accounts_api.wishlist_add(self.request("post", language), slug="missing")
+                removed = accounts_api.wishlist_remove(self.request("delete", language), slug="missing")
+                products.return_value.filter.assert_called_once_with(slug="missing")
+                self.assertEqual(items.call_args.kwargs["product__slug"], "missing")
+                self.assertEqual(items.call_args.kwargs["user"].pk, 17)
+                self.assertEqual(added.status_code, 404)
+                self.assertEqual(removed.status_code, 404)
+                self.assertEqual(added.data, {"detail": "未找到该商品。" if language == "zh-hans" else "Product not found."})
+                self.assertEqual(removed.data, {"detail": "该商品不在您的心愿单中。" if language == "zh-hans" else "That product is not in your wishlist."})
+                create.assert_not_called()
+
+    def test_exception_defaults_resolve_lazily_keep_codes_and_statuses(self):
+        for exception, status_code, code, english, chinese in (
+            (api_errors.InsufficientStock, 409, "insufficient_stock", "Not enough stock available.", "库存不足。"),
+            (api_errors.EmptyCart, 400, "empty_cart", "Your bag is empty.", "您的购物袋是空的。"),
+        ):
+            self.assertIsInstance(exception.default_detail, Promise)
+            for language in ("en", "zh-hans", "en"):
+                with self.subTest(exception=exception, language=language), translation.override(language):
+                    error = exception()
+                    self.assertEqual(str(error.detail), chinese if language == "zh-hans" else english)
+                    self.assertEqual(error.get_codes(), code)
+                    self.assertEqual(error.status_code, status_code)
+                    response = api_errors.api_exception_handler(error, {})
+                    self.assertEqual(response.status_code, status_code)
+                    self.assertEqual(response.data, {"detail": error.detail})
+
+    def test_exception_handler_preserves_reference_field_errors_and_status(self):
+        for language in ("en", "zh-hans", "en"):
+            with (self.subTest(language=language), translation.override(language),
+                  patch.object(api_errors.uuid, "uuid4", return_value=UUID("12345678-1234-5678-1234-567812345678")),
+                  patch.object(api_errors.logger, "exception") as log):
+                response = api_errors.api_exception_handler(RuntimeError("private diagnostic"), {})
+                self.assertEqual(response.status_code, 500)
+                self.assertEqual(response.data, {
+                    "detail": "发生意外错误，请稍后重试。" if language == "zh-hans" else "An unexpected error occurred.",
+                    "reference": "123456781234",
+                })
+                log.assert_called_once_with("Unhandled API error [ref=%s]", "123456781234")
+                for error, expected in (
+                    (drf_exceptions.ValidationError({"quantity": ["original field message"]}), {"quantity": ["original field message"]}),
+                    (drf_exceptions.ValidationError(["original non-field message"]), {"non_field_errors": ["original non-field message"]}),
+                    (ValidationError({"shipping_address": ["original address message"]}), {"shipping_address": ["original address message"]}),
+                ):
+                    response = api_errors.api_exception_handler(error, {})
+                    self.assertEqual(response.status_code, 400)
+                    self.assertEqual(response.data, {
+                        "detail": "输入内容验证失败。" if language == "zh-hans" else "Validation failed.",
+                        "errors": expected,
+                    })
+                for error, status_code, code in ((PermissionDenied(), 403, "permission_denied"), (Http404(), 404, "not_found")):
+                    response = api_errors.api_exception_handler(error, {})
+                    self.assertEqual(response.status_code, status_code)
+                    self.assertEqual(set(response.data), {"detail"})
+                    self.assertEqual(response.data["detail"].code, code)
+
+    def test_address_validation_keeps_field_names_and_accepted_input(self):
+        for language in ("en", "zh-hans", "en"):
+            with self.subTest(language=language), translation.override(language):
+                serializer = CheckoutSerializer(data={"email": "person@example.com"})
+                self.assertFalse(serializer.is_valid())
+                expected = ("请提供 shipping_address_uuid 或 shipping_address。"
+                            if language == "zh-hans" else "Provide either shipping_address_uuid or shipping_address.")
+                self.assertEqual(serializer.errors, {"shipping_address": [expected]})
+                self.assertEqual(serializer.errors["shipping_address"][0].code, "invalid")
+                valid = {"shipping_address_uuid": UUID(int=4)}
+                self.assertIs(CheckoutSerializer().validate(valid), valid)
+
+    def test_stock_counts_names_and_english_grammar_are_preserved(self):
+        for language in ("en", "zh-hans", "en"):
+            for available in (0, 1, 2):
+                for variant_label in (None, "Medium"):
+                    product = SimpleNamespace(name="Cup — Studio", is_made_to_order=False, stock_quantity=available)
+                    variant = (SimpleNamespace(label=variant_label, stock_quantity=available)
+                               if variant_label else None)
+                    name = "Cup — Studio (Medium)" if variant else "Cup — Studio"
+                    english = (f"Only {available} of {name} {'is' if available == 1 else 'are'} available."
+                               if available else f"{name} is out of stock.")
+                    chinese = f"{name} 仅剩 {available} 件。" if available else f"{name} 已售罄。"
+                    with self.subTest(language=language, available=available, variant=variant_label), translation.override(language):
+                        with self.assertRaises(api_errors.InsufficientStock) as raised:
+                            order_services._assert_stock(product, variant, available + 1)
+                        self.assertEqual(str(raised.exception.detail), chinese if language == "zh-hans" else english)
+                        self.assertEqual(raised.exception.get_codes(), "insufficient_stock")
+                        self.assertEqual(raised.exception.status_code, 409)
+                        self.assertIsNone(order_services._assert_stock(product, variant, available))
+                        self.assertEqual(product.stock_quantity, available)
+                        if variant:
+                            self.assertEqual(variant.label, "Medium")
+                            self.assertEqual(variant.stock_quantity, available)
+
+    def test_unavailable_option_keeps_original_variant_lookup(self):
+        for language in ("en", "zh-hans", "en"):
+            product = object()
+            cart = MagicMock()
+            with (self.subTest(language=language), translation.override(language),
+                  patch.object(order_services.Product.objects, "active") as products,
+                  patch.object(order_services.ProductVariant.objects, "filter") as variants):
+                products.return_value.filter.return_value.first.return_value = product
+                variants.return_value.first.return_value = None
+                # Bypass only the transaction decorator; all persistence paths are unreachable.
+                with self.assertRaises(ProductVariant.DoesNotExist) as raised:
+                    order_services.add_item.__wrapped__(cart, product_slug="cup", variant_id="Medium")
+                self.assertEqual(str(raised.exception), "该商品没有此选项。" if language == "zh-hans"
+                                 else "That option is not available for this product.")
+                variants.assert_called_once_with(product=product, is_active=True, label="Medium")
+                cart.items.filter.assert_not_called()
+                cart.save.assert_not_called()
+
+    def test_checkout_availability_errors_with_all_persistence_mocked(self):
+        for language in ("en", "zh-hans", "en"):
+            for failure in ("inactive", "insufficient", "race"):
+                product = SimpleNamespace(
+                    pk=101, name="Cup — Studio", is_active=failure != "inactive",
+                    is_made_to_order=False, stock_quantity=1 if failure == "insufficient" else 2,
+                    price=Decimal("22.50"), currency="CNY", slug="cup",
+                    maker=SimpleNamespace(name="Maker"), primary_image=lambda: "/cup.svg",
+                )
+                item = SimpleNamespace(product_id=101, variant_id=None, quantity=2)
+                cart = MagicMock()
+                cart.items.select_related.return_value = [item]
+                cart.shipping_amount.return_value = Decimal("10.00")
+                with (self.subTest(language=language, failure=failure), translation.override(language),
+                      patch.object(order_services.Product.objects, "select_for_update") as products,
+                      patch.object(order_services.ProductVariant.objects, "select_for_update") as variants,
+                      patch.object(order_services.Order.objects, "create") as order_create,
+                      patch.object(order_services.OrderItem.objects, "create") as item_create,
+                      patch.object(order_services.OrderNumberSequence, "next_number", return_value="TEST-1"),
+                      patch.object(order_services.Product.objects, "filter") as stock_update,
+                      patch.object(order_services, "create_seller_fulfillments") as fulfilments):
+                    products.return_value.filter.return_value = [product]
+                    variants.return_value.filter.return_value = []
+                    stock_update.return_value.update.return_value = 0
+                    # Execute real checks and branch conditions, bypassing only the DB transaction wrapper.
+                    with self.assertRaises(api_errors.InsufficientStock) as raised:
+                        order_services.create_order.__wrapped__(
+                            cart=cart, email="person@example.com", shipping_address={"city": "Test"},
+                        )
+                    english, chinese = {
+                        "inactive": ("Cup — Studio is no longer available.", "Cup — Studio 已不再供应。"),
+                        "insufficient": ("Only 1 of Cup — Studio remain — please adjust your bag.",
+                                         "Cup — Studio 仅剩 1 件，请调整购物袋中的数量。"),
+                        "race": ("Cup — Studio sold out while you were checking out.",
+                                 "结算过程中，Cup — Studio 已售罄。"),
+                    }[failure]
+                    self.assertEqual(str(raised.exception.detail), chinese if language == "zh-hans" else english)
+                    self.assertEqual(raised.exception.status_code, 409)
+                    self.assertEqual(raised.exception.get_codes(), "insufficient_stock")
+                    products.return_value.filter.assert_called_once_with(pk__in=[101])
+                    variants.return_value.filter.assert_called_once_with(pk__in=[])
+                    fulfilments.assert_not_called()
+                    cart.save.assert_not_called()
+                    cart.items.all.assert_not_called()
+                    if failure == "race":
+                        self.assertEqual(order_create.call_args.kwargs["subtotal"], Decimal("45.00"))
+                        self.assertEqual(order_create.call_args.kwargs["total"], Decimal("55.00"))
+                        self.assertEqual(item_create.call_args.kwargs["quantity"], 2)
+                        self.assertEqual(item_create.call_args.kwargs["product_name"], "Cup — Studio")
+                        stock_update.assert_called_once_with(pk=101, stock_quantity__gte=2)
+                        stock_update.return_value.update.assert_called_once()
+                    else:
+                        order_create.assert_not_called()
+                        item_create.assert_not_called()
+                        stock_update.assert_not_called()
+                    self.assertEqual(product.name, "Cup — Studio")
+                    self.assertEqual(product.stock_quantity, 1 if failure == "insufficient" else 2)

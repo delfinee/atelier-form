@@ -7,6 +7,7 @@ total, any stock figure, and any card detail. Those are server-side facts.
 from decimal import Decimal
 
 from django.utils import translation
+from django.utils.translation import gettext
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -115,7 +116,7 @@ class CheckoutSerializer(serializers.Serializer):
     def validate(self, attrs):
         if not attrs.get("shipping_address_uuid") and not attrs.get("shipping_address"):
             raise serializers.ValidationError(
-                {"shipping_address": "Provide either shipping_address_uuid or shipping_address."})
+                {"shipping_address": gettext("Provide either shipping_address_uuid or shipping_address.")})
         return attrs
 
 

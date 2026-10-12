@@ -218,7 +218,7 @@ def catalogue_api(request):
 
 def cart(request):
     """The bag page. Lines are fetched from /api/cart/ by the JS layer."""
-    return render(request, "frontend/cart.html", {"meta_title": f"Bag — {SITE['brand']}"})
+    return render(request, "frontend/cart.html", {"meta_title": f"{_('Bag')} — {SITE['brand']}"})
 
 
 def checkout(request):
@@ -229,7 +229,7 @@ def checkout(request):
         "addresses": addresses,
         "customer": request.user if request.user.is_authenticated else None,
         "has_items": bool(cart_obj and getattr(cart_obj, "items").exists()),
-        "meta_title": f"Checkout — {SITE['brand']}",
+        "meta_title": f"{_('Checkout')} — {SITE['brand']}",
     })
 
 

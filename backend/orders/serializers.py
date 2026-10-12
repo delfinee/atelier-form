@@ -10,7 +10,7 @@ from django.utils import translation
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from frontend.catalogue_i18n import localize_colour_label, localize_product
+from frontend.catalogue_i18n import localize_colour_label, localize_product, localize_size_label
 
 from .models import (
     Cart, CartItem, DeliveryMethod, FulfillmentStatus, Order, OrderItem, SellerFulfillment,
@@ -43,9 +43,11 @@ class CartItemSerializer(serializers.ModelSerializer):
     def get_variant_label(self, obj) -> str:
         label = obj.variant.label if obj.variant else ""
         request = self.context.get("request")
-        if (label and obj.variant.group == "colour" and request
+        if (label and obj.variant.group in {"colour", "size"} and request
                 and request.LANGUAGE_CODE.startswith("zh")):
             with translation.override("zh-hans"):
+                if obj.variant.group == "size":
+                    return localize_size_label(label)
                 return localize_colour_label(label)
         return label
 

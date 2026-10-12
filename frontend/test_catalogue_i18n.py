@@ -3,6 +3,8 @@
 import ast
 import json
 import re
+import shutil
+import subprocess
 from datetime import datetime, timezone as datetime_timezone
 from decimal import Decimal
 from pathlib import Path
@@ -11,6 +13,7 @@ from urllib.parse import quote
 from uuid import UUID
 from unittest.mock import MagicMock, patch
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.storage.cookie import CookieStorage
 from django.core.exceptions import ValidationError
@@ -2944,6 +2947,25 @@ JAVASCRIPT_I18N_EXPECTED = {
     "validationMaxLength": (
         "Use at most {max} characters.", "最多输入 {max} 个字符。",
     ),
+    "removeLine": ("Remove", "移除"),
+    "bagRemoved": ("Removed from your bag", "已从购物袋移除。"),
+    "bagAdded": ("Added to your bag", "已加入购物袋。"),
+    "quantityFor": ("Quantity for {name}", "{name} 的数量"),
+    "deliveryApplied": ("Complimentary delivery applied", "已享受免运费"),
+    "deliveryRemaining": ("{amount} away from complimentary delivery", "再购买 {amount} 即可享受免运费"),
+    "itemSingular": ("{count} item", "{count} 件商品"),
+    "itemPlural": ("{count} items", "{count} 件商品"),
+    "orderPlacing": ("Placing order…", "正在提交订单…"),
+    "wishSaved": ("Saved to your wishlist", "已加入心愿单。"),
+    "wishRemoved": ("Removed from your wishlist", "已从心愿单移除。"),
+    "wishSignIn": ("Sign in to save pieces to your wishlist.", "登录后即可将作品保存到心愿单。"),
+    "decreaseQuantity": ("Decrease quantity", "减少数量"),
+    "increaseQuantity": ("Increase quantity", "增加数量"),
+    "complimentary": ("Complimentary", "免运费"),
+    "bagEmpty": ("Your bag is empty", "购物袋是空的"),
+    "bagEmptyNote": ("Nothing in here yet. The shop is a good place to start.", "这里还没有商品。不妨先去逛逛商店。"),
+    "browseShop": ("Browse the shop", "浏览商店"),
+    "orderPlace": ("Place order", "提交订单"),
 }
 
 
@@ -3287,3 +3309,302 @@ class SizeLabelLocalizationTests(SimpleTestCase):
         self.assertIn('btn.setAttribute("aria-pressed", "true")', source)
         self.assertIn('return chosen.length ? chosen[0].dataset.variant : null;', source)
         self.assertIn("btn.dataset.variant || selectedVariant(scope)", source)
+
+
+
+class CommerceUILocalizationTests(SimpleTestCase):
+    def test_commerce_config_remains_request_local_and_preserves_settings(self):
+        for language in ("en", "zh-hans", "en"):
+            with self.subTest(language=language):
+                result, _, _, _ = PopularSearchAndJavaScriptLocalizationTests.frontend_context(language)
+                config = result["af_config"]
+                for key in ("currency_symbol", "free_shipping_threshold",
+                            "shipping_standard", "shipping_express"):
+                    self.assertEqual(config[key], settings.COMMERCE[key.upper()])
+                self.assertEqual(config["csrf"], "csrf-token")
+                self.assertFalse(config["authenticated"])
+                self.assertEqual(config["wishlist"], [])
+                index = language == "zh-hans"
+                for key, values in JAVASCRIPT_I18N_EXPECTED.items():
+                    self.assertEqual(config["i18n"][key], values[index])
+
+    def test_cart_size_display_preserves_canonical_variant_and_output_contract(self):
+        variant_uuid = UUID("11111111-2222-3333-4444-555555555555")
+        for language in ("en", "zh-hans", "zh-cn"):
+            for label, chinese in (("Medium", "中号"), ("Large", "大号"), ("45 cm", "45 cm"),
+                                   ("60 cm", "60 cm"), ("Custom size", "Custom size"),
+                                   ("Medium custom", "Medium custom")):
+                with self.subTest(language=language, label=label):
+                    product = Product(slug="custom-product", name="Custom product")
+                    variant = ProductVariant(uuid=variant_uuid, product=product, label=label,
+                                             group="size", sku="fixed-sku")
+                    item = SimpleNamespace(
+                        id=17, variant=variant, product=product, quantity=2,
+                        unit_price=Decimal("12.50"), line_total=Decimal("25.00"),
+                        available_quantity=9,
+                    )
+                    variant_before = dict(variant.__dict__)
+                    item_before = dict(item.__dict__)
+                    serializer = CartItemSerializer(
+                        item, context={"request": SimpleNamespace(LANGUAGE_CODE=language)},
+                    )
+                    # Force an opposite ambient language: the request controls presentation.
+                    with (translation.override("zh-hans" if language == "en" else "en"),
+                          patch.object(CartItemSerializer, "get_image", return_value="/fixed.svg")):
+                        output = serializer.data
+                    self.assertEqual(output, {
+                        "id": 17, "product_slug": "custom-product", "product_name": "Custom product",
+                        "variant_uuid": str(variant_uuid),
+                        "variant_label": label if language == "en" else chinese,
+                        "image": "/fixed.svg", "quantity": 2, "unit_price": "12.50",
+                        "line_total": "25.00", "available_quantity": 9,
+                    })
+                    self.assertEqual(variant.__dict__, variant_before)
+                    self.assertEqual(item.__dict__, item_before)
+                    with translation.override("zh-hans"):
+                        self.assertEqual(CartItemSerializer().get_variant_label(item), label)
+        self.assertEqual(CartItemSerializer().get_variant_label(SimpleNamespace(variant=None)), "")
+
+    def test_bag_checkout_titles_preserve_context_and_read_calls(self):
+        for language, titles in (("en", ("Bag", "Checkout")), ("zh-hans", ("购物袋", "结算")),
+                                 ("en", ("Bag", "Checkout"))):
+            for authenticated in (False, True):
+                with self.subTest(language=language, authenticated=authenticated):
+                    request = RequestFactory().get("/checkout/")
+                    request.user = SimpleNamespace(is_authenticated=authenticated)
+                    cart = MagicMock()
+                    cart.items.exists.return_value = True
+                    addresses = object()
+                    with (translation.override(language),
+                          patch.object(views, "render") as render,
+                          patch.object(views, "get_cart", return_value=cart) as get_cart,
+                          patch.object(views.Address.objects, "filter", return_value=addresses) as filtered,
+                          patch.object(views.Address.objects, "none", return_value=addresses) as none):
+                        self.assertIs(views.cart(request), render.return_value)
+                        render.assert_called_once_with(
+                            request, "frontend/cart.html", {"meta_title": titles[0] + " — Atelier Form"},
+                        )
+                        get_cart.assert_not_called()
+                        render.reset_mock()
+                        self.assertIs(views.checkout(request), render.return_value)
+                        get_cart.assert_called_once_with(request, create=False)
+                        cart.items.exists.assert_called_once_with()
+                        render.assert_called_once_with(request, "frontend/checkout.html", {
+                            "addresses": addresses, "customer": request.user if authenticated else None,
+                            "has_items": True, "meta_title": titles[1] + " — Atelier Form",
+                        })
+                        if authenticated:
+                            filtered.assert_called_once_with(user=request.user)
+                            none.assert_not_called()
+                        else:
+                            none.assert_called_once_with()
+                            filtered.assert_not_called()
+
+    def test_actual_javascript_commerce_display_and_operations(self):
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("Node.js is unavailable; JavaScript runtime smoke check not executed.")
+        cases = []
+        for language in ("en", "zh-hans", "en"):
+            result, _, _, _ = PopularSearchAndJavaScriptLocalizationTests.frontend_context(language)
+            cases.append({
+                "i18n": result["af_config"]["i18n"],
+                "expected": {key: values[language == "zh-hans"]
+                             for key, values in JAVASCRIPT_I18N_EXPECTED.items()},
+            })
+        cases.append({"i18n": {}, "expected": {
+            key: values[0] for key, values in JAVASCRIPT_I18N_EXPECTED.items()
+        }})
+        source = (Path(__file__).parent / "static/frontend/js/site.js").read_text(encoding="utf-8")
+        result = subprocess.run(
+            [node, "-e", self.NODE_SMOKE], input=json.dumps({"source": source, "cases": cases}),
+            encoding="utf-8", capture_output=True, timeout=30,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("PASS: 4 language/fallback cases; actual commerce use sites", result.stdout)
+
+    NODE_SMOKE = r"""
+const assert = require("node:assert/strict");
+const vm = require("node:vm");
+const input = JSON.parse(require("node:fs").readFileSync(0, "utf8"));
+function extract(name) {
+  const start = input.source.indexOf("  function " + name + "(");
+  assert(start >= 0, name);
+  const end = input.source.indexOf("\n  }", start);
+  assert(end > start, name);
+  return input.source.slice(start, end + 4);
+}
+const functions = ["text", "interpolate", "money", "lineItemHTML", "bindLineControls",
+  "renderDrawer", "initBagPage", "initCheckout", "bindAddButtons", "bindWishButtons"];
+function element(extra = {}) {
+  return Object.assign({dataset: {}, style: {}, handlers: {}, attrs: {}, hidden: false,
+    classList: {toggle() {}}, textContent: "", innerHTML: "",
+    addEventListener(name, fn) { this.handlers[name] = fn; },
+    setAttribute(name, value) { this.attrs[name] = value; },
+    scrollIntoView() {}, closest() { return null; }}, extra);
+}
+(async () => {
+  for (const test of input.cases) {
+    const e = test.expected;
+    const nodes = {};
+    const lists = {};
+    const notices = [];
+    const calls = [];
+    const pending = [];
+    const context = {
+      I18N: test.i18n, CFG: {currency_symbol: "¥", free_shipping_threshold: 100, shipping_express: 25},
+      URLS: {checkout: "/api/checkout/"}, state: {cart: null}, document: {},
+      window: {location: {href: ""}}, cartItems() { return context.state.cart.items; },
+      $(selector, root) { return root?.nodes?.[selector] || nodes[selector] || null; },
+      $$(selector, root) { return root?.lists?.[selector] || lists[selector] || []; },
+      onChange(fn) { context.repaint = fn; }, toast(message) { notices.push(message); },
+      guard(promise) { pending.push(promise); }, loadCart() { calls.push(["load"]); },
+      removeLine(id) { calls.push(["remove", id]); return Promise.resolve(); },
+      setQty(id, qty) { calls.push(["quantity", id, qty]); return Promise.resolve(); },
+      addToCart(...args) { calls.push(["add", ...args]); return Promise.resolve(); },
+      selectedVariant() { return "Medium"; }, inWish() { return false; },
+    };
+    vm.createContext(context);
+    vm.runInContext(functions.map(extract).join("\n"), context);
+    assert.equal(context.text("missing", "safe fallback"), "safe fallback");
+    assert.equal(context.interpolate("{name} {amount} {count}", {name: "Cup", amount: "¥20", count: 2}),
+      "Cup ¥20 2");
+    const line = {id: 17, product_slug: "linen", product_name: "Linen", variant_label: "Medium",
+      image: "/linen.svg", quantity: 2, line_total: 80};
+    const html = context.lineItemHTML(line);
+    for (const fragment of ['data-item-id="17"', '/products/linen/', 'value="2"',
+      'aria-label="' + e.decreaseQuantity + '"', 'aria-label="' + e.increaseQuantity + '"',
+      'aria-label="' + e.quantityFor.replace("{name}", "Linen") + '"',
+      'data-remove>' + e.removeLine + '</button>', "¥80", "Medium"]) assert(html.includes(fragment), fragment);
+
+    // Real line-control handlers with fake elements and mocked mutation boundaries.
+    const remove = element(), minus = element({dataset: {step: "-1"}});
+    const qty = element({value: "2"});
+    const row = element({dataset: {itemId: "17"}, nodes: {"input": qty, "[data-remove]": remove},
+      lists: {"[data-step]": [minus]}});
+    context.bindLineControls({lists: {"[data-line]": [row]}});
+    minus.handlers.click(); qty.value = "4"; qty.handlers.change(); remove.handlers.click();
+    await Promise.all(pending);
+    assert.deepEqual(calls.splice(0), [["quantity", "17", 1], ["quantity", "17", "4"], ["remove", "17"]]);
+    assert.equal(notices.pop(), e.bagRemoved);
+
+    for (const key of ["[data-drawer-body]", "#cart-drawer", "[data-drawer-subtotal]",
+      "[data-drawer-note]", "[data-drawer-foot]", "[data-cart-lines]", "[data-cart-empty]",
+      "[data-cart-filled]", "[data-subtotal]", "[data-shipping]", "[data-total]",
+      "[data-item-count]", "[data-progress-fill]", "[data-progress-label]"]) nodes[key] = element();
+    context.state.cart = {items: [], subtotal: 0};
+    context.renderDrawer();
+    for (const value of [e.bagEmpty, e.bagEmptyNote, e.browseShop])
+      assert(nodes["[data-drawer-body]"].innerHTML.includes(value));
+    nodes["#cart-drawer"].dataset = {emptyTitle: "Preferred title", emptyNote: "Preferred note", browseShop: "Preferred link"};
+    context.renderDrawer();
+    for (const value of ["Preferred title", "Preferred note", "Preferred link"])
+      assert(nodes["[data-drawer-body]"].innerHTML.includes(value));
+    assert.equal(nodes["[data-drawer-note]"].textContent, "");
+    assert.equal(nodes["[data-drawer-foot]"].hidden, true);
+
+    for (const count of [1, 2, 0]) {
+      for (const subtotal of [80, 100, 120]) {
+        context.state.cart = {items: [line], item_count: count, subtotal, shipping: 0, total: subtotal};
+        context.initBagPage();
+        context.renderDrawer();
+        const countTemplate = count === 1 ? e.itemSingular : e.itemPlural;
+        assert.equal(nodes["[data-item-count]"].textContent, countTemplate.replace("{count}", count));
+        const progress = subtotal >= 100 ? e.deliveryApplied : e.deliveryRemaining.replace("{amount}", "¥20");
+        assert.equal(nodes["[data-progress-label]"].textContent, progress);
+        assert.equal(nodes["[data-drawer-note]"].textContent, progress);
+        assert.equal(nodes["[data-progress-fill]"].style.width, Math.min(100, subtotal) + "%");
+        assert.equal(nodes["[data-shipping]"].textContent, e.complimentary);
+        assert.equal(nodes["[data-total]"].textContent, "¥" + subtotal);
+      }
+    }
+    context.state.cart.shipping = 12.5;
+    context.state.cart.total = 132.5;
+    context.initBagPage();
+    assert.equal(nodes["[data-shipping]"].textContent, "¥12.50");
+    assert.equal(nodes["[data-total]"].textContent, "¥132.50");
+
+    const submit = element();
+    nodes["[data-checkout-form]"] = element({nodes: {'button[type="submit"]': submit}});
+    for (const key of ["[data-checkout-summary]", "[data-new-address-fields]",
+      "[data-checkout-empty]", "[data-checkout-form-wrap]", "[data-checkout-error]"])
+      nodes[key] = element();
+    nodes['input[name="address"]:checked'] = element({value: "saved-address"});
+    nodes['input[name="delivery"]:checked'] = element({value: "standard"});
+    nodes["#co-email"] = element({value: " customer@example.com "});
+    nodes["#co-phone"] = element({value: " 123 "});
+    nodes["#co-note"] = element({value: " note "});
+    context.state.cart = {items: [line], subtotal: 80, shipping: 0};
+    context.initCheckout();
+    assert.equal(nodes["[data-shipping]"].textContent, e.complimentary);
+    assert.equal(nodes["[data-new-address-fields]"].hidden, true);
+    nodes['input[name="delivery"]:checked'].value = "express";
+    context.repaint();
+    assert.equal(nodes["[data-shipping]"].textContent, "¥25");
+    assert.equal(nodes["[data-total]"].textContent, "¥105");
+    const event = {preventDefault() {}};
+    let resolveOrder;
+    context.api = (url, options) => {
+      calls.push([url, JSON.parse(JSON.stringify(options))]);
+      return new Promise(resolve => { resolveOrder = resolve; });
+    };
+    const posting = nodes["[data-checkout-form]"].handlers.submit(event);
+    assert.equal(submit.disabled, true);
+    assert.equal(submit.textContent, e.orderPlacing);
+    assert.deepEqual(calls.pop(), ["/api/checkout/", {method: "POST", body: {
+      email: "customer@example.com", phone: "123", delivery_method: "express", gift_note: "note",
+      shipping_address_uuid: "saved-address"}}]);
+    resolveOrder({uuid: "order-id", payment: {checkout_url: "https://example.invalid/payment"}});
+    await posting;
+    assert.equal(context.window.location.href, "https://example.invalid/payment");
+    context.api = async () => ({uuid: "order-id"});
+    await nodes["[data-checkout-form]"].handlers.submit(event);
+    assert.equal(context.window.location.href, "/checkout/confirmation/order-id/");
+    context.api = async () => { throw new Error("server detail"); };
+    await nodes["[data-checkout-form]"].handlers.submit(event);
+    assert.equal(submit.disabled, false);
+    assert.equal(submit.textContent, e.orderPlace);
+    assert.equal(nodes["[data-checkout-error]"].textContent, "server detail");
+    assert.equal(nodes["[data-checkout-error]"].hidden, false);
+    assert.deepEqual(calls.pop(), ["load"]);
+
+    // Exercise new-address payload without touching an API.
+    nodes['input[name="address"]:checked'].value = "new";
+    nodes['input[name="delivery"]:checked'].value = "standard";
+    for (const [key, value] of Object.entries({"#co-first": " A ", "#co-last": " B ",
+      "#co-line1": " Street ", "#co-line2": " Unit ", "#co-city": " City ",
+      "#co-post": " 12345 ", "#co-country": "China"})) nodes[key] = element({value});
+    nodes['input[name="save_address"]'] = element({checked: true});
+    context.api = async (url, options) => { calls.push(JSON.parse(JSON.stringify(options))); return {uuid: "new-order"}; };
+    await nodes["[data-checkout-form]"].handlers.submit(event);
+    assert.deepEqual(calls.pop(), {method: "POST", body: {
+      email: "customer@example.com", phone: "123", delivery_method: "standard", gift_note: "note",
+      shipping_address: {first_name: "A", last_name: "B", address_line_1: "Street", address_line_2: "Unit",
+        city: "City", postal_code: "12345", country: "China", phone: "123"}, save_address: true}});
+
+    const add = element({dataset: {slug: "linen", variant: "Large", openDrawer: "false"}});
+    lists["[data-add-to-cart]"] = [add];
+    context.bindAddButtons();
+    await add.handlers.click(event);
+    assert.deepEqual(calls.pop(), ["add", "linen", "Large", 1]);
+    assert.equal(notices.pop(), e.bagAdded);
+    assert.equal(add.disabled, false);
+
+    const wish = element({dataset: {slug: "linen"}});
+    lists["[data-wish-toggle]"] = [wish];
+    context.bindWishButtons();
+    assert.equal(wish.attrs["aria-pressed"], "false");
+    for (const added of [true, false]) {
+      context.toggleWish = async slug => { assert.equal(slug, "linen"); return added; };
+      await wish.handlers.click(event);
+      assert.equal(notices.pop(), added ? e.wishSaved : e.wishRemoved);
+    }
+    for (const status of [401, 403, 500]) {
+      context.toggleWish = async () => { throw {status, message: "server detail"}; };
+      await wish.handlers.click(event);
+      assert.equal(notices.pop(), status === 500 ? "server detail" : e.wishSignIn);
+    }
+  }
+  console.log("PASS: 4 language/fallback cases; actual commerce use sites");
+})().catch(error => { console.error(error); process.exitCode = 1; });
+"""

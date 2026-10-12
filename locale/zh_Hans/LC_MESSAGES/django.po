@@ -3659,6 +3659,58 @@ msgctxt "product size"
 msgid "Large"
 msgstr "大号"
 
+#: .\frontend\context_processors.py
+msgid "Remove"
+msgstr "移除"
+
+#: .\frontend\context_processors.py
+msgid "Removed from your bag"
+msgstr "已从购物袋移除。"
+
+#: .\frontend\context_processors.py
+msgid "Added to your bag"
+msgstr "已加入购物袋。"
+
+#: .\frontend\context_processors.py
+#, python-brace-format
+msgid "Quantity for {name}"
+msgstr "{name} 的数量"
+
+#: .\frontend\context_processors.py
+msgid "Complimentary delivery applied"
+msgstr "已享受免运费"
+
+#: .\frontend\context_processors.py
+#, python-brace-format
+msgid "{amount} away from complimentary delivery"
+msgstr "再购买 {amount} 即可享受免运费"
+
+#: .\frontend\context_processors.py
+#, python-brace-format
+msgid "{count} item"
+msgstr "{count} 件商品"
+
+#: .\frontend\context_processors.py
+#, python-brace-format
+msgid "{count} items"
+msgstr "{count} 件商品"
+
+#: .\frontend\context_processors.py
+msgid "Placing order…"
+msgstr "正在提交订单…"
+
+#: .\frontend\context_processors.py
+msgid "Saved to your wishlist"
+msgstr "已加入心愿单。"
+
+#: .\frontend\context_processors.py
+msgid "Removed from your wishlist"
+msgstr "已从心愿单移除。"
+
+#: .\frontend\context_processors.py
+msgid "Sign in to save pieces to your wishlist."
+msgstr "登录后即可将作品保存到心愿单。"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is "
 #~ "accepted and logged."

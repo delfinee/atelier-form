@@ -3637,6 +3637,28 @@ msgstr "请至少输入 8 个字符。"
 msgid "Use at most {max} characters."
 msgstr "最多输入 {max} 个字符。"
 
+#: .\frontend\views.py
+msgid "You have already reviewed this product."
+msgstr "您已评价过这件商品。"
+
+#: .\frontend\views.py
+msgid "Only verified buyers can review this product."
+msgstr "只有已核实购买记录的买家才能评价这件商品。"
+
+#: .\frontend\views.py
+msgid "Thank you for reviewing this piece."
+msgstr "感谢您为这件作品留下评价。"
+
+#: .\frontend\catalogue_i18n.py
+msgctxt "product size"
+msgid "Medium"
+msgstr "中号"
+
+#: .\frontend\catalogue_i18n.py
+msgctxt "product size"
+msgid "Large"
+msgstr "大号"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is "
 #~ "accepted and logged."

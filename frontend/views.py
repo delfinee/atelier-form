@@ -138,9 +138,9 @@ def product_detail(request, slug):
         if review_state == "login_required":
             return redirect_to_login(request.path)
         if review_state != "eligible":
-            messages.error(request, "You have already reviewed this product."
+            messages.error(request, _("You have already reviewed this product.")
                            if review_state == "already_reviewed" else
-                           "Only verified buyers can review this product.")
+                           _("Only verified buyers can review this product."))
             return redirect("product_detail", slug=product.slug)
         if review_form.is_valid():
             try:
@@ -152,9 +152,9 @@ def product_detail(request, slug):
             except IntegrityError as exc:
                 if not is_duplicate_review_error(exc):
                     raise
-                messages.error(request, "You have already reviewed this product.")
+                messages.error(request, _("You have already reviewed this product."))
             else:
-                messages.success(request, "Thank you for reviewing this piece.")
+                messages.success(request, _("Thank you for reviewing this piece."))
             return redirect("product_detail", slug=product.slug)
 
     reviews = getattr(product, "reviews").filter(is_published=True).select_related("user")

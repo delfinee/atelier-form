@@ -11,7 +11,10 @@ from urllib.parse import quote
 from uuid import UUID
 from unittest.mock import MagicMock, patch
 
+from django.contrib import messages
+from django.contrib.messages.storage.cookie import CookieStorage
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.template import Context, Template
 from django.template.loader import get_template
 from django.test import RequestFactory, SimpleTestCase
@@ -21,13 +24,13 @@ from django.utils.translation import gettext, ngettext, npgettext, pgettext
 from content.models import FAQ, Article, FAQGroup
 from orders.serializers import CartItemSerializer
 from products.models import (
-    MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product,
+    MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product, ProductVariant,
 )
 
 from frontend import context_processors, services, views
 from frontend.catalogue_i18n import (
     localize_article, localize_collection, localize_colour_label, localize_faq_group,
-    localize_maker, localize_product,
+    localize_maker, localize_product, localize_size_label,
 )
 from frontend.forms import RegistrationForm
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
@@ -1553,7 +1556,7 @@ class ColourAndMaterialLocalizationTests(SimpleTestCase):
         size_html = size_template.render(Context({"sizes": [SimpleNamespace(label="45 cm", available=True)]}))
         self.assertIn('data-variant="45 cm"', size_html)
         self.assertIn('data-variant-value>45 cm</span>', size_html)
-        self.assertNotIn("data-display-label", size_html)
+        self.assertIn('data-display-label="45 cm"', size_html)
 
     def test_product_card_swatch_title_uses_display_label(self):
         source = (Path(__file__).parent / "templates/frontend/partials/product_card.html").read_text(encoding="utf-8")
@@ -3102,3 +3105,185 @@ class PopularSearchAndJavaScriptLocalizationTests(SimpleTestCase):
         self.assertIn('interpolate(\n        text("validationMaxLength"', source)
         self.assertIn("{ max: input.maxLength }", source)
         self.assertNotIn("kind.charAt(0).toUpperCase()", source)
+
+
+class ReviewNotificationLocalizationTests(SimpleTestCase):
+    NOTIFICATIONS = {
+        "already": ("You have already reviewed this product.", "您已评价过这件商品。"),
+        "purchase": ("Only verified buyers can review this product.",
+                     "只有已核实购买记录的买家才能评价这件商品。"),
+        "success": ("Thank you for reviewing this piece.", "感谢您为这件作品留下评价。"),
+    }
+
+    def submit_review(self, language, *, reviewed=False, purchased=True,
+                      authenticated=True, rating="5", conflict=None):
+        request = RequestFactory().post(
+            "/products/test-piece/", {"rating": rating, "title": "Lovely", "body": "Well made."},
+        )
+        request.user = SimpleNamespace(is_authenticated=authenticated)
+        request._messages = CookieStorage(request)
+        product = MagicMock(slug="test-piece")
+        order_item = object() if purchased else None
+        with (translation.override(language),
+              patch.object(services, "get_product", return_value=product),
+              patch.object(services, "get_maker"),
+              patch.object(services, "related_products", return_value=[]),
+              patch.object(views.OrderItem.objects, "filter") as orders,
+              patch.object(views.Review.objects, "filter") as reviews,
+              patch.object(views.Review.objects, "create", side_effect=conflict) as create,
+              patch.object(views.WishlistItem.objects, "filter"),
+              patch.object(views.transaction, "atomic") as atomic,
+              patch.object(views, "render") as render):
+            orders.return_value.order_by.return_value.first.return_value = order_item
+            reviews.return_value.exists.return_value = reviewed
+            response = views.product_detail(request, "test-piece")
+            if authenticated:
+                orders.assert_called_once_with(
+                    order__user=request.user, order__payment_status="paid", product=product,
+                )
+                orders.return_value.order_by.assert_called_once_with("-order__placed_at")
+                reviews.assert_called_once_with(user=request.user, product=product)
+            else:
+                orders.assert_not_called()
+                reviews.assert_not_called()
+        return SimpleNamespace(
+            request=request, response=response, product=product, order_item=order_item,
+            notices=[(message.level, str(message)) for message in request._messages],
+            create=create, atomic=atomic, render=render,
+        )
+
+    def assert_notification(self, result, language, key, level):
+        expected = self.NOTIFICATIONS[key][language == "zh-hans"]
+        self.assertEqual(result.notices, [(level, expected)])
+        self.assertEqual(result.response.status_code, 302)
+        self.assertEqual(result.response.url, "/products/test-piece/")
+        result.render.assert_not_called()
+
+    def test_review_rejections_keep_eligibility_severity_and_redirect(self):
+        for language in ("en", "zh-hans", "en"):
+            for reviewed, purchased, key in (
+                (True, True, "already"), (True, False, "already"),
+                (False, False, "purchase"),
+            ):
+                with self.subTest(language=language, reviewed=reviewed, purchased=purchased):
+                    result = self.submit_review(language, reviewed=reviewed, purchased=purchased)
+                    self.assert_notification(result, language, key, messages.ERROR)
+                    result.create.assert_not_called()
+                    result.atomic.assert_not_called()
+
+    def test_duplicate_review_uses_same_localized_rejection(self):
+        for language in ("en", "zh-hans", "en"):
+            with self.subTest(language=language):
+                cause = Exception("duplicate")
+                cause.sqlstate = "23505"
+                cause.diag = SimpleNamespace(constraint_name="one_review_per_product_per_user")
+                conflict = IntegrityError("duplicate review")
+                conflict.__cause__ = cause
+                result = self.submit_review(language, conflict=conflict)
+                self.assert_notification(result, language, "already", messages.ERROR)
+                result.create.assert_called_once()
+                result.atomic.assert_called_once_with()
+
+    def test_review_success_keeps_cleaned_fields_and_transaction(self):
+        for language in ("en", "zh-hans", "en"):
+            with self.subTest(language=language):
+                result = self.submit_review(language)
+                self.assert_notification(result, language, "success", messages.SUCCESS)
+                result.create.assert_called_once_with(
+                    user=result.request.user, product=result.product, order_item=result.order_item,
+                    rating=5, title="Lovely", body="Well made.",
+                )
+                result.atomic.assert_called_once_with()
+                result.atomic.return_value.__enter__.assert_called_once_with()
+                result.atomic.return_value.__exit__.assert_called_once_with(None, None, None)
+
+    def test_anonymous_review_still_redirects_to_login_without_queries(self):
+        for language in ("en", "zh-hans"):
+            with self.subTest(language=language):
+                result = self.submit_review(language, authenticated=False)
+                self.assertEqual(result.response.status_code, 302)
+                self.assertEqual(result.response.url, "/account/login/?next=/products/test-piece/")
+                self.assertEqual(result.notices, [])
+                result.create.assert_not_called()
+                result.atomic.assert_not_called()
+
+    def test_invalid_review_remains_unsaved_and_renders_bound_form(self):
+        for language in ("en", "zh-hans"):
+            with self.subTest(language=language):
+                result = self.submit_review(language, rating="9")
+                result.create.assert_not_called()
+                result.atomic.assert_not_called()
+                self.assertEqual(result.notices, [])
+                self.assertIs(result.response, result.render.return_value)
+                request, template, context = result.render.call_args.args
+                self.assertIs(request, result.request)
+                self.assertEqual(template, "frontend/product/detail.html")
+                self.assertEqual(context["review_state"], "eligible")
+                self.assertTrue(context["can_review"])
+                self.assertIn("rating", context["review_form"].errors)
+                self.assertEqual(context["review_form"]["rating"].value(), "9")
+
+    def test_unrelated_integrity_error_is_still_raised(self):
+        conflict = IntegrityError("unrelated constraint")
+        with self.assertRaises(IntegrityError) as raised:
+            self.submit_review("zh-hans", conflict=conflict)
+        self.assertIs(raised.exception, conflict)
+
+
+class SizeLabelLocalizationTests(SimpleTestCase):
+    def test_size_labels_switch_language_and_preserve_custom_values(self):
+        labels = ("Medium", "Large", "45 cm", "60 cm", "Small", "medium", "Medium custom", "")
+        chinese = ("中号", "大号", "45 cm", "60 cm", "Small", "medium", "Medium custom", "")
+        for language, expected in (("en", labels), ("zh-hans", chinese), ("en", labels)):
+            with self.subTest(language=language), translation.override(language):
+                self.assertEqual(tuple(localize_size_label(label) for label in labels), expected)
+                self.assertEqual(pgettext("product size", "Medium"), expected[0])
+                self.assertEqual(pgettext("product size", "Large"), expected[1])
+                self.assertEqual(gettext("Medium"), "Medium")
+                self.assertEqual(gettext("Large"), "Large")
+
+    def test_size_template_preserves_variants_state_and_seed_objects(self):
+        source = (Path(__file__).parent / "templates/frontend/product/detail.html").read_text(encoding="utf-8")
+        section = source.split("{% if sizes %}", 1)[1].split("{% endwith %}", 1)[0]
+        template = Template("{% load i18n frontend_extras %}{% if sizes %}" + section)
+        product = Product(is_made_to_order=False)
+        labels = ("Medium", "Large", "45 cm", "60 cm", "Custom size")
+        variants = [ProductVariant(product=product, group="size", label=label,
+                                   stock_quantity=0 if label == "Large" else 1,
+                                   sku=f"size-{index}", sort_order=index)
+                    for index, label in enumerate(labels)]
+        snapshots = [dict(variant.__dict__) for variant in variants]
+        seeds_before = json.dumps(PRODUCTS, ensure_ascii=False, sort_keys=True)
+        for language, display in (
+            ("en", labels), ("zh-hans", ("中号", "大号", "45 cm", "60 cm", "Custom size")),
+            ("en", labels),
+        ):
+            with self.subTest(language=language), translation.override(language):
+                html = template.render(Context({"sizes": variants}))
+                self.assertIn(f'data-variant-value>{display[0]}</span>', html)
+                buttons = re.findall(r'<button\b([^>]*)>(.*?)</button>', html, re.S)
+                self.assertEqual(len(buttons), len(labels))
+                for index, ((attributes, visible), canonical, expected) in enumerate(
+                    zip(buttons, labels, display, strict=True)
+                ):
+                    self.assertIn(f'data-variant="{canonical}"', attributes)
+                    self.assertIn(f'data-display-label="{expected}"', attributes)
+                    self.assertEqual(visible, expected)
+                    pressed = "true" if index == 0 else "false"
+                    self.assertIn(f'aria-pressed="{pressed}"', attributes)
+                    self.assertEqual("disabled" in attributes, canonical == "Large")
+                    self.assertIn('class="variant"', attributes)
+                    self.assertIn('type="button"', attributes)
+                # A Large-first product must also have the translated initial value.
+                large_html = template.render(Context({"sizes": variants[1:]}))
+                self.assertIn(f'data-variant-value>{display[1]}</span>', large_html)
+        self.assertEqual([variant.__dict__ for variant in variants], snapshots)
+        self.assertEqual(json.dumps(PRODUCTS, ensure_ascii=False, sort_keys=True), seeds_before)
+
+    def test_existing_javascript_separates_selected_display_and_payload(self):
+        source = (Path(__file__).parent / "static/frontend/js/site.js").read_text(encoding="utf-8")
+        self.assertIn("output.textContent = btn.dataset.displayLabel || btn.dataset.variant;", source)
+        self.assertIn('b.setAttribute("aria-pressed", "false")', source)
+        self.assertIn('btn.setAttribute("aria-pressed", "true")', source)
+        self.assertIn('return chosen.length ? chosen[0].dataset.variant : null;', source)
+        self.assertIn("btn.dataset.variant || selectedVariant(scope)", source)

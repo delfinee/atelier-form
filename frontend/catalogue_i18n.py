@@ -22,6 +22,16 @@ def localize_colour_label(label: str) -> str:
     """Translate a recognised colour for display without changing its stored label."""
     return gettext(label) if label in _SEEDED_COLOUR_LABELS else label
 
+
+def localize_size_label(label: str) -> str:
+    """Translate seeded named sizes for display; preserve measurements and custom labels."""
+    if label == "Medium":
+        return pgettext("product size", "Medium")
+    if label == "Large":
+        return pgettext("product size", "Large")
+    return label
+
+
 def _is_chinese() -> bool:
     return (get_language() or "").lower().startswith("zh")
 

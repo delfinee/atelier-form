@@ -49,7 +49,13 @@ PRICE_BANDS = [
     ("over-100", gettext_noop("Over ¥100"), 100, 10_000),
 ]
 
-POPULAR_SEARCHES = ["Stoneware mug", "Indigo", "Candle", "Linen", "Gifts under ¥50"]
+POPULAR_SEARCHES = [
+    gettext_noop("Stoneware mug"),
+    gettext_noop("Indigo"),
+    gettext_noop("Candle"),
+    gettext_noop("Linen"),
+    gettext_noop("Gifts under ¥50"),
+]
 
 _SORT_FIELDS = {
     "newest": ["-sort_weight", "-created_at"],

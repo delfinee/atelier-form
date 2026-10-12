@@ -2,17 +2,19 @@
 
 import ast
 import json
+import re
 from datetime import datetime, timezone as datetime_timezone
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
+from urllib.parse import quote
 from uuid import UUID
 from unittest.mock import MagicMock, patch
 
 from django.core.exceptions import ValidationError
 from django.template import Context, Template
 from django.template.loader import get_template
-from django.test import SimpleTestCase
+from django.test import RequestFactory, SimpleTestCase
 from django.utils import translation
 from django.utils.translation import gettext, ngettext, npgettext, pgettext
 
@@ -22,7 +24,7 @@ from products.models import (
     MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product,
 )
 
-from frontend import services, views
+from frontend import context_processors, services, views
 from frontend.catalogue_i18n import (
     localize_article, localize_collection, localize_colour_label, localize_faq_group,
     localize_maker, localize_product,
@@ -2904,3 +2906,199 @@ class ReviewRatingAndSearchLocalizationTests(SimpleTestCase):
                 }],
             },
         )
+
+
+POPULAR_SEARCH_EXPECTED = (
+    ("Stoneware mug", "炻器马克杯"),
+    ("Indigo", "靛蓝"),
+    ("Candle", "蜡烛"),
+    ("Linen", "亚麻"),
+    ("Gifts under ¥50", "50 元以下的礼物"),
+)
+
+JAVASCRIPT_I18N_EXPECTED = {
+    "genericError": ("Something went wrong.", "出了点问题，请重试。"),
+    "searchProducts": ("Products", "商品"),
+    "searchCollections": ("Collections", "系列"),
+    "searchMakers": ("Makers", "匠人"),
+    "searchArticles": ("Articles", "文章"),
+    "searchNoResults": (
+        "Nothing matched that. Try a material, a maker or a room.",
+        "没有找到匹配结果。试试搜索材质、匠人或房间。",
+    ),
+    "contactSentWithReply": (
+        "Message sent. The studio will reply by email.",
+        "消息已发送。工作室将通过电子邮件回复您。",
+    ),
+    "contactSent": ("Message sent.", "消息已发送。"),
+    "validationRequired": ("This field is required.", "此项为必填项。"),
+    "validationEmail": (
+        "Enter a valid email address.", "请输入有效的电子邮箱地址。",
+    ),
+    "validationPasswordMin": (
+        "Use at least 8 characters.", "请至少输入 8 个字符。",
+    ),
+    "validationMaxLength": (
+        "Use at most {max} characters.", "最多输入 {max} 个字符。",
+    ),
+}
+
+
+class PopularSearchAndJavaScriptLocalizationTests(SimpleTestCase):
+    @staticmethod
+    def template_context():
+        return {
+            "site": {
+                "brand": "Atelier Form", "description": "", "announcement": "",
+            },
+            "primary_nav": (),
+            "footer_nav": (),
+            "popular_searches": services.POPULAR_SEARCHES,
+            "current_path": "/search/",
+            "af_config": {},
+            "query": "",
+            "popular": services.POPULAR_SEARCHES,
+            "total": 0,
+        }
+
+    @staticmethod
+    def render_suggestions(template_name, language):
+        with translation.override(language):
+            return get_template(template_name).render(
+                PopularSearchAndJavaScriptLocalizationTests.template_context()
+            )
+
+    @staticmethod
+    def frontend_context(language, *, authenticated=False):
+        request = RequestFactory().get("/search/?q=Clay")
+        user = SimpleNamespace(is_authenticated=authenticated)
+        request.user = user
+        queryset = MagicMock()
+        queryset.values_list.return_value = ["hand-thrown-stoneware-mug"]
+        with (
+            translation.override(language),
+            patch.object(context_processors, "get_token", return_value="csrf-token"),
+            patch.object(
+                context_processors.WishlistItem.objects, "filter", return_value=queryset,
+            ) as wishlist_filter,
+        ):
+            result = context_processors.frontend(request)
+        return result, user, queryset, wishlist_filter
+
+    def test_popular_search_labels_translate_without_changing_queries(self):
+        english_terms = [english for english, _ in POPULAR_SEARCH_EXPECTED]
+        self.assertEqual(services.POPULAR_SEARCHES, english_terms)
+        expected_hrefs = [f"/search/?q={quote(term, safe='')}" for term in english_terms]
+
+        for template_name in (
+            "frontend/partials/search_overlay.html",
+            "frontend/search/results.html",
+        ):
+            for language, expected_labels in (
+                ("en", english_terms),
+                ("zh-hans", [chinese for _, chinese in POPULAR_SEARCH_EXPECTED]),
+            ):
+                with self.subTest(template=template_name, language=language):
+                    rendered = self.render_suggestions(template_name, language)
+                    chips = re.findall(
+                        r'<a class="chip" href="([^"]+)">([^<]+)</a>', rendered,
+                    )
+                    repetitions = 2 if template_name.endswith("search/results.html") else 1
+                    self.assertEqual(
+                        [href for href, _ in chips], expected_hrefs * repetitions,
+                    )
+                    self.assertEqual(
+                        [label for _, label in chips], expected_labels * repetitions,
+                    )
+
+        empty_results = {
+            "products": [], "collections": [], "makers": [], "articles": [],
+        }
+        for term in english_terms:
+            request = SimpleNamespace(GET={"q": term})
+            response = object()
+            with (
+                self.subTest(term=term),
+                translation.override("zh-hans"),
+                patch.object(views.services, "search", return_value=empty_results) as search,
+                patch.object(views, "render", return_value=response),
+            ):
+                self.assertIs(views.search(request), response)
+                search.assert_called_once_with(term)
+
+    def test_request_time_javascript_i18n_and_existing_config_are_preserved(self):
+        contexts = {}
+        for language, index in (("en", 0), ("zh-hans", 1), ("en-again", 0)):
+            active_language = "en" if language == "en-again" else language
+            result, _, _, wishlist_filter = self.frontend_context(active_language)
+            config = result["af_config"]
+            contexts[language] = config
+            self.assertEqual(
+                config["i18n"],
+                {key: values[index] for key, values in JAVASCRIPT_I18N_EXPECTED.items()},
+            )
+            self.assertEqual(result["popular_searches"], list(services.POPULAR_SEARCHES))
+            self.assertEqual(result["current_path"], "/search/")
+            self.assertFalse(config["authenticated"])
+            self.assertEqual(config["wishlist"], [])
+            self.assertEqual(config["csrf"], "csrf-token")
+            wishlist_filter.assert_not_called()
+
+        for language in ("zh-hans", "en-again"):
+            self.assertEqual(
+                {key: value for key, value in contexts[language].items() if key != "i18n"},
+                {key: value for key, value in contexts["en"].items() if key != "i18n"},
+            )
+        self.assertEqual(
+            contexts["en"]["urls"],
+            {
+                "cart": "/api/cart/",
+                "cartItems": "/api/cart/items/",
+                "checkout": "/api/checkout/",
+                "wishlist": "/api/wishlist/",
+                "catalogue": "/api/catalogue/",
+                "search": "/api/search/",
+                "newsletter": "/api/newsletter/",
+            },
+        )
+        self.assertEqual(
+            set(contexts["en"]),
+            {
+                "currency_symbol", "free_shipping_threshold", "shipping_standard",
+                "shipping_express", "csrf", "authenticated", "wishlist", "urls", "i18n",
+            },
+        )
+
+        chinese_template = contexts["zh-hans"]["i18n"]["validationMaxLength"]
+        english_template = contexts["en"]["i18n"]["validationMaxLength"]
+        self.assertIn("{max}", chinese_template)
+        self.assertIn("{max}", english_template)
+        self.assertEqual(chinese_template.replace("{max}", "160"), "最多输入 160 个字符。")
+        self.assertEqual(english_template.replace("{max}", "160"), "Use at most 160 characters.")
+
+    def test_authenticated_config_keeps_wishlist_and_viewer_state(self):
+        result, user, queryset, wishlist_filter = self.frontend_context(
+            "zh-hans", authenticated=True,
+        )
+        config = result["af_config"]
+        self.assertTrue(config["authenticated"])
+        self.assertEqual(config["wishlist"], ["hand-thrown-stoneware-mug"])
+        wishlist_filter.assert_called_once_with(user=user)
+        queryset.values_list.assert_called_once_with("product__slug", flat=True)
+        self.assertEqual(config["i18n"]["searchProducts"], "商品")
+
+    def test_javascript_uses_all_fixed_keys_with_safe_english_fallbacks(self):
+        source = (
+            Path(__file__).parent / "static/frontend/js/site.js"
+        ).read_text(encoding="utf-8")
+        self.assertIn("const I18N = CFG.i18n || {};", source)
+        self.assertIn(
+            'return typeof value === "string" && value ? value : fallback;', source,
+        )
+        for key, (english, _) in JAVASCRIPT_I18N_EXPECTED.items():
+            with self.subTest(key=key):
+                call = rf'text\(\s*"{re.escape(key)}",\s*"{re.escape(english)}"'
+                self.assertRegex(source, call)
+        self.assertIn('interpolate(\n        text("validationMaxLength"', source)
+        self.assertIn("{ max: input.maxLength }", source)
+        self.assertNotIn("kind.charAt(0).toUpperCase()", source)

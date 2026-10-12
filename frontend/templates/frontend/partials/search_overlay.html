@@ -14,7 +14,7 @@
           <h4>{% translate "Popular searches" %}</h4>
           <div class="search-suggestions">
             {% for term in popular_searches %}
-              <a class="chip" href="{% url 'search' %}?q={{ term|urlencode }}">{{ term }}</a>
+              <a class="chip" href="{% url 'search' %}?q={{ term|urlencode }}">{% translate term %}</a>
             {% endfor %}
           </div>
         </div>

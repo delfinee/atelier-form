@@ -5,6 +5,7 @@ from __future__ import annotations
 from django.conf import settings
 from django.middleware.csrf import get_token
 from django.urls import reverse
+from django.utils.translation import gettext
 
 from accounts.models import WishlistItem
 
@@ -55,6 +56,24 @@ def frontend(request) -> dict:
                 "catalogue": reverse("catalogue_api"),
                 "search": reverse("search_api"),
                 "newsletter": reverse("newsletter_signup"),
+            },
+            "i18n": {
+                "genericError": gettext("Something went wrong."),
+                "searchProducts": gettext("Products"),
+                "searchCollections": gettext("Collections"),
+                "searchMakers": gettext("Makers"),
+                "searchArticles": gettext("Articles"),
+                "searchNoResults": gettext(
+                    "Nothing matched that. Try a material, a maker or a room."
+                ),
+                "contactSentWithReply": gettext(
+                    "Message sent. The studio will reply by email."
+                ),
+                "contactSent": gettext("Message sent."),
+                "validationRequired": gettext("This field is required."),
+                "validationEmail": gettext("Enter a valid email address."),
+                "validationPasswordMin": gettext("Use at least 8 characters."),
+                "validationMaxLength": gettext("Use at most {max} characters."),
             },
         },
     }

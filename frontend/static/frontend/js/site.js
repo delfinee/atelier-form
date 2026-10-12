@@ -4,9 +4,20 @@
 
   const CFG = JSON.parse(document.getElementById("af-config")?.textContent || "{}");
   const URLS = CFG.urls || {};
+  const I18N = CFG.i18n || {};
   const KEY = { wish: "af.wishlist.v1", recent: "af.recent.v1" };
   const $ = (sel, root) => (root || document).querySelector(sel);
   const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+
+  function text(key, fallback) {
+    const value = I18N[key];
+    return typeof value === "string" && value ? value : fallback;
+  }
+
+  function interpolate(template, values) {
+    return template.replace(/\{(\w+)\}/g, (placeholder, key) =>
+      Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : placeholder);
+  }
 
   /* ------------------------------------------------------- local store --- */
   function read(key, fallback) {
@@ -53,7 +64,8 @@
     let data = null;
     try { data = await response.json(); } catch (e) { data = null; }
     if (!response.ok) {
-      const error = new Error((data && data.detail) || "Something went wrong.");
+      const error = new Error((data && data.detail)
+        || text("genericError", "Something went wrong."));
       error.status = response.status;
       error.data = data;
       throw error;
@@ -220,16 +232,21 @@
     function render(data) {
       const blocks = [];
       if (data.products.length) {
-        blocks.push('<div><h4>Products</h4>' + data.products.map((p) =>
+        blocks.push(`<div><h4>${text("searchProducts", "Products")}</h4>`
+          + data.products.map((p) =>
           `<a class="search-hit" href="${p.url}"><img src="${p.image}" alt="" loading="lazy">
              <span><span class="search-hit__name">${p.name}</span>
              <span class="search-hit__meta">${p.label} · ${money(p.price)}</span></span></a>`).join("") + "</div>");
       }
+      const labels = {
+        collections: text("searchCollections", "Collections"),
+        makers: text("searchMakers", "Makers"),
+        articles: text("searchArticles", "Articles"),
+      };
       ["collections", "makers", "articles"].forEach((kind) => {
         const items = data[kind] || [];
         if (!items.length) return;
-        const label = kind.charAt(0).toUpperCase() + kind.slice(1);
-        blocks.push(`<div><h4>${label}</h4>` + items.map((i) =>
+        blocks.push(`<div><h4>${labels[kind]}</h4>` + items.map((i) =>
           `<a class="search-hit" href="${i.url}"><span>
              <span class="search-hit__name">${i.title || i.name}</span>
              ${i.discipline ? `<span class="search-hit__meta">${i.discipline}</span>` : ""}
@@ -237,7 +254,9 @@
       });
       results.innerHTML = blocks.length
         ? blocks.join("")
-        : '<p class="muted">Nothing matched that. Try a material, a maker or a room.</p>';
+        : `<p class="muted">${text(
+          "searchNoResults", "Nothing matched that. Try a material, a maker or a room."
+        )}</p>`;
     }
 
     input.addEventListener("input", () => {
@@ -301,7 +320,7 @@
   /** Surface an API error as a toast and re-sync, rather than failing silently. */
   function guard(promise) {
     return promise.catch((error) => {
-      toast(error.message || "Something went wrong.");
+      toast(error.message || text("genericError", "Something went wrong."));
       return loadCart();
     });
   }
@@ -550,10 +569,17 @@
     $$("input[required], select[required], textarea[required]", form).forEach((input) => {
       const value = input.type === "password" ? input.value : input.value.trim();
       let message = "";
-      if (!value) message = "This field is required.";
-      else if (input.type === "email" && !EMAIL.test(value)) message = "Enter a valid email address.";
-      else if (input.type === "password" && input.autocomplete === "new-password" && value.length < 8) message = "Use at least 8 characters.";
-      else if (input.maxLength > 0 && value.length > input.maxLength) message = `Use at most ${input.maxLength} characters.`;
+      if (!value) message = text("validationRequired", "This field is required.");
+      else if (input.type === "email" && !EMAIL.test(value)) message = text(
+        "validationEmail", "Enter a valid email address."
+      );
+      else if (input.type === "password" && input.autocomplete === "new-password" && value.length < 8) message = text(
+        "validationPasswordMin", "Use at least 8 characters."
+      );
+      else if (input.maxLength > 0 && value.length > input.maxLength) message = interpolate(
+        text("validationMaxLength", "Use at most {max} characters."),
+        { max: input.maxLength }
+      );
       fieldError(input, message);
       if (message) { ok = false; firstBad = firstBad || input; }
     });
@@ -616,8 +642,12 @@
             },
           });
           contact.reset();
-          if (status) { status.textContent = "Message sent. The studio will reply by email."; status.hidden = false; }
-          else toast("Message sent.");
+          if (status) {
+            status.textContent = text(
+              "contactSentWithReply", "Message sent. The studio will reply by email."
+            );
+            status.hidden = false;
+          } else toast(text("contactSent", "Message sent."));
         } catch (error) {
           if (status) { status.textContent = error.message; status.hidden = false; }
           else toast(error.message);

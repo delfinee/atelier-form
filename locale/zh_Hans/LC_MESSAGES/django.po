@@ -3592,6 +3592,51 @@ msgstr "请输入有效的电子邮箱地址。"
 msgid "You're on the list. Look out for the next note."
 msgstr "您已成功订阅，请留意我们的下一封邮件。"
 
+#: .\frontend\services.py
+msgid "Stoneware mug"
+msgstr "炻器马克杯"
+
+#: .\frontend\services.py
+msgid "Candle"
+msgstr "蜡烛"
+
+#: .\frontend\services.py
+msgid "Gifts under ¥50"
+msgstr "50 元以下的礼物"
+
+#: .\frontend\context_processors.py
+msgid "Articles"
+msgstr "文章"
+
+#: .\frontend\context_processors.py
+msgid "Nothing matched that. Try a material, a maker or a room."
+msgstr "没有找到匹配结果。试试搜索材质、匠人或房间。"
+
+#: .\frontend\context_processors.py
+msgid "Message sent. The studio will reply by email."
+msgstr "消息已发送。工作室将通过电子邮件回复您。"
+
+#: .\frontend\context_processors.py
+msgid "Message sent."
+msgstr "消息已发送。"
+
+#: .\frontend\context_processors.py
+msgid "Something went wrong."
+msgstr "出了点问题，请重试。"
+
+#: .\frontend\context_processors.py
+msgid "This field is required."
+msgstr "此项为必填项。"
+
+#: .\frontend\context_processors.py
+msgid "Use at least 8 characters."
+msgstr "请至少输入 8 个字符。"
+
+#: .\frontend\context_processors.py
+#, python-brace-format
+msgid "Use at most {max} characters."
+msgstr "最多输入 {max} 个字符。"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is "
 #~ "accepted and logged."

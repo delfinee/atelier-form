@@ -3580,6 +3580,14 @@ msgstr "您已退出登录。"
 msgid "An account with this email already exists."
 msgstr "使用此邮箱的账户已存在。"
 
+#: .\frontend\views.py
+msgid "Enter a valid email address."
+msgstr "请输入有效的电子邮箱地址。"
+
+#: .\frontend\views.py
+msgid "You're on the list. Look out for the next note."
+msgstr "您已成功订阅，请留意我们的下一封邮件。"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is "
 #~ "accepted and logged."

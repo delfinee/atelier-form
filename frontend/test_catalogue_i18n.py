@@ -1,6 +1,7 @@
 """Database-free checks for catalogue presentation translations."""
 
 import ast
+import json
 from datetime import datetime, timezone as datetime_timezone
 from decimal import Decimal
 from pathlib import Path
@@ -2442,3 +2443,215 @@ class AccountUILocalizationTests(SimpleTestCase):
                             context["meta_title"],
                             f"{titles[mode]} — {views.SITE['brand']}",
                         )
+
+
+PUBLIC_PAGE_TITLE_EXPECTED = {
+    "en": {
+        "shop": "Shop", "collections": "Collections", "search": "Search",
+        "story": "Our Story", "makers": "Makers", "journal": "Journal",
+        "contact": "Contact", "faq": "FAQ",
+        "shipping": "Shipping & Returns", "care": "Care Guide",
+    },
+    "zh-hans": {
+        "shop": "商店", "collections": "系列", "search": "搜索",
+        "story": "品牌故事", "makers": "匠人", "journal": "日志",
+        "contact": "联系", "faq": "常见问题",
+        "shipping": "配送与退货", "care": "保养指南",
+    },
+}
+
+NEWSLETTER_RESPONSE_EXPECTED = {
+    "en": {
+        "invalid": "Enter a valid email address.",
+        "success": "You're on the list. Look out for the next note.",
+    },
+    "zh-hans": {
+        "invalid": "请输入有效的电子邮箱地址。",
+        "success": "您已成功订阅，请留意我们的下一封邮件。",
+    },
+}
+
+
+class PublicPageAndNewsletterLocalizationTests(SimpleTestCase):
+    @staticmethod
+    def _request(body=None, query=None):
+        return SimpleNamespace(method="POST", body=body or b"", GET=query)
+
+    def test_public_page_titles_preserve_templates_and_contexts(self):
+        products = object()
+        facets = object()
+        sort_options = object()
+        collections = object()
+        makers = object()
+        lead = object()
+        article = object()
+        faq_groups = [object(), object(), object(), object()]
+        search_results = {
+            "products": [object()], "collections": [object()],
+            "makers": [object()], "articles": [object()],
+        }
+        shop_query = MagicMock()
+        shop_query.getlist.return_value = []
+        shop_query.get.side_effect = lambda key, default=None: (
+            "featured" if key == "sort" else default
+        )
+        search_query = MagicMock()
+        search_query.get.side_effect = lambda key, default=None: (
+            "clay" if key == "q" else default
+        )
+        response = object()
+
+        service_patches = {
+            "filter_products": MagicMock(return_value=products),
+            "shop_facets": MagicMock(return_value=facets),
+            "localized_sort_options": MagicMock(return_value=sort_options),
+            "all_collections": MagicMock(return_value=collections),
+            "search": MagicMock(return_value=search_results),
+            "all_makers": MagicMock(return_value=makers),
+            "all_articles": MagicMock(return_value=[lead, article]),
+        }
+        for language, titles in PUBLIC_PAGE_TITLE_EXPECTED.items():
+            with (
+                self.subTest(language=language),
+                translation.override(language),
+                patch.multiple(views.services, **service_patches),
+                patch.object(views, "_faq_groups", return_value=faq_groups),
+                patch.object(views, "render", return_value=response) as render,
+            ):
+                cases = (
+                    (
+                        views.shop, self._request(query=shop_query),
+                        "frontend/shop/shop.html",
+                        {
+                            "products": products, "facets": facets,
+                            "selected": {
+                                "categories": [], "materials": [], "colours": [],
+                                "price_bands": [], "availability": [],
+                            },
+                            "active_filter_count": 0, "sort": "featured",
+                            "sort_options": sort_options,
+                        },
+                        "shop",
+                    ),
+                    (
+                        views.collections_index, self._request(),
+                        "frontend/shop/collections.html",
+                        {"collections": collections}, "collections",
+                    ),
+                    (
+                        views.search, self._request(query=search_query),
+                        "frontend/search/results.html",
+                        {
+                            "query": "clay", "results": search_results, "total": 4,
+                            "popular": views.services.POPULAR_SEARCHES,
+                        },
+                        "search",
+                    ),
+                    (
+                        views.our_story, self._request(),
+                        "frontend/pages/our_story.html",
+                        {
+                            "page": views.STORY_PAGE, "makers": makers,
+                            "process_steps": views.PROCESS_STEPS,
+                        },
+                        "story",
+                    ),
+                    (
+                        views.makers_index, self._request(),
+                        "frontend/makers/index.html", {"makers": makers}, "makers",
+                    ),
+                    (
+                        views.journal_index, self._request(),
+                        "frontend/journal/index.html",
+                        {"lead": lead, "articles": [article]}, "journal",
+                    ),
+                    (
+                        views.contact, self._request(),
+                        "frontend/pages/contact.html",
+                        {"faq_groups": faq_groups[:3]}, "contact",
+                    ),
+                    (
+                        views.faq, self._request(), "frontend/pages/faq.html",
+                        {"faq_groups": faq_groups}, "faq",
+                    ),
+                    (
+                        views.shipping_returns, self._request(),
+                        "frontend/pages/longform.html",
+                        {"page": views.SHIPPING_PAGE}, "shipping",
+                    ),
+                    (
+                        views.care_guide, self._request(),
+                        "frontend/pages/care.html", {"page": views.CARE_PAGE}, "care",
+                    ),
+                )
+                for view, request, template, expected_context, title_key in cases:
+                    with self.subTest(language=language, view=title_key):
+                        self.assertIs(view(request), response)
+                        expected_context["meta_title"] = (
+                            f"{titles[title_key]} — Atelier Form"
+                        )
+                        render.assert_called_once_with(request, template, expected_context)
+                        self.assertTrue(
+                            render.call_args.args[2]["meta_title"].endswith(" — Atelier Form")
+                        )
+                        render.reset_mock()
+
+    def test_newsletter_invalid_email_contract_in_both_languages(self):
+        invalid_bodies = (
+            json.dumps({"email": " not-an-email "}).encode(),
+            b"{",
+        )
+        for language, messages in NEWSLETTER_RESPONSE_EXPECTED.items():
+            for body in invalid_bodies:
+                with (
+                    self.subTest(language=language, body=body),
+                    translation.override(language),
+                    patch.object(views.NewsletterSubscriber.objects, "filter") as lookup,
+                    patch.object(views.NewsletterSubscriber.objects, "create") as create,
+                ):
+                    response = views.newsletter_signup(self._request(body=body))
+                    self.assertEqual(response.status_code, 400)
+                    self.assertEqual(
+                        json.loads(response.content),
+                        {"ok": False, "error": messages["invalid"]},
+                    )
+                    lookup.assert_not_called()
+                    create.assert_not_called()
+
+    def test_newsletter_success_preserves_lookup_creation_and_privacy(self):
+        for language, messages in NEWSLETTER_RESPONSE_EXPECTED.items():
+            for state in ("active", "inactive", "new"):
+                subscriber = None
+                if state != "new":
+                    subscriber = SimpleNamespace(
+                        is_active=(state == "active"),
+                        resubscribe=MagicMock(),
+                    )
+                queryset = MagicMock()
+                queryset.first.return_value = subscriber
+                with (
+                    self.subTest(language=language, state=state),
+                    translation.override(language),
+                    patch.object(
+                        views.NewsletterSubscriber.objects, "filter",
+                        return_value=queryset,
+                    ) as lookup,
+                    patch.object(views.NewsletterSubscriber.objects, "create") as create,
+                ):
+                    body = json.dumps({"email": "  READER@EXAMPLE.COM  "}).encode()
+                    response = views.newsletter_signup(self._request(body=body))
+                    self.assertEqual(response.status_code, 200)
+                    self.assertEqual(
+                        json.loads(response.content),
+                        {"ok": True, "message": messages["success"]},
+                    )
+                    lookup.assert_called_once_with(email="reader@example.com")
+                    queryset.first.assert_called_once_with()
+                    if state == "new":
+                        create.assert_called_once_with(email="reader@example.com")
+                    else:
+                        create.assert_not_called()
+                        if state == "inactive":
+                            subscriber.resubscribe.assert_called_once_with()
+                        else:
+                            subscriber.resubscribe.assert_not_called()

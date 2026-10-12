@@ -86,14 +86,14 @@ def shop(request):
         "active_filter_count": active_count,
         "sort": sort,
         "sort_options": services.localized_sort_options(),
-        "meta_title": f"Shop — {SITE['brand']}",
+        "meta_title": f"{_('Shop')} — {SITE['brand']}",
     })
 
 
 def collections_index(request):
     return render(request, "frontend/shop/collections.html", {
         "collections": services.all_collections(),
-        "meta_title": f"Collections — {SITE['brand']}",
+        "meta_title": f"{_('Collections')} — {SITE['brand']}",
     })
 
 
@@ -184,7 +184,7 @@ def search(request):
         "results": results,
         "total": total,
         "popular": services.POPULAR_SEARCHES,
-        "meta_title": f"Search — {SITE['brand']}",
+        "meta_title": f"{_('Search')} — {SITE['brand']}",
     })
 
 
@@ -479,14 +479,14 @@ def our_story(request):
     return render(request, "frontend/pages/our_story.html", {
         "page": STORY_PAGE, "makers": services.all_makers(),
         "process_steps": PROCESS_STEPS,
-        "meta_title": f"Our Story — {SITE['brand']}",
+        "meta_title": f"{_('Our Story')} — {SITE['brand']}",
     })
 
 
 def makers_index(request):
     return render(request, "frontend/makers/index.html", {
         "makers": services.all_makers(),
-        "meta_title": f"Makers — {SITE['brand']}",
+        "meta_title": f"{_('Makers')} — {SITE['brand']}",
     })
 
 
@@ -505,7 +505,7 @@ def journal_index(request):
     return render(request, "frontend/journal/index.html", {
         "lead": articles[0] if articles else None,
         "articles": articles[1:],
-        "meta_title": f"Journal — {SITE['brand']}",
+        "meta_title": f"{_('Journal')} — {SITE['brand']}",
     })
 
 
@@ -528,26 +528,26 @@ def _faq_groups():
 def contact(request):
     return render(request, "frontend/pages/contact.html", {
         "faq_groups": _faq_groups()[:3],
-        "meta_title": f"Contact — {SITE['brand']}",
+        "meta_title": f"{_('Contact')} — {SITE['brand']}",
     })
 
 
 def faq(request):
     return render(request, "frontend/pages/faq.html", {
-        "faq_groups": _faq_groups(), "meta_title": f"FAQ — {SITE['brand']}",
+        "faq_groups": _faq_groups(), "meta_title": f"{_('FAQ')} — {SITE['brand']}",
     })
 
 
 def shipping_returns(request):
     return render(request, "frontend/pages/longform.html", {
         "page": SHIPPING_PAGE,
-        "meta_title": f"Shipping & Returns — {SITE['brand']}",
+        "meta_title": f"{_('Shipping & Returns')} — {SITE['brand']}",
     })
 
 
 def care_guide(request):
     return render(request, "frontend/pages/care.html", {
-        "page": CARE_PAGE, "meta_title": f"Care Guide — {SITE['brand']}",
+        "page": CARE_PAGE, "meta_title": f"{_('Care Guide')} — {SITE['brand']}",
     })
 
 
@@ -570,7 +570,7 @@ def newsletter_signup(request):
         email = ""
     email = email.strip().lower()
     if not EMAIL_RE.match(email):
-        return JsonResponse({"ok": False, "error": "Enter a valid email address."}, status=400)
+        return JsonResponse({"ok": False, "error": _("Enter a valid email address.")}, status=400)
 
     subscriber = NewsletterSubscriber.objects.filter(email=email).first()
     if subscriber:
@@ -580,4 +580,7 @@ def newsletter_signup(request):
         NewsletterSubscriber.objects.create(email=email)
 
     # Identical response either way: never disclose who is already subscribed.
-    return JsonResponse({"ok": True, "message": "You're on the list. Look out for the next note."})
+    return JsonResponse({
+        "ok": True,
+        "message": _("You're on the list. Look out for the next note."),
+    })

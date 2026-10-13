@@ -6,10 +6,12 @@ total, any stock figure, and any card detail. Those are server-side facts.
 
 from decimal import Decimal
 
+from django.utils import translation
+from django.utils.translation import gettext
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from frontend.catalogue_i18n import COLOUR_TRANSLATIONS, localize_product
+from frontend.catalogue_i18n import localize_colour_label, localize_product, localize_size_label
 
 from .models import (
     Cart, CartItem, DeliveryMethod, FulfillmentStatus, Order, OrderItem, SellerFulfillment,
@@ -42,8 +44,12 @@ class CartItemSerializer(serializers.ModelSerializer):
     def get_variant_label(self, obj) -> str:
         label = obj.variant.label if obj.variant else ""
         request = self.context.get("request")
-        if label and request and request.LANGUAGE_CODE.startswith("zh"):
-            return COLOUR_TRANSLATIONS.get(label, label)
+        if (label and obj.variant.group in {"colour", "size"} and request
+                and request.LANGUAGE_CODE.startswith("zh")):
+            with translation.override("zh-hans"):
+                if obj.variant.group == "size":
+                    return localize_size_label(label)
+                return localize_colour_label(label)
         return label
 
 
@@ -110,7 +116,7 @@ class CheckoutSerializer(serializers.Serializer):
     def validate(self, attrs):
         if not attrs.get("shipping_address_uuid") and not attrs.get("shipping_address"):
             raise serializers.ValidationError(
-                {"shipping_address": "Provide either shipping_address_uuid or shipping_address."})
+                {"shipping_address": gettext("Provide either shipping_address_uuid or shipping_address.")})
         return attrs
 
 

@@ -18,6 +18,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
+from django.utils.translation import gettext, ngettext
 
 from config.exceptions import EmptyCart, InsufficientStock
 from products.models import Maker, Product, ProductVariant
@@ -116,7 +117,7 @@ def add_item(cart: Cart, *, product_slug: str, variant_id=None, quantity: int = 
         ).filter(uuid=variant_id).first() if _is_uuid(variant_id) else \
             ProductVariant.objects.filter(product=product, is_active=True, label=variant_id).first()
         if variant is None:
-            raise ProductVariant.DoesNotExist("That option is not available for this product.")
+            raise ProductVariant.DoesNotExist(gettext("That option is not available for this product."))
 
     item = cart.items.filter(product=product, variant=variant).first()
     wanted = (item.quantity if item else 0) + quantity
@@ -177,8 +178,12 @@ def _assert_stock(product: Product, variant: ProductVariant | None, wanted: int)
     if wanted > available:
         name = f"{product.name} ({variant.label})" if variant else product.name
         raise InsufficientStock(
-            f"Only {available} of {name} {'is' if available == 1 else 'are'} available."
-            if available else f"{name} is out of stock."
+            ngettext(
+                "Only %(available)d of %(name)s is available.",
+                "Only %(available)d of %(name)s are available.",
+                available,
+            ) % {"available": available, "name": name}
+            if available else gettext("%(name)s is out of stock.") % {"name": name}
         )
 
 
@@ -255,12 +260,13 @@ def create_order(
         product = locked_products[item.product_id]
         variant = locked_variants.get(item.variant_id)
         if not product.is_active:
-            raise InsufficientStock(f"{product.name} is no longer available.")
+            raise InsufficientStock(gettext("%(name)s is no longer available.") % {"name": product.name})
         available = MAX_LINE_QUANTITY if product.is_made_to_order else (
             variant.stock_quantity if variant else product.stock_quantity)
         if item.quantity > available:
             raise InsufficientStock(
-                f"Only {available} of {product.name} remain — please adjust your bag."
+                gettext("Only %(available)d of %(name)s remain — please adjust your bag.")
+                % {"available": available, "name": product.name}
             )
 
     subtotal = sum(
@@ -324,7 +330,9 @@ def create_order(
                     pk=product.pk, stock_quantity__gte=item.quantity
                 ).update(stock_quantity=F("stock_quantity") - item.quantity)
             if not updated:
-                raise InsufficientStock(f"{product.name} sold out while you were checking out.")
+                raise InsufficientStock(
+                    gettext("%(name)s sold out while you were checking out.") % {"name": product.name}
+                )
 
         product.refresh_from_db(fields=["stock_quantity"])
         product.refresh_stock_status()

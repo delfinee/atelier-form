@@ -17,7 +17,7 @@
     <div class="panel">
       <div class="panel__head">
         <h3>{% translate "What you ordered" %}</h3>
-        <span class="status status--{{ order.status }}">{{ order.status_label }}</span>
+        <span class="status status--{{ order.status }}">{% order_status order.status_label %}</span>
       </div>
       {% for item in order.items.all %}
         <div class="line-item">
@@ -25,9 +25,9 @@
             <img src="{% placeholder item.image %}" alt="" loading="lazy">
           </a>
           <div>
-            <a class="line-item__name" href="{% url 'product_detail' item.product_slug %}">{{ item.product_name }}</a>
+            <a class="line-item__name" href="{% url 'product_detail' item.product_slug %}">{% order_item_name item %}</a>
             <div class="line-item__meta">
-              {% if item.variant_name %}{{ item.variant_name }} · {% endif %}{% blocktranslate with n=item.quantity %}Quantity {{ n }}{% endblocktranslate %}
+              {% if item.variant_name %}{% order_item_variant item %} · {% endif %}{% blocktranslate with n=item.quantity %}Quantity {{ n }}{% endblocktranslate %}
             </div>
           </div>
           <div class="line-item__price">{{ item.line_total|money }}</div>
@@ -43,11 +43,11 @@
         {{ order.address.city }} {{ order.address.postcode }}<br>
         {{ order.address.country }}
       </address>
-      <p class="muted" style="margin-top:0.9rem">{{ order.get_delivery_method_display }} · {{ order.estimated }}</p>
+      <p class="muted" style="margin-top:0.9rem">{% delivery_label order.get_delivery_method_display %} · {% order_estimated order %}</p>
     </div>
 
     <p class="form-note">
-      {% translate "Payment status:" %} <strong>{{ order.get_payment_status_display }}</strong>{% translate ". This prototype uses a mock payment provider — an order is only marked paid by a verified provider webhook." %}
+      {% translate "Payment status:" %} <strong>{% payment_status order.get_payment_status_display %}</strong>{% translate ". This prototype uses a mock payment provider — an order is only marked paid by a verified provider webhook." %}
     </p>
   </div>
 

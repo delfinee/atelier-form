@@ -5,6 +5,7 @@ from __future__ import annotations
 from django.conf import settings
 from django.middleware.csrf import get_token
 from django.urls import reverse
+from django.utils.translation import gettext
 
 from accounts.models import WishlistItem
 
@@ -55,6 +56,43 @@ def frontend(request) -> dict:
                 "catalogue": reverse("catalogue_api"),
                 "search": reverse("search_api"),
                 "newsletter": reverse("newsletter_signup"),
+            },
+            "i18n": {
+                "genericError": gettext("Something went wrong."),
+                "searchProducts": gettext("Products"),
+                "searchCollections": gettext("Collections"),
+                "searchMakers": gettext("Makers"),
+                "searchArticles": gettext("Articles"),
+                "searchNoResults": gettext(
+                    "Nothing matched that. Try a material, a maker or a room."
+                ),
+                "contactSentWithReply": gettext(
+                    "Message sent. The studio will reply by email."
+                ),
+                "contactSent": gettext("Message sent."),
+                "validationRequired": gettext("This field is required."),
+                "validationEmail": gettext("Enter a valid email address."),
+                "validationPasswordMin": gettext("Use at least 8 characters."),
+                "validationMaxLength": gettext("Use at most {max} characters."),
+                "removeLine": gettext("Remove"),
+                "bagRemoved": gettext("Removed from your bag"),
+                "bagAdded": gettext("Added to your bag"),
+                "quantityFor": gettext("Quantity for {name}"),
+                "deliveryApplied": gettext("Complimentary delivery applied"),
+                "deliveryRemaining": gettext("{amount} away from complimentary delivery"),
+                "itemSingular": gettext("{count} item"),
+                "itemPlural": gettext("{count} items"),
+                "orderPlacing": gettext("Placing order…"),
+                "wishSaved": gettext("Saved to your wishlist"),
+                "wishRemoved": gettext("Removed from your wishlist"),
+                "wishSignIn": gettext("Sign in to save pieces to your wishlist."),
+                "decreaseQuantity": gettext("Decrease quantity"),
+                "increaseQuantity": gettext("Increase quantity"),
+                "complimentary": gettext("Complimentary"),
+                "bagEmpty": gettext("Your bag is empty"),
+                "bagEmptyNote": gettext("Nothing in here yet. The shop is a good place to start."),
+                "browseShop": gettext("Browse the shop"),
+                "orderPlace": gettext("Place order"),
             },
         },
     }

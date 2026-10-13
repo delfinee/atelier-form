@@ -31,7 +31,7 @@ from products.models import (
 )
 from reviews.models import Review
 
-from frontend.mockdata.collections import COLLECTIONS
+from frontend.mockdata.collections import COLLECTIONS, EXTRA_COLLECTIONS
 from frontend.mockdata.faqs import FAQ_GROUPS
 from frontend.mockdata.journal import ARTICLES
 from frontend.mockdata.makers import MAKERS
@@ -48,24 +48,6 @@ DEMO_ADMIN = {"email": "admin@atelierform.test", "password": "demo-admin-2026",
               "first_name": "Studio", "last_name": "Admin"}
 DEMO_SELLER = {"email": "seller@atelierform.test", "password": "demo-seller-2026",
                "first_name": "Meilin", "last_name": "Chen"}
-
-# Editorial groupings beyond the four browsing categories.
-EXTRA_COLLECTIONS = [
-    {"slug": "quiet-mornings", "name": "Quiet Mornings",
-     "tagline": "For the first hour of the day.",
-     "description": "Cups, drippers and a candle for the part of the morning before anything "
-                    "has been asked of you. Chosen so the pieces sit together on a small table.",
-     "hero": "collection-ceramics", "tile": "category-ceramics", "featured": True,
-     "members": ["hand-thrown-stoneware-mug", "ceramic-pour-over-dripper",
-                 "speckled-breakfast-bowl", "tea-cup-set-of-two", "soy-wax-studio-candle"]},
-    {"slug": "studio-essentials", "name": "Studio Essentials",
-     "tagline": "The pieces we use ourselves.",
-     "description": "What is actually in daily use in the studio: an apron that has been "
-                    "washed a hundred times, boards that get cut on, towels that get used.",
-     "hero": "collection-home", "tile": "category-home", "featured": False,
-     "members": ["quilted-linen-apron", "olive-wood-serving-board", "hand-loomed-tea-towel",
-                 "linen-market-tote", "brass-oak-candle-snuffer"]},
-]
 
 STOCK_BY_STATUS = {"in-stock": (14, 46), "low-stock": (2, 4)}
 

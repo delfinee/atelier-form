@@ -11,6 +11,7 @@ import uuid
 
 from django.core.exceptions import PermissionDenied, ValidationError as DjangoValidationError
 from django.http import Http404
+from django.utils.translation import gettext, gettext_lazy
 from rest_framework import exceptions, status
 from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exception_handler
@@ -20,13 +21,13 @@ logger = logging.getLogger(__name__)
 
 class InsufficientStock(exceptions.APIException):
     status_code = status.HTTP_409_CONFLICT
-    default_detail = "Not enough stock available."
+    default_detail = gettext_lazy("Not enough stock available.")
     default_code = "insufficient_stock"
 
 
 class EmptyCart(exceptions.APIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = "Your bag is empty."
+    default_detail = gettext_lazy("Your bag is empty.")
     default_code = "empty_cart"
 
 
@@ -45,15 +46,15 @@ def api_exception_handler(exc, context):
         reference = uuid.uuid4().hex[:12]
         logger.exception("Unhandled API error [ref=%s]", reference)
         return Response(
-            {"detail": "An unexpected error occurred.", "reference": reference},
+            {"detail": gettext("An unexpected error occurred."), "reference": reference},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
     data = response.data
     if isinstance(data, dict) and "detail" not in data:
         # Field-level validation errors: keep them, add a human-readable summary.
-        response.data = {"detail": "Validation failed.", "errors": data}
+        response.data = {"detail": gettext("Validation failed."), "errors": data}
     elif isinstance(data, list):
-        response.data = {"detail": "Validation failed.", "errors": {"non_field_errors": data}}
+        response.data = {"detail": gettext("Validation failed."), "errors": {"non_field_errors": data}}
 
     return response

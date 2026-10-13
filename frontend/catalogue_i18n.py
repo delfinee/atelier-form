@@ -4,184 +4,128 @@ from __future__ import annotations
 
 from copy import copy
 
-from django.utils.translation import get_language
+from django.utils.translation import get_language, gettext, gettext_noop, pgettext
+
+from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
+from frontend.mockdata.faqs import FAQ_GROUPS_BY_SLUG
+from frontend.mockdata.journal import ARTICLES_BY_SLUG
+from frontend.mockdata.makers import MAKERS_BY_SLUG
+from frontend.mockdata.products import PRODUCTS, PRODUCTS_BY_SLUG
+
+_SEEDED_COLOUR_LABELS = frozenset(
+    variant["label"] for product in PRODUCTS for variant in product["variants"]
+    if variant["group"] == "colour"
+)
 
 
-COLLECTION_TRANSLATIONS = {
-    "ceramics": {
-        "name": "陶器",
-        "tagline": "逐件拉坯、修整与烧制。",
-        "description": "为餐桌而作的炻器与瓷器，来自景德镇的一间工作室。泥料取自一小时车程外，釉料则由灰烬与铁调配而成。颜色与器口会有细微差异，那是手作留下的痕迹，而非瑕疵。",
-    },
-    "textiles": {
-        "name": "织物",
-        "tagline": "经编织、染色与水洗，直至柔软。",
-        "description": "亚麻与手织棉布，以云南种植的蓝靛染色，并经过处理，不会以僵硬的状态抵达。适合每日使用，也经得起频繁清洗。",
-    },
-    "home": {
-        "name": "家居",
-        "tagline": "为房间里安静的角落而作。",
-        "description": "蜡烛每批浇注四十支，木板取自回收的庭院梁木，黄铜则有意让它逐渐变深。这些小物件虽不大，却比尺寸所暗示的更能改变房间的气息。",
-    },
-    "gifts": {
-        "name": "礼品",
-        "tagline": "以本色纸与棉绳包裹。",
-        "description": "适合作为礼物寄送的作品，手工装盒，并附有可在结算时书写的卡片。这里的任何东西都不会以塑料密封。",
-    },
-    "earth": {
-        "name": "大地系列",
-        "tagline": "灰烬、泥土、蓝靛与本色亚麻。",
-        "description": "九件作品取自同一份精简的材料清单，以匠人工作室一日车程内能够找到的材料上釉与染色。组合在一起，它们呈现出骨白、灰烬、泥土与草色组成的统一色调。",
-    },
-    "quiet-mornings": {
-        "name": "静谧清晨",
-        "tagline": "献给一天开始的第一个小时。",
-        "description": "杯子、手冲壶与一支蜡烛，属于清晨尚未向你提出任何要求的那段时间。我们挑选它们，让这些作品在一张小桌上自然相称。",
-    },
-    "studio-essentials": {
-        "name": "工作室日用",
-        "tagline": "我们自己每天使用的作品。",
-        "description": "工作室真正用于日常的物件：洗过一百次的围裙、反复切割使用的木板，以及每天都会用到的毛巾。",
-    },
-}
+def localize_colour_label(label: str) -> str:
+    """Translate a recognised colour for display without changing its stored label."""
+    return gettext(label) if label in _SEEDED_COLOUR_LABELS else label
 
 
-MAKER_TRANSLATIONS = {
-    "chen-meilin": {
-        "name": "陈梅琳",
-        "discipline": "陶艺师",
-        "location": "江西景德镇",
-        "tagline": "薄到足以承托光线的瓷器。",
-        "biography": [
-            "梅琳曾在景德镇一位陶艺大师门下学习六年，之后在古窑区东侧开设了一间小工作室。她几乎只使用本地瓷石，泥料取自离工作室一小时车程的地方。",
-            "她的器形安静而略带不完美，这是刻意为之。微微下沉的器口、露出泥土质感的素烧足部，都是她有意留下的痕迹，也正是每件作品各不相同的原因。",
-        ],
-        "process": [
-            "每天早晨手工揉泥，静置一夜后才开始拉坯。",
-            "每件作品都在转盘上完成，并在半干时修坯。",
-            "釉料以灰烬、长石和氧化铁分批调配。",
-            "以 1280°C 进行一次燃气烧制，窑炉缓慢冷却两天。",
-        ],
-    },
-    "lu-wenjing": {
-        "name": "陆文静",
-        "discipline": "织工与天然染色师",
-        "location": "云南大理",
-        "tagline": "每一次清洗，靛蓝都更深一层。",
-        "biography": [
-            "文静向祖母学习染色。祖母曾在大理的家屋后经营一口靛蓝染缸。如今她自己种植蓝靛，并在收获季与邻近的三户人家合作。",
-            "她使用父亲制作的木质地织机，以省内纺成的棉与麻织布。她工作室里的任何东西都不会以完全相同的方式染两次，她也不再为此道歉。",
-        ],
-        "process": [
-            "靛蓝在陶缸中发酵，并在整个季节每周补养。",
-            "布料浸染六至十四次，视所需深浅而定。",
-            "在河水中清洗并于阴凉处晾干，使颜色保持均匀。",
-            "在木质地织机上手工织造、整理与锁边。",
-        ],
-    },
-    "zhao-hesheng": {
-        "name": "赵和生",
-        "discipline": "木匠",
-        "location": "安徽徽州",
-        "tagline": "顺着木纹工作，从不与它对抗。",
-        "biography": [
-            "和生花了十年修复徽州木屋，之后才转向制作更小的器物。他的大部分木材仍来自这些修复工程，是已经度过一段岁月的梁木与地板。",
-            "他手工切削榫卯，所有作品都以生亚麻籽油完成。每件东西在握感恰到好处之前，都不会离开工作台。",
-        ],
-        "process": [
-            "回收木材先加工，再静置一季让它稳定下来。",
-            "每个榫接都手工切削与修整，不用木钉，也不用填料。",
-            "表面经过五种不同粗细的磨料处理，呈现柔和光泽。",
-            "使用食品级亚麻籽油完成表面处理，一周内重复涂刷三次。",
-        ],
-    },
-    "xu-anying": {
-        "name": "徐安莹",
-        "discipline": "制烛师与调香师",
-        "location": "江苏苏州",
-        "tagline": "像栽种花园一样构筑香气。",
-        "biography": [
-            "安莹曾学习中国古典园林设计，之后接受调香训练。她以设计庭院的方式思考香气：首先遇见什么，之后又会发现什么。",
-            "她在运河附近一间改造的底层工作室里手工浇注，每批四十支。每批蜡烛会静置固化两周，之后才点燃烛芯。",
-        ],
-        "process": [
-            "精油混合后静置十天，让香气彼此融合。",
-            "大豆蜡与菜籽蜡低温融化，温度不超过 65°C。",
-            "每次一只容器，分批手工浇注，每批四十支。",
-            "固化十四天后，从每批中抽样进行燃烧测试。",
-        ],
-    },
-    "ye-ruolan": {
-        "name": "叶若兰",
-        "discipline": "纺织艺术家",
-        "location": "浙江杭州",
-        "tagline": "将亚麻洗到仿佛从未僵硬过。",
-        "biography": [
-            "若兰使用欧洲亚麻，在自己的工作室里以经过两年改良的石洗工艺完成整理。她说，理想状态是让新作品摸起来像已经陪伴你多年的旧物。",
-            "她亲自裁剪和缝制所有作品，忙碌月份会有一名助手，并始终刻意保持系列精简。",
-        ],
-        "process": [
-            "亚麻来自同一家纺厂，并以小批量裁片处理。",
-            "缝合后，成品进行两次石洗。",
-            "平铺晾干后只轻轻熨烫一次，保留自然的褶皱。",
-            "逐条检查缝线，再折叠包裹。",
-        ],
-    },
-}
+def localize_size_label(label: str) -> str:
+    """Translate seeded named sizes for display; preserve measurements and custom labels."""
+    if label == "Medium":
+        return pgettext("product size", "Medium")
+    if label == "Large":
+        return pgettext("product size", "Large")
+    return label
 
-PRODUCT_TRANSLATIONS = {
-    "hand-thrown-stoneware-mug": ("手拉炻器马克杯", "炻器 · 陈梅琳"),
-    "speckled-breakfast-bowl": ("斑点早餐碗", "炻器 · 陈梅琳"),
-    "ceramic-pour-over-dripper": ("陶瓷手冲滤杯", "瓷器 · 陈梅琳"),
-    "ash-glazed-dinner-plate": ("灰釉餐盘", "炻器 · 陈梅琳"),
-    "stoneware-serving-platter": ("炻器餐盘", "炻器 · 陈梅琳"),
-    "matte-ceramic-vase": ("哑光陶瓷花瓶", "炻器 · 陈梅琳"),
-    "tea-cup-set-of-two": ("双人茶杯套装", "瓷器 · 陈梅琳"),
-    "linen-market-tote": ("亚麻购物袋", "水洗亚麻 · 叶若兰"),
-    "woven-cotton-throw": ("手织棉盖毯", "手织棉 · 陆文静"),
-    "linen-cushion-cover": ("亚麻靠垫套", "水洗亚麻 · 叶若兰"),
-    "stonewashed-table-runner": ("石洗亚麻桌旗", "水洗亚麻 · 叶若兰"),
-    "hand-loomed-tea-towel": ("手织茶巾", "棉与亚麻 · 陆文静"),
-    "quilted-linen-apron": ("绗缝亚麻围裙", "水洗亚麻 · 叶若兰"),
-    "soy-wax-studio-candle": ("大豆蜡工作室香薰蜡烛", "大豆蜡与菜籽蜡 · 徐安莹"),
-    "handmade-incense-holder": ("手作香座", "炻器 · 陈梅琳"),
-    "olive-wood-serving-board": ("橄榄木餐板", "再生木料 · 赵和生"),
-    "brass-oak-candle-snuffer": ("黄铜橡木烛剪", "黄铜与橡木 · 赵和生"),
-    "rattan-storage-basket": ("藤编收纳篮", "藤编 · 陆文静"),
-    "ceramic-ring-dish": ("陶瓷首饰盘", "瓷器 · 陈梅琳"),
-    "studio-gift-set": ("工作室礼品套装", "三件作品，手工包裹 · 多位匠人"),
-    "beeswax-taper-pair": ("蜂蜡长烛一对", "纯蜂蜡 · 徐安莹"),
-}
 
-COLOUR_TRANSLATIONS = {
-    "Bone": "骨白", "Ash": "灰烬", "Clay": "泥土", "Olive": "橄榄绿",
-    "Sand": "沙色", "Smoke": "烟灰", "Natural": "本色", "Indigo": "靛蓝",
-    "Rust": "铁锈红", "Ink": "墨色", "Cedar & Fig": "雪松与无花果",
-    "Wild Grass": "野草", "Smoked Cypress": "烟熏柏木",
-}
+def localize_order_status(label: str) -> str:
+    """Translate a display label; never change the stored status code."""
+    return {
+        "Awaiting confirmation": pgettext("order status", "Awaiting confirmation"),
+        "Confirmed": pgettext("order status", "Confirmed"),
+        "Being made": pgettext("order status", "Being made"),
+        "On its way": pgettext("order status", "On its way"),
+        "Delivered": pgettext("order status", "Delivered"),
+        "Cancelled": pgettext("order status", "Cancelled"),
+    }.get(label, label)
 
-MATERIAL_TRANSLATIONS = {
-    "Stoneware": "炻器", "Porcelain": "瓷器", "Linen": "亚麻",
-    "Cotton": "棉", "Wood": "木料", "Brass": "黄铜", "Rattan": "藤编",
-    "Wax": "蜡",
-}
 
-FAQ_GROUP_TRANSLATIONS = {
-    "orders": ("订单", "下单、修改与取消。"),
-    "shipping": ("配送", "时效、费用与物流查询。"),
-    "returns": ("退货", "改变主意与收到破损商品。"),
-    "product-care": ("作品保养", "让作品长久保持良好状态。"),
-    "handmade-variations": ("手作差异", "什么是正常差异，什么属于瑕疵。"),
-    "gifting": ("礼赠", "留言、包装与礼品订单。"),
-}
+def localize_payment_status(label: str) -> str:
+    return {
+        "Unpaid": pgettext("payment status", "Unpaid"),
+        "Pending": pgettext("payment status", "Pending"),
+        "Paid": pgettext("payment status", "Paid"),
+        "Failed": pgettext("payment status", "Failed"),
+        "Refunded": pgettext("payment status", "Refunded"),
+    }.get(label, label)
 
-ARTICLE_TRANSLATIONS = {
-    "why-no-two-glazes-match": ("为什么没有两种釉色完全相同", "手工灰釉记录着烧制它的过程。我们为什么不再追求完全一致？"),
-    "an-indigo-vat-in-dali": ("大理的一口靛蓝染缸", "陆文静在家后院养着四口发酵染缸，每周照料，没有捷径。"),
-    "how-to-care-for-handmade-ceramics": ("如何保养手作陶器", "真正缩短手作器物寿命的，多数是高温，而不是日常使用。"),
-    "the-case-for-buying-less": ("少买一些的理由", "我们每月制作约四百件作品，这就是不打算制作四千件的原因。"),
-    "a-table-set-for-nothing-in-particular": ("一张没有特别理由的餐桌", "在星期二也用上那些好盘子。"),
-}
+
+def localize_delivery_label(label: str) -> str:
+    return {
+        "Standard delivery": gettext("Standard delivery"),
+        "Express delivery": gettext("Express delivery"),
+    }.get(label, label)
+
+
+def localize_order_item_name(item) -> str:
+    """Only translate an exact canonical name in the saved order snapshot."""
+    source = PRODUCTS_BY_SLUG.get(item.product_slug)
+    if source and item.product_name == source["name"]:
+        return gettext(item.product_name)
+    return item.product_name
+
+
+def localize_order_item_variant(item) -> str:
+    """Match variants against this product's seed data, without following a FK."""
+    source = PRODUCTS_BY_SLUG.get(item.product_slug)
+    if source:
+        for variant in source["variants"]:
+            if item.variant_name == variant["label"]:
+                if variant["group"] == "colour":
+                    return localize_colour_label(item.variant_name)
+                if variant["group"] == "size":
+                    return localize_size_label(item.variant_name)
+    return item.variant_name
+
+
+def localize_order_date(order) -> str:
+    if not _is_chinese():
+        return order.date
+    date = order.placed_at
+    return f"{date.year}年{date.month}月{date.day}日"
+
+
+def localize_order_estimated(order) -> str:
+    if not _is_chinese():
+        return order.estimated
+    if order.status == "delivered":
+        # Deliberately preserve Order.estimated's placed_at source.
+        date = order.placed_at
+        return gettext("Delivered %(date)s") % {"date": f"{date.month}月{date.day}日"}
+    return gettext("Arriving within 3–6 working days")
+
+
+def localize_order_timeline(order) -> list[dict]:
+    steps = order.timeline
+    if not _is_chinese():
+        return steps
+    labels = {
+        "Order placed": gettext("Order placed"),
+        "Made & packed": gettext("Made & packed"),
+        "Dispatched": gettext("Dispatched"),
+    }
+    localized = []
+    for step in steps:
+        date = step["date"]
+        if date == "Expected":
+            date = gettext("Expected")
+        elif order.status == "cancelled" and step["label"] == "Order placed":
+            date = localize_order_date(order)
+        else:
+            # Order.timeline uses updated_at only for the cancellation step.
+            source = (order.updated_at if order.status == "cancelled"
+                      and step["label"] == "Cancelled" else order.placed_at)
+            date = f"{source.month}月{source.day}日"
+        localized.append({
+            **step,
+            "label": labels.get(step["label"], localize_order_status(step["label"])),
+            "date": date,
+        })
+    return localized
 
 
 def _is_chinese() -> bool:
@@ -193,42 +137,238 @@ def is_chinese() -> bool:
 
 
 def localize_collection(collection):
-    if not _is_chinese() or collection.slug not in COLLECTION_TRANSLATIONS:
+    if not _is_chinese():
         return collection
+
+    if collection.kind == "category":
+        source = next((item for item in CATEGORIES if item["slug"] == collection.slug), None)
+    elif collection.kind == "editorial":
+        source = next(
+            (item for item in COLLECTIONS
+             if item["kind"] == "editorial" and item["slug"] == collection.slug),
+            None,
+        )
+        if source is None:
+            source = next(
+                (item for item in EXTRA_COLLECTIONS if item["slug"] == collection.slug),
+                None,
+            )
+    else:
+        return collection
+    if source is None:
+        return collection
+
     localized = copy(collection)
-    for field, value in COLLECTION_TRANSLATIONS[collection.slug].items():
-        setattr(localized, field, value)
+    english_name = source["title"] if "title" in source else source["name"]
+    for field, english in (("name", english_name), ("tagline", source["tagline"]),
+                           ("description", source["description"])):
+        current = getattr(collection, field)
+        if current == english:
+            value = (pgettext("category", "Home")
+                     if field == "name" and collection.kind == "category"
+                     and collection.slug == "home" else gettext(current))
+            setattr(localized, field, value)
     return localized
 
 
 def localize_maker(maker):
-    if not _is_chinese() or maker.slug not in MAKER_TRANSLATIONS:
+    if not _is_chinese():
         return maker
+    source = MAKERS_BY_SLUG.get(maker.slug)
+    if source is None:
+        return maker
+
     localized = copy(maker)
-    for field, value in MAKER_TRANSLATIONS[maker.slug].items():
-        setattr(localized, field, value)
+    for field in ("name", "discipline", "location", "tagline"):
+        current = getattr(maker, field)
+        if current == source[field]:
+            setattr(localized, field, gettext(current))
+
+    for field in ("biography", "process"):
+        current = getattr(maker, field)
+        if current == source[field]:
+            setattr(localized, field, [gettext(value) for value in current])
+
+    canonical_short_bio = source["biography"][0] if source["biography"] else ""
+    if maker.short_bio and maker.short_bio == canonical_short_bio:
+        localized.short_bio = gettext(maker.short_bio)
     return localized
+
+
+def _product_material_labels():
+    # Literal markers keep extraction reliable without changing English seed data.
+    return {message: gettext(message) for message in (
+        gettext_noop("Jingdezhen stoneware"),
+        gettext_noop("Ash glaze"),
+        gettext_noop("Unglazed foot"),
+        gettext_noop("Speckled stoneware"),
+        gettext_noop("Matte glaze"),
+        gettext_noop("Porcelain"),
+        gettext_noop("Clear glaze"),
+        gettext_noop("Stoneware"),
+        gettext_noop("Wood-ash glaze"),
+        gettext_noop("Satin glaze"),
+        gettext_noop("Celadon glaze"),
+        gettext_noop("European flax linen"),
+        gettext_noop("Cotton webbing handles"),
+        gettext_noop("Handwoven cotton"),
+        gettext_noop("Natural indigo dye"),
+        gettext_noop("Hand-knotted fringe"),
+        gettext_noop("Stone-washed flax linen"),
+        gettext_noop("Coconut buttons"),
+        gettext_noop("Hand-hemmed edges"),
+        gettext_noop("Handwoven cotton-linen"),
+        gettext_noop("Natural dye"),
+        gettext_noop("Flax linen"),
+        gettext_noop("Cotton wadding"),
+        gettext_noop("Brass hardware"),
+        gettext_noop("Soy and rapeseed wax"),
+        gettext_noop("Cotton wick"),
+        gettext_noop("Refillable stoneware vessel"),
+        gettext_noop("Unglazed exterior"),
+        gettext_noop("Reclaimed hardwood"),
+        gettext_noop("Linseed oil finish"),
+        gettext_noop("Unlacquered brass"),
+        gettext_noop("Oak handle"),
+        gettext_noop("Rattan"),
+        gettext_noop("Cotton rope handles"),
+        gettext_noop("Gold-free celadon glaze"),
+        gettext_noop("Stoneware mug"),
+        gettext_noop("Soy wax candle"),
+        gettext_noop("Hand-loomed tea towel"),
+        gettext_noop("Pure beeswax"),
+    )}
 
 
 def localize_product(product):
-    if not _is_chinese() or product.slug not in PRODUCT_TRANSLATIONS:
+    if not _is_chinese():
+        return product
+    source = PRODUCTS_BY_SLUG.get(product.slug)
+    if source is None:
         return product
     localized = copy(product)
-    localized.name, localized.short_description = PRODUCT_TRANSLATIONS[product.slug]
+    fields = (
+        ("name", "name"),
+        ("short_description", "short_description"),
+        ("description", "description"),
+        ("story", "story"),
+        ("care_instructions", "care"),
+        ("shipping_information", "dispatch"),
+    )
+    for field, source_field in fields:
+        current = getattr(product, field)
+        if current == source[source_field]:
+            setattr(localized, field, gettext(current))
+    if getattr(product, "materials", None) == source["materials"]:
+        labels = _product_material_labels()
+        localized.materials = [labels[material] for material in product.materials]
     return localized
+
+
+class _LocalizedFAQGroup:
+    """Presentation wrapper for the model's read-only ``items`` property."""
+
+    def __init__(self, source, *, title, blurb, items):
+        self._source = source
+        self.title = title
+        self.blurb = blurb
+        self.items = items
+
+    def __getattr__(self, name):
+        return getattr(self._source, name)
+
+    def __str__(self):
+        return str(self._source)
+
+
+def _active_faq_items(group):
+    prefetched = getattr(group, "_prefetched_objects_cache", {}).get("faqs")
+    items = prefetched if prefetched is not None else group.items
+    return [item for item in items if item.is_active]
 
 
 def localize_faq_group(group):
-    if not is_chinese() or group.slug not in FAQ_GROUP_TRANSLATIONS:
+    if not _is_chinese():
         return group
-    localized = copy(group)
-    localized.title, localized.blurb = FAQ_GROUP_TRANSLATIONS[group.slug]
-    return localized
+    source = FAQ_GROUPS_BY_SLUG.get(group.slug)
+    if source is None:
+        return group
+
+    title = gettext(group.title) if group.title == source["title"] else group.title
+    blurb = gettext(group.blurb) if group.blurb == source["blurb"] else group.blurb
+    items = _active_faq_items(group)
+    localized_items = items
+    if len(items) == len(source["items"]):
+        localized_items = []
+        for item, canonical in zip(items, source["items"], strict=True):
+            localized = copy(item)
+            if item.question == canonical["q"]:
+                localized.question = gettext(item.question)
+            if item.answer == canonical["a"]:
+                localized.answer = gettext(item.answer)
+            localized_items.append(localized)
+
+    return _LocalizedFAQGroup(
+        group, title=title, blurb=blurb, items=localized_items,
+    )
 
 
 def localize_article(article):
-    if not is_chinese() or not article or article.slug not in ARTICLE_TRANSLATIONS:
+    if not is_chinese() or not article:
         return article
-    localized = copy(article)
-    localized.title, localized.standfirst = ARTICLE_TRANSLATIONS[article.slug]
-    return localized
+    source = ARTICLES_BY_SLUG.get(article.slug)
+    if source is None:
+        return article
+
+    values = {}
+    for field in ("title", "standfirst", "category", "read_time", "author"):
+        current = getattr(article, field)
+        values[field] = gettext(current) if current == source[field] else current
+
+    body = article.body
+    canonical_body = source["body"]
+    structure_matches = (
+        isinstance(body, list)
+        and len(body) == len(canonical_body)
+        and all(
+            isinstance(block, dict) and block.get("type") == canonical.get("type")
+            for block, canonical in zip(body, canonical_body, strict=True)
+        )
+    )
+    canonical_texts = {block["text"] for block in canonical_body}
+    has_relocated_text = structure_matches and any(
+        block.get("text") != canonical["text"]
+        and block.get("text") in canonical_texts
+        for block, canonical in zip(body, canonical_body, strict=True)
+    )
+    if structure_matches and not has_relocated_text:
+        body = []
+        for block, canonical in zip(article.body, canonical_body, strict=True):
+            localized_block = dict(block)
+            if block.get("text") == canonical["text"]:
+                localized_block["text"] = gettext(block["text"])
+            body.append(localized_block)
+
+    return _LocalizedArticle(article, body=body, **values)
+
+
+class _LocalizedArticle:
+    """Read-only presentation wrapper for localised article fields and date."""
+
+    def __init__(self, source, *, title, standfirst, category, read_time, author, body):
+        self._source = source
+        self.title = title
+        self.standfirst = standfirst
+        self.excerpt = standfirst
+        self.category = category
+        self.read_time = read_time
+        self.author = author
+        self.body = body
+        published = source.published_at
+        self.date = f"{published.year}年{published.month}月{published.day}日"
+
+    def __getattr__(self, name):
+        return getattr(self._source, name)
+
+    def __str__(self):
+        return self.title

@@ -23,7 +23,7 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, pgettext
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from accounts.models import Address, WishlistItem
@@ -86,14 +86,14 @@ def shop(request):
         "active_filter_count": active_count,
         "sort": sort,
         "sort_options": services.localized_sort_options(),
-        "meta_title": f"Shop — {SITE['brand']}",
+        "meta_title": f"{_('Shop')} — {SITE['brand']}",
     })
 
 
 def collections_index(request):
     return render(request, "frontend/shop/collections.html", {
         "collections": services.all_collections(),
-        "meta_title": f"Collections — {SITE['brand']}",
+        "meta_title": f"{_('Collections')} — {SITE['brand']}",
     })
 
 
@@ -138,9 +138,9 @@ def product_detail(request, slug):
         if review_state == "login_required":
             return redirect_to_login(request.path)
         if review_state != "eligible":
-            messages.error(request, "You have already reviewed this product."
+            messages.error(request, _("You have already reviewed this product.")
                            if review_state == "already_reviewed" else
-                           "Only verified buyers can review this product.")
+                           _("Only verified buyers can review this product."))
             return redirect("product_detail", slug=product.slug)
         if review_form.is_valid():
             try:
@@ -152,9 +152,9 @@ def product_detail(request, slug):
             except IntegrityError as exc:
                 if not is_duplicate_review_error(exc):
                     raise
-                messages.error(request, "You have already reviewed this product.")
+                messages.error(request, _("You have already reviewed this product."))
             else:
-                messages.success(request, "Thank you for reviewing this piece.")
+                messages.success(request, _("Thank you for reviewing this piece."))
             return redirect("product_detail", slug=product.slug)
 
     reviews = getattr(product, "reviews").filter(is_published=True).select_related("user")
@@ -184,7 +184,7 @@ def search(request):
         "results": results,
         "total": total,
         "popular": services.POPULAR_SEARCHES,
-        "meta_title": f"Search — {SITE['brand']}",
+        "meta_title": f"{_('Search')} — {SITE['brand']}",
     })
 
 
@@ -218,7 +218,7 @@ def catalogue_api(request):
 
 def cart(request):
     """The bag page. Lines are fetched from /api/cart/ by the JS layer."""
-    return render(request, "frontend/cart.html", {"meta_title": f"Bag — {SITE['brand']}"})
+    return render(request, "frontend/cart.html", {"meta_title": f"{_('Bag')} — {SITE['brand']}"})
 
 
 def checkout(request):
@@ -229,7 +229,7 @@ def checkout(request):
         "addresses": addresses,
         "customer": request.user if request.user.is_authenticated else None,
         "has_items": bool(cart_obj and getattr(cart_obj, "items").exists()),
-        "meta_title": f"Checkout — {SITE['brand']}",
+        "meta_title": f"{_('Checkout')} — {SITE['brand']}",
     })
 
 
@@ -254,7 +254,7 @@ def mock_payment(request, uuid):
     return render(request, "frontend/mock_payment.html", {
         "payment": payment,
         "order": order,
-        "meta_title": f"Sandbox payment — {SITE['brand']}",
+        "meta_title": f"{_('Sandbox payment')} — {SITE['brand']}",
     })
 
 
@@ -267,7 +267,7 @@ def order_confirmation(request, uuid):
         raise Http404("Unknown order")
     return render(request, "frontend/order_confirmation.html", {
         "order": order,
-        "meta_title": f"Order {order.order_number} — {SITE['brand']}",
+        "meta_title": f"{_('Order %(number)s') % {'number': order.order_number}} — {SITE['brand']}",
     })
 
 
@@ -282,7 +282,7 @@ def account_overview(request):
         "order_count": orders.count(),
         "address_count": request.user.addresses.count(),
         "wishlist_count": WishlistItem.objects.filter(user=request.user).count(),
-        "meta_title": f"Account — {SITE['brand']}",
+        "meta_title": f"{_('Account')} — {SITE['brand']}",
     })
 
 
@@ -291,7 +291,7 @@ def account_orders(request):
     return render(request, "frontend/account/orders.html", {
         "customer": request.user,
         "orders": Order.objects.filter(user=request.user).prefetch_related("items"),
-        "meta_title": f"Orders — {SITE['brand']}",
+        "meta_title": f"{_('Orders')} — {SITE['brand']}",
     })
 
 
@@ -305,13 +305,13 @@ def account_order_detail(request, order_id):
     return render(request, "frontend/account/order_detail.html", {
         "customer": request.user, "order": order,
         "current_path": reverse("account_orders"),
-        "meta_title": f"Order {order.order_number} — {SITE['brand']}",
+        "meta_title": f"{_('Order %(number)s') % {'number': order.order_number}} — {SITE['brand']}",
     })
 
 
 def _render_account_profile(request, password_form=None, profile_form=None):
     return render(request, "frontend/account/profile.html", {
-        "customer": request.user, "meta_title": f"Profile — {SITE['brand']}",
+        "customer": request.user, "meta_title": f"{_('Profile')} — {SITE['brand']}",
         "current_path": reverse("account_profile"),
         "profile_form": (profile_form if profile_form is not None
                          else ProfileForm(user=request.user)),
@@ -326,7 +326,7 @@ def account_profile(request):
         form = ProfileForm(request.POST, user=request.user)
         if form.is_valid():
             form.save()
-            messages.success(request, "Your details have been saved.")
+            messages.success(request, _("Your details have been saved."))
             return redirect("account_profile")
         return _render_account_profile(request, profile_form=form)
 
@@ -363,21 +363,22 @@ def account_addresses(request):
             phone=request.POST.get("phone", "").strip(),
             is_default=bool(request.POST.get("is_default")),
         )
-        messages.success(request, "Address saved.")
+        messages.success(request, _("Address saved."))
         return redirect("account_addresses")
 
     return render(request, "frontend/account/addresses.html", {
         "customer": request.user,
         "addresses": request.user.addresses.all(),
-        "meta_title": f"Addresses — {SITE['brand']}",
+        "meta_title": f"{_('Addresses')} — {SITE['brand']}",
     })
 
 
 @login_required
 @require_POST
 def account_address_delete(request, uuid):
-    deleted, _ = Address.objects.filter(user=request.user, uuid=uuid).delete()
-    messages.success(request, "Address removed." if deleted else "That address no longer exists.")
+    deleted, _details = Address.objects.filter(user=request.user, uuid=uuid).delete()
+    message = _("Address removed.") if deleted else _("That address no longer exists.")
+    messages.success(request, message)
     return redirect("account_addresses")
 
 
@@ -389,7 +390,7 @@ def account_wishlist(request):
     return render(request, "frontend/account/wishlist.html", {
         "customer": request.user,
         "wishlist_products": [services.localize_product(item.product) for item in items],
-        "meta_title": f"Wishlist — {SITE['brand']}",
+        "meta_title": f"{_('Wishlist')} — {SITE['brand']}",
     })
 
 
@@ -400,7 +401,7 @@ def auth_page(request, mode):
     so a session cookie is the right mechanism. The JWT endpoints under
     /api/auth/ exist for non-browser clients.
     """
-    titles = {"login": "Sign in", "register": "Create an account"}
+    titles = {"login": _("Sign in"), "register": _("Create an account")}
     if request.user.is_authenticated and mode in {"login", "register"}:
         return redirect("account_overview")
 
@@ -420,11 +421,12 @@ def auth_page(request, mode):
             if user is None:
                 # One message for every failure: this must not reveal whether
                 # an account exists.
-                errors["form"] = "Invalid email or password."
+                errors["form"] = _("Invalid email or password.")
             else:
                 merge_session_cart(request, user)      # keep the guest's bag
                 login(request, user)
-                messages.success(request, f"Welcome back, {user.first_name or 'there'}.")
+                name = user.first_name or pgettext("account welcome fallback", "there")
+                messages.success(request, _("Welcome back, %(name)s.") % {"name": name})
                 next_url = request.GET.get("next", "").strip()
                 if (url_has_allowed_host_and_scheme(
                     next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure(),
@@ -437,7 +439,7 @@ def auth_page(request, mode):
                 user = registration_form.save()
                 merge_session_cart(request, user)
                 login(request, user)
-                messages.success(request, "Your account is ready.")
+                messages.success(request, _("Your account is ready."))
                 return redirect("account_overview")
             errors = {field: " ".join(field_errors)
                       for field, field_errors in registration_form.errors.items()}
@@ -452,7 +454,7 @@ def auth_page(request, mode):
 @require_POST
 def account_logout(request):
     logout(request)
-    messages.success(request, "You have been signed out.")
+    messages.success(request, _("You have been signed out."))
     return redirect("home")
 
 
@@ -477,14 +479,14 @@ def our_story(request):
     return render(request, "frontend/pages/our_story.html", {
         "page": STORY_PAGE, "makers": services.all_makers(),
         "process_steps": PROCESS_STEPS,
-        "meta_title": f"Our Story — {SITE['brand']}",
+        "meta_title": f"{_('Our Story')} — {SITE['brand']}",
     })
 
 
 def makers_index(request):
     return render(request, "frontend/makers/index.html", {
         "makers": services.all_makers(),
-        "meta_title": f"Makers — {SITE['brand']}",
+        "meta_title": f"{_('Makers')} — {SITE['brand']}",
     })
 
 
@@ -503,7 +505,7 @@ def journal_index(request):
     return render(request, "frontend/journal/index.html", {
         "lead": articles[0] if articles else None,
         "articles": articles[1:],
-        "meta_title": f"Journal — {SITE['brand']}",
+        "meta_title": f"{_('Journal')} — {SITE['brand']}",
     })
 
 
@@ -526,31 +528,31 @@ def _faq_groups():
 def contact(request):
     return render(request, "frontend/pages/contact.html", {
         "faq_groups": _faq_groups()[:3],
-        "meta_title": f"Contact — {SITE['brand']}",
+        "meta_title": f"{_('Contact')} — {SITE['brand']}",
     })
 
 
 def faq(request):
     return render(request, "frontend/pages/faq.html", {
-        "faq_groups": _faq_groups(), "meta_title": f"FAQ — {SITE['brand']}",
+        "faq_groups": _faq_groups(), "meta_title": f"{_('FAQ')} — {SITE['brand']}",
     })
 
 
 def shipping_returns(request):
     return render(request, "frontend/pages/longform.html", {
         "page": SHIPPING_PAGE,
-        "meta_title": f"Shipping & Returns — {SITE['brand']}",
+        "meta_title": f"{_('Shipping & Returns')} — {SITE['brand']}",
     })
 
 
 def care_guide(request):
     return render(request, "frontend/pages/care.html", {
-        "page": CARE_PAGE, "meta_title": f"Care Guide — {SITE['brand']}",
+        "page": CARE_PAGE, "meta_title": f"{_('Care Guide')} — {SITE['brand']}",
     })
 
 
 def legal(request, slug):
-    titles = {"privacy": "Privacy Policy", "terms": "Terms of Service"}
+    titles = {"privacy": _("Privacy Policy"), "terms": _("Terms of Service")}
     return render(request, "frontend/pages/legal.html", {
         "title": titles[slug], "slug": slug,
         "meta_title": f"{titles[slug]} — {SITE['brand']}",
@@ -568,7 +570,7 @@ def newsletter_signup(request):
         email = ""
     email = email.strip().lower()
     if not EMAIL_RE.match(email):
-        return JsonResponse({"ok": False, "error": "Enter a valid email address."}, status=400)
+        return JsonResponse({"ok": False, "error": _("Enter a valid email address.")}, status=400)
 
     subscriber = NewsletterSubscriber.objects.filter(email=email).first()
     if subscriber:
@@ -578,4 +580,7 @@ def newsletter_signup(request):
         NewsletterSubscriber.objects.create(email=email)
 
     # Identical response either way: never disclose who is already subscribed.
-    return JsonResponse({"ok": True, "message": "You're on the list. Look out for the next note."})
+    return JsonResponse({
+        "ok": True,
+        "message": _("You're on the list. Look out for the next note."),
+    })

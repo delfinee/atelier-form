@@ -25,14 +25,14 @@
   {% if not query %}
     <h4 class="eyebrow">{% translate "Popular searches" %}</h4>
     <div class="search-suggestions">
-      {% for term in popular %}<a class="chip" href="{% url 'search' %}?q={{ term|urlencode }}">{{ term }}</a>{% endfor %}
+      {% for term in popular %}<a class="chip" href="{% url 'search' %}?q={{ term|urlencode }}">{% translate term %}</a>{% endfor %}
     </div>
   {% elif total == 0 %}
     <div class="empty-state">
       <h3>{% blocktranslate with term=query %}Nothing matched “{{ term }}”{% endblocktranslate %}</h3>
       <p class="muted">{% translate "The catalogue is small — around twenty pieces — so specific searches often come up short. Try a material or a category." %}</p>
       <div class="search-suggestions" style="justify-content:center;margin-top:1.4rem">
-        {% for term in popular %}<a class="chip" href="{% url 'search' %}?q={{ term|urlencode }}">{{ term }}</a>{% endfor %}
+        {% for term in popular %}<a class="chip" href="{% url 'search' %}?q={{ term|urlencode }}">{% translate term %}</a>{% endfor %}
       </div>
     </div>
   {% else %}

@@ -326,6 +326,9 @@ assert.ok(start >= 0 && end > start);
 const context = {
   $$: (_selector, form) => form.inputs,
   fieldError: (input, message) => { input.error = message; },
+  text: (_key, fallback) => fallback,
+  interpolate: (template, values) => template.replace(/\{(\w+)\}/g, (placeholder, key) =>
+    Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : placeholder),
 };
 vm.createContext(context);
 vm.runInContext(source.split("\n").find(line => line.includes("const EMAIL =")) +

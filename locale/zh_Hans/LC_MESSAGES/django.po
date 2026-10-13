@@ -79,6 +79,548 @@ msgstr "家居"
 msgid "Gifts"
 msgstr "礼品"
 
+#: .\frontend\mockdata\collections.py:24
+msgid "Thrown, trimmed and fired one at a time."
+msgstr "逐件拉坯、修整与烧制。"
+
+#: .\frontend\mockdata\collections.py:25
+msgid ""
+"Stoneware and porcelain for the table, made in a Jingdezhen studio where "
+"the clay is quarried an hour away and the glazes are mixed from ash and "
+"iron. Expect small variations in colour and rim -- they are the record of a "
+"hand, not a fault."
+msgstr "为餐桌而作的炻器与瓷器，来自景德镇的一间工作室。泥料取自一小时车程外，釉料则由灰烬与铁调配而成。颜色与器口会有细微差异，那是手作留下的痕迹，而非瑕疵。"
+
+#: .\frontend\mockdata\collections.py:35
+msgid "Woven, dyed and washed until they soften."
+msgstr "经编织、染色与水洗，直至柔软。"
+
+#: .\frontend\mockdata\collections.py:36
+msgid ""
+"Linen and handwoven cotton, dyed with indigo grown in Yunnan and finished "
+"so that nothing arrives stiff. These are pieces meant to be used daily and "
+"washed often."
+msgstr "亚麻与手织棉布，以云南种植的蓝靛染色，并经过处理，不会以僵硬的状态抵达。适合每日使用，也经得起频繁清洗。"
+
+#: .\frontend\mockdata\collections.py:45
+msgid "Objects for the quieter corners of a room."
+msgstr "为房间里安静的角落而作。"
+
+#: .\frontend\mockdata\collections.py:46
+msgid ""
+"Candles poured in batches of forty, boards cut from reclaimed courtyard "
+"beams, brass that is meant to darken. Small things that change the feeling "
+"of a room more than their size suggests."
+msgstr "蜡烛每批浇注四十支，木板取自回收的庭院梁木，黄铜则有意让它逐渐变深。这些小物件虽不大，却比尺寸所暗示的更能改变房间的气息。"
+
+#: .\frontend\mockdata\collections.py:55
+msgid "Wrapped in unbleached paper and cotton string."
+msgstr "以本色纸与棉绳包裹。"
+
+#: .\frontend\mockdata\collections.py:56
+msgid ""
+"Pieces that travel well as a gift, boxed by hand with a card you can write "
+"at checkout. Nothing here is sealed in plastic."
+msgstr "适合作为礼物寄送的作品，手工装盒，并附有可在结算时书写的卡片。这里的任何东西都不会以塑料密封。"
+
+#: .\frontend\mockdata\collections.py:63
+msgid "The Earth Collection"
+msgstr "大地系列"
+
+#: .\frontend\mockdata\collections.py:64
+msgid "Ash, clay, indigo and unbleached linen."
+msgstr "灰烬、泥土、蓝靛与本色亚麻。"
+
+#: .\frontend\mockdata\collections.py:65
+msgid ""
+"Nine pieces built from the same short list of materials, glazed and dyed "
+"with what our makers can source within a day's drive of their own studios. "
+"Put together, they sit in a single tonal range -- bone, ash, clay and a "
+"green that comes from grass rather than a pigment jar."
+msgstr "九件作品取自同一份精简的材料清单，以匠人工作室一日车程内能够找到的材料上釉与染色。组合在一起，它们呈现出骨白、灰烬、泥土与草色组成的统一色调。"
+
+#: .\frontend\mockdata\collections.py:80
+msgid "Quiet Mornings"
+msgstr "静谧清晨"
+
+#: .\frontend\mockdata\collections.py:81
+msgid "For the first hour of the day."
+msgstr "献给一天开始的第一个小时。"
+
+#: .\frontend\mockdata\collections.py:82
+msgid ""
+"Cups, drippers and a candle for the part of the morning before anything has "
+"been asked of you. Chosen so the pieces sit together on a small table."
+msgstr "杯子、手冲壶与一支蜡烛，属于清晨尚未向你提出任何要求的那段时间。我们挑选它们，让这些作品在一张小桌上自然相称。"
+
+#: .\frontend\mockdata\collections.py:89
+msgid "Studio Essentials"
+msgstr "工作室日用"
+
+#: .\frontend\mockdata\collections.py:90
+msgid "The pieces we use ourselves."
+msgstr "我们自己每天使用的作品。"
+
+#: .\frontend\mockdata\collections.py:91
+msgid ""
+"What is actually in daily use in the studio: an apron that has been washed "
+"a hundred times, boards that get cut on, towels that get used."
+msgstr "工作室真正用于日常的物件：洗过一百次的围裙、反复切割使用的木板，以及每天都会用到的毛巾。"
+
+#: .\frontend\services.py:33
+msgid "Featured"
+msgstr "精选"
+
+#: .\frontend\services.py:34
+msgid "Newest"
+msgstr "最新上架"
+
+#: .\frontend\services.py:35
+msgid "Price: Low to High"
+msgstr "价格：从低到高"
+
+#: .\frontend\services.py:36
+msgid "Price: High to Low"
+msgstr "价格：从高到低"
+
+#: .\frontend\services.py:46
+msgid "Under ¥40"
+msgstr "低于 ¥40"
+
+#: .\frontend\services.py:47
+msgid "¥40 – ¥70"
+msgstr "¥40 – ¥70"
+
+#: .\frontend\services.py:48
+msgid "¥70 – ¥100"
+msgstr "¥70 – ¥100"
+
+#: .\frontend\services.py:49
+msgid "Over ¥100"
+msgstr "高于 ¥100"
+
+#: .\frontend\services.py:40
+msgid "In stock"
+msgstr "现货供应"
+
+#: .\frontend\mockdata\products.py:54
+msgid "Bone"
+msgstr "骨白"
+
+#: .\frontend\mockdata\products.py:54
+msgid "Ash"
+msgstr "灰烬"
+
+#: .\frontend\mockdata\products.py:55
+msgid "Clay"
+msgstr "泥土"
+
+#: .\frontend\mockdata\products.py:55
+msgid "Olive"
+msgstr "橄榄绿"
+
+#: .\frontend\mockdata\products.py:56
+msgid "Sand"
+msgstr "沙色"
+
+#: .\frontend\mockdata\products.py:58
+msgid "Smoke"
+msgstr "烟灰"
+
+#: .\frontend\mockdata\products.py:58
+msgid "Natural"
+msgstr "本色"
+
+#: .\frontend\mockdata\products.py:57
+msgid "Indigo"
+msgstr "靛蓝"
+
+#: .\frontend\mockdata\products.py:57
+msgid "Rust"
+msgstr "铁锈红"
+
+#: .\frontend\mockdata\products.py:56
+msgid "Ink"
+msgstr "墨色"
+
+#: .\frontend\mockdata\products.py:250
+msgid "Cedar & Fig"
+msgstr "雪松与无花果"
+
+#: .\frontend\mockdata\products.py:251
+msgid "Wild Grass"
+msgstr "野草"
+
+#: .\frontend\mockdata\products.py:252
+msgid "Smoked Cypress"
+msgstr "烟熏柏木"
+
+#: .\backend\products\models.py:387
+msgid "Stoneware"
+msgstr "炻器"
+
+#: .\backend\products\models.py:387
+msgid "Porcelain"
+msgstr "瓷器"
+
+#: .\backend\products\models.py:387
+msgid "Linen"
+msgstr "亚麻"
+
+#: .\backend\products\models.py:388
+msgid "Cotton"
+msgstr "棉"
+
+#: .\backend\products\models.py:388
+msgid "Wood"
+msgstr "木料"
+
+#: .\backend\products\models.py:388
+msgid "Brass"
+msgstr "黄铜"
+
+#: .\backend\products\models.py:389
+msgid "Rattan"
+msgstr "藤编"
+
+#: .\backend\products\models.py:389
+msgid "Wax"
+msgstr "蜡"
+
+#: .\frontend\mockdata\products.py:100
+msgid "Hand-thrown Stoneware Mug"
+msgstr "手拉炻器马克杯"
+
+#: .\frontend\mockdata\products.py:113
+msgid "Speckled Breakfast Bowl"
+msgstr "斑点早餐碗"
+
+#: .\frontend\mockdata\products.py:124
+msgid "Ceramic Pour-Over Dripper"
+msgstr "陶瓷手冲滤杯"
+
+#: .\frontend\mockdata\products.py:134
+msgid "Ash-Glazed Dinner Plate"
+msgstr "灰釉餐盘"
+
+#: .\frontend\mockdata\products.py:144
+msgid "Stoneware Serving Platter"
+msgstr "炻器餐盘"
+
+#: .\frontend\mockdata\products.py:154
+msgid "Matte Ceramic Vase"
+msgstr "哑光陶瓷花瓶"
+
+#: .\frontend\mockdata\products.py:164
+msgid "Tea Cup Set of Two"
+msgstr "双人茶杯套装"
+
+#: .\frontend\mockdata\products.py:174
+msgid "Linen Market Tote"
+msgstr "亚麻购物袋"
+
+#: .\frontend\mockdata\products.py:185
+msgid "Woven Cotton Throw"
+msgstr "手织棉盖毯"
+
+#: .\frontend\mockdata\products.py:197
+msgid "Linen Cushion Cover"
+msgstr "亚麻靠垫套"
+
+#: .\frontend\mockdata\products.py:208
+msgid "Stonewashed Table Runner"
+msgstr "石洗亚麻桌旗"
+
+#: .\frontend\mockdata\products.py:219
+msgid "Hand-loomed Tea Towel"
+msgstr "手织茶巾"
+
+#: .\frontend\mockdata\products.py:229
+msgid "Quilted Linen Apron"
+msgstr "绗缝亚麻围裙"
+
+#: .\frontend\mockdata\products.py:241
+msgid "Soy Wax Studio Candle"
+msgstr "大豆蜡工作室香薰蜡烛"
+
+#: .\frontend\mockdata\products.py:254
+msgid "Handmade Incense Holder"
+msgstr "手作香座"
+
+#: .\frontend\mockdata\products.py:264
+msgid "Olive Wood Serving Board"
+msgstr "橄榄木餐板"
+
+#: .\frontend\mockdata\products.py:275
+msgid "Brass & Oak Candle Snuffer"
+msgstr "黄铜橡木烛剪"
+
+#: .\frontend\mockdata\products.py:284
+msgid "Rattan Storage Basket"
+msgstr "藤编收纳篮"
+
+#: .\frontend\mockdata\products.py:296
+msgid "Ceramic Ring Dish"
+msgstr "陶瓷首饰盘"
+
+#: .\frontend\mockdata\products.py:306
+msgid "Studio Gift Set"
+msgstr "工作室礼品套装"
+
+#: .\frontend\mockdata\products.py:317
+msgid "Beeswax Taper Pair"
+msgstr "蜂蜡长烛一对"
+
+#: .\frontend\mockdata\products.py:101
+#: .\frontend\mockdata\products.py:114
+#: .\frontend\mockdata\products.py:135
+#: .\frontend\mockdata\products.py:145
+#: .\frontend\mockdata\products.py:155
+#: .\frontend\mockdata\products.py:255
+msgid "Stoneware · Chen Meilin"
+msgstr "炻器 · 陈梅琳"
+
+#: .\frontend\mockdata\products.py:125
+#: .\frontend\mockdata\products.py:165
+#: .\frontend\mockdata\products.py:297
+msgid "Porcelain · Chen Meilin"
+msgstr "瓷器 · 陈梅琳"
+
+#: .\frontend\mockdata\products.py:175
+#: .\frontend\mockdata\products.py:198
+#: .\frontend\mockdata\products.py:209
+#: .\frontend\mockdata\products.py:230
+msgid "Washed linen · Ye Ruolan"
+msgstr "水洗亚麻 · 叶若兰"
+
+#: .\frontend\mockdata\products.py:186
+msgid "Handwoven cotton · Lu Wenjing"
+msgstr "手织棉 · 陆文静"
+
+#: .\frontend\mockdata\products.py:220
+msgid "Cotton & linen · Lu Wenjing"
+msgstr "棉与亚麻 · 陆文静"
+
+#: .\frontend\mockdata\products.py:242
+msgid "Soy & rapeseed wax · Xu Anying"
+msgstr "大豆蜡与菜籽蜡 · 徐安莹"
+
+#: .\frontend\mockdata\products.py:265
+msgid "Reclaimed timber · Zhao Hesheng"
+msgstr "再生木料 · 赵和生"
+
+#: .\frontend\mockdata\products.py:276
+msgid "Brass & oak · Zhao Hesheng"
+msgstr "黄铜与橡木 · 赵和生"
+
+#: .\frontend\mockdata\products.py:285
+msgid "Woven rattan · Lu Wenjing"
+msgstr "藤编 · 陆文静"
+
+#: .\frontend\mockdata\products.py:307
+msgid "Three pieces, wrapped · Multiple makers"
+msgstr "三件作品，手工包裹 · 多位匠人"
+
+#: .\frontend\mockdata\products.py:318
+msgid "Pure beeswax · Xu Anying"
+msgstr "纯蜂蜡 · 徐安莹"
+
+#: .\frontend\mockdata\products.py:62
+msgid "Dishwasher safe, though hand washing keeps the glaze bright. Avoid thermal shock -- let a hot piece cool before rinsing. Not for direct flame."
+msgstr "可用洗碗机清洗，但手洗更能保持釉色明亮。避免骤冷骤热——热器皿应冷却后再冲洗。不可直接接触明火。"
+
+#: .\frontend\mockdata\products.py:64
+msgid "Machine wash cool on a gentle cycle with a mild detergent. Line dry in shade. Warm iron while slightly damp if you want a crisper finish."
+msgstr "使用温和洗涤剂，以低温轻柔机洗。置于阴凉处晾干。如需更挺括的质感，可在织物尚微湿时用中温熨烫。"
+
+#: .\frontend\mockdata\products.py:66
+msgid "Wipe with a soft, barely damp cloth. Keep out of prolonged direct sun. Re-oil natural wood two or three times a year to keep it from drying out."
+msgstr "用柔软、仅微微湿润的布擦拭。避免长时间阳光直射。天然木材每年重新上油两到三次，以免过度干燥。"
+
+#: .\frontend\mockdata\products.py:68
+msgid "Care varies by piece -- each item ships with its own short care card."
+msgstr "护理方式因单品而异——每件商品发货时都会附带一张简短的专属护理卡。"
+
+#: .\frontend\mockdata\products.py:94
+msgid "Ships in 2–4 working days"
+msgstr "2–4 个工作日内发货"
+
+#: .\frontend\mockdata\products.py:105
+msgid "A mug with a little weight to it, thrown to sit low in the hand. The glaze pools slightly where the wall meets the base, so the colour is never quite even across a set."
+msgstr "一只略有分量的马克杯，拉坯成低矮杯身，握在手中安稳贴合。釉料会在杯壁与杯底交接处略微积聚，因此同一套杯子的色泽也不会完全一致。"
+
+#: .\frontend\mockdata\products.py:108
+msgid "Meilin threw the first of these for herself, then kept making them because visitors to the studio would not put them down. The handle is pulled by hand rather than cast, which is why the curve is a fraction different on every one."
+msgstr "梅琳最初为自己拉坯制作了这只杯子，后来到访工作室的人总是爱不释手，她便一直做了下去。杯把由手工拉制而非模具浇铸，因此每一只的弧度都会有细微差异。"
+
+#: .\frontend\mockdata\products.py:118
+msgid "Wide enough for oats and deep enough for soup. The iron in the clay breaks through the glaze as fine dark flecks during firing."
+msgstr "宽度足以盛燕麦粥，深度也适合盛汤。烧制时，陶土中的铁质会透过釉面，形成细小的深色斑点。"
+
+#: .\frontend\mockdata\products.py:120
+msgid "The speckle is not added. It is iron already present in the local clay, which surfaces only above 1250°C -- a firing Meilin holds for nine hours."
+msgstr "斑点并非额外添加，而是当地陶土中原有的铁质，在温度超过 1250°C 时才会显现；梅琳会将这一烧制温度保持九小时。"
+
+#: .\frontend\mockdata\products.py:128
+msgid "A single-piece dripper with three ribs turned into the cone, so water moves evenly through the bed rather than channelling down one side."
+msgstr "一体成型的滤杯，锥形内壁设有三道导流凸棱，让水流均匀通过咖啡粉层，避免沿一侧集中流下。"
+
+#: .\frontend\mockdata\products.py:130
+msgid "Six prototypes went into the angle of the cone. Meilin brewed on every one of them for a fortnight before settling on this shape."
+msgstr "为了确定锥体角度，前后做了六个原型。梅琳连续两周用这六个原型逐一冲煮测试，最终才选定现在的形状。"
+
+#: .\frontend\mockdata\products.py:138
+msgid "A everyday plate with a low, generous rim. The ash glaze moves in the kiln, so the edge is usually a shade lighter than the well."
+msgstr "一只适合日常使用的餐盘，盘沿低而宽。灰釉在窑中流动，因此边缘通常比盘心浅一个色调。"
+
+#: .\frontend\mockdata\products.py:140
+msgid "The glaze is mixed from ash swept out of the studio's own kiln -- a practice old enough in Jingdezhen that nobody there thinks of it as unusual."
+msgstr "釉料由工作室自家窑炉中清扫出的灰烬调制而成——这项做法在景德镇由来已久，当地人并不觉得稀奇。"
+
+#: .\frontend\mockdata\products.py:147
+msgid "Made to order · ships in 3–4 weeks"
+msgstr "按订单制作 · 3–4 周内发货"
+
+#: .\frontend\mockdata\products.py:149
+msgid "An oval platter for bread, roasted vegetables or a whole fish. Thrown, then pressed gently out of round while still soft."
+msgstr "椭圆形餐盘，适合盛放面包、烤蔬菜或整条鱼。先拉坯成型，再趁陶土尚软时轻轻压成略不规则的形状。"
+
+#: .\frontend\mockdata\products.py:151
+msgid "Made only in small runs, when the large kiln is fired. Meilin will not fire it half empty, so these appear a few times a year."
+msgstr "只有在大型窑炉烧制时才会小批量制作。梅琳不会让窑炉半空着烧，因此这种餐盘一年只会出现几次。"
+
+#: .\frontend\mockdata\products.py:158
+msgid "A tall, narrow-necked vase that holds a few stems upright without propping. Matte outside, glossed inside so it holds water."
+msgstr "高挑的细颈花瓶，无需支撑便能让几枝花材直立。外壁为哑光质感，内壁施亮釉，可以盛水。"
+
+#: .\frontend\mockdata\products.py:160
+msgid "Meilin keeps one on the windowsill of the studio with whatever is in season. Most of the year that means a single branch."
+msgstr "梅琳在工作室窗台上放着一只，插上当季的花材。一年中的大部分时候，那意味着一根枝条。"
+
+#: .\frontend\mockdata\products.py:168
+msgid "Two handleless cups, thin at the lip and thicker at the base. Pale celadon that shifts towards green where the glaze gathers."
+msgstr "两只无柄茶杯，杯口较薄，杯底较厚。淡青瓷釉在釉料积聚处会呈现更深的绿色。"
+
+#: .\frontend\mockdata\products.py:170
+msgid "Thrown in pairs and fired side by side, so the two cups in a set carry the same marks from the same corner of the kiln."
+msgstr "成对拉坯，并排烧制，因此一套中的两只杯子会留下来自窑炉同一角落的相同痕迹。"
+
+#: .\frontend\mockdata\products.py:179
+msgid "A flat-bottomed tote in heavyweight linen, with an inside pocket and handles long enough to carry over a shoulder."
+msgstr "采用厚实亚麻制成的平底托特包，设有内袋，提手长度足以肩背。"
+
+#: .\frontend\mockdata\products.py:181
+msgid "Ruolan made the first one because nothing she owned would hold a week of vegetables and still look like something she wanted to carry."
+msgstr "若兰之所以做出第一只，是因为她手头没有一款包，既能装下一周采购的蔬菜，又好看得让她愿意随身携带。"
+
+#: .\frontend\mockdata\products.py:190
+msgid "Woven in two panels and joined by hand down the centre. Heavy enough for a bed, soft enough for a chair."
+msgstr "由两幅织片拼成，中间以手工缝合。厚实得可铺在床上，也柔软得适合搭在椅上。"
+
+#: .\frontend\mockdata\products.py:192
+msgid "Wenjing dips the yarn before it is ever woven, which is why the colour sits inside the cloth rather than on it, and deepens rather than fades."
+msgstr "文静在织造之前就将纱线浸染，因此色彩深入织物内部而非停留在表面，并会随着使用加深而不是褪去。"
+
+#: .\frontend\mockdata\products.py:202
+msgid "A simple envelope cover with a buttoned back. Washed twice before it leaves the studio so it arrives already soft."
+msgstr "简洁的信封式靠垫套，背面以纽扣开合。离开工作室前经过两次水洗，送到手中时已柔软舒适。"
+
+#: .\frontend\mockdata\products.py:204
+msgid "The buttons are coconut shell, cut and drilled by a workshop two streets from Ruolan's own -- the last of its kind in the neighbourhood."
+msgstr "纽扣由椰壳制成，在距离若兰工作室两条街的一家作坊切割并钻孔——那是附近最后一家这样的作坊。"
+
+#: .\frontend\mockdata\products.py:213
+msgid "A long runner with a deep hand-turned hem. Creases readily, which is rather the point."
+msgstr "一条长桌旗，饰有宽大的手工折边。它很容易留下褶皱，而这正是设计的本意。"
+
+#: .\frontend\mockdata\products.py:215
+msgid "Ruolan does not press these flat before packing. A runner that arrives perfectly smooth, she says, has been finished by a machine."
+msgstr "若兰在包装前不会把它们熨平。她说，一条到手时平整无痕的桌旗，是机器加工出来的。"
+
+#: .\frontend\mockdata\products.py:223
+msgid "Loosely woven so it dries fast, with a hanging loop set into the corner. Gets better with washing."
+msgstr "织法疏松，干得快，角落设有挂环。越洗越好用。"
+
+#: .\frontend\mockdata\products.py:225
+msgid "Woven on the narrow loom Wenjing keeps for offcuts, using yarn left over from the throws. No two runs are quite the same colour."
+msgstr "使用文静专门处理余料的窄幅织机织成，纱线来自盖毯制作剩余的材料。每一批的颜色都不完全相同。"
+
+#: .\frontend\mockdata\products.py:234
+msgid "A cross-back apron with a lightly quilted front panel and two deep pockets. Adjustable at the neck, ties at the waist."
+msgstr "交叉背带式围裙，前片带轻薄绗缝，设有两个深口袋。颈带可调节，腰间系带固定。"
+
+#: .\frontend\mockdata\products.py:236
+msgid "Designed with a baker in Hangzhou who wanted something that would take flour, heat and a hot pan handle without falling apart in a year."
+msgstr "与杭州的一位烘焙师共同设计；她想要一件能经受面粉、高温和滚烫锅柄，又不会在一年内散架的围裙。"
+
+#: .\frontend\mockdata\products.py:246
+msgid "Cedar, dry earth and a little green fig. Poured into a stoneware vessel worth keeping once the wax is gone."
+msgstr "雪松、干燥泥土与一丝青无花果的香气。蜡烛浇注在炻器容器中，蜡燃尽后仍值得继续使用。"
+
+#: .\frontend\mockdata\products.py:248
+msgid "Anying built this scent around the smell of her workshop after rain -- wet stone, cut wood, and the fig tree in the courtyard next door."
+msgstr "安莹以雨后工作室的气味为灵感调制这款香气——潮湿的石头、切开的木材，以及隔壁庭院里的无花果树。"
+
+#: .\frontend\mockdata\products.py:258
+msgid "A shallow dish with an off-centre hole, sized for standard incense sticks. Unglazed outside so it keeps a little grip on the table."
+msgstr "浅盘设有偏离中心的小孔，适配标准线香。外壁不施釉，与桌面接触时能增加一些摩擦力。"
+
+#: .\frontend\mockdata\products.py:260
+msgid "Meilin makes these from the clay left at the end of a throwing session -- too little for a bowl, exactly enough for one of these."
+msgstr "梅琳用每次拉坯结束时剩下的陶土制作这些香座——做一只碗太少，做一个香座却刚刚好。"
+
+#: .\frontend\mockdata\products.py:269
+msgid "A long board with a shaped handle and a lip cut into the underside so it lifts easily off a flat table."
+msgstr "一块带造型手柄的长餐板，底部切出一道托边，方便从平坦桌面上拿起。"
+
+#: .\frontend\mockdata\products.py:271
+msgid "Cut from beams salvaged during the restoration of a Huizhou courtyard house. The grain, and occasionally an old nail hole, comes with the timber."
+msgstr "取材自修复一座徽州院落时回收的梁木。木纹，以及偶尔可见的旧钉孔，都是木材本身留下的痕迹。"
+
+#: .\frontend\mockdata\products.py:279
+msgid "An unlacquered brass bell on a turned oak handle. The brass will darken with handling, which is how it is meant to go."
+msgstr "旋制橡木手柄上装有一只未上漆的黄铜钟罩。黄铜会随着触摸逐渐变暗，这正是它应有的变化。"
+
+#: .\frontend\mockdata\products.py:281
+msgid "Hesheng turns the handles from oak offcuts and has the bells spun by a metalworker he has used for eleven years."
+msgstr "和生用橡木余料车制手柄，钟罩则由一位与他合作了十一年的金工匠人旋压成型。"
+
+#: .\frontend\mockdata\products.py:287
+msgid "Made to order · ships in 2–3 weeks"
+msgstr "按订单制作 · 2–3 周内发货"
+
+#: .\frontend\mockdata\products.py:289
+msgid "A deep round basket with soft rope handles, woven closely enough to hold its shape when empty."
+msgstr "深圆形篮筐配柔软绳把手，编织紧密，即使空着也能保持形状。"
+
+#: .\frontend\mockdata\products.py:291
+msgid "Woven by a group of five weavers in a village outside Dali, in the weeks between planting and harvest."
+msgstr "由大理郊外一个村庄的五位编织匠人在播种与收获之间的农闲时节编成。"
+
+#: .\frontend\mockdata\products.py:300
+msgid "A small pinched dish for rings, earrings or the change in your pocket. Pinched rather than thrown, so the rim is deliberately uneven."
+msgstr "一只用于放置戒指、耳环或口袋零钱的手捏小碟。采用手捏而非拉坯成型，因此碟沿特意保留不规则感。"
+
+#: .\frontend\mockdata\products.py:302
+msgid "The first of these were made as thank-you gifts for the studio's earliest customers. Enough people asked to buy one that they became a product."
+msgstr "最初一批是为感谢工作室早期顾客而制作的礼物。后来有足够多的人询问能否购买，它们便成为了正式商品。"
+
+#: .\frontend\mockdata\products.py:311
+msgid "A mug, a small candle and a tea towel, wrapped in unbleached paper and tied with cotton string. A card can be written at checkout."
+msgstr "一只马克杯、一支小蜡烛和一条茶巾，以未漂白纸张包裹，并用棉绳系好。可在结账时填写卡片内容。"
+
+#: .\frontend\mockdata\products.py:313
+msgid "The set we send most often, and the one the studio sends to its own suppliers at the end of every year."
+msgstr "这是我们最常寄出的礼盒，也是工作室每年年末寄给自家供应商的那一款。"
+
+#: .\frontend\mockdata\products.py:321
+msgid "Two hand-dipped tapers in unbleached beeswax. They smell faintly of honey when lit and drip very little."
+msgstr "两支以未漂白蜂蜡手工浸制的长烛。点燃时带有淡淡蜂蜜香，且极少滴蜡。"
+
+#: .\frontend\mockdata\products.py:323
+msgid "Dipped forty times each, one layer at a time, over the course of an afternoon."
+msgstr "每支都要分层浸制四十次，整个过程用去一个下午。"
+
 #: .\frontend\mockdata\content.py:48
 msgid "About"
 msgstr "关于"
@@ -776,7 +1318,7 @@ msgstr "下单于 %(date)s · %(status)s"
 #: .\frontend\templates\frontend\account\order_detail.html:9
 #: .\frontend\templates\frontend\account\overview.html:27
 msgid "All orders"
-msgstr "提交订单"
+msgstr "全部订单"
 
 #: .\frontend\templates\frontend\account\order_detail.html:14
 msgid "Progress"
@@ -1397,7 +1939,7 @@ msgstr "关于制作、材质与作品背后之人的札记。有值得一说的
 
 #: .\frontend\templates\frontend\journal\index.html:25
 msgid "Read the piece"
-msgstr "站内搜索"
+msgstr "阅读文章"
 
 #: .\frontend\templates\frontend\makers\detail.html:22
 #, python-format
@@ -2033,7 +2575,7 @@ msgstr "满 %(threshold)s 免运费 · 三十天内可退货"
 
 #: .\frontend\templates\frontend\product\detail.html:113
 msgid "Details &amp; materials"
-msgstr "资料与配送"
+msgstr "详情与材质"
 
 #: .\frontend\templates\frontend\product\detail.html:116
 msgid "Materials."
@@ -2089,7 +2631,7 @@ msgstr "已验证买家"
 
 #: .\frontend\templates\frontend\product\detail.html:164
 msgid "Reviews"
-msgstr "概览"
+msgstr "商品评价"
 
 #: .\frontend\templates\frontend\product\detail.html:169
 #, python-format
@@ -2111,6 +2653,10 @@ msgstr "评价您购买的作品"
 #: .\frontend\templates\frontend\product\detail.html:183
 msgid "Rating"
 msgstr "评分"
+
+#: .\frontend\review_forms.py:25
+msgid "Choose a rating from 1 to 5."
+msgstr "请选择 1 至 5 星的评分。"
 
 #: .\frontend\templates\frontend\product\detail.html:185
 msgid "Choose"
@@ -2142,7 +2688,7 @@ msgstr "标题"
 
 #: .\frontend\templates\frontend\product\detail.html:191
 msgid "Review"
-msgstr "概览"
+msgstr "评价"
 
 #: .\frontend\templates\frontend\product\detail.html:193
 msgid "Publish review"
@@ -2150,7 +2696,7 @@ msgstr "发布评价"
 
 #: .\frontend\templates\frontend\product\detail.html:202
 msgid "You may also like"
-msgstr "您可能还喜欢"
+msgstr "猜你喜欢"
 
 #: .\frontend\templates\frontend\product\detail.html:202
 msgid "Goes with this"
@@ -2252,8 +2798,8 @@ msgstr "该系列正处于两批之间。其余作品请见商店。"
 
 #: .\frontend\templates\frontend\shop\collections.html:11
 msgid ""
-"Four categories and one editorial grouping. Each one is small on purpose."
-msgstr "四个品类与一个专题系列。每一个都刻意保持小而精。"
+"Explore our categories and editorial collections. Each one is small on purpose."
+msgstr "探索我们的品类与专题系列。每一个都刻意保持小而精。"
 
 #: .\frontend\templates\frontend\shop\collections.html:27
 #, python-format
@@ -2304,6 +2850,933 @@ msgstr "切换为中文"
 msgid "Your password has been changed."
 msgstr "您的密码已修改。"
 
+#: .\backend\imagery\templates\imagery\credits.html:22
+msgid "Creative Commons"
+msgstr "知识共享"
+
+#: .\backend\imagery\templates\imagery\credits.html:23
+msgid "Each of these is used under a licence permitting commercial use and modification. Images have been cropped and resized to fit the layout."
+msgstr "这些图片均依据允许商业使用与修改的许可协议使用，并已裁剪和调整尺寸以适应页面布局。"
+
+#: .\frontend\templates\frontend\account\auth.html:38
+msgid "For your privacy, sign out on shared devices."
+msgstr "为了您的隐私，请在共享设备上退出登录。"
+
+#: .\backend\imagery\templates\imagery\credits.html:59
+msgid "Generated illustrations remain in place wherever no photograph could be found."
+msgstr "在找不到摄影图片的地方，将继续使用生成的插图。"
+
+#: .\backend\imagery\templates\imagery\credits.html:14
+msgid "It stands in"
+msgstr "这些图片暂代"
+
+#: .\backend\imagery\templates\imagery\credits.html:55
+msgid "No photography has been fetched yet — every image on the site is still a generated placeholder. Run"
+msgstr "尚未获取摄影图片——网站上的所有图片仍是生成的占位图。请运行"
+
+#: .\backend\imagery\templates\imagery\credits.html:42
+msgid "Public domain"
+msgstr "公有领域"
+
+#: .\backend\imagery\templates\imagery\credits.html:13
+msgid "The photography on this prototype is openly licensed work found through"
+msgstr "本原型中的摄影图片均通过以下平台获取并采用开放许可："
+
+#: .\backend\imagery\templates\imagery\credits.html:43
+msgid "Used under CC0 or a public domain mark. No attribution is required; it is given anyway."
+msgstr "依据 CC0 或公有领域标记使用。虽然无需署名，我们仍在此注明来源。"
+
+#: .\backend\imagery\templates\imagery\credits.html:15
+msgid "for studio photography that has not been commissioned yet, and it is credited here because most of these licences require it."
+msgstr "尚未委托拍摄的工作室照片，并因多数许可协议要求而在此列出来源。"
+
+#: .\frontend\templates\frontend\journal\detail.html:20
+msgid "read"
+msgstr "阅读"
+
+#: .\backend\imagery\templates\imagery\credits.html:55
+msgid "to populate them."
+msgstr "以填充图片。"
+
+#: .\frontend\mockdata\makers.py:31
+msgid "Chen Meilin"
+msgstr "陈梅琳"
+
+#: .\frontend\mockdata\makers.py:32
+msgid "Ceramicist"
+msgstr "陶艺师"
+
+#: .\frontend\mockdata\makers.py:33
+msgid "Jingdezhen, Jiangxi"
+msgstr "江西景德镇"
+
+#: .\frontend\mockdata\makers.py:36
+msgid "Porcelain thrown thin enough to hold the light."
+msgstr "薄到足以承托光线的瓷器。"
+
+#: .\frontend\mockdata\makers.py:38
+msgid "Meilin trained for six years under a Jingdezhen master before opening a small studio on the eastern edge of the old kiln district. She works almost entirely in local porcelain stone, quarried an hour from her door."
+msgstr "梅琳曾在景德镇一位陶艺大师门下学习六年，之后在古窑区东侧开设了一间小工作室。她几乎只使用本地瓷石，泥料取自离工作室一小时车程的地方。"
+
+#: .\frontend\mockdata\makers.py:41
+msgid "Her forms are quiet and slightly imperfect by design. A rim that dips a little, a foot left unglazed so you can read the clay -- these are the marks she leaves on purpose, and the reason no two pieces are alike."
+msgstr "她的器形安静而略带不完美，这是刻意为之。微微下沉的器口、露出泥土质感的素烧足部，都是她有意留下的痕迹，也正是每件作品各不相同的原因。"
+
+#: .\frontend\mockdata\makers.py:46
+msgid "Clay is wedged by hand each morning and rested overnight before throwing."
+msgstr "每天早晨手工揉泥，静置一夜后才开始拉坯。"
+
+#: .\frontend\mockdata\makers.py:47
+msgid "Every piece is turned on the wheel, then trimmed once leather-hard."
+msgstr "每件作品都在转盘上完成，并在半干时修坯。"
+
+#: .\frontend\mockdata\makers.py:48
+msgid "Glazes are mixed in small batches from ash, feldspar and iron oxide."
+msgstr "釉料以灰烬、长石和氧化铁分批调配。"
+
+#: .\frontend\mockdata\makers.py:49
+msgid "A single gas firing to 1280°C, with the kiln cooled slowly over two days."
+msgstr "以 1280°C 进行一次燃气烧制，窑炉缓慢冷却两天。"
+
+#: .\frontend\mockdata\makers.py:55
+msgid "Lu Wenjing"
+msgstr "陆文静"
+
+#: .\frontend\mockdata\makers.py:56
+msgid "Weaver & natural dyer"
+msgstr "织工与天然染色师"
+
+#: .\frontend\mockdata\makers.py:57
+msgid "Dali, Yunnan"
+msgstr "云南大理"
+
+#: .\frontend\mockdata\makers.py:60
+msgid "Indigo that deepens with every wash."
+msgstr "每一次清洗，靛蓝都更深一层。"
+
+#: .\frontend\mockdata\makers.py:62
+msgid "Wenjing learned to dye from her grandmother, who kept an indigo vat behind the family house in Dali. She now grows her own indigo and works with three neighbouring households during the harvest."
+msgstr "文静向祖母学习染色。祖母曾在大理的家屋后经营一口靛蓝染缸。如今她自己种植蓝靛，并在收获季与邻近的三户人家合作。"
+
+#: .\frontend\mockdata\makers.py:65
+msgid "She weaves on a floor loom her father built, in cotton and hemp spun within the province. Nothing in her studio is dyed twice the same way, and she has stopped apologising for it."
+msgstr "她使用父亲制作的木质地织机，以省内纺成的棉与麻织布。她工作室里的任何东西都不会以完全相同的方式染两次，她也不再为此道歉。"
+
+#: .\frontend\mockdata\makers.py:70
+msgid "Indigo is fermented in clay vats and fed weekly through the season."
+msgstr "靛蓝在陶缸中发酵，并在整个季节每周补养。"
+
+#: .\frontend\mockdata\makers.py:71
+msgid "Cloth is dipped between six and fourteen times, depending on the depth wanted."
+msgstr "布料浸染六至十四次，视所需深浅而定。"
+
+#: .\frontend\mockdata\makers.py:72
+msgid "Washed in river water and dried in shade to keep the colour even."
+msgstr "在河水中清洗并于阴凉处晾干，使颜色保持均匀。"
+
+#: .\frontend\mockdata\makers.py:73
+msgid "Woven, finished and hemmed by hand on a wooden floor loom."
+msgstr "在木质地织机上手工织造、整理与锁边。"
+
+#: .\frontend\mockdata\makers.py:79
+msgid "Zhao Hesheng"
+msgstr "赵和生"
+
+#: .\frontend\mockdata\makers.py:80
+msgid "Woodworker"
+msgstr "木匠"
+
+#: .\frontend\mockdata\makers.py:81
+msgid "Huizhou, Anhui"
+msgstr "安徽徽州"
+
+#: .\frontend\mockdata\makers.py:84
+msgid "Working with the grain, never against it."
+msgstr "顺着木纹工作，从不与它对抗。"
+
+#: .\frontend\mockdata\makers.py:86
+msgid "Hesheng spent a decade restoring Huizhou timber houses before turning to smaller objects. He still sources most of his wood from those restorations -- beams and floorboards that have already lived a life."
+msgstr "和生花了十年修复徽州木屋，之后才转向制作更小的器物。他的大部分木材仍来自这些修复工程，是已经度过一段岁月的梁木与地板。"
+
+#: .\frontend\mockdata\makers.py:89
+msgid "He cuts joinery by hand and finishes everything in raw linseed oil. Nothing leaves the bench until it feels right in the hand."
+msgstr "他手工切削榫卯，所有作品都以生亚麻籽油完成。每件东西在握感恰到好处之前，都不会离开工作台。"
+
+#: .\frontend\mockdata\makers.py:93
+msgid "Reclaimed timber is milled, then rested for a season to settle."
+msgstr "回收木材先加工，再静置一季让它稳定下来。"
+
+#: .\frontend\mockdata\makers.py:94
+msgid "Every joint is cut and pared by hand -- no dowels, no filler."
+msgstr "每个榫接都手工切削与修整，不用木钉，也不用填料。"
+
+#: .\frontend\mockdata\makers.py:95
+msgid "Surfaces are worked through five grades of abrasive to a soft sheen."
+msgstr "表面经过五种不同粗细的磨料处理，呈现柔和光泽。"
+
+#: .\frontend\mockdata\makers.py:96
+msgid "Finished in food-safe linseed oil, reapplied three times over a week."
+msgstr "使用食品级亚麻籽油完成表面处理，一周内重复涂刷三次。"
+
+#: .\frontend\mockdata\makers.py:102
+msgid "Xu Anying"
+msgstr "徐安莹"
+
+#: .\frontend\mockdata\makers.py:103
+msgid "Candlemaker & perfumer"
+msgstr "制烛师与调香师"
+
+#: .\frontend\mockdata\makers.py:104
+msgid "Suzhou, Jiangsu"
+msgstr "江苏苏州"
+
+#: .\frontend\mockdata\makers.py:107
+msgid "Scent built the way a garden is planted."
+msgstr "像栽种花园一样构筑香气。"
+
+#: .\frontend\mockdata\makers.py:109
+msgid "Anying studied classical Chinese garden design before training in perfumery. She thinks about a scent the way she was taught to think about a courtyard: what you meet first, and what you find later."
+msgstr "安莹曾学习中国古典园林设计，之后接受调香训练。她以设计庭院的方式思考香气：首先遇见什么，之后又会发现什么。"
+
+#: .\frontend\mockdata\makers.py:112
+msgid "She pours in batches of forty, by hand, in a converted ground-floor workshop near the canal. Each batch is left to cure for two weeks before a wick is ever lit."
+msgstr "她在运河附近一间改造的底层工作室里手工浇注，每批四十支。每批蜡烛会静置固化两周，之后才点燃烛芯。"
+
+#: .\frontend\mockdata\makers.py:117
+msgid "Essential oils are blended and left to marry for ten days."
+msgstr "精油混合后静置十天，让香气彼此融合。"
+
+#: .\frontend\mockdata\makers.py:118
+msgid "Soy and rapeseed wax is melted low, never above 65°C."
+msgstr "大豆蜡与菜籽蜡低温融化，温度不超过 65°C。"
+
+#: .\frontend\mockdata\makers.py:119
+msgid "Poured by hand in batches of forty, one vessel at a time."
+msgstr "每次一只容器，分批手工浇注，每批四十支。"
+
+#: .\frontend\mockdata\makers.py:120
+msgid "Cured for fourteen days, then burn-tested from every batch."
+msgstr "固化十四天后，从每批中抽样进行燃烧测试。"
+
+#: .\frontend\mockdata\makers.py:126
+msgid "Ye Ruolan"
+msgstr "叶若兰"
+
+#: .\frontend\mockdata\makers.py:127
+msgid "Textile artist"
+msgstr "纺织艺术家"
+
+#: .\frontend\mockdata\makers.py:128
+msgid "Hangzhou, Zhejiang"
+msgstr "浙江杭州"
+
+#: .\frontend\mockdata\makers.py:131
+msgid "Linen washed until it forgets it was ever stiff."
+msgstr "将亚麻洗到仿佛从未僵硬过。"
+
+#: .\frontend\mockdata\makers.py:133
+msgid "Ruolan works in European flax linen, finished in her own studio using a stone-washing process she spent two years refining. The point, she says, is for a new piece to feel like one you have owned for years."
+msgstr "若兰使用欧洲亚麻，在自己的工作室里以经过两年改良的石洗工艺完成整理。她说，理想状态是让新作品摸起来像已经陪伴你多年的旧物。"
+
+#: .\frontend\mockdata\makers.py:136
+msgid "She cuts and sews everything herself, with a single assistant during busy months, and keeps her ranges deliberately small."
+msgstr "她亲自裁剪和缝制所有作品，忙碌月份会有一名助手，并始终刻意保持系列精简。"
+
+#: .\frontend\mockdata\makers.py:140
+msgid "Flax linen is sourced from a single mill and cut in small lays."
+msgstr "亚麻来自同一家纺厂，并以小批量裁片处理。"
+
+#: .\frontend\mockdata\makers.py:141
+msgid "Seams are sewn, then the finished piece is stone-washed twice."
+msgstr "缝合后，成品进行两次石洗。"
+
+#: .\frontend\mockdata\makers.py:142
+msgid "Dried flat and pressed once, lightly, to keep the natural crumple."
+msgstr "平铺晾干后只轻轻熨烫一次，保留自然的褶皱。"
+
+#: .\frontend\mockdata\makers.py:143
+msgid "Checked seam by seam before it is folded and wrapped."
+msgstr "逐条检查缝线，再折叠包裹。"
+
+#: .\frontend\mockdata\faqs.py:18
+msgid "Placing, changing and cancelling."
+msgstr "下单、修改与取消。"
+
+#: .\frontend\mockdata\faqs.py:20
+msgid "Can I change or cancel my order?"
+msgstr "我可以修改或取消订单吗？"
+
+#: .\frontend\mockdata\faqs.py:21
+msgid "Yes, within 12 hours of placing it, as long as it has not been packed. Email the studio with your order number and we will sort it out. After 12 hours a made-to-order piece may already be in production."
+msgstr "可以。下单后 12 小时内，且订单尚未打包时，您可以修改或取消订单。请将订单编号发送至工作室邮箱，我们会为您处理。超过 12 小时后，按订单制作的商品可能已经开始生产。"
+
+#: .\frontend\mockdata\faqs.py:24
+msgid "I ordered several pieces. Will they arrive together?"
+msgstr "我订购了多件商品，它们会一起送达吗？"
+
+#: .\frontend\mockdata\faqs.py:25
+msgid "Not always. In-stock items ship immediately and made-to-order pieces follow when they are ready. You are only charged delivery once."
+msgstr "不一定。现货商品会立即发出，按订单制作的商品则会在完成后寄出。您只需支付一次配送费。"
+
+#: .\frontend\mockdata\faqs.py:27
+msgid "Do you take custom or commission requests?"
+msgstr "你们接受定制或委托制作吗？"
+
+#: .\frontend\mockdata\faqs.py:28
+msgid "For some pieces, yes. Use the enquiry link on the product page and the maker will reply with what is possible and a quotation. Commissions typically take four to eight weeks."
+msgstr "部分商品可以。请使用商品页面上的咨询链接，匠人会回复可行方案和报价。委托制作通常需要 4–8 周。"
+
+#: .\frontend\mockdata\faqs.py:31
+msgid "Can I order a piece that is sold out?"
+msgstr "我可以订购已售罄的商品吗？"
+
+#: .\frontend\mockdata\faqs.py:32
+msgid "Sold-out pieces return when the maker next fires or weaves a batch. Add your email on the product page and you will hear when it does."
+msgstr "已售罄的商品会在匠人下一次烧制或织造一批时重新上架。在商品页面留下您的电子邮箱，补货时我们会通知您。"
+
+#: .\frontend\mockdata\faqs.py:35
+msgid "Timings, costs and tracking."
+msgstr "时效、费用与物流查询。"
+
+#: .\frontend\mockdata\faqs.py:37
+msgid "How long does delivery take?"
+msgstr "配送需要多长时间？"
+
+#: .\frontend\mockdata\faqs.py:38
+msgid "In-stock orders are dispatched in 2–4 working days and arrive within a week domestically. Made-to-order pieces state their own lead time on the product page."
+msgstr "现货订单会在 2–4 个工作日内发出，并在一周内送达国内地址。按订单制作的商品会在商品页面注明各自的交付周期。"
+
+#: .\frontend\mockdata\faqs.py:40
+msgid "How much does delivery cost?"
+msgstr "配送费是多少？"
+
+#: .\frontend\mockdata\faqs.py:41
+msgid "Standard delivery is ¥8. It is complimentary on orders above ¥80. Express delivery is ¥18 and dispatches the next working day where stock allows."
+msgstr "标准配送费为 ¥8。订单金额超过 ¥80 可免配送费。加急配送费为 ¥18，并会在库存允许的情况下于下一个工作日发出。"
+
+#: .\frontend\mockdata\faqs.py:43
+msgid "Do you ship internationally?"
+msgstr "可以寄送到海外吗？"
+
+#: .\frontend\mockdata\faqs.py:44
+msgid "Yes, to most countries. Duties and import taxes are not included and are paid by the recipient on arrival."
+msgstr "可以，我们可寄送至大多数国家。关税和进口税不包含在费用中，需由收件人在收货时支付。"
+
+#: .\frontend\mockdata\faqs.py:46
+msgid "How is fragile work packed?"
+msgstr "易碎作品如何包装？"
+
+#: .\frontend\mockdata\faqs.py:47
+msgid "Ceramics are wrapped in recycled tissue and moulded pulp, inside a double-walled box. No plastic, no polystyrene."
+msgstr "陶瓷会用再生薄纸和模塑纸浆包裹，再装入双层瓦楞纸箱。全程不使用塑料或聚苯乙烯泡沫。"
+
+#: .\frontend\mockdata\faqs.py:50
+msgid "Changing your mind, and breakages."
+msgstr "改变主意与收到破损商品。"
+
+#: .\frontend\mockdata\faqs.py:52
+msgid "What is your returns window?"
+msgstr "退货期限是多久？"
+
+#: .\frontend\mockdata\faqs.py:53
+msgid "Thirty days from delivery, for unused pieces in their original packaging. Tell us before you send anything back so we can issue a return reference."
+msgstr "自收货之日起 30 天内，未使用且保留原包装的商品可以退货。寄回任何商品前请先联系我们，以便我们提供退货编号。"
+
+#: .\frontend\mockdata\faqs.py:55
+msgid "Something arrived broken."
+msgstr "收到的商品破损了。"
+
+#: .\frontend\mockdata\faqs.py:56
+msgid "Send a photograph within 48 hours of delivery and we will replace it or refund you in full. You do not need to return the damaged piece."
+msgstr "请在收货后 48 小时内发送照片，我们会为您更换商品或全额退款。您无需寄回破损商品。"
+
+#: .\frontend\mockdata\faqs.py:58
+msgid "Can I return a made-to-order or commissioned piece?"
+msgstr "按订单制作或委托制作的商品可以退货吗？"
+
+#: .\frontend\mockdata\faqs.py:59
+msgid "Only if it is faulty. These are made specifically for you, so we cannot resell them. The product page says clearly when this applies."
+msgstr "只有商品存在瑕疵时才可以。这些商品是专门为您制作的，无法再次销售。适用此规则时，商品页面会明确说明。"
+
+#: .\frontend\mockdata\faqs.py:61
+msgid "Who pays return postage?"
+msgstr "退货邮费由谁承担？"
+
+#: .\frontend\mockdata\faqs.py:62
+msgid "We do, if the piece is faulty or not what you ordered. For a change of mind, return postage is yours."
+msgstr "如果商品有瑕疵或与您订购的不符，退货邮费由我们承担。如果只是改变主意，退货邮费由您承担。"
+
+#: .\frontend\mockdata\faqs.py:65
+msgid "Product Care"
+msgstr "作品保养"
+
+#: .\frontend\mockdata\faqs.py:65
+msgid "Keeping pieces well for years."
+msgstr "让作品长久保持良好状态。"
+
+#: .\frontend\mockdata\faqs.py:67
+msgid "Is your stoneware dishwasher safe?"
+msgstr "炻器可以用洗碗机清洗吗？"
+
+#: .\frontend\mockdata\faqs.py:68
+msgid "Yes. It is fired to full vitrification. Hand washing keeps a matte glaze looking its best for longer, but the machine will not harm it."
+msgstr "可以。炻器已经烧至完全玻化。手洗能让哑光釉面更长久地保持最佳状态，但洗碗机不会损坏它。"
+
+#: .\frontend\mockdata\faqs.py:70
+msgid "How should I wash linen?"
+msgstr "亚麻制品应该如何清洗？"
+
+#: .\frontend\mockdata\faqs.py:71
+msgid "Cool machine wash on a gentle cycle, mild detergent, no fabric softener. Line dry in shade. It softens with every wash."
+msgstr "使用温和洗涤剂，以低温轻柔模式机洗，不要使用衣物柔顺剂。置于阴凉处晾干。每洗一次，它都会更加柔软。"
+
+#: .\frontend\mockdata\faqs.py:73
+msgid "My candle is tunnelling."
+msgstr "我的蜡烛出现了隧道现象。"
+
+#: .\frontend\mockdata\faqs.py:74
+msgid "Let the first burn run until the melt pool reaches the edge -- usually two to three hours. Wax has a memory, and the first burn sets it."
+msgstr "第一次燃烧时，请让融蜡池延伸到容器边缘，通常需要两到三个小时。蜡具有记忆效应，第一次燃烧会决定之后的燃烧方式。"
+
+#: .\frontend\mockdata\faqs.py:76
+msgid "The brass has darkened."
+msgstr "黄铜变暗了。"
+
+#: .\frontend\mockdata\faqs.py:77
+msgid "It is unlacquered, so that is expected and reversible. A little lemon juice and bicarbonate returns the shine if you want it back."
+msgstr "黄铜没有上漆，因此变暗属于正常现象，也可以恢复。如果想让它重新亮起来，可使用少量柠檬汁和小苏打。"
+
+#: .\frontend\mockdata\faqs.py:80
+msgid "Handmade Variations"
+msgstr "手作差异"
+
+#: .\frontend\mockdata\faqs.py:81
+msgid "What is a variation, and what is a fault."
+msgstr "什么是正常差异，什么属于瑕疵。"
+
+#: .\frontend\mockdata\faqs.py:83
+msgid "My piece does not look exactly like the photograph."
+msgstr "我的商品看起来与照片不完全一样。"
+
+#: .\frontend\mockdata\faqs.py:84
+msgid "It will not. Glaze colour, speckle, and dye depth vary between firings and dye baths. We photograph a typical piece rather than the best one in a batch."
+msgstr "本来就不会完全一样。不同批次的烧制和染浴会造成釉色、斑点和染色深浅的差异。我们拍摄的是具有代表性的作品，而不是一批中最好的一件。"
+
+#: .\frontend\mockdata\faqs.py:86
+msgid "Are the dimensions exact?"
+msgstr "尺寸是完全准确的吗？"
+
+#: .\frontend\mockdata\faqs.py:87
+msgid "Within about 5%. Every piece is thrown or cut by hand, and clay shrinks by roughly a tenth in the firing."
+msgstr "误差约在 5% 以内。每件作品都由手工拉坯或裁切，陶土在烧制过程中还会收缩约十分之一。"
+
+#: .\frontend\mockdata\faqs.py:89
+msgid "There are fine lines in the glaze."
+msgstr "釉面上有细纹。"
+
+#: .\frontend\mockdata\faqs.py:90
+msgid "That is crazing, and on a vitrified body it is cosmetic. It does not affect strength or whether the piece holds water."
+msgstr "这是开片。对于已经玻化的坯体，这只是外观上的变化，不会影响强度或盛水性能。"
+
+#: .\frontend\mockdata\faqs.py:92
+msgid "What actually counts as a fault?"
+msgstr "什么情况才算瑕疵？"
+
+#: .\frontend\mockdata\faqs.py:93
+msgid "A chip, a crack through the body, a piece that does not sit flat, or a seam that has failed. Any of those, tell us and we will replace it."
+msgstr "崩口、贯穿坯体的裂纹、无法平稳放置，或接缝开裂，都属于瑕疵。遇到任何一种情况，请告诉我们，我们会为您更换。"
+
+#: .\frontend\mockdata\faqs.py:96
+msgid "Gifting"
+msgstr "礼赠"
+
+#: .\frontend\mockdata\faqs.py:96
+msgid "Notes, wrapping and gift orders."
+msgstr "留言、包装与礼品订单。"
+
+#: .\frontend\mockdata\faqs.py:98
+msgid "Can you include a handwritten note?"
+msgstr "可以附上手写留言吗？"
+
+#: .\frontend\mockdata\faqs.py:99
+msgid "Yes. Add your message at checkout and it is written onto a card by hand, unsigned by us, and tucked into the parcel."
+msgstr "可以。结账时填写留言，我们会将其手写在卡片上，不署工作室名，并放入包裹中。"
+
+#: .\frontend\mockdata\faqs.py:101
+msgid "Will the recipient see the price?"
+msgstr "收件人会看到价格吗？"
+
+#: .\frontend\mockdata\faqs.py:102
+msgid "No. Parcels never contain an invoice. Pricing is emailed to you only."
+msgstr "不会。包裹中绝不会放入发票。价格信息只会通过电子邮件发送给您。"
+
+#: .\frontend\mockdata\faqs.py:103
+msgid "Is gift wrapping extra?"
+msgstr "礼品包装需要额外收费吗？"
+
+#: .\frontend\mockdata\faqs.py:104
+msgid "No. Everything is wrapped in unbleached paper and cotton string as standard. There is nothing extra to add."
+msgstr "不需要。所有商品都会按标准使用未漂白纸张和棉绳包装，无需另行添加。"
+
+#: .\frontend\mockdata\faqs.py:106
+msgid "Do you sell gift cards?"
+msgstr "你们销售礼品卡吗？"
+
+#: .\frontend\mockdata\faqs.py:107
+msgid "Yes, in ¥50, ¥100 and ¥200. They are emailed to the recipient on a date you choose and do not expire."
+msgstr "有 ¥50、¥100 和 ¥200 三种面额。礼品卡会在您选择的日期通过电子邮件发送给收件人，且不会过期。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Why no two glazes match"
+msgstr "为什么没有两种釉色完全相同"
+
+#: .\frontend\mockdata\journal.py
+msgid "A wood-ash glaze is a record of the firing that made it. Here is why we stopped trying to make them identical."
+msgstr "手工灰釉记录着烧制它的过程。我们为什么不再追求完全一致？"
+
+#: .\frontend\mockdata\journal.py
+msgid "Craft"
+msgstr "工艺"
+
+#: .\frontend\mockdata\journal.py
+msgid "6 min"
+msgstr "6 分钟"
+
+#: .\frontend\mockdata\journal.py
+msgid "Ask a factory to make five hundred mugs the same colour and it will. Ask a kiln to do it and you will get something more interesting and less obedient."
+msgstr "让工厂把五百只马克杯做成同一种颜色，它可以做到。让窑炉这样做，你得到的会是更有意思、也更不听话的东西。"
+
+#: .\frontend\mockdata\journal.py
+msgid "What the kiln decides"
+msgstr "窑炉的决定"
+
+#: .\frontend\mockdata\journal.py
+msgid "Ash glaze is mixed from what is swept out of the kiln after a firing -- wood ash, feldspar, a little iron oxide, water. The proportions are consistent. What is not consistent is where a piece sits in the kiln, how the flame moves around it, and how fast that corner cools over the two days afterwards."
+msgstr "灰釉由每次烧制后从窑炉中清扫出的材料调配而成——木灰、长石、少量氧化铁和水。配比始终一致。无法保持一致的是器物在窑中的位置、火焰绕过它的方式，以及之后两天里那个角落冷却的速度。"
+
+#: .\frontend\mockdata\journal.py
+msgid "A mug on the top shelf near the flue will come out a shade greener than the same mug, from the same batch of glaze, on the bottom shelf. Neither is the correct one."
+msgstr "靠近烟道的上层窑架上，一只马克杯出窑时会比下层窑架上那只使用同批釉料的同款杯子更偏绿一些。两者都不是唯一正确的样子。"
+
+#: .\frontend\mockdata\journal.py
+msgid "We fire to a range, not a number. The kiln finishes the piece, and it does not take instruction."
+msgstr "我们烧制的是一个范围，而不是一个数字。器物由窑炉完成，它不听从指令。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Living with variation"
+msgstr "与差异共处"
+
+#: .\frontend\mockdata\journal.py
+msgid "This has a practical consequence for anyone buying a set. If you order four bowls, you will get four bowls that clearly belong together and are clearly not identical. Over a few years of use they diverge further -- the ones you reach for most develop a slightly different surface."
+msgstr "这会给购买成套器物的人带来一个实际结果。如果你订购四只碗，收到的四只显然属于一套，也显然并不完全相同。使用几年后，它们之间的差异还会加深——你最常拿取的那些，表面会逐渐呈现稍有不同的状态。"
+
+#: .\frontend\mockdata\journal.py
+msgid "We used to photograph the most even piece of a batch. We now photograph a middling one, because it is closer to what arrives."
+msgstr "过去，我们会拍摄一批中最均匀的那一件。现在，我们拍摄处于中间状态的一件，因为它更接近你实际收到的样子。"
+
+#: .\frontend\mockdata\journal.py
+msgid "An indigo vat in Dali"
+msgstr "大理的一口靛蓝染缸"
+
+#: .\frontend\mockdata\journal.py
+msgid "Lu Wenjing keeps four fermenting vats behind her house. Feeding them is a weekly job that has no shortcut."
+msgstr "陆文静在家后院养着四口发酵染缸，每周照料，没有捷径。"
+
+#: .\frontend\mockdata\journal.py
+msgid "8 min"
+msgstr "8 分钟"
+
+#: .\frontend\mockdata\journal.py
+msgid "The vats are clay, sunk to the rim in the ground behind the house, and they are alive in a fairly literal sense. Indigo does not dissolve in water. It has to be reduced by bacteria first, and those bacteria need feeding, warmth and time."
+msgstr "这些染缸由陶土制成，埋在屋后的地里，缸口与地面齐平；从相当直观的意义上说，它们是活的。靛蓝不溶于水，必须先由细菌还原，而这些细菌需要养料、温度和时间。"
+
+#: .\frontend\mockdata\journal.py
+msgid "A weekly rhythm"
+msgstr "每周的节奏"
+
+#: .\frontend\mockdata\journal.py
+msgid "Every Monday Wenjing adds wheat bran and lime, stirs each vat and checks the surface for the coppery film that says the vat is working. A healthy vat smells sweet. An unhappy one smells of nothing at all, which is worse."
+msgstr "每逢星期一，文静都会加入麦麸和石灰，搅动每口染缸，并查看表面是否出现说明染缸运作正常的铜色薄膜。健康的染缸带着甜香；状态不佳的染缸则什么气味也没有，而这更糟。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Cloth goes in yellow-green and turns blue in the air, in front of you, over about twenty seconds. Six dips gives a pale sky. Fourteen gives the near-black indigo on our heaviest throws."
+msgstr "布料入缸时呈黄绿色，在你眼前接触空气后变成蓝色，整个过程约二十秒。浸染六次会得到浅淡的天蓝色；十四次则会得到我们最厚重盖毯上近乎黑色的靛蓝。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Why it fades the way it does"
+msgstr "为什么会这样褪色"
+
+#: .\frontend\mockdata\journal.py
+msgid "Indigo sits on the outside of the fibre rather than inside it. That is why indigo cloth wears at the folds and the edges first, and why a piece you use every week will look different from one kept in a cupboard. It is also why it will never look worse -- only more specific to you."
+msgstr "靛蓝附着在纤维外部，而非进入纤维内部。因此靛蓝织物会先在折叠处和边缘磨损，每周使用的织物也会与一直收在柜中的那件呈现不同面貌。也正因如此，它永远不会变得更糟——只会越来越带有属于你的痕迹。"
+
+#: .\frontend\mockdata\journal.py
+msgid "How to care for handmade ceramics"
+msgstr "如何保养手作陶器"
+
+#: .\frontend\mockdata\journal.py
+msgid "Most of what shortens the life of a handmade piece is heat, not use."
+msgstr "真正缩短手作器物寿命的，多数是高温，而不是日常使用。"
+
+#: .\frontend\mockdata\journal.py
+msgid "4 min"
+msgstr "4 分钟"
+
+#: .\frontend\mockdata\journal.py
+msgid "Our stoneware is fired high enough to be fully vitrified, which means it is dishwasher safe and will not absorb water or odours. You can put it in the machine without thinking about it."
+msgstr "我们的炻器以足够高的温度烧至完全玻化，这意味着它可以放入洗碗机，也不会吸收水分或气味。放进机器清洗时，无需多虑。"
+
+#: .\frontend\mockdata\journal.py
+msgid "The thing that will actually damage a piece is thermal shock -- a hot bowl into cold water, or a cold plate into a hot oven. Glaze and clay expand at slightly different rates, and a sharp change can craze the surface or, occasionally, crack the piece outright. Let things cool first."
+msgstr "真正会损坏器物的是热震——把热碗放入冷水，或把冷盘放进热烤箱。釉料与陶土的膨胀速度略有不同，温度骤变可能使釉面产生开片，偶尔甚至会让器物彻底开裂。先让它们冷却。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Unglazed feet will pick up marks from the table over time. That is normal and, in our view, an improvement. If it bothers you, a light rub with a damp cloth and a little bicarbonate lifts most of it."
+msgstr "未施釉的圈足会随时间从桌面沾上痕迹。这很正常，在我们看来反而更好看。如果你介意，用湿布蘸少量小苏打轻轻擦拭，就能去除大部分痕迹。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Fine crazing -- a web of hairline lines in the glaze -- is not a crack and does not affect whether a piece holds water. In a vitrified body it is cosmetic."
+msgstr "细密的开片——釉面上如网状分布的发丝纹——并不是裂缝，也不影响器物盛水。对于已经玻化的坯体，它只是外观上的变化。"
+
+#: .\frontend\mockdata\journal.py
+msgid "The case for buying less"
+msgstr "少买一些的理由"
+
+#: .\frontend\mockdata\journal.py
+msgid "We make about four hundred pieces a month. Here is why we have no plans to make four thousand."
+msgstr "我们每月制作约四百件作品，这就是不打算制作四千件的原因。"
+
+#: .\frontend\mockdata\journal.py
+msgid "7 min"
+msgstr "7 分钟"
+
+#: .\frontend\mockdata\journal.py
+msgid "Every year we are asked why we do not scale. The honest answer is that the thing people like about the work is a direct consequence of how little of it there is."
+msgstr "每年都有人问我们为什么不扩大规模。坦率地说，人们喜欢这些作品，正是因为它们数量有限。"
+
+#: .\frontend\mockdata\journal.py
+msgid "A studio making four hundred pieces a month can afford to lose a firing. It can let a maker spend a season on a shape that may not sell. It can turn down the wholesale order that would have paid for a second kiln but required the glaze to be standardised first."
+msgstr "一家每月制作四百件作品的工作室，经得起一次烧制失败。它可以让匠人用一整个季节琢磨一种未必卖得出去的器形；也可以拒绝一笔本可支付第二座窑炉费用、却要求先把釉色标准化的批发订单。"
+
+#: .\frontend\mockdata\journal.py
+msgid "None of that survives contact with volume. The pieces would still be competent. They would stop being specific."
+msgstr "一旦产量扩大，这些都无法维持。器物依然会做得合格，却不再具有鲜明的个性。"
+
+#: .\frontend\mockdata\journal.py
+msgid "This has a cost, and we would rather be plain about it: some things sell out and do not come back for months, and made-to-order items really do take three weeks. We think that is the better trade."
+msgstr "这会带来代价，我们愿意坦白说明：有些作品售罄后要几个月才会回来，按订单制作的商品也确实需要三周。我们认为，这样的取舍更好。"
+
+#: .\frontend\mockdata\journal.py
+msgid "A table set for nothing in particular"
+msgstr "一张没有特别理由的餐桌"
+
+#: .\frontend\mockdata\journal.py
+msgid "Notes on using the good plates on a Tuesday."
+msgstr "在星期二也用上那些好盘子。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Interiors"
+msgstr "室内"
+
+#: .\frontend\mockdata\journal.py
+msgid "5 min"
+msgstr "5 分钟"
+
+#: .\frontend\mockdata\journal.py
+msgid "There is a particular cupboard, in a lot of houses, where the good things live. They come out twice a year and spend the rest of their life being protected from the very thing they were made for."
+msgstr "许多家里都有一个专门的柜子，里面放着那些好东西。它们一年只拿出来两次，其余时间都被保护着，远离它们原本被制作出来要服务的用途。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Handmade pieces are, counter-intuitively, better suited to daily use than to occasional display. They are not delicate. High-fired stoneware is tougher than most factory porcelain, and washed linen is at its best after fifty washes rather than five."
+msgstr "有些反直觉的是，手工作品比起偶尔陈列，其实更适合日常使用。它们并不娇贵。高温烧制的炻器比大多数工厂瓷器更坚实，水洗亚麻也要洗过五十次，而不是五次，才会呈现最好的状态。"
+
+#: .\frontend\mockdata\journal.py
+msgid "The argument for using them is not really about the objects. It is that a weeknight dinner eaten off something someone made by hand is a different kind of evening, at no additional cost, on a day that had nothing else to recommend it."
+msgstr "使用它们的理由，其实不只关乎物件本身。在一个原本平淡无奇的工作日里，用某个人亲手制作的器皿吃一顿晚餐，不需增加任何花费，却会让那个夜晚变得不同。"
+
+#: .\frontend\mockdata\journal.py
+msgid "Our suggestion is unglamorous: take the good plates out of the high cupboard and put them where the everyday ones are. Within a month you will stop noticing, which is the point."
+msgstr "我们的建议并不华丽：把好盘子从高处的柜子里拿出来，放到日常餐具的位置。一个月内，你就不会再特意注意它们，而这正是意义所在。"
+
+#: .\frontend\templates\frontend\product\detail.html
+msgid "Title (optional)"
+msgstr "标题（可选）"
+
+#: .\frontend\templates\frontend\product\detail.html
+msgid "Review (optional)"
+msgstr "评价内容（可选）"
+
+#: .\frontend\templates\frontend\product\detail.html
+msgid "You can review this product after purchasing it and completing payment."
+msgstr "购买并完成付款后，您可以评价此商品。"
+
+#: .\frontend\templates\frontend\product\detail.html
+msgid "You have already submitted a review for this product."
+msgstr "您已经评价过此商品。"
+
+#: .\frontend\templates\frontend\product\detail.html
+msgid "to review a product you have purchased. Reviews are available after payment."
+msgstr "即可评价您已购买的商品。完成付款后方可评价。"
+
+#: .\frontend\templates\frontend\account\auth.html
+msgid "Use at least eight characters. Avoid common passwords, only numbers, or passwords similar to your name or email."
+msgstr "请至少使用八个字符。请避免使用常见密码、纯数字密码，或与您的姓名或电子邮箱相似的密码。"
+
+#: .\frontend\views.py
+msgid "Privacy Policy"
+msgstr "隐私政策"
+
+#: .\frontend\views.py
+msgid "Terms of Service"
+msgstr "服务条款"
+
+#: .\frontend\templates\frontend\account\overview.html
+#, python-format
+msgctxt "account membership date"
+msgid "A member since %(joined)s."
+msgstr "自%(joined)s起成为会员。"
+
+#: .\frontend\templates\frontend\account\overview.html
+msgctxt "account overview order count"
+msgid "Order placed"
+msgid_plural "Orders placed"
+msgstr[0] "已下单"
+
+#: .\frontend\views.py
+msgid "Your details have been saved."
+msgstr "您的资料已保存。"
+
+#: .\frontend\views.py
+msgid "Address saved."
+msgstr "地址已保存。"
+
+#: .\frontend\views.py
+msgid "Address removed."
+msgstr "地址已移除。"
+
+#: .\frontend\views.py
+msgid "That address no longer exists."
+msgstr "该地址已不存在。"
+
+#: .\frontend\views.py
+msgid "Invalid email or password."
+msgstr "邮箱或密码无效。"
+
+#: .\frontend\views.py
+#, python-format
+msgid "Welcome back, %(name)s."
+msgstr "%(name)s，欢迎回来。"
+
+#: .\frontend\views.py
+msgctxt "account welcome fallback"
+msgid "there"
+msgstr "朋友"
+
+#: .\frontend\views.py
+msgid "Your account is ready."
+msgstr "您的账户已创建。"
+
+#: .\frontend\views.py
+msgid "You have been signed out."
+msgstr "您已退出登录。"
+
+#: .\frontend\forms.py
+msgid "An account with this email already exists."
+msgstr "使用此邮箱的账户已存在。"
+
+#: .\frontend\views.py
+msgid "Enter a valid email address."
+msgstr "请输入有效的电子邮箱地址。"
+
+#: .\frontend\views.py
+msgid "You're on the list. Look out for the next note."
+msgstr "您已成功订阅，请留意我们的下一封邮件。"
+
+#: .\frontend\services.py
+msgid "Stoneware mug"
+msgstr "炻器马克杯"
+
+#: .\frontend\services.py
+msgid "Candle"
+msgstr "蜡烛"
+
+#: .\frontend\services.py
+msgid "Gifts under ¥50"
+msgstr "50 元以下的礼物"
+
+#: .\frontend\context_processors.py
+msgid "Articles"
+msgstr "文章"
+
+#: .\frontend\context_processors.py
+msgid "Nothing matched that. Try a material, a maker or a room."
+msgstr "没有找到匹配结果。试试搜索材质、匠人或房间。"
+
+#: .\frontend\context_processors.py
+msgid "Message sent. The studio will reply by email."
+msgstr "消息已发送。工作室将通过电子邮件回复您。"
+
+#: .\frontend\context_processors.py
+msgid "Message sent."
+msgstr "消息已发送。"
+
+#: .\frontend\context_processors.py
+msgid "Something went wrong."
+msgstr "出了点问题，请重试。"
+
+#: .\frontend\context_processors.py
+msgid "This field is required."
+msgstr "此项为必填项。"
+
+#: .\frontend\context_processors.py
+msgid "Use at least 8 characters."
+msgstr "请至少输入 8 个字符。"
+
+#: .\frontend\context_processors.py
+#, python-brace-format
+msgid "Use at most {max} characters."
+msgstr "最多输入 {max} 个字符。"
+
+#: .\frontend\views.py
+msgid "You have already reviewed this product."
+msgstr "您已评价过这件商品。"
+
+#: .\frontend\views.py
+msgid "Only verified buyers can review this product."
+msgstr "只有已核实购买记录的买家才能评价这件商品。"
+
+#: .\frontend\views.py
+msgid "Thank you for reviewing this piece."
+msgstr "感谢您为这件作品留下评价。"
+
+#: .\frontend\catalogue_i18n.py
+msgctxt "product size"
+msgid "Medium"
+msgstr "中号"
+
+#: .\frontend\catalogue_i18n.py
+msgctxt "product size"
+msgid "Large"
+msgstr "大号"
+
+#: .\frontend\context_processors.py
+msgid "Remove"
+msgstr "移除"
+
+#: .\frontend\context_processors.py
+msgid "Removed from your bag"
+msgstr "已从购物袋移除。"
+
+#: .\frontend\context_processors.py
+msgid "Added to your bag"
+msgstr "已加入购物袋。"
+
+#: .\frontend\context_processors.py
+#, python-brace-format
+msgid "Quantity for {name}"
+msgstr "{name} 的数量"
+
+#: .\frontend\context_processors.py
+msgid "Complimentary delivery applied"
+msgstr "已享受免运费"
+
+#: .\frontend\context_processors.py
+#, python-brace-format
+msgid "{amount} away from complimentary delivery"
+msgstr "再购买 {amount} 即可享受免运费"
+
+#: .\frontend\context_processors.py
+#, python-brace-format
+msgid "{count} item"
+msgstr "{count} 件商品"
+
+#: .\frontend\context_processors.py
+#, python-brace-format
+msgid "{count} items"
+msgstr "{count} 件商品"
+
+#: .\frontend\context_processors.py
+msgid "Placing order…"
+msgstr "正在提交订单…"
+
+#: .\frontend\context_processors.py
+msgid "Saved to your wishlist"
+msgstr "已加入心愿单。"
+
+#: .\frontend\context_processors.py
+msgid "Removed from your wishlist"
+msgstr "已从心愿单移除。"
+
+#: .\frontend\context_processors.py
+msgid "Sign in to save pieces to your wishlist."
+msgstr "登录后即可将作品保存到心愿单。"
+
+#: backend/config/exceptions.py
+msgid "Not enough stock available."
+msgstr "库存不足。"
+
+#: backend/config/exceptions.py backend/orders/api.py
+msgid "Your bag is empty."
+msgstr "您的购物袋是空的。"
+
+#: backend/config/exceptions.py
+msgid "An unexpected error occurred."
+msgstr "发生意外错误，请稍后重试。"
+
+#: backend/config/exceptions.py
+msgid "Validation failed."
+msgstr "输入内容验证失败。"
+
+#: backend/orders/api.py backend/accounts/api.py
+msgid "Product not found."
+msgstr "未找到该商品。"
+
+#: backend/orders/api.py
+msgid "That line is not in your bag."
+msgstr "您的购物袋中没有此商品。"
+
+#: backend/orders/api.py
+msgid "Delivery address not found."
+msgstr "未找到配送地址。"
+
+#: backend/orders/services.py
+msgid "That option is not available for this product."
+msgstr "该商品没有此选项。"
+
+#: backend/orders/services.py
+#, python-format
+msgid "Only %(available)d of %(name)s is available."
+msgid_plural "Only %(available)d of %(name)s are available."
+msgstr[0] "%(name)s 仅剩 %(available)d 件。"
+
+#: backend/orders/services.py
+#, python-format
+msgid "%(name)s is out of stock."
+msgstr "%(name)s 已售罄。"
+
+#: backend/orders/services.py
+#, python-format
+msgid "%(name)s is no longer available."
+msgstr "%(name)s 已不再供应。"
+
+#: backend/orders/services.py
+#, python-format
+msgid "Only %(available)d of %(name)s remain — please adjust your bag."
+msgstr "%(name)s 仅剩 %(available)d 件，请调整购物袋中的数量。"
+
+#: backend/orders/services.py
+#, python-format
+msgid "%(name)s sold out while you were checking out."
+msgstr "结算过程中，%(name)s 已售罄。"
+
+#: backend/orders/serializers.py
+msgid "Provide either shipping_address_uuid or shipping_address."
+msgstr "请提供 shipping_address_uuid 或 shipping_address。"
+
+#: backend/accounts/api.py
+msgid "That product is not in your wishlist."
+msgstr "该商品不在您的心愿单中。"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is "
 #~ "accepted and logged."
@@ -2317,3 +3790,243 @@ msgstr "您的密码已修改。"
 
 #~ msgid ". A frontend form for this is not built yet."
 #~ msgstr "。前台表单尚未开发。"
+
+#: frontend/catalogue_i18n.py:38
+msgctxt "order status"
+msgid "Awaiting confirmation"
+msgstr "等待确认"
+
+#: frontend/catalogue_i18n.py:39
+msgctxt "order status"
+msgid "Confirmed"
+msgstr "已确认"
+
+#: frontend/catalogue_i18n.py:40
+msgctxt "order status"
+msgid "Being made"
+msgstr "制作中"
+
+#: frontend/catalogue_i18n.py:41
+msgctxt "order status"
+msgid "On its way"
+msgstr "运输途中"
+
+#: frontend/catalogue_i18n.py:42
+msgctxt "order status"
+msgid "Delivered"
+msgstr "已送达"
+
+#: frontend/catalogue_i18n.py:43
+msgctxt "order status"
+msgid "Cancelled"
+msgstr "已取消"
+
+#: frontend/catalogue_i18n.py:49
+msgctxt "payment status"
+msgid "Unpaid"
+msgstr "未支付"
+
+#: frontend/catalogue_i18n.py:50
+msgctxt "payment status"
+msgid "Pending"
+msgstr "待支付"
+
+#: frontend/catalogue_i18n.py:51
+msgctxt "payment status"
+msgid "Paid"
+msgstr "已支付"
+
+#: frontend/catalogue_i18n.py:52
+msgctxt "payment status"
+msgid "Failed"
+msgstr "支付失败"
+
+#: frontend/catalogue_i18n.py:53
+msgctxt "payment status"
+msgid "Refunded"
+msgstr "已退款"
+
+#: frontend/catalogue_i18n.py:108
+msgid "Made & packed"
+msgstr "制作及包装完成"
+
+#: frontend/catalogue_i18n.py:109
+msgid "Dispatched"
+msgstr "已发货"
+
+#: frontend/catalogue_i18n.py:114
+msgid "Expected"
+msgstr "预计"
+
+#: frontend/catalogue_i18n.py:99
+msgid "Arriving within 3–6 working days"
+msgstr "预计 3 至 6 个工作日内送达"
+
+#: frontend/catalogue_i18n.py:98
+#, python-format
+msgid "Delivered %(date)s"
+msgstr "已送达：%(date)s"
+
+#: frontend/views.py:257
+msgid "Sandbox payment"
+msgstr "沙盒支付"
+
+#: backend/accounts/api.py:110
+msgid "Password updated."
+msgstr "密码已更新。"
+
+#: backend/accounts/serializers.py:71
+msgid "Your current password is incorrect."
+msgstr "您当前的密码不正确。"
+
+#: backend/recommendations/templatetags/recommendations.py
+msgid "Recommended for you"
+msgstr "为您推荐"
+
+#: backend/recommendations/templatetags/recommendations.py
+msgid "Based on this piece"
+msgstr "根据这件作品推荐"
+
+#: backend/recommendations/templatetags/recommendations.py
+msgid "Picked for you"
+msgstr "为您精选"
+
+#: frontend/catalogue_i18n.py
+msgid "Jingdezhen stoneware"
+msgstr "景德镇炻器"
+
+#: frontend/catalogue_i18n.py
+msgid "Ash glaze"
+msgstr "灰釉"
+
+#: frontend/catalogue_i18n.py
+msgid "Unglazed foot"
+msgstr "无釉底足"
+
+#: frontend/catalogue_i18n.py
+msgid "Speckled stoneware"
+msgstr "斑点炻器"
+
+#: frontend/catalogue_i18n.py
+msgid "Matte glaze"
+msgstr "哑光釉"
+
+#: frontend/catalogue_i18n.py
+msgid "Clear glaze"
+msgstr "透明釉"
+
+#: frontend/catalogue_i18n.py
+msgid "Wood-ash glaze"
+msgstr "木灰釉"
+
+#: frontend/catalogue_i18n.py
+msgid "Satin glaze"
+msgstr "柔光釉"
+
+#: frontend/catalogue_i18n.py
+msgid "Celadon glaze"
+msgstr "青瓷釉"
+
+#: frontend/catalogue_i18n.py
+msgid "European flax linen"
+msgstr "欧洲亚麻"
+
+#: frontend/catalogue_i18n.py
+msgid "Cotton webbing handles"
+msgstr "棉织带提手"
+
+#: frontend/catalogue_i18n.py
+msgid "Handwoven cotton"
+msgstr "手织棉布"
+
+#: frontend/catalogue_i18n.py
+msgid "Natural indigo dye"
+msgstr "天然蓝靛染料"
+
+#: frontend/catalogue_i18n.py
+msgid "Hand-knotted fringe"
+msgstr "手工打结流苏"
+
+#: frontend/catalogue_i18n.py
+msgid "Stone-washed flax linen"
+msgstr "石洗亚麻"
+
+#: frontend/catalogue_i18n.py
+msgid "Coconut buttons"
+msgstr "椰壳纽扣"
+
+#: frontend/catalogue_i18n.py
+msgid "Hand-hemmed edges"
+msgstr "手工缝边"
+
+#: frontend/catalogue_i18n.py
+msgid "Handwoven cotton-linen"
+msgstr "手织棉麻布"
+
+#: frontend/catalogue_i18n.py
+msgid "Natural dye"
+msgstr "天然染料"
+
+#: frontend/catalogue_i18n.py
+msgid "Flax linen"
+msgstr "亚麻"
+
+#: frontend/catalogue_i18n.py
+msgid "Cotton wadding"
+msgstr "棉絮填充"
+
+#: frontend/catalogue_i18n.py
+msgid "Brass hardware"
+msgstr "黄铜配件"
+
+#: frontend/catalogue_i18n.py
+msgid "Soy and rapeseed wax"
+msgstr "大豆蜡与菜籽蜡"
+
+#: frontend/catalogue_i18n.py
+msgid "Cotton wick"
+msgstr "棉芯"
+
+#: frontend/catalogue_i18n.py
+msgid "Refillable stoneware vessel"
+msgstr "可补充蜡料的炻器容器"
+
+#: frontend/catalogue_i18n.py
+msgid "Unglazed exterior"
+msgstr "无釉外壁"
+
+#: frontend/catalogue_i18n.py
+msgid "Reclaimed hardwood"
+msgstr "回收硬木"
+
+#: frontend/catalogue_i18n.py
+msgid "Linseed oil finish"
+msgstr "亚麻籽油饰面"
+
+#: frontend/catalogue_i18n.py
+msgid "Unlacquered brass"
+msgstr "未涂漆黄铜"
+
+#: frontend/catalogue_i18n.py
+msgid "Oak handle"
+msgstr "橡木手柄"
+
+#: frontend/catalogue_i18n.py
+msgid "Cotton rope handles"
+msgstr "棉绳提手"
+
+#: frontend/catalogue_i18n.py
+msgid "Gold-free celadon glaze"
+msgstr "不含金的青瓷釉"
+
+#: frontend/catalogue_i18n.py
+msgid "Soy wax candle"
+msgstr "大豆蜡蜡烛"
+
+#: frontend/catalogue_i18n.py
+msgid "Hand-loomed tea towel"
+msgstr "手织茶巾"
+
+#: frontend/catalogue_i18n.py
+msgid "Pure beeswax"
+msgstr "纯蜂蜡"

@@ -3790,3 +3790,83 @@ msgstr "该商品不在您的心愿单中。"
 
 #~ msgid ". A frontend form for this is not built yet."
 #~ msgstr "。前台表单尚未开发。"
+
+#: frontend/catalogue_i18n.py:38
+msgctxt "order status"
+msgid "Awaiting confirmation"
+msgstr "等待确认"
+
+#: frontend/catalogue_i18n.py:39
+msgctxt "order status"
+msgid "Confirmed"
+msgstr "已确认"
+
+#: frontend/catalogue_i18n.py:40
+msgctxt "order status"
+msgid "Being made"
+msgstr "制作中"
+
+#: frontend/catalogue_i18n.py:41
+msgctxt "order status"
+msgid "On its way"
+msgstr "运输途中"
+
+#: frontend/catalogue_i18n.py:42
+msgctxt "order status"
+msgid "Delivered"
+msgstr "已送达"
+
+#: frontend/catalogue_i18n.py:43
+msgctxt "order status"
+msgid "Cancelled"
+msgstr "已取消"
+
+#: frontend/catalogue_i18n.py:49
+msgctxt "payment status"
+msgid "Unpaid"
+msgstr "未支付"
+
+#: frontend/catalogue_i18n.py:50
+msgctxt "payment status"
+msgid "Pending"
+msgstr "待支付"
+
+#: frontend/catalogue_i18n.py:51
+msgctxt "payment status"
+msgid "Paid"
+msgstr "已支付"
+
+#: frontend/catalogue_i18n.py:52
+msgctxt "payment status"
+msgid "Failed"
+msgstr "支付失败"
+
+#: frontend/catalogue_i18n.py:53
+msgctxt "payment status"
+msgid "Refunded"
+msgstr "已退款"
+
+#: frontend/catalogue_i18n.py:108
+msgid "Made & packed"
+msgstr "制作及包装完成"
+
+#: frontend/catalogue_i18n.py:109
+msgid "Dispatched"
+msgstr "已发货"
+
+#: frontend/catalogue_i18n.py:114
+msgid "Expected"
+msgstr "预计"
+
+#: frontend/catalogue_i18n.py:99
+msgid "Arriving within 3–6 working days"
+msgstr "预计 3 至 6 个工作日内送达"
+
+#: frontend/catalogue_i18n.py:98
+#, python-format
+msgid "Delivered %(date)s"
+msgstr "已送达：%(date)s"
+
+#: frontend/views.py:257
+msgid "Sandbox payment"
+msgstr "沙盒支付"

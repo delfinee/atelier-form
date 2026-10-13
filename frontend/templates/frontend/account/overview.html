@@ -29,11 +29,11 @@
   <div class="panel__head" style="margin-bottom:0.6rem">
     <div>
       <strong>{{ recent_order.order_number }}</strong>
-      <p class="muted" style="margin:0.2rem 0 0">{% blocktranslate with date=recent_order.date total=recent_order.total|money %}Placed {{ date }} · {{ total }}{% endblocktranslate %}</p>
+      <p class="muted" style="margin:0.2rem 0 0">{% order_date recent_order as placed_date %}{% blocktranslate with date=placed_date total=recent_order.total|money %}Placed {{ date }} · {{ total }}{% endblocktranslate %}</p>
     </div>
-    <span class="status status--{{ recent_order.status }}">{{ recent_order.status_label }}</span>
+    <span class="status status--{{ recent_order.status }}">{% order_status recent_order.status_label %}</span>
   </div>
-  <p class="muted">{{ recent_order.estimated }} · {{ recent_order.carrier }} {{ recent_order.tracking_number }}</p>
+  <p class="muted">{% order_estimated recent_order %} · {{ recent_order.carrier }} {{ recent_order.tracking_number }}</p>
   <p style="margin-top:1rem">
     <a class="btn btn--quiet btn--sm" href="{% url 'account_order_detail' recent_order.order_number %}">{% translate "View order" %}</a>
   </p>

@@ -254,7 +254,7 @@ def mock_payment(request, uuid):
     return render(request, "frontend/mock_payment.html", {
         "payment": payment,
         "order": order,
-        "meta_title": f"Sandbox payment — {SITE['brand']}",
+        "meta_title": f"{_('Sandbox payment')} — {SITE['brand']}",
     })
 
 
@@ -267,7 +267,7 @@ def order_confirmation(request, uuid):
         raise Http404("Unknown order")
     return render(request, "frontend/order_confirmation.html", {
         "order": order,
-        "meta_title": f"Order {order.order_number} — {SITE['brand']}",
+        "meta_title": f"{_('Order %(number)s') % {'number': order.order_number}} — {SITE['brand']}",
     })
 
 
@@ -291,7 +291,7 @@ def account_orders(request):
     return render(request, "frontend/account/orders.html", {
         "customer": request.user,
         "orders": Order.objects.filter(user=request.user).prefetch_related("items"),
-        "meta_title": f"Orders — {SITE['brand']}",
+        "meta_title": f"{_('Orders')} — {SITE['brand']}",
     })
 
 
@@ -305,7 +305,7 @@ def account_order_detail(request, order_id):
     return render(request, "frontend/account/order_detail.html", {
         "customer": request.user, "order": order,
         "current_path": reverse("account_orders"),
-        "meta_title": f"Order {order.order_number} — {SITE['brand']}",
+        "meta_title": f"{_('Order %(number)s') % {'number': order.order_number}} — {SITE['brand']}",
     })
 
 

@@ -32,6 +32,102 @@ def localize_size_label(label: str) -> str:
     return label
 
 
+def localize_order_status(label: str) -> str:
+    """Translate a display label; never change the stored status code."""
+    return {
+        "Awaiting confirmation": pgettext("order status", "Awaiting confirmation"),
+        "Confirmed": pgettext("order status", "Confirmed"),
+        "Being made": pgettext("order status", "Being made"),
+        "On its way": pgettext("order status", "On its way"),
+        "Delivered": pgettext("order status", "Delivered"),
+        "Cancelled": pgettext("order status", "Cancelled"),
+    }.get(label, label)
+
+
+def localize_payment_status(label: str) -> str:
+    return {
+        "Unpaid": pgettext("payment status", "Unpaid"),
+        "Pending": pgettext("payment status", "Pending"),
+        "Paid": pgettext("payment status", "Paid"),
+        "Failed": pgettext("payment status", "Failed"),
+        "Refunded": pgettext("payment status", "Refunded"),
+    }.get(label, label)
+
+
+def localize_delivery_label(label: str) -> str:
+    return {
+        "Standard delivery": gettext("Standard delivery"),
+        "Express delivery": gettext("Express delivery"),
+    }.get(label, label)
+
+
+def localize_order_item_name(item) -> str:
+    """Only translate an exact canonical name in the saved order snapshot."""
+    source = PRODUCTS_BY_SLUG.get(item.product_slug)
+    if source and item.product_name == source["name"]:
+        return gettext(item.product_name)
+    return item.product_name
+
+
+def localize_order_item_variant(item) -> str:
+    """Match variants against this product's seed data, without following a FK."""
+    source = PRODUCTS_BY_SLUG.get(item.product_slug)
+    if source:
+        for variant in source["variants"]:
+            if item.variant_name == variant["label"]:
+                if variant["group"] == "colour":
+                    return localize_colour_label(item.variant_name)
+                if variant["group"] == "size":
+                    return localize_size_label(item.variant_name)
+    return item.variant_name
+
+
+def localize_order_date(order) -> str:
+    if not _is_chinese():
+        return order.date
+    date = order.placed_at
+    return f"{date.year}年{date.month}月{date.day}日"
+
+
+def localize_order_estimated(order) -> str:
+    if not _is_chinese():
+        return order.estimated
+    if order.status == "delivered":
+        # Deliberately preserve Order.estimated's placed_at source.
+        date = order.placed_at
+        return gettext("Delivered %(date)s") % {"date": f"{date.month}月{date.day}日"}
+    return gettext("Arriving within 3–6 working days")
+
+
+def localize_order_timeline(order) -> list[dict]:
+    steps = order.timeline
+    if not _is_chinese():
+        return steps
+    labels = {
+        "Order placed": gettext("Order placed"),
+        "Made & packed": gettext("Made & packed"),
+        "Dispatched": gettext("Dispatched"),
+    }
+    localized = []
+    for step in steps:
+        date = step["date"]
+        if date == "Expected":
+            date = gettext("Expected")
+        elif order.status == "cancelled" and step["label"] == "Order placed":
+            date = localize_order_date(order)
+        else:
+            # Order.timeline uses updated_at only for the cancellation step.
+            source = (order.updated_at if order.status == "cancelled"
+                      and step["label"] == "Cancelled" else order.placed_at)
+            date = f"{source.month}月{source.day}日"
+        localized.append({
+            **step,
+            "label": labels.get(step["label"], localize_order_status(step["label"])),
+            "date": date,
+        })
+    return localized
+
+
 def _is_chinese() -> bool:
     return (get_language() or "").lower().startswith("zh")
 

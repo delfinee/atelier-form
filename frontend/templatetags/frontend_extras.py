@@ -7,7 +7,12 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
 
-from frontend.catalogue_i18n import localize_colour_label, localize_size_label
+from frontend.catalogue_i18n import (
+    localize_colour_label, localize_delivery_label, localize_order_date,
+    localize_order_estimated, localize_order_item_name, localize_order_item_variant,
+    localize_order_status, localize_order_timeline, localize_payment_status,
+    localize_size_label,
+)
 from imagery.models import RATIOS as PIXEL_RATIOS
 from imagery.resolver import image_url
 
@@ -71,6 +76,46 @@ def colour_label(label: str) -> str:
 @register.simple_tag
 def size_label(label: str) -> str:
     return localize_size_label(label)
+
+
+@register.simple_tag
+def order_status(label):
+    return localize_order_status(label)
+
+
+@register.simple_tag
+def payment_status(label):
+    return localize_payment_status(label)
+
+
+@register.simple_tag
+def delivery_label(label):
+    return localize_delivery_label(label)
+
+
+@register.simple_tag
+def order_item_name(item):
+    return localize_order_item_name(item)
+
+
+@register.simple_tag
+def order_item_variant(item):
+    return localize_order_item_variant(item)
+
+
+@register.simple_tag
+def order_date(order):
+    return localize_order_date(order)
+
+
+@register.simple_tag
+def order_estimated(order):
+    return localize_order_estimated(order)
+
+
+@register.simple_tag
+def order_timeline(order):
+    return localize_order_timeline(order)
 
 
 @register.simple_tag

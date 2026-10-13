@@ -2,7 +2,7 @@
 {% load i18n frontend_extras %}
 
 {% block account_title %}{% blocktranslate with number=order.order_number %}Order {{ number }}{% endblocktranslate %}{% endblock %}
-{% block account_lede %}<p class="lede">{% blocktranslate with date=order.date status=order.status_label %}Placed {{ date }} · {{ status }}{% endblocktranslate %}</p>{% endblock %}
+{% block account_lede %}<p class="lede">{% order_date order as placed_date %}{% order_status order.status_label as status_label %}{% blocktranslate with date=placed_date status=status_label %}Placed {{ date }} · {{ status }}{% endblocktranslate %}</p>{% endblock %}
 
 {% block account_content %}
 <p style="margin-bottom:var(--gap)">
@@ -12,10 +12,11 @@
 <div class="panel">
   <div class="panel__head">
     <h3>{% translate "Progress" %}</h3>
-    <span class="status status--{{ order.status }}">{{ order.status_label }}</span>
+    <span class="status status--{{ order.status }}">{% order_status order.status_label %}</span>
   </div>
   <ul class="timeline">
-    {% for step in order.timeline %}
+    {% order_timeline order as timeline %}
+    {% for step in timeline %}
       <li class="{% if step.done %}is-done{% endif %}">
         <span class="mark">{% icon "check" 12 %}</span>
         <span>{{ step.label }}<br><span class="when">{{ step.date }}</span></span>
@@ -35,9 +36,9 @@
         <img src="{% placeholder item.image %}" alt="" loading="lazy">
       </a>
       <div>
-        <a class="line-item__name" href="{% url 'product_detail' item.product_slug %}">{{ item.product_name }}</a>
+        <a class="line-item__name" href="{% url 'product_detail' item.product_slug %}">{% order_item_name item %}</a>
         <div class="line-item__meta">
-          {% if item.variant_name %}{{ item.variant_name }} · {% endif %}{% blocktranslate with n=item.quantity %}Quantity {{ n }}{% endblocktranslate %}
+          {% if item.variant_name %}{% order_item_variant item %} · {% endif %}{% blocktranslate with n=item.quantity %}Quantity {{ n }}{% endblocktranslate %}
         </div>
       </div>
       <div class="line-item__price">{{ item.line_total|money }}</div>
@@ -62,7 +63,7 @@
     {{ order.address.city }} {{ order.address.postcode }}<br>
     {{ order.address.country }}
   </address>
-  <p class="muted" style="margin-top:0.9rem">{{ order.delivery_method }} · {{ order.estimated }}</p>
+  <p class="muted" style="margin-top:0.9rem">{% delivery_label order.get_delivery_method_display %} · {% order_estimated order %}</p>
 </div>
 
 <p class="form-note">

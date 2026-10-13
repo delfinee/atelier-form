@@ -11,21 +11,21 @@
       <div>
         <h3 style="font-size:var(--step-1)">{{ order.order_number }}</h3>
         <p class="muted" style="margin:0.25rem 0 0">
-          {% blocktranslate count n=order.items|length with date=order.date total=order.total|money %}Placed {{ date }} · {{ n }} item · {{ total }}{% plural %}Placed {{ date }} · {{ n }} items · {{ total }}{% endblocktranslate %}
+          {% order_date order as placed_date %}{% blocktranslate count n=order.items|length with date=placed_date total=order.total|money %}Placed {{ date }} · {{ n }} item · {{ total }}{% plural %}Placed {{ date }} · {{ n }} items · {{ total }}{% endblocktranslate %}
         </p>
       </div>
-      <span class="status status--{{ order.status }}">{{ order.status_label }}</span>
+      <span class="status status--{{ order.status }}">{% order_status order.status_label %}</span>
     </div>
 
     <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem">
       {% for item in order.items.all %}
         <div class="media" style="width:64px;aspect-ratio:4/5">
-          <img src="{% placeholder item.image %}" alt="{{ item.product_name }}" loading="lazy">
+          <img src="{% placeholder item.image %}" alt="{% order_item_name item %}" loading="lazy">
         </div>
       {% endfor %}
     </div>
 
-    <p class="muted" style="margin:0">{{ order.estimated }}</p>
+    <p class="muted" style="margin:0">{% order_estimated order %}</p>
     <p style="margin-top:1rem">
       <a class="btn btn--quiet btn--sm" href="{% url 'account_order_detail' order.order_number %}">{% translate "View order" %}</a>
     </p>

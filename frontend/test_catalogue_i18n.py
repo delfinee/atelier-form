@@ -32,7 +32,7 @@ from accounts import api as accounts_api
 from config import exceptions as api_errors
 from content.models import FAQ, Article, FAQGroup
 from orders import api as orders_api, services as order_services
-from orders.models import CartItem
+from orders.models import CartItem, Order, OrderItem
 from orders.serializers import CartItemSerializer, CartSerializer, CheckoutSerializer
 from products.models import (
     MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product, ProductVariant,
@@ -42,6 +42,9 @@ from frontend import context_processors, services, views
 from frontend.catalogue_i18n import (
     localize_article, localize_collection, localize_colour_label, localize_faq_group,
     localize_maker, localize_product, localize_size_label,
+    localize_delivery_label, localize_order_date, localize_order_estimated,
+    localize_order_item_name, localize_order_item_variant, localize_order_status,
+    localize_order_timeline, localize_payment_status,
 )
 from frontend.forms import RegistrationForm
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
@@ -2221,20 +2224,18 @@ class AccountUILocalizationTests(SimpleTestCase):
                 ["已保存地址", "已保存地址", "已保存地址"],
             )
 
-    def test_recent_order_display_translates_only_its_label(self):
-        order = SimpleNamespace(
+    def test_recent_order_display_preserves_order_and_tracking_values(self):
+        order = Order(
             order_number="AF-SAFE-1",
-            date="2 January 2020",
+            placed_at=datetime(2020, 1, 2, 12, tzinfo=datetime_timezone.utc),
             total="12.50",
             status="confirmed",
-            status_label="Confirmed",
-            estimated="Arriving soon",
             carrier="Carrier-X",
             tracking_number="TRACK-123",
         )
         rendered = self._render_overview("zh-hans", 1, recent_order=order)
-        self.assertIn("下单于 2 January 2020 ·", rendered)
-        for value in ("AF-SAFE-1", "Confirmed", "Arriving soon", "Carrier-X", "TRACK-123"):
+        self.assertIn("下单于 2020年1月2日 ·", rendered)
+        for value in ("AF-SAFE-1", "已确认", "预计 3 至 6 个工作日内送达", "Carrier-X", "TRACK-123"):
             self.assertIn(value, rendered)
 
     def test_account_notifications_keep_existing_control_flow(self):
@@ -3936,3 +3937,331 @@ class CommerceAPIErrorLocalizationTests(SimpleTestCase):
                         stock_update.assert_not_called()
                     self.assertEqual(product.name, "Cup — Studio")
                     self.assertEqual(product.stock_quantity, 1 if failure == "insufficient" else 2)
+
+
+class OrderDisplayLocalizationTests(SimpleTestCase):
+    """Unsaved models and mocked views exercise display without database access."""
+
+    @staticmethod
+    def _order(status="confirmed"):
+        return Order(
+            id=71, order_number="AF-2026-000071", user_id=11,
+            uuid=UUID("12345678-1234-5678-1234-567812345678"),
+            status=status, payment_status="paid", delivery_method="standard",
+            placed_at=datetime(2024, 1, 2, 23, 30, tzinfo=datetime_timezone.utc),
+            updated_at=datetime(2025, 3, 9, 1, 15, tzinfo=datetime_timezone.utc),
+            subtotal=Decimal("84.00"), shipping_amount=Decimal("10.00"),
+            total=Decimal("94.00"), customer_email="buyer@example.com",
+            carrier="Carrier-X", tracking_number="TRACK-123",
+            shipping_address_snapshot={
+                "first_name": "Alex", "last_name": "Buyer", "address_line_1": "1 Studio Road",
+                "city": "Singapore", "postal_code": "123456", "country": "SG",
+            },
+        )
+
+    @staticmethod
+    def _item(slug="hand-thrown-stoneware-mug", name="Hand-thrown Stoneware Mug",
+              variant="Bone"):
+        # Non-null uncached FKs would raise if display code tried to query them.
+        return OrderItem(
+            id=81, order_id=71, product_id=991, variant_id=992,
+            product_slug=slug, product_name=name, variant_name=variant,
+            sku="HISTORICAL-SKU", image="product-hand-thrown-stoneware-mug-1",
+            unit_price=Decimal("42.00"), quantity=2, line_total=Decimal("84.00"),
+        )
+
+    def test_status_payment_and_delivery_labels_switch_without_changing_codes(self):
+        statuses = (
+            ("pending", "Awaiting confirmation", "等待确认"),
+            ("confirmed", "Confirmed", "已确认"),
+            ("processing", "Being made", "制作中"),
+            ("shipped", "On its way", "运输途中"),
+            ("delivered", "Delivered", "已送达"),
+            ("cancelled", "Cancelled", "已取消"),
+        )
+        payments = (
+            ("unpaid", "Unpaid", "未支付"), ("pending", "Pending", "待支付"),
+            ("paid", "Paid", "已支付"), ("failed", "Failed", "支付失败"),
+            ("refunded", "Refunded", "已退款"),
+        )
+        order = self._order()
+        for language in ("en", "zh-hans", "en-us", "zh-hans", "en"):
+            chinese = language == "zh-hans"
+            with self.subTest(language=language), translation.override(language):
+                for code, english, translated in statuses:
+                    order.status = code
+                    self.assertEqual(localize_order_status(order.status_label),
+                                     translated if chinese else english)
+                    self.assertEqual(order.status, code)
+                for code, english, translated in payments:
+                    order.payment_status = code
+                    self.assertEqual(localize_payment_status(order.get_payment_status_display()),
+                                     translated if chinese else english)
+                    self.assertEqual(order.payment_status, code)
+                for code, english, translated in (
+                    ("standard", "Standard delivery", "标准配送"),
+                    ("express", "Express delivery", "加急配送"),
+                ):
+                    order.delivery_method = code
+                    self.assertEqual(localize_delivery_label(order.get_delivery_method_display()),
+                                     translated if chinese else english)
+                    self.assertEqual(order.delivery_method, code)
+                for helper in (localize_order_status, localize_payment_status,
+                               localize_delivery_label):
+                    self.assertEqual(helper("Custom <label>"), "Custom <label>")
+                self.assertEqual(order.total, Decimal("94.00"))
+
+    def test_dates_and_estimates_keep_original_timestamp_sources(self):
+        for status in ("pending", "delivered", "cancelled"):
+            order = self._order(status)
+            original = order.__dict__.copy()
+            for language in ("en", "zh-hans", "en"):
+                with self.subTest(status=status, language=language), translation.override(language):
+                    self.assertEqual(localize_order_date(order),
+                                     "2024年1月2日" if language == "zh-hans" else order.date)
+                    if language == "zh-hans":
+                        expected = ("已送达：1月2日" if status == "delivered"
+                                    else "预计 3 至 6 个工作日内送达")
+                    else:
+                        expected = ("Delivered 2 January" if status == "delivered"
+                                    else "Arriving within 3–6 working days")
+                    self.assertEqual(localize_order_estimated(order), expected)
+            self.assertEqual(order.__dict__, original)
+
+    def test_timeline_labels_dates_flags_and_order_are_preserved(self):
+        statuses = ("pending", "confirmed", "processing", "shipped", "delivered")
+        for index, status in enumerate((*statuses, "cancelled")):
+            order = self._order(status)
+            original = order.timeline
+            state = order.__dict__.copy()
+            for language in ("en", "zh-hans", "en"):
+                with self.subTest(status=status, language=language), translation.override(language):
+                    actual = localize_order_timeline(order)
+                    if language == "en":
+                        self.assertEqual(actual, original)
+                    elif status == "cancelled":
+                        self.assertEqual(actual, [
+                            {"label": "下单成功", "date": "2024年1月2日", "done": True},
+                            {"label": "已取消", "date": "3月9日", "done": True},
+                        ])
+                    else:
+                        self.assertEqual([step["label"] for step in actual],
+                                         ["下单成功", "已确认", "制作及包装完成", "已发货", "已送达"])
+                        self.assertEqual([step["done"] for step in actual],
+                                         [i <= index for i in range(5)])
+                        self.assertEqual([step["date"] for step in actual],
+                                         ["1月2日" if i <= index else "预计" for i in range(5)])
+                    self.assertEqual([step["done"] for step in actual],
+                                     [step["done"] for step in original])
+            self.assertEqual(order.timeline, original)
+            self.assertEqual(order.__dict__, state)
+
+    def test_snapshot_names_require_exact_seed_slug_and_name_without_following_fks(self):
+        seeds_before = json.dumps(PRODUCTS, ensure_ascii=False, sort_keys=True)
+        for language in ("en", "zh-hans", "en"):
+            with translation.override(language):
+                for slug, english, _, chinese, _ in PRODUCT_EXPECTED:
+                    item = self._item(slug, english)
+                    before = item.__dict__.copy()
+                    self.assertEqual(localize_order_item_name(item),
+                                     chinese if language == "zh-hans" else english)
+                    self.assertEqual(item.__dict__, before)
+                    self.assertEqual(item._state.fields_cache, {})
+                for slug, name in (
+                    ("hand-thrown-stoneware-mug", "Hand-thrown Stoneware Mug — engraved"),
+                    ("hand-thrown-stoneware-mug", "Hand-thrown Stoneware Mug "),
+                    ("unknown-product", "Hand-thrown Stoneware Mug"),
+                    ("", "Custom historical item"),
+                    ("linen-market-tote", "Hand-thrown Stoneware Mug"),
+                ):
+                    item = self._item(slug, name)
+                    self.assertEqual(localize_order_item_name(item), name)
+        self.assertEqual(json.dumps(PRODUCTS, ensure_ascii=False, sort_keys=True), seeds_before)
+
+    def test_snapshot_variants_are_product_specific_and_preserve_custom_values(self):
+        cases = (
+            ("hand-thrown-stoneware-mug", "Bone", "骨白"),
+            ("rattan-storage-basket", "Medium", "中号"),
+            ("rattan-storage-basket", "Large", "大号"),
+            ("linen-cushion-cover", "45 cm", "45 cm"),
+            ("linen-cushion-cover", "60 cm", "60 cm"),
+            ("hand-thrown-stoneware-mug", "Medium", "Medium"),
+            ("rattan-storage-basket", "Bone", "Bone"),
+            ("hand-thrown-stoneware-mug", "Indigo", "Indigo"),
+            ("unknown-product", "Bone", "Bone"),
+            ("rattan-storage-basket", "Medium (engraved)", "Medium (engraved)"),
+            ("rattan-storage-basket", "", ""),
+        )
+        seeds_before = json.dumps(PRODUCTS, ensure_ascii=False, sort_keys=True)
+        for language in ("en", "zh-hans", "en"):
+            with translation.override(language):
+                for slug, label, chinese in cases:
+                    with self.subTest(language=language, slug=slug, label=label):
+                        item = self._item(slug, "Custom historical name", label)
+                        before = item.__dict__.copy()
+                        self.assertEqual(localize_order_item_variant(item),
+                                         chinese if language == "zh-hans" else label)
+                        self.assertEqual(localize_order_item_name(item), "Custom historical name")
+                        self.assertEqual(item.__dict__, before)
+                        self.assertEqual(item._state.fields_cache, {})
+        self.assertEqual(json.dumps(PRODUCTS, ensure_ascii=False, sort_keys=True), seeds_before)
+
+    def test_real_order_templates_translate_display_and_preserve_links_prices_and_snapshots(self):
+        order = self._order()
+        item = self._item()
+        custom = self._item(name="Custom <engraved>", variant="Bone <special>")
+        order._prefetched_objects_cache = {"items": [item, custom]}
+        order_before, item_before, custom_before = (
+            record.__dict__.copy() for record in (order, item, custom)
+        )
+        context = {
+            "order": order, "orders": [order], "recent_order": order, "order_count": 1,
+            "address_count": 0, "wishlist_count": 0,
+            "user": SimpleNamespace(is_authenticated=False, is_seller=False),
+            "customer": SimpleNamespace(first_name="Alex", date_joined=order.placed_at),
+            "site": {"brand": "Atelier Form", "description": "", "announcement": ""},
+            "primary_nav": (), "footer_nav": (), "popular_searches": (), "af_config": {},
+            "current_path": "/account/orders/", "meta_title": "Order — Atelier Form",
+        }
+        for language in ("en", "zh-hans", "en"):
+            chinese = language == "zh-hans"
+            for template_name in (
+                "frontend/order_confirmation.html", "frontend/account/orders.html",
+                "frontend/account/order_detail.html", "frontend/account/overview.html",
+            ):
+                with (
+                    self.subTest(language=language, template=template_name),
+                    translation.override(language),
+                    patch("frontend.templatetags.frontend_extras.image_url",
+                          return_value="/static/test.svg"),
+                ):
+                    html = get_template(template_name).render(context)
+                self.assertIn("AF-2026-000071", html)
+                self.assertIn('class="status status--confirmed"', html)
+                self.assertIn("已确认" if chinese else "Confirmed", html)
+                self.assertIn("预计 3 至 6 个工作日内送达" if chinese
+                              else "Arriving within 3–6 working days", html)
+                self.assertIn(f'{settings.COMMERCE["CURRENCY_SYMBOL"]}94', html)
+                if template_name != "frontend/order_confirmation.html":
+                    self.assertIn("2024年1月2日" if chinese else "2 January 2024", html)
+                if template_name.endswith(("orders.html", "overview.html")):
+                    self.assertIn('href="/account/orders/AF-2026-000071/"', html)
+                if template_name.endswith(("order_confirmation.html", "order_detail.html")):
+                    self.assertIn('href="/products/hand-thrown-stoneware-mug/"', html)
+                    self.assertIn("手拉炻器马克杯" if chinese else "Hand-thrown Stoneware Mug", html)
+                    self.assertIn("骨白" if chinese else "Bone", html)
+                    self.assertIn("Custom &lt;engraved&gt;", html)
+                    self.assertIn("Bone &lt;special&gt;", html)
+                    self.assertIn(f'{settings.COMMERCE["CURRENCY_SYMBOL"]}84', html)
+                    self.assertIn("标准配送" if chinese else "Standard delivery", html)
+                    self.assertIn("1 Studio Road", html)
+                    self.assertIn("Singapore 123456", html)
+                if template_name == "frontend/account/orders.html":
+                    self.assertIn('alt="手拉炻器马克杯"' if chinese
+                                  else 'alt="Hand-thrown Stoneware Mug"', html)
+                if template_name == "frontend/order_confirmation.html":
+                    self.assertIn("<strong>已支付</strong>" if chinese
+                                  else "<strong>Paid</strong>", html)
+                if template_name == "frontend/account/order_detail.html":
+                    self.assertEqual(html.count('<li class="is-done">'), 2)
+                    self.assertIn("制作及包装完成" if chinese else "Made &amp; packed", html)
+                    self.assertIn("1月2日" if chinese else "2 Jan", html)
+                    self.assertIn("预计" if chinese else "Expected", html)
+                    self.assertIn("TRACK-123", html)
+        for record, before in ((order, order_before), (item, item_before), (custom, custom_before)):
+            self.assertEqual(record.__dict__, before)
+
+    def test_order_view_titles_and_queries_keep_customer_scope(self):
+        order = self._order()
+        request = RequestFactory().get("/account/orders/")
+        request.user = SimpleNamespace(id=11, is_authenticated=True)
+        for language in ("en", "zh-hans", "en"):
+            with (
+                translation.override(language),
+                patch.object(views.Order.objects, "filter") as filtered,
+                patch.object(views, "render") as render,
+            ):
+                queryset = filtered.return_value.prefetch_related.return_value
+                queryset.first.return_value = order
+                views.account_orders(request)
+                filtered.assert_called_once_with(user=request.user)
+                filtered.return_value.prefetch_related.assert_called_once_with("items")
+                self.assertIs(render.call_args.args[2]["orders"], queryset)
+                self.assertEqual(render.call_args.args[2]["meta_title"],
+                                 ("订单" if language == "zh-hans" else "Orders")
+                                 + " — " + views.SITE["brand"])
+                filtered.reset_mock()
+                views.account_order_detail(request, order.order_number)
+                filtered.assert_called_once_with(user=request.user, order_number=order.order_number)
+                filtered.return_value.prefetch_related.assert_called_once_with("items")
+                data = render.call_args.args[2]
+                self.assertIs(data["order"], order)
+                self.assertEqual(data["current_path"], views.reverse("account_orders"))
+                self.assertEqual(data["meta_title"],
+                                 ("订单 " if language == "zh-hans" else "Order ")
+                                 + order.order_number + " — " + views.SITE["brand"])
+                queryset.first.return_value = None
+                with self.assertRaisesMessage(Http404, "Unknown order"):
+                    views.account_order_detail(request, "OTHER-CUSTOMER")
+
+    def test_account_order_views_still_require_login(self):
+        request = RequestFactory().get("/account/orders/?page=2")
+        request.user = SimpleNamespace(is_authenticated=False)
+        with patch.object(views.Order.objects, "filter") as filtered:
+            for view, args in ((views.account_orders, ()),
+                               (views.account_order_detail, ("AF-PRIVATE",))):
+                response = view(request, *args)
+                self.assertEqual(response.status_code, 302)
+                self.assertIn("next=", response.url)
+            filtered.assert_not_called()
+
+    def test_confirmation_and_sandbox_titles_preserve_ownership_and_guest_access(self):
+        order = self._order()
+        payment = SimpleNamespace(order=order)
+        request = RequestFactory().get("/order/confirmation/")
+        for language in ("en", "zh-hans", "en"):
+            for user_id, authenticated, requester_id, allowed in (
+                (11, True, 11, True), (11, True, 12, False),
+                (11, False, None, False), (None, False, None, True),
+            ):
+                order.user_id = user_id
+                request.user = SimpleNamespace(id=requester_id, is_authenticated=authenticated)
+                for sandbox in (False, True):
+                    with (
+                        self.subTest(language=language, sandbox=sandbox, user_id=user_id,
+                                     requester_id=requester_id),
+                        translation.override(language),
+                        patch.object(views.Order.objects, "prefetch_related") as prefetch,
+                        patch.object(views.Payment.objects, "select_related") as select,
+                        patch.object(views, "get_object_or_404",
+                                     return_value=payment if sandbox else order) as lookup,
+                        patch.object(views, "render") as render,
+                        patch.object(views, "MockPaymentProvider") as provider,
+                    ):
+                        view = views.mock_payment if sandbox else views.order_confirmation
+                        if allowed:
+                            view(request, order.uuid)
+                            data = render.call_args.args[2]
+                            self.assertIs(data["order"], order)
+                            if sandbox:
+                                title = "沙盒支付" if language == "zh-hans" else "Sandbox payment"
+                            else:
+                                title = ("订单 " if language == "zh-hans" else "Order ")
+                                title += order.order_number
+                            self.assertEqual(data["meta_title"], title + " — " + views.SITE["brand"])
+                        else:
+                            with self.assertRaisesMessage(
+                                Http404, "Unknown payment" if sandbox else "Unknown order"
+                            ):
+                                view(request, order.uuid)
+                            render.assert_not_called()
+                        if sandbox:
+                            select.assert_called_once_with("order")
+                            lookup.assert_called_once_with(
+                                select.return_value, uuid=order.uuid,
+                                provider=views.PaymentProviderChoices.MOCK,
+                            )
+                        else:
+                            prefetch.assert_called_once_with("items")
+                            lookup.assert_called_once_with(prefetch.return_value, uuid=order.uuid)
+                        provider.assert_not_called()

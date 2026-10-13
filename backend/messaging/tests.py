@@ -246,6 +246,36 @@ class MessagingTests(TestCase):
         })
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_empty_conversation_creation_requires_context_or_existing_thread(self):
+        self.client.force_authenticate(user=self.buyer)
+
+        resp = self.client.post("/api/conversations/", {})
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("maker or product", str(resp.data["detail"]))
+
+    def test_generic_create_reuses_existing_thread_when_no_context_is_provided(self):
+        existing = Conversation.objects.create(buyer=self.buyer, maker=self.maker)
+        self.client.force_authenticate(user=self.buyer)
+
+        resp = self.client.post("/api/conversations/", {})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data["uuid"], str(existing.uuid))
+
+    def test_seller_message_thread_does_not_render_raw_polled_message_html(self):
+        conv = Conversation.objects.create(buyer=self.buyer, maker=self.maker, product=self.product)
+        ConversationMessage.objects.create(
+            conversation=conv,
+            sender=self.buyer,
+            body="<script>alert('boom')</script>",
+        )
+
+        self.client.force_login(self.seller_user)
+        resp = self.client.get(reverse("seller_message_thread", args=[conv.uuid]))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        html = resp.content.decode()
+        self.assertNotIn("`${m.body}`", html)
+        self.assertIn("textContent", html)
+
     def test_empty_and_oversized_messages_rejected(self):
         conv = Conversation.objects.create(buyer=self.buyer, maker=self.maker)
         self.client.force_authenticate(user=self.buyer)

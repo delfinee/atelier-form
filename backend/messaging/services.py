@@ -83,11 +83,14 @@ def get_or_create_conversation(
             else:
                 raise ValidationError("No valid maker found for the specified order.")
 
-    if not maker:
-        maker = Maker.objects.filter(owner__isnull=False).first() or Maker.objects.first()
+    if not maker and not product and not order:
+        existing = Conversation.objects.filter(buyer=buyer, is_closed=False).order_by("-updated_at").first()
+        if existing:
+            return existing, False
+        raise ValidationError("Select a maker or product to start a conversation.")
 
     if not maker:
-        raise ValidationError("No active maker available to start a conversation.")
+        raise ValidationError("A maker, product, or order is required to start a conversation.")
 
     # Match existing open thread
     filters = {

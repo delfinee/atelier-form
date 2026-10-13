@@ -88,15 +88,24 @@
             row.className = 'chat-bubble-row';
             row.setAttribute('data-msg-uuid', m.uuid);
             row.style.cssText = m.is_sender ? 'display:flex; flex-direction:column; align-items:flex-end;' : 'display:flex; flex-direction:column; align-items:flex-start;';
+
             const senderLabel = m.is_sender ? 'You (Seller)' : `${m.sender_name} (Buyer)`;
-            row.innerHTML = `
-              <div style="font-size:0.75rem; color:var(--ink-soft); margin-bottom:2px;">
-                <span style="font-weight:600;">${senderLabel}</span> · Just now
-              </div>
-              <div style="padding:0.75rem 1rem; border-radius:12px; max-width:80%; font-size:0.95rem; line-height:1.45; white-space:pre-wrap; ${m.is_sender ? 'background:var(--earth); color:#fff; border-bottom-right-radius:2px;' : 'background:var(--paper-soft); color:var(--ink); border:1px solid var(--border); border-bottom-left-radius:2px;'}">
-                ${m.body}
-              </div>
-            `;
+            const label = document.createElement('div');
+            label.style.cssText = 'font-size:0.75rem; color:var(--ink-soft); margin-bottom:2px;';
+            const labelText = document.createElement('span');
+            labelText.style.fontWeight = '600';
+            labelText.textContent = senderLabel;
+            label.appendChild(labelText);
+            label.appendChild(document.createTextNode(' · Just now'));
+
+            const bubble = document.createElement('div');
+            bubble.style.cssText = m.is_sender
+              ? 'padding:0.75rem 1rem; border-radius:12px; max-width:80%; font-size:0.95rem; line-height:1.45; white-space:pre-wrap; background:var(--earth); color:#fff; border-bottom-right-radius:2px;'
+              : 'padding:0.75rem 1rem; border-radius:12px; max-width:80%; font-size:0.95rem; line-height:1.45; white-space:pre-wrap; background:var(--paper-soft); color:var(--ink); border:1px solid var(--border); border-bottom-left-radius:2px;';
+            bubble.textContent = m.body ?? '';
+
+            row.appendChild(label);
+            row.appendChild(bubble);
             thread.appendChild(row);
           });
           thread.scrollTop = thread.scrollHeight;

@@ -11,7 +11,7 @@
       <div>
         <h3 style="font-size:var(--step-1)">{{ order.order_number }}</h3>
         <p class="muted" style="margin:0.25rem 0 0">
-          {% order_date order as placed_date %}{% blocktranslate count n=order.items|length with date=placed_date total=order.total|money %}Placed {{ date }} · {{ n }} item · {{ total }}{% plural %}Placed {{ date }} · {{ n }} items · {{ total }}{% endblocktranslate %}
+          {% order_date order as placed_date %}{% blocktranslate count n=order.items.all|length with date=placed_date total=order.total|money %}Placed {{ date }} · {{ n }} item · {{ total }}{% plural %}Placed {{ date }} · {{ n }} items · {{ total }}{% endblocktranslate %}
         </p>
       </div>
       <span class="status status--{{ order.status }}">{% order_status order.status_label %}</span>

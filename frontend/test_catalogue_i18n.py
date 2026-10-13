@@ -36,6 +36,7 @@ from orders import api as orders_api, services as order_services
 from orders.models import CartItem, Order, OrderItem
 from orders.serializers import CartItemSerializer, CartSerializer, CheckoutSerializer
 from reviews import api as reviews_api
+from recommendations.templatetags import recommendations as recommendation_tags
 from products.models import (
     MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product, ProductVariant,
 )
@@ -4518,3 +4519,120 @@ class AccountAndReviewAPILocalizationTests(SimpleTestCase):
                 self.assertEqual(response.data["detail"].code, "not_authenticated")
                 serializer.assert_not_called()
                 purchases.assert_not_called()
+
+
+
+class RecommendationAndOrderCountLocalizationTests(SimpleTestCase):
+    def test_ranked_recommendations_switch_language_without_mutating_products(self):
+        seeded = ProductLocalizationTests().make_product()
+        custom = ProductLocalizationTests().make_product(
+            id=38, slug="custom-piece", name="Custom piece", short_description="Custom studio"
+        )
+        edited = ProductLocalizationTests().make_product(
+            id=39, name="Engraved mug", short_description="Personal commission"
+        )
+        originals = [custom, seeded, edited]
+        snapshots = [product.__dict__.copy() for product in originals]
+        ranked = [SimpleNamespace(product=product, score=100-i) for i, product in enumerate(originals)]
+        user = object()
+        for language in ("en", "zh-hans", "en"):
+            for page in ("home", "product_detail"):
+                request = SimpleNamespace(user=user, resolver_match=SimpleNamespace(url_name=page))
+                context = {"request": request, "product": seeded}
+                with (
+                    self.subTest(language=language, page=page),
+                    translation.override(language),
+                    patch.object(recommendation_tags, "recommend", return_value=ranked) as recommend,
+                ):
+                    result = recommendation_tags.recommendation_block(context, limit=3)
+                    recommend.assert_called_once_with(
+                        user=user, product=seeded if page == "product_detail" else None, limit=3
+                    )
+                    if language == "zh-hans":
+                        title, eyebrow = (("猜你喜欢", "根据这件作品推荐")
+                                          if page == "product_detail" else ("为您推荐", "为您精选"))
+                        names = ["Custom piece", "手拉炻器马克杯", "Engraved mug"]
+                        self.assertIsNot(result["recommendations"][1], seeded)
+                    else:
+                        title, eyebrow = (("You may also like", "Based on this piece")
+                                          if page == "product_detail"
+                                          else ("Recommended for you", "Picked for you"))
+                        names = ["Custom piece", "Hand-thrown Stoneware Mug", "Engraved mug"]
+                        for original, displayed in zip(originals, result["recommendations"]):
+                            self.assertIs(displayed, original)
+                    self.assertEqual(result["recommendation_title"], title)
+                    self.assertEqual(result["recommendation_eyebrow"], eyebrow)
+                    self.assertEqual([p.name for p in result["recommendations"]], names)
+                    self.assertEqual(result["recommendations"][2].short_description, "Personal commission")
+                    self.assertIs(result["recommendations"][0], custom)
+                    self.assertEqual(result["recommendations"][1].short_description,
+                                     "炻器 · 陈梅琳" if language == "zh-hans"
+                                     else "Stoneware · Chen Meilin")
+                    for original, displayed in zip(originals, result["recommendations"]):
+                        for field in ("pk", "slug", "price", "currency", "stock_quantity", "category_id"):
+                            self.assertEqual(getattr(displayed, field), getattr(original, field))
+                self.assertEqual([p.__dict__ for p in originals], snapshots)
+                self.assertEqual([item.product for item in ranked], originals)
+                self.assertEqual([item.score for item in ranked], [100, 99, 98])
+
+    def test_recommendation_tag_keeps_page_gates_and_empty_results(self):
+        with patch.object(recommendation_tags, "recommend", return_value=[]) as recommend:
+            self.assertEqual(recommendation_tags.recommendation_block({}), {"recommendations": []})
+            for match in (None, SimpleNamespace(url_name="account_orders")):
+                request = SimpleNamespace(user=object(), resolver_match=match)
+                self.assertEqual(recommendation_tags.recommendation_block({"request": request}),
+                                 {"recommendations": []})
+            recommend.assert_not_called()
+            request = SimpleNamespace(user=object(), resolver_match=SimpleNamespace(url_name="home"))
+            result = recommendation_tags.recommendation_block({"request": request})
+            recommend.assert_called_once_with(user=request.user, product=None, limit=4)
+            self.assertEqual(result["recommendations"], [])
+            self.assertEqual(get_template("frontend/components/recommendations.html").render(result).strip(), "")
+
+    def test_existing_recommendation_template_renders_localised_cards_and_canonical_links(self):
+        product = ProductLocalizationTests().make_product()
+        product._prefetched_objects_cache = {"product_images": [], "product_variants": []}
+        for language in ("en", "zh-hans", "en"):
+            request = SimpleNamespace(user=object(), resolver_match=SimpleNamespace(url_name="product_detail"))
+            with (
+                translation.override(language),
+                patch.object(recommendation_tags, "recommend",
+                             return_value=[SimpleNamespace(product=product)]),
+                patch("frontend.templatetags.frontend_extras.image_url", return_value="/test.svg"),
+            ):
+                result = recommendation_tags.recommendation_block({"request": request, "product": product})
+                html = get_template("frontend/components/recommendations.html").render(result)
+            self.assertIn("<h2>猜你喜欢</h2>" if language == "zh-hans"
+                          else "<h2>You may also like</h2>", html)
+            self.assertIn("手拉炻器马克杯" if language == "zh-hans" else "Hand-thrown Stoneware Mug", html)
+            self.assertIn('href="/products/hand-thrown-stoneware-mug/"', html)
+            self.assertIn(f'{settings.COMMERCE["CURRENCY_SYMBOL"]}42', html)
+            self.assertEqual(product.name, "Hand-thrown Stoneware Mug")
+
+    def test_order_list_counts_prefetched_items_in_both_languages(self):
+        order = OrderDisplayLocalizationTests._order()
+        context = {
+            "orders": [order], "user": SimpleNamespace(is_authenticated=False, is_seller=False),
+            "site": {"brand": "Atelier Form", "description": "", "announcement": ""},
+            "primary_nav": (), "footer_nav": (), "popular_searches": (), "af_config": {},
+        }
+        for count in (0, 1, 2):
+            items = [OrderDisplayLocalizationTests._item() for _ in range(count)]
+            order._prefetched_objects_cache = {"items": items}
+            before = order.__dict__.copy()
+            for language in ("en", "zh-hans", "en"):
+                with (
+                    self.subTest(count=count, language=language),
+                    translation.override(language),
+                    patch("frontend.templatetags.frontend_extras.image_url", return_value="/test.svg"),
+                ):
+                    html = get_template("frontend/account/orders.html").render(context)
+                if language == "en":
+                    noun = "item" if count == 1 else "items"
+                    self.assertIn(f"Placed 2 January 2024 · {count} {noun} ·", html)
+                else:
+                    self.assertIn(f"下单于 2024年1月2日 · {count} 件商品 ·", html)
+                self.assertIn('href="/account/orders/AF-2026-000071/"', html)
+                self.assertIn(f'{settings.COMMERCE["CURRENCY_SYMBOL"]}94', html)
+                self.assertEqual(order.__dict__, before)
+                self.assertEqual(len(order.items.all()), count)

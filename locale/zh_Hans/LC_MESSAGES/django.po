@@ -2696,7 +2696,7 @@ msgstr "发布评价"
 
 #: .\frontend\templates\frontend\product\detail.html:202
 msgid "You may also like"
-msgstr "您可能还喜欢"
+msgstr "猜你喜欢"
 
 #: .\frontend\templates\frontend\product\detail.html:202
 msgid "Goes with this"
@@ -3878,3 +3878,15 @@ msgstr "密码已更新。"
 #: backend/accounts/serializers.py:71
 msgid "Your current password is incorrect."
 msgstr "您当前的密码不正确。"
+
+#: backend/recommendations/templatetags/recommendations.py
+msgid "Recommended for you"
+msgstr "为您推荐"
+
+#: backend/recommendations/templatetags/recommendations.py
+msgid "Based on this piece"
+msgstr "根据这件作品推荐"
+
+#: backend/recommendations/templatetags/recommendations.py
+msgid "Picked for you"
+msgstr "为您精选"

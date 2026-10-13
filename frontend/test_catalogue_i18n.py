@@ -4636,3 +4636,116 @@ class RecommendationAndOrderCountLocalizationTests(SimpleTestCase):
                 self.assertIn(f'{settings.COMMERCE["CURRENCY_SYMBOL"]}94', html)
                 self.assertEqual(order.__dict__, before)
                 self.assertEqual(len(order.items.all()), count)
+
+
+
+class ProductMaterialLocalizationTests(SimpleTestCase):
+    expected = {
+        "Jingdezhen stoneware": "景德镇炻器",
+        "Ash glaze": "灰釉",
+        "Unglazed foot": "无釉底足",
+        "Speckled stoneware": "斑点炻器",
+        "Matte glaze": "哑光釉",
+        "Porcelain": "瓷器",
+        "Clear glaze": "透明釉",
+        "Stoneware": "炻器",
+        "Wood-ash glaze": "木灰釉",
+        "Satin glaze": "柔光釉",
+        "Celadon glaze": "青瓷釉",
+        "European flax linen": "欧洲亚麻",
+        "Cotton webbing handles": "棉织带提手",
+        "Handwoven cotton": "手织棉布",
+        "Natural indigo dye": "天然蓝靛染料",
+        "Hand-knotted fringe": "手工打结流苏",
+        "Stone-washed flax linen": "石洗亚麻",
+        "Coconut buttons": "椰壳纽扣",
+        "Hand-hemmed edges": "手工缝边",
+        "Handwoven cotton-linen": "手织棉麻布",
+        "Natural dye": "天然染料",
+        "Flax linen": "亚麻",
+        "Cotton wadding": "棉絮填充",
+        "Brass hardware": "黄铜配件",
+        "Soy and rapeseed wax": "大豆蜡与菜籽蜡",
+        "Cotton wick": "棉芯",
+        "Refillable stoneware vessel": "可补充蜡料的炻器容器",
+        "Unglazed exterior": "无釉外壁",
+        "Reclaimed hardwood": "回收硬木",
+        "Linseed oil finish": "亚麻籽油饰面",
+        "Unlacquered brass": "未涂漆黄铜",
+        "Oak handle": "橡木手柄",
+        "Rattan": "藤编",
+        "Cotton rope handles": "棉绳提手",
+        "Gold-free celadon glaze": "不含金的青瓷釉",
+        "Stoneware mug": "炻器马克杯",
+        "Soy wax candle": "大豆蜡蜡烛",
+        "Hand-loomed tea towel": "手织茶巾",
+        "Pure beeswax": "纯蜂蜡"
+    }
+
+    def test_all_seeded_materials_switch_languages_without_mutation(self):
+        self.assertEqual(len(PRODUCTS), 21)
+        self.assertEqual(set(self.expected), {m for p in PRODUCTS for m in p["materials"]})
+        seeds_before = json.dumps(PRODUCTS, ensure_ascii=False, sort_keys=True)
+        for source in PRODUCTS:
+            product = ProductLocalizationTests().make_product(
+                next(p for p in PRODUCT_EXPECTED if p[0] == source["slug"]),
+                materials=list(source["materials"]),
+            )
+            original_list = product.materials
+            original_values = list(original_list)
+            original_state = product.__dict__.copy()
+            for language in ("en", "zh-hans", "en"):
+                with self.subTest(slug=source["slug"], language=language), translation.override(language):
+                    displayed = localize_product(product)
+                    if language == "en":
+                        self.assertIs(displayed, product)
+                        self.assertIs(displayed.materials, original_list)
+                        self.assertEqual(displayed.materials, source["materials"])
+                    else:
+                        self.assertIsNot(displayed, product)
+                        self.assertIsNot(displayed.materials, original_list)
+                        self.assertEqual(displayed.materials, [self.expected[m] for m in original_values])
+                        expected_name = next(p[3] for p in PRODUCT_EXPECTED if p[0] == source["slug"])
+                        self.assertEqual(displayed.name, expected_name)
+                        for field in ("pk", "slug", "price", "currency", "stock_quantity",
+                                      "category_id", "maker_id", "dimensions"):
+                            self.assertEqual(getattr(displayed, field), getattr(product, field))
+                        displayed.materials.append("Presentation-only addition")
+                    self.assertIs(product.materials, original_list)
+                    self.assertEqual(product.materials, original_values)
+                    self.assertEqual(product.__dict__, original_state)
+        self.assertEqual(json.dumps(PRODUCTS, ensure_ascii=False, sort_keys=True), seeds_before)
+
+    def test_custom_and_any_modified_complete_material_list_are_preserved(self):
+        canonical = list(PRODUCTS[0]["materials"])
+        for slug, materials in (
+            ("custom-product", canonical),
+            ("", canonical),
+            (PRODUCTS[0]["slug"], []),
+            (PRODUCTS[0]["slug"], canonical[:-1]),
+            (PRODUCTS[0]["slug"], canonical + ["Custom finish"]),
+            (PRODUCTS[0]["slug"], list(reversed(canonical))),
+            (PRODUCTS[0]["slug"], ["Custom stoneware", *canonical[1:]]),
+            (PRODUCTS[0]["slug"], [canonical[0] + " ", *canonical[1:]]),
+        ):
+            product = ProductLocalizationTests().make_product(slug=slug, materials=materials)
+            before = list(materials)
+            for language in ("en", "zh-hans", "en"):
+                with self.subTest(slug=slug, materials=materials, language=language), translation.override(language):
+                    displayed = localize_product(product)
+                    self.assertEqual(displayed.materials, before)
+                    self.assertIs(displayed.materials, materials)
+                    if slug not in {p["slug"] for p in PRODUCTS} or language == "en":
+                        self.assertIs(displayed, product)
+                    self.assertEqual(product.materials, before)
+
+    def test_material_messages_are_literal_extraction_markers(self):
+        source = Path(settings.BASE_DIR) / "frontend" / "catalogue_i18n.py"
+        tree = ast.parse(source.read_text(encoding="utf-8"))
+        markers = {
+            node.args[0].value for node in ast.walk(tree)
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+            and node.func.id == "gettext_noop" and node.args
+            and isinstance(node.args[0], ast.Constant) and isinstance(node.args[0].value, str)
+        }
+        self.assertTrue(set(self.expected).issubset(markers))

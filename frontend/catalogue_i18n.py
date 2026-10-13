@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from copy import copy
 
-from django.utils.translation import get_language, gettext, pgettext
+from django.utils.translation import get_language, gettext, gettext_noop, pgettext
 
 from frontend.mockdata.collections import CATEGORIES, COLLECTIONS, EXTRA_COLLECTIONS
 from frontend.mockdata.faqs import FAQ_GROUPS_BY_SLUG
@@ -195,6 +195,51 @@ def localize_maker(maker):
     return localized
 
 
+def _product_material_labels():
+    # Literal markers keep extraction reliable without changing English seed data.
+    return {message: gettext(message) for message in (
+        gettext_noop("Jingdezhen stoneware"),
+        gettext_noop("Ash glaze"),
+        gettext_noop("Unglazed foot"),
+        gettext_noop("Speckled stoneware"),
+        gettext_noop("Matte glaze"),
+        gettext_noop("Porcelain"),
+        gettext_noop("Clear glaze"),
+        gettext_noop("Stoneware"),
+        gettext_noop("Wood-ash glaze"),
+        gettext_noop("Satin glaze"),
+        gettext_noop("Celadon glaze"),
+        gettext_noop("European flax linen"),
+        gettext_noop("Cotton webbing handles"),
+        gettext_noop("Handwoven cotton"),
+        gettext_noop("Natural indigo dye"),
+        gettext_noop("Hand-knotted fringe"),
+        gettext_noop("Stone-washed flax linen"),
+        gettext_noop("Coconut buttons"),
+        gettext_noop("Hand-hemmed edges"),
+        gettext_noop("Handwoven cotton-linen"),
+        gettext_noop("Natural dye"),
+        gettext_noop("Flax linen"),
+        gettext_noop("Cotton wadding"),
+        gettext_noop("Brass hardware"),
+        gettext_noop("Soy and rapeseed wax"),
+        gettext_noop("Cotton wick"),
+        gettext_noop("Refillable stoneware vessel"),
+        gettext_noop("Unglazed exterior"),
+        gettext_noop("Reclaimed hardwood"),
+        gettext_noop("Linseed oil finish"),
+        gettext_noop("Unlacquered brass"),
+        gettext_noop("Oak handle"),
+        gettext_noop("Rattan"),
+        gettext_noop("Cotton rope handles"),
+        gettext_noop("Gold-free celadon glaze"),
+        gettext_noop("Stoneware mug"),
+        gettext_noop("Soy wax candle"),
+        gettext_noop("Hand-loomed tea towel"),
+        gettext_noop("Pure beeswax"),
+    )}
+
+
 def localize_product(product):
     if not _is_chinese():
         return product
@@ -214,6 +259,9 @@ def localize_product(product):
         current = getattr(product, field)
         if current == source[source_field]:
             setattr(localized, field, gettext(current))
+    if getattr(product, "materials", None) == source["materials"]:
+        labels = _product_material_labels()
+        localized.materials = [labels[material] for material in product.materials]
     return localized
 
 

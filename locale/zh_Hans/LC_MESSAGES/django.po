@@ -3890,3 +3890,143 @@ msgstr "根据这件作品推荐"
 #: backend/recommendations/templatetags/recommendations.py
 msgid "Picked for you"
 msgstr "为您精选"
+
+#: frontend/catalogue_i18n.py
+msgid "Jingdezhen stoneware"
+msgstr "景德镇炻器"
+
+#: frontend/catalogue_i18n.py
+msgid "Ash glaze"
+msgstr "灰釉"
+
+#: frontend/catalogue_i18n.py
+msgid "Unglazed foot"
+msgstr "无釉底足"
+
+#: frontend/catalogue_i18n.py
+msgid "Speckled stoneware"
+msgstr "斑点炻器"
+
+#: frontend/catalogue_i18n.py
+msgid "Matte glaze"
+msgstr "哑光釉"
+
+#: frontend/catalogue_i18n.py
+msgid "Clear glaze"
+msgstr "透明釉"
+
+#: frontend/catalogue_i18n.py
+msgid "Wood-ash glaze"
+msgstr "木灰釉"
+
+#: frontend/catalogue_i18n.py
+msgid "Satin glaze"
+msgstr "柔光釉"
+
+#: frontend/catalogue_i18n.py
+msgid "Celadon glaze"
+msgstr "青瓷釉"
+
+#: frontend/catalogue_i18n.py
+msgid "European flax linen"
+msgstr "欧洲亚麻"
+
+#: frontend/catalogue_i18n.py
+msgid "Cotton webbing handles"
+msgstr "棉织带提手"
+
+#: frontend/catalogue_i18n.py
+msgid "Handwoven cotton"
+msgstr "手织棉布"
+
+#: frontend/catalogue_i18n.py
+msgid "Natural indigo dye"
+msgstr "天然蓝靛染料"
+
+#: frontend/catalogue_i18n.py
+msgid "Hand-knotted fringe"
+msgstr "手工打结流苏"
+
+#: frontend/catalogue_i18n.py
+msgid "Stone-washed flax linen"
+msgstr "石洗亚麻"
+
+#: frontend/catalogue_i18n.py
+msgid "Coconut buttons"
+msgstr "椰壳纽扣"
+
+#: frontend/catalogue_i18n.py
+msgid "Hand-hemmed edges"
+msgstr "手工缝边"
+
+#: frontend/catalogue_i18n.py
+msgid "Handwoven cotton-linen"
+msgstr "手织棉麻布"
+
+#: frontend/catalogue_i18n.py
+msgid "Natural dye"
+msgstr "天然染料"
+
+#: frontend/catalogue_i18n.py
+msgid "Flax linen"
+msgstr "亚麻"
+
+#: frontend/catalogue_i18n.py
+msgid "Cotton wadding"
+msgstr "棉絮填充"
+
+#: frontend/catalogue_i18n.py
+msgid "Brass hardware"
+msgstr "黄铜配件"
+
+#: frontend/catalogue_i18n.py
+msgid "Soy and rapeseed wax"
+msgstr "大豆蜡与菜籽蜡"
+
+#: frontend/catalogue_i18n.py
+msgid "Cotton wick"
+msgstr "棉芯"
+
+#: frontend/catalogue_i18n.py
+msgid "Refillable stoneware vessel"
+msgstr "可补充蜡料的炻器容器"
+
+#: frontend/catalogue_i18n.py
+msgid "Unglazed exterior"
+msgstr "无釉外壁"
+
+#: frontend/catalogue_i18n.py
+msgid "Reclaimed hardwood"
+msgstr "回收硬木"
+
+#: frontend/catalogue_i18n.py
+msgid "Linseed oil finish"
+msgstr "亚麻籽油饰面"
+
+#: frontend/catalogue_i18n.py
+msgid "Unlacquered brass"
+msgstr "未涂漆黄铜"
+
+#: frontend/catalogue_i18n.py
+msgid "Oak handle"
+msgstr "橡木手柄"
+
+#: frontend/catalogue_i18n.py
+msgid "Cotton rope handles"
+msgstr "棉绳提手"
+
+#: frontend/catalogue_i18n.py
+msgid "Gold-free celadon glaze"
+msgstr "不含金的青瓷釉"
+
+#: frontend/catalogue_i18n.py
+msgid "Soy wax candle"
+msgstr "大豆蜡蜡烛"
+
+#: frontend/catalogue_i18n.py
+msgid "Hand-loomed tea towel"
+msgstr "手织茶巾"
+
+#: frontend/catalogue_i18n.py
+msgid "Pure beeswax"
+msgstr "纯蜂蜡"

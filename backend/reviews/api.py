@@ -1,6 +1,7 @@
 """Published reviews and verified-purchase review submission."""
 
 from django.db import IntegrityError, transaction
+from django.utils.translation import gettext
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -42,11 +43,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
             product=product,
         ).order_by("-order__placed_at").first())
         if order_item is None:
-            raise PermissionDenied("Only verified buyers can review this product.")
+            raise PermissionDenied(gettext("Only verified buyers can review this product."))
         try:
             with transaction.atomic():
                 serializer.save(user=self.request.user, order_item=order_item, is_published=True)
         except IntegrityError as exc:
             if not is_duplicate_review_error(exc):
                 raise
-            raise ValidationError({"detail": "You have already reviewed this product."}) from exc
+            raise ValidationError({"detail": gettext("You have already reviewed this product.")}) from exc

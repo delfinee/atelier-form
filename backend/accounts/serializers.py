@@ -2,6 +2,7 @@
 
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.password_validation import validate_password
+from django.utils.translation import gettext
 from rest_framework import serializers
 
 from products.serializers import ProductListSerializer
@@ -33,7 +34,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         if User.objects.filter(email=value).exists():
             # Registration necessarily reveals that an address is taken; there
             # is no way to create a unique account without it.
-            raise serializers.ValidationError("An account with this email already exists.")
+            raise serializers.ValidationError(gettext("An account with this email already exists."))
         return value
 
     def validate_password(self, value):
@@ -56,7 +57,7 @@ class LoginSerializer(serializers.Serializer):
         # One message for every failure mode: a wrong password, an unknown
         # address and a deactivated account are indistinguishable to a caller.
         if user is None or not user.is_active:
-            raise serializers.ValidationError({"detail": "Invalid email or password."})
+            raise serializers.ValidationError({"detail": gettext("Invalid email or password.")})
         attrs["user"] = user
         return attrs
 
@@ -67,7 +68,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 
     def validate_current_password(self, value):
         if not self.context["request"].user.check_password(value):
-            raise serializers.ValidationError("Your current password is incorrect.")
+            raise serializers.ValidationError(gettext("Your current password is incorrect."))
         return value
 
     def validate_new_password(self, value):

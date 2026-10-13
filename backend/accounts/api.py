@@ -107,7 +107,7 @@ class ChangePasswordView(APIView):
         serializer = ChangePasswordSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({"detail": "Password updated."})
+        return Response({"detail": gettext("Password updated.")})
 
 
 @extend_schema_view(

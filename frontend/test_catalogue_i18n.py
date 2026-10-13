@@ -29,11 +29,13 @@ from rest_framework import exceptions as drf_exceptions
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from accounts import api as accounts_api
+from accounts import serializers as account_serializers
 from config import exceptions as api_errors
 from content.models import FAQ, Article, FAQGroup
 from orders import api as orders_api, services as order_services
 from orders.models import CartItem, Order, OrderItem
 from orders.serializers import CartItemSerializer, CartSerializer, CheckoutSerializer
+from reviews import api as reviews_api
 from products.models import (
     MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product, ProductVariant,
 )
@@ -4265,3 +4267,254 @@ class OrderDisplayLocalizationTests(SimpleTestCase):
                             prefetch.assert_called_once_with("items")
                             lookup.assert_called_once_with(prefetch.return_value, uuid=order.uuid)
                         provider.assert_not_called()
+
+
+
+class AccountAndReviewAPILocalizationTests(SimpleTestCase):
+    messages = (
+        ("Only verified buyers can review this product.", "只有已核实购买记录的买家才能评价这件商品。"),
+        ("You have already reviewed this product.", "您已评价过这件商品。"),
+        ("Password updated.", "密码已更新。"),
+        ("An account with this email already exists.", "使用此邮箱的账户已存在。"),
+        ("Invalid email or password.", "邮箱或密码无效。"),
+        ("Your current password is incorrect.", "您当前的密码不正确。"),
+    )
+
+    def test_all_six_messages_switch_english_chinese_english(self):
+        for language in ("en", "zh-hans", "en"):
+            with translation.override(language):
+                for english, chinese in self.messages:
+                    self.assertEqual(gettext(english), chinese if language == "zh-hans" else english)
+
+    def test_review_eligibility_and_success_preserve_paid_purchase_and_transaction(self):
+        user, product, item = object(), object(), object()
+        view = reviews_api.ReviewViewSet()
+        view.request = SimpleNamespace(user=user)
+        for language in ("en", "zh-hans", "en"):
+            for eligible in (False, True):
+                serializer = MagicMock()
+                serializer.validated_data = {"product": product}
+                with (
+                    self.subTest(language=language, eligible=eligible),
+                    translation.override(language),
+                    patch.object(reviews_api.OrderItem.objects, "filter") as filtered,
+                    patch.object(reviews_api.transaction, "atomic") as atomic,
+                ):
+                    filtered.return_value.order_by.return_value.first.return_value = (
+                        item if eligible else None
+                    )
+                    if eligible:
+                        view.perform_create(serializer)
+                        atomic.assert_called_once_with()
+                        atomic.return_value.__enter__.assert_called_once()
+                        atomic.return_value.__exit__.assert_called_once_with(None, None, None)
+                        serializer.save.assert_called_once_with(
+                            user=user, order_item=item, is_published=True
+                        )
+                    else:
+                        with self.assertRaises(drf_exceptions.PermissionDenied) as raised:
+                            view.perform_create(serializer)
+                        response = api_errors.api_exception_handler(raised.exception, {})
+                        self.assertEqual(response.status_code, 403)
+                        self.assertEqual(response.data, {"detail": (
+                            "只有已核实购买记录的买家才能评价这件商品。" if language == "zh-hans"
+                            else "Only verified buyers can review this product."
+                        )})
+                        self.assertEqual(raised.exception.get_codes(), "permission_denied")
+                        serializer.save.assert_not_called()
+                        atomic.assert_not_called()
+                    filtered.assert_called_once_with(
+                        order__user=user, order__payment_status="paid", product=product
+                    )
+                    filtered.return_value.order_by.assert_called_once_with("-order__placed_at")
+
+    def test_only_duplicate_review_conflict_becomes_localised_validation_error(self):
+        view = reviews_api.ReviewViewSet()
+        view.request = SimpleNamespace(user=object())
+        for language in ("en", "zh-hans", "en"):
+            for code, constraint, duplicate in (
+                ("23505", "one_review_per_product_per_user", True),
+                ("23505", "another_constraint", False),
+                ("23503", "one_review_per_product_per_user", False),
+            ):
+                error = IntegrityError("internal database error")
+                cause = Exception()
+                cause.sqlstate = code
+                cause.diag = SimpleNamespace(constraint_name=constraint)
+                error.__cause__ = cause
+                serializer = MagicMock()
+                serializer.validated_data = {"product": object()}
+                serializer.save.side_effect = error
+                item = object()
+                with (
+                    self.subTest(language=language, code=code, constraint=constraint),
+                    translation.override(language),
+                    patch.object(reviews_api.OrderItem.objects, "filter") as filtered,
+                    patch.object(reviews_api.transaction, "atomic") as atomic,
+                ):
+                    filtered.return_value.order_by.return_value.first.return_value = item
+                    if duplicate:
+                        with self.assertRaises(drf_exceptions.ValidationError) as raised:
+                            view.perform_create(serializer)
+                        response = api_errors.api_exception_handler(raised.exception, {})
+                        self.assertEqual(response.status_code, 400)
+                        self.assertEqual(response.data, {"detail": (
+                            "您已评价过这件商品。" if language == "zh-hans"
+                            else "You have already reviewed this product."
+                        )})
+                        self.assertEqual(raised.exception.get_codes(), {"detail": "invalid"})
+                        self.assertIs(raised.exception.__cause__, error)
+                    else:
+                        with self.assertRaises(IntegrityError) as raised:
+                            view.perform_create(serializer)
+                        self.assertIs(raised.exception, error)
+                    serializer.save.assert_called_once_with(
+                        user=view.request.user, order_item=item, is_published=True
+                    )
+                    atomic.return_value.__exit__.assert_called_once()
+                    self.assertIs(atomic.return_value.__exit__.call_args.args[1], error)
+
+    def test_review_permissions_and_owner_query_scope_remain_unchanged(self):
+        view = reviews_api.ReviewViewSet()
+        user = object()
+        view.request = SimpleNamespace(user=user, query_params={"product": "canonical-slug"})
+        for action, expected in (
+            ("list", ["AllowAny"]), ("retrieve", ["AllowAny"]),
+            ("create", ["IsAuthenticated"]),
+            ("partial_update", ["IsAuthenticated", "IsOwner"]),
+            ("destroy", ["IsAuthenticated", "IsOwner"]),
+        ):
+            view.action = action
+            self.assertEqual([type(p).__name__ for p in view.get_permissions()], expected)
+            with patch.object(reviews_api.Review.objects, "select_related") as related:
+                view.get_queryset()
+                related.assert_called_once_with("product", "user", "order_item")
+                if action in {"partial_update", "destroy"}:
+                    related.return_value.filter.assert_called_once_with(user=user)
+                else:
+                    related.return_value.filter.assert_called_once_with(is_published=True)
+                    related.return_value.filter.return_value.filter.assert_called_once_with(
+                        product__slug="canonical-slug"
+                    )
+
+    def test_login_failures_have_identical_generic_response_without_tokens_or_cart_merge(self):
+        for language in ("en", "zh-hans", "en"):
+            results = []
+            for email, authenticated in (
+                ("unknown@example.com", None),
+                ("known@example.com", None),
+                ("inactive@example.com", SimpleNamespace(is_active=False)),
+            ):
+                request = APIRequestFactory().post(
+                    "/api/auth/login/", {"email": email, "password": "wrong"}, format="json"
+                )
+                with (
+                    translation.override(language),
+                    patch.object(account_serializers, "authenticate",
+                                 return_value=authenticated) as authenticate,
+                    patch.object(accounts_api.LoginView, "get_throttles", return_value=[]),
+                    patch.object(accounts_api, "_tokens_for") as tokens,
+                    patch.object(order_services, "merge_session_cart") as merge,
+                ):
+                    response = accounts_api.LoginView.as_view()(request)
+                    self.assertEqual(response.status_code, 400)
+                    self.assertEqual(response.data, {"detail": [(
+                        "邮箱或密码无效。" if language == "zh-hans"
+                        else "Invalid email or password."
+                    )]})
+                    self.assertEqual(response.data["detail"][0].code, "invalid")
+                    self.assertEqual(authenticate.call_args.kwargs["username"], email)
+                    self.assertEqual(authenticate.call_args.kwargs["password"], "wrong")
+                    tokens.assert_not_called()
+                    merge.assert_not_called()
+                    results.append(response.data)
+            self.assertEqual(results[0], results[1])
+            self.assertEqual(results[1], results[2])
+
+    def test_registration_duplicate_field_structure_and_password_validation_preserved(self):
+        for language in ("en", "zh-hans", "en"):
+            with (
+                translation.override(language),
+                patch.object(account_serializers.User.objects, "filter") as filtered,
+                patch.object(account_serializers, "validate_password") as validate,
+                patch("rest_framework.validators.UniqueValidator.__call__", return_value=None),
+            ):
+                # Isolate the existing explicit duplicate-email validator, not DRF's
+                # separate auto-generated uniqueness message.
+                filtered.return_value.exists.return_value = True
+                serializer = account_serializers.RegisterSerializer(data={
+                    "email": "EXAMPLE@example.com", "password": "strong-test-password",
+                })
+                with self.assertRaises(drf_exceptions.ValidationError) as raised:
+                    serializer.is_valid(raise_exception=True)
+                response = api_errors.api_exception_handler(raised.exception, {})
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(set(response.data), {"detail", "errors"})
+                self.assertEqual(set(response.data["errors"]), {"email"})
+                self.assertEqual(response.data["errors"]["email"], [(
+                    "使用此邮箱的账户已存在。" if language == "zh-hans"
+                    else "An account with this email already exists."
+                )])
+                filtered.assert_called_once_with(email="example@example.com")
+                validate.assert_called_once_with("strong-test-password")
+                filtered.return_value.exists.return_value = False
+                self.assertEqual(serializer.validate_email("  EXAMPLE@example.com "),
+                                 "example@example.com")
+                validate.side_effect = ValidationError("Password policy rejection")
+                with self.assertRaises(ValidationError):
+                    serializer.validate_password("weak")
+
+    def test_change_password_api_keeps_errors_validation_and_mocked_save_contract(self):
+        for language in ("en", "zh-hans", "en"):
+            for failure in (None, "current", "policy"):
+                user = MagicMock(is_authenticated=True)
+                user.check_password.return_value = failure != "current"
+                request = APIRequestFactory().post("/api/auth/change-password/", {
+                    "current_password": "old-secret", "new_password": "new-secret",
+                }, format="json")
+                force_authenticate(request, user=user)
+                with (
+                    self.subTest(language=language, failure=failure),
+                    translation.override(language),
+                    patch.object(accounts_api.ChangePasswordView, "get_throttles", return_value=[]),
+                    patch.object(account_serializers, "validate_password") as validate,
+                ):
+                    if failure == "policy":
+                        validate.side_effect = ValidationError("Password policy rejection")
+                    response = accounts_api.ChangePasswordView.as_view()(request)
+                    user.check_password.assert_called_once_with("old-secret")
+                    validate.assert_called_once_with("new-secret", user=user)
+                    if failure is None:
+                        self.assertEqual(response.status_code, 200)
+                        self.assertEqual(response.data, {"detail": (
+                            "密码已更新。" if language == "zh-hans" else "Password updated."
+                        )})
+                        user.set_password.assert_called_once_with("new-secret")
+                        user.save.assert_called_once_with(update_fields=["password", "updated_at"])
+                    else:
+                        self.assertEqual(response.status_code, 400)
+                        self.assertEqual(set(response.data), {"detail", "errors"})
+                        field = "current_password" if failure == "current" else "new_password"
+                        expected = ("您当前的密码不正确。" if language == "zh-hans"
+                                    else "Your current password is incorrect.")
+                        if failure == "policy":
+                            expected = "Password policy rejection"
+                        self.assertEqual(response.data["errors"], {field: [expected]})
+                        user.set_password.assert_not_called()
+                        user.save.assert_not_called()
+
+    def test_password_change_and_review_create_still_reject_anonymous_requests(self):
+        for view in (
+            accounts_api.ChangePasswordView.as_view(),
+            reviews_api.ReviewViewSet.as_view({"post": "create"}),
+        ):
+            request = APIRequestFactory().post("/api/protected/", {}, format="json")
+            with (
+                patch.object(accounts_api, "ChangePasswordSerializer") as serializer,
+                patch.object(reviews_api.OrderItem.objects, "filter") as purchases,
+            ):
+                response = view(request)
+                self.assertEqual(response.status_code, 401)
+                self.assertEqual(response.data["detail"].code, "not_authenticated")
+                serializer.assert_not_called()
+                purchases.assert_not_called()

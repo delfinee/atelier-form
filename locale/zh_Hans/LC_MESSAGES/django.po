@@ -3870,3 +3870,11 @@ msgstr "已送达：%(date)s"
 #: frontend/views.py:257
 msgid "Sandbox payment"
 msgstr "沙盒支付"
+
+#: backend/accounts/api.py:110
+msgid "Password updated."
+msgstr "密码已更新。"
+
+#: backend/accounts/serializers.py:71
+msgid "Your current password is incorrect."
+msgstr "您当前的密码不正确。"

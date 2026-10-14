@@ -2,6 +2,7 @@
 
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -32,7 +33,7 @@ class CartView(APIView):
     @extend_schema(summary="Read the current cart", responses=CartSerializer)
     def get(self, request):
         cart = services.get_cart(request)
-        return Response(CartSerializer(cart).data)
+        return Response(CartSerializer(cart, context={"request": request}).data)
 
     @extend_schema(summary="Empty the cart", responses={204: None})
     def delete(self, request):
@@ -60,10 +61,10 @@ class CartItemsView(APIView):
                 quantity=serializer.validated_data["quantity"],
             )
         except Product.DoesNotExist:
-            return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": gettext("Product not found.")}, status=status.HTTP_404_NOT_FOUND)
         except ProductVariant.DoesNotExist as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_404_NOT_FOUND)
-        return Response(CartSerializer(cart).data, status=status.HTTP_201_CREATED)
+        return Response(CartSerializer(cart, context={"request": request}).data, status=status.HTTP_201_CREATED)
 
 
 class CartItemDetailView(APIView):
@@ -81,18 +82,18 @@ class CartItemDetailView(APIView):
         except Exception as exc:
             from .models import CartItem
             if isinstance(exc, CartItem.DoesNotExist):
-                return Response({"detail": "That line is not in your bag."},
+                return Response({"detail": gettext("That line is not in your bag.")},
                                 status=status.HTTP_404_NOT_FOUND)
             raise
-        return Response(CartSerializer(cart).data)
+        return Response(CartSerializer(cart, context={"request": request}).data)
 
     @extend_schema(summary="Remove a line", responses=CartSerializer)
     def delete(self, request, item_id):
         cart = services.get_cart(request)
         if not services.remove_item(cart, item_id):
-            return Response({"detail": "That line is not in your bag."},
+            return Response({"detail": gettext("That line is not in your bag.")},
                             status=status.HTTP_404_NOT_FOUND)
-        return Response(CartSerializer(cart).data)
+        return Response(CartSerializer(cart, context={"request": request}).data)
 
 
 class CheckoutView(APIView):
@@ -114,11 +115,11 @@ class CheckoutView(APIView):
 
         cart = services.get_cart(request, create=False)
         if cart is None or not cart.items.exists():
-            return Response({"detail": "Your bag is empty."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": gettext("Your bag is empty.")}, status=status.HTTP_400_BAD_REQUEST)
 
         address_snapshot = self._resolve_address(request, data)
         if address_snapshot is None:
-            return Response({"detail": "Delivery address not found."},
+            return Response({"detail": gettext("Delivery address not found.")},
                             status=status.HTTP_404_NOT_FOUND)
 
         with transaction.atomic():
@@ -222,6 +223,22 @@ class SellerOrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         order.refresh_from_db()
         return Response(SellerOrderSerializer(order, context={"request": request}).data)
 
+    @extend_schema(
+        summary="Mark this order as delivered",
+        request=None,
+        responses=SellerOrderSerializer,
+    )
+    @action(detail=True, methods=["post"], url_path="delivered")
+    def mark_delivered(self, request, uuid=None):
+        """Seller confirms an order has arrived. No real carrier tracking
+        exists, so this is a manual, honest substitute triggered by the
+        seller themselves."""
+        order = self.get_object()
+        maker = request.user.maker_profile
+        services.mark_order_delivered(order, acting_maker=maker)
+        order.refresh_from_db()
+        return Response(SellerOrderSerializer(order, context={"request": request}).data)
+ 
 
 class AdminOrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                         mixins.UpdateModelMixin, viewsets.GenericViewSet):

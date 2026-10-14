@@ -4,9 +4,20 @@
 
   const CFG = JSON.parse(document.getElementById("af-config")?.textContent || "{}");
   const URLS = CFG.urls || {};
+  const I18N = CFG.i18n || {};
   const KEY = { wish: "af.wishlist.v1", recent: "af.recent.v1" };
   const $ = (sel, root) => (root || document).querySelector(sel);
   const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+
+  function text(key, fallback) {
+    const value = I18N[key];
+    return typeof value === "string" && value ? value : fallback;
+  }
+
+  function interpolate(template, values) {
+    return template.replace(/\{(\w+)\}/g, (placeholder, key) =>
+      Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : placeholder);
+  }
 
   /* ------------------------------------------------------- local store --- */
   function read(key, fallback) {
@@ -53,7 +64,8 @@
     let data = null;
     try { data = await response.json(); } catch (e) { data = null; }
     if (!response.ok) {
-      const error = new Error((data && data.detail) || "Something went wrong.");
+      const error = new Error((data && data.detail)
+        || text("genericError", "Something went wrong."));
       error.status = response.status;
       error.data = data;
       throw error;
@@ -220,16 +232,21 @@
     function render(data) {
       const blocks = [];
       if (data.products.length) {
-        blocks.push('<div><h4>Products</h4>' + data.products.map((p) =>
+        blocks.push(`<div><h4>${text("searchProducts", "Products")}</h4>`
+          + data.products.map((p) =>
           `<a class="search-hit" href="${p.url}"><img src="${p.image}" alt="" loading="lazy">
              <span><span class="search-hit__name">${p.name}</span>
              <span class="search-hit__meta">${p.label} · ${money(p.price)}</span></span></a>`).join("") + "</div>");
       }
+      const labels = {
+        collections: text("searchCollections", "Collections"),
+        makers: text("searchMakers", "Makers"),
+        articles: text("searchArticles", "Articles"),
+      };
       ["collections", "makers", "articles"].forEach((kind) => {
         const items = data[kind] || [];
         if (!items.length) return;
-        const label = kind.charAt(0).toUpperCase() + kind.slice(1);
-        blocks.push(`<div><h4>${label}</h4>` + items.map((i) =>
+        blocks.push(`<div><h4>${labels[kind]}</h4>` + items.map((i) =>
           `<a class="search-hit" href="${i.url}"><span>
              <span class="search-hit__name">${i.title || i.name}</span>
              ${i.discipline ? `<span class="search-hit__meta">${i.discipline}</span>` : ""}
@@ -237,7 +254,9 @@
       });
       results.innerHTML = blocks.length
         ? blocks.join("")
-        : '<p class="muted">Nothing matched that. Try a material, a maker or a room.</p>';
+        : `<p class="muted">${text(
+          "searchNoResults", "Nothing matched that. Try a material, a maker or a room."
+        )}</p>`;
     }
 
     input.addEventListener("input", () => {
@@ -269,15 +288,15 @@
         ${variant}
         <div class="line-item__controls">
           <div class="qty">
-            <button type="button" data-step="-1" aria-label="Decrease quantity">
+            <button type="button" data-step="-1" aria-label="${text("decreaseQuantity", "Decrease quantity")}">
               <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 12h14"/></svg>
             </button>
-            <input type="number" min="1" max="99" value="${line.quantity}" aria-label="Quantity for ${line.product_name}">
-            <button type="button" data-step="1" aria-label="Increase quantity">
+            <input type="number" min="1" max="99" value="${line.quantity}" aria-label="${interpolate(text("quantityFor", "Quantity for {name}"), { name: line.product_name })}">
+            <button type="button" data-step="1" aria-label="${text("increaseQuantity", "Increase quantity")}">
               <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
             </button>
           </div>
-          <button type="button" class="remove" data-remove>Remove</button>
+          <button type="button" class="remove" data-remove>${text("removeLine", "Remove")}</button>
         </div>
       </div>
       <div class="line-item__price">${money(line.line_total)}</div>
@@ -293,7 +312,7 @@
       }));
       input.addEventListener("change", () => guard(setQty(id, input.value)));
       $("[data-remove]", el).addEventListener("click", () => {
-        guard(removeLine(id).then(() => toast("Removed from your bag")));
+        guard(removeLine(id).then(() => toast(text("bagRemoved", "Removed from your bag"))));
       });
     });
   }
@@ -301,7 +320,7 @@
   /** Surface an API error as a toast and re-sync, rather than failing silently. */
   function guard(promise) {
     return promise.catch((error) => {
-      toast(error.message || "Something went wrong.");
+      toast(error.message || text("genericError", "Something went wrong."));
       return loadCart();
     });
   }
@@ -339,9 +358,9 @@
     if (!body) return;
     const items = cartItems();
     const drawer = $("#cart-drawer");
-    const emptyTitle = drawer?.dataset.emptyTitle || "Your bag is empty";
-    const emptyNote = drawer?.dataset.emptyNote || "Nothing in here yet. The shop is a good place to start.";
-    const browseShop = drawer?.dataset.browseShop || "Browse the shop";
+    const emptyTitle = drawer?.dataset.emptyTitle || text("bagEmpty", "Your bag is empty");
+    const emptyNote = drawer?.dataset.emptyNote || text("bagEmptyNote", "Nothing in here yet. The shop is a good place to start.");
+    const browseShop = drawer?.dataset.browseShop || text("browseShop", "Browse the shop");
 
     if (!items.length) {
       body.innerHTML = `<div class="empty-state"><h3>${emptyTitle}</h3>
@@ -358,8 +377,8 @@
     if (note) {
       const left = (CFG.free_shipping_threshold || 0) - Number(state.cart ? state.cart.subtotal : 0);
       note.textContent = !items.length ? ""
-        : left > 0 ? `${money(left)} away from complimentary delivery`
-                   : "Complimentary delivery applied";
+        : left > 0 ? interpolate(text("deliveryRemaining", "{amount} away from complimentary delivery"), { amount: money(left) })
+                   : text("deliveryApplied", "Complimentary delivery applied");
     }
     const foot = $("[data-drawer-foot]");
     if (foot) foot.hidden = !items.length;
@@ -388,9 +407,10 @@
       const cart = state.cart;
       const set = (sel, value) => { const el = $(sel); if (el) el.textContent = value; };
       set("[data-subtotal]", money(cart.subtotal));
-      set("[data-shipping]", Number(cart.shipping) === 0 ? "Complimentary" : money(cart.shipping));
+      set("[data-shipping]", Number(cart.shipping) === 0 ? text("complimentary", "Complimentary") : money(cart.shipping));
       set("[data-total]", money(cart.total));
-      set("[data-item-count]", cart.item_count + " item" + (cart.item_count === 1 ? "" : "s"));
+      set("[data-item-count]", interpolate(cart.item_count === 1
+        ? text("itemSingular", "{count} item") : text("itemPlural", "{count} items"), { count: cart.item_count }));
 
       const threshold = CFG.free_shipping_threshold || 0;
       const fill = $("[data-progress-fill]");
@@ -398,8 +418,8 @@
       if (fill) fill.style.width = Math.min(100, (Number(cart.subtotal) / threshold) * 100) + "%";
       if (label) {
         label.textContent = Number(cart.subtotal) >= threshold
-          ? "Complimentary delivery applied"
-          : `${money(threshold - Number(cart.subtotal))} away from complimentary delivery`;
+          ? text("deliveryApplied", "Complimentary delivery applied")
+          : interpolate(text("deliveryRemaining", "{amount} away from complimentary delivery"), { amount: money(threshold - Number(cart.subtotal)) });
       }
     }
     onChange(render);
@@ -466,7 +486,7 @@
       const shipping = express ? Number(CFG.shipping_express || 0) : Number(state.cart.shipping);
       const set = (sel, v) => { const el = $(sel); if (el) el.textContent = v; };
       set("[data-subtotal]", money(subtotal));
-      set("[data-shipping]", shipping === 0 ? "Complimentary" : money(shipping));
+      set("[data-shipping]", shipping === 0 ? text("complimentary", "Complimentary") : money(shipping));
       set("[data-total]", money(subtotal + shipping));
     }
     $$('input[name="delivery"]').forEach((r) => r.addEventListener("change", paint));
@@ -504,13 +524,13 @@
       }
 
       submit.disabled = true;
-      submit.textContent = "Placing order…";
+      submit.textContent = text("orderPlacing", "Placing order…");
       try {
         const order = await api(URLS.checkout, { method: "POST", body: payload });
         window.location.href = order.payment?.checkout_url || ("/checkout/confirmation/" + order.uuid + "/");
       } catch (error) {
         submit.disabled = false;
-        submit.textContent = "Place order";
+        submit.textContent = text("orderPlace", "Place order");
         if (errorBox) {
           errorBox.textContent = error.message;
           errorBox.hidden = false;
@@ -550,10 +570,17 @@
     $$("input[required], select[required], textarea[required]", form).forEach((input) => {
       const value = input.type === "password" ? input.value : input.value.trim();
       let message = "";
-      if (!value) message = "This field is required.";
-      else if (input.type === "email" && !EMAIL.test(value)) message = "Enter a valid email address.";
-      else if (input.type === "password" && input.autocomplete === "new-password" && value.length < 8) message = "Use at least 8 characters.";
-      else if (input.maxLength > 0 && value.length > input.maxLength) message = `Use at most ${input.maxLength} characters.`;
+      if (!value) message = text("validationRequired", "This field is required.");
+      else if (input.type === "email" && !EMAIL.test(value)) message = text(
+        "validationEmail", "Enter a valid email address."
+      );
+      else if (input.type === "password" && input.autocomplete === "new-password" && value.length < 8) message = text(
+        "validationPasswordMin", "Use at least 8 characters."
+      );
+      else if (input.maxLength > 0 && value.length > input.maxLength) message = interpolate(
+        text("validationMaxLength", "Use at most {max} characters."),
+        { max: input.maxLength }
+      );
       fieldError(input, message);
       if (message) { ok = false; firstBad = firstBad || input; }
     });
@@ -616,8 +643,12 @@
             },
           });
           contact.reset();
-          if (status) { status.textContent = "Message sent. The studio will reply by email."; status.hidden = false; }
-          else toast("Message sent.");
+          if (status) {
+            status.textContent = text(
+              "contactSentWithReply", "Message sent. The studio will reply by email."
+            );
+            status.hidden = false;
+          } else toast(text("contactSent", "Message sent."));
         } catch (error) {
           if (status) { status.textContent = error.message; status.hidden = false; }
           else toast(error.message);
@@ -702,7 +733,7 @@
         btn.addEventListener("click", () => {
           $$("[data-variant]", group).forEach((b) => b.setAttribute("aria-pressed", "false"));
           btn.setAttribute("aria-pressed", "true");
-          if (output) output.textContent = btn.dataset.variant;
+          if (output) output.textContent = btn.dataset.displayLabel || btn.dataset.variant;
         });
       });
     });
@@ -737,7 +768,7 @@
           await addToCart(btn.dataset.slug,
                           btn.dataset.variant || selectedVariant(scope),
                           qtyInput ? qtyInput.value : 1);
-          toast("Added to your bag");
+          toast(text("bagAdded", "Added to your bag"));
           if (window.AF_openCart && btn.dataset.openDrawer !== "false") window.AF_openCart();
         } catch (error) {
           toast(error.message);
@@ -764,10 +795,10 @@
         e.preventDefault();
         try {
           const added = await toggleWish(slug);
-          toast(added ? "Saved to your wishlist" : "Removed from your wishlist");
+          toast(added ? text("wishSaved", "Saved to your wishlist") : text("wishRemoved", "Removed from your wishlist"));
         } catch (error) {
           toast(error.status === 401 || error.status === 403
-            ? "Sign in to save pieces to your wishlist."
+            ? text("wishSignIn", "Sign in to save pieces to your wishlist.")
             : error.message);
         }
       });

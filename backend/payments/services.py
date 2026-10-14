@@ -19,6 +19,7 @@ needs to change.
 
 from __future__ import annotations
 
+import stripe
 import logging
 import uuid
 from abc import ABC, abstractmethod
@@ -154,26 +155,150 @@ class MockPaymentProvider(PaymentProvider):
 
 
 class StripeWeChatProvider(PaymentProvider):
-    """Placeholder for the charter's Stripe native WeChat Pay integration.
+    """Stripe's native WeChat Pay via Checkout (test mode).
 
-    Deliberately unimplemented: wiring it needs STRIPE_SECRET_KEY and
-    STRIPE_WEBHOOK_SECRET, and the project must run without third-party keys.
+    Needs STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET and SITE_URL (all already
+    read in settings.py). WeChat Pay must also be enabled in the Stripe
+    Dashboard under Settings > Payment methods.
     """
 
     name = PaymentProviderChoices.STRIPE_WECHAT
 
+    def _client(self):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        return stripe
+
+    @staticmethod
+    def _absolute_url(url_name: str, fallback: str, **kwargs) -> str:
+        """Full URL for Stripe's redirects. Falls back to a safe path if a URL
+        name doesn't exist in this project."""
+        from django.urls import NoReverseMatch
+
+        try:
+            path = reverse(url_name, kwargs=kwargs or None)
+        except NoReverseMatch:
+            path = fallback
+        return settings.SITE_URL.rstrip("/") + path
+
+    @staticmethod
+    def _field(obj, key, default=""):
+        """Read a field from a Stripe object without assuming it is a dict."""
+        try:
+            return obj[key] or default
+        except (KeyError, TypeError, AttributeError):
+            return default
+
     def create_session(self, order, *, return_url: str = "") -> PaymentSession:
-        raise NotImplementedError(
-            "Stripe WeChat Pay is not configured. Set STRIPE_SECRET_KEY and "
-            "STRIPE_WEBHOOK_SECRET, then implement create_session with "
-            "stripe.checkout.Session.create(payment_method_types=['wechat_pay'], ...)."
+        if not settings.STRIPE_SECRET_KEY:
+            raise RuntimeError("STRIPE_SECRET_KEY is not set in the environment.")
+        client = self._client()
+
+        payment = Payment.objects.create(
+            order=order,
+            provider=self.name,
+            state=PaymentState.CREATED,
+            amount=order.total,
+            currency=order.currency,
         )
 
-    def handle_webhook(self, raw_body: bytes, headers: dict) -> Payment | None:
-        raise NotImplementedError(
-            "Verify with stripe.Webhook.construct_event(raw_body, "
-            "headers['Stripe-Signature'], STRIPE_WEBHOOK_SECRET) before trusting the event."
+        success_url = return_url or self._absolute_url(
+            "order_confirmation", "/", uuid=order.uuid
         )
+        cancel_url = self._absolute_url("checkout", "/")
+
+        try:
+            session = client.checkout.Session.create(
+                payment_method_types=["wechat_pay"],
+                payment_method_options={"wechat_pay": {"client": "web"}},
+                line_items=[
+                    {
+                        "price_data": {
+                            "currency": order.currency.lower(),
+                            "product_data": {"name": f"Order {order.order_number}"},
+                            "unit_amount": int((order.total * 100).to_integral_value()),
+                        },
+                        "quantity": 1,
+                    }
+                ],
+                mode="payment",
+                success_url=success_url,
+                cancel_url=cancel_url,
+                metadata={
+                    "order_number": order.order_number,
+                    "payment_uuid": str(payment.uuid),
+                },
+            )
+        except stripe.StripeError:
+            logger.exception("Stripe session creation failed for order %s", order.order_number)
+            raise
+
+        payment.provider_session_id = session.id
+        payment.checkout_url = session.url
+        payment.save(update_fields=["provider_session_id", "checkout_url", "updated_at"])
+        logger.info("Stripe WeChat Pay session created for order %s", order.order_number)
+
+        return PaymentSession(
+            payment=payment,
+            session_id=session.id,
+            checkout_url=session.url,
+            requires_action=True,
+        )
+
+    @transaction.atomic
+    def handle_webhook(self, raw_body: bytes, headers: dict) -> Payment | None:
+        client = self._client()
+
+        signature = headers.get("Stripe-Signature") or headers.get("HTTP_STRIPE_SIGNATURE", "")
+        try:
+            event = client.Webhook.construct_event(
+                raw_body, signature, settings.STRIPE_WEBHOOK_SECRET
+            )
+        except (ValueError, stripe.SignatureVerificationError):
+            logger.warning("Stripe webhook signature verification failed")
+            return None
+
+        if event["type"] not in {
+            "checkout.session.completed",
+            "checkout.session.async_payment_succeeded",
+        }:
+            return None
+
+        session = event["data"]["object"]
+        if self._field(session, "payment_status") != "paid":
+            return None
+
+        payment = (
+            Payment.objects.select_for_update()
+            .select_related("order")
+            .filter(provider_session_id=self._field(session, "id"))
+            .first()
+        )
+        if not payment:
+            logger.warning("Stripe webhook for unknown session")
+            return None
+
+        from orders.models import OrderStatus, PaymentStatus
+
+        order = payment.order
+
+        if payment.state == PaymentState.SUCCEEDED:
+            return payment
+        if payment.inventory_released_at:
+            return payment
+
+        payment.state = PaymentState.SUCCEEDED
+        payment.provider_payment_id = self._field(session, "payment_intent")
+        order.payment_status = PaymentStatus.PAID
+        if order.status == OrderStatus.PENDING:
+            order.status = OrderStatus.CONFIRMED
+
+        payment.save(update_fields=["state", "provider_payment_id", "updated_at"])
+        order.save(update_fields=["payment_status", "status", "updated_at"])
+
+        from content.services import send_order_confirmation
+
+        transaction.on_commit(lambda: send_order_confirmation(order))
+        return payment
 
 
 def get_payment_provider() -> PaymentProvider:

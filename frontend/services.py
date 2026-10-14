@@ -17,11 +17,12 @@ from decimal import Decimal
 from typing import Any, Iterable, cast
 
 from django.db.models import Case, IntegerField, Q, When
+from django.utils.translation import gettext, gettext_noop
 
 from content.models import Article, ArticleQuerySet
 from .catalogue_i18n import (
-    COLOUR_TRANSLATIONS, MATERIAL_TRANSLATIONS, is_chinese,
-    localize_article, localize_collection, localize_maker, localize_product,
+    localize_article, localize_collection, localize_colour_label, localize_maker,
+    localize_product,
 )
 from products.models import (
     MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product,
@@ -29,26 +30,32 @@ from products.models import (
 )
 
 SORT_OPTIONS = [
-    ("featured", "Featured"),
-    ("newest", "Newest"),
-    ("price-asc", "Price: Low to High"),
-    ("price-desc", "Price: High to Low"),
+    ("featured", gettext_noop("Featured")),
+    ("newest", gettext_noop("Newest")),
+    ("price-asc", gettext_noop("Price: Low to High")),
+    ("price-desc", gettext_noop("Price: High to Low")),
 ]
 
 AVAILABILITY_OPTIONS = [
-    ("in-stock", "In stock"),
-    ("low-stock", "Low stock"),
-    ("made-to-order", "Made to order"),
+    ("in-stock", gettext_noop("In stock")),
+    ("low-stock", gettext_noop("Low stock")),
+    ("made-to-order", gettext_noop("Made to order")),
 ]
 
 PRICE_BANDS = [
-    ("under-40", "Under ¥40", 0, 40),
-    ("40-70", "¥40 – ¥70", 40, 70),
-    ("70-100", "¥70 – ¥100", 70, 100),
-    ("over-100", "Over ¥100", 100, 10_000),
+    ("under-40", gettext_noop("Under ¥40"), 0, 40),
+    ("40-70", gettext_noop("¥40 – ¥70"), 40, 70),
+    ("70-100", gettext_noop("¥70 – ¥100"), 70, 100),
+    ("over-100", gettext_noop("Over ¥100"), 100, 10_000),
 ]
 
-POPULAR_SEARCHES = ["Stoneware mug", "Indigo", "Candle", "Linen", "Gifts under ¥50"]
+POPULAR_SEARCHES = [
+    gettext_noop("Stoneware mug"),
+    gettext_noop("Indigo"),
+    gettext_noop("Candle"),
+    gettext_noop("Linen"),
+    gettext_noop("Gifts under ¥50"),
+]
 
 _SORT_FIELDS = {
     "newest": ["-sort_weight", "-created_at"],
@@ -59,26 +66,15 @@ _SORT_FIELDS = {
 
 
 def localized_sort_options() -> list[tuple[str, str]]:
-    labels = {
-        "Featured": "精选", "Newest": "最新上架",
-        "Price: Low to High": "价格：从低到高",
-        "Price: High to Low": "价格：从高到低",
-    }
-    return [(value, labels.get(label, label) if is_chinese() else label)
-            for value, label in SORT_OPTIONS]
+    return [(value, gettext(label)) for value, label in SORT_OPTIONS]
 
 
 def _price_label(label: str) -> str:
-    if not is_chinese():
-        return label
-    return {"Under ¥40": "低于 ¥40", "Over ¥100": "高于 ¥100"}.get(label, label)
+    return gettext(label)
 
 
 def _availability_label(label: str) -> str:
-    if not is_chinese():
-        return label
-    return {"In stock": "现货供应", "Low stock": "库存紧张",
-            "Made to order": "订制生产"}.get(label, label)
+    return gettext(label)
 
 
 def _base_queryset():
@@ -89,16 +85,18 @@ def _base_queryset():
 # -- Products ------------------------------------------------------------
 
 def all_products() -> list[Product]:
-    return list(_base_queryset())
+    return [localize_product(product) for product in _base_queryset()]
 
 
 def get_product(slug: str) -> Product | None:
-    return _base_queryset().filter(slug=slug).first()
+    product = _base_queryset().filter(slug=slug).first()
+    return localize_product(product) if product else None
 
 
 def featured_products(limit: int | None = None) -> list[Product]:
     queryset = _base_queryset().filter(is_featured=True)
-    return list(queryset[:limit] if limit else queryset)
+    products = list(queryset[:limit] if limit else queryset)
+    return [localize_product(product) for product in products]
 
 
 def new_arrivals(limit: int = 8) -> list[Product]:
@@ -108,7 +106,8 @@ def new_arrivals(limit: int = 8) -> list[Product]:
 
 
 def products_by_maker(maker_slug: str) -> list[Product]:
-    return list(_base_queryset().filter(maker__slug=maker_slug))
+    products = list(_base_queryset().filter(maker__slug=maker_slug))
+    return [localize_product(product) for product in products]
 
 
 def related_products(product: Product, limit: int = 4) -> list[Product]:
@@ -116,7 +115,7 @@ def related_products(product: Product, limit: int = 4) -> list[Product]:
 
     Ranked in SQL so the whole catalogue is not pulled into memory as it grows.
     """
-    return list(
+    products = list(
         _base_queryset()
         .exclude(pk=product.pk)
         .annotate(
@@ -127,6 +126,7 @@ def related_products(product: Product, limit: int = 4) -> list[Product]:
         )
         .order_by("same_maker", "same_category", "-is_featured", "-sort_weight")[:limit]
     )
+    return [localize_product(item) for item in products]
 
 
 def filter_products(
@@ -207,8 +207,7 @@ def shop_facets() -> dict[str, Any]:
         count = _base_queryset().filter(clause).count()
         if count:
             material_rows.append({"value": family,
-                                  "label": MATERIAL_TRANSLATIONS.get(family, family)
-                                  if is_chinese() else family,
+                                  "label": gettext(family),
                                   "count": count})
 
     colour_rows = (ProductVariant.objects
@@ -223,8 +222,7 @@ def shop_facets() -> dict[str, Any]:
                    for c in category_rows],
         "materials": material_rows,
         "colours": [{"value": r["label"],
-                 "label": COLOUR_TRANSLATIONS.get(r["label"], r["label"])
-                 if is_chinese() else r["label"], "swatch": r["swatch"]}
+                 "label": localize_colour_label(r["label"]), "swatch": r["swatch"]}
                     for r in colour_rows],
         "price_bands": [{"value": v, "label": _price_label(lbl)}
                 for v, lbl, _, _ in PRICE_BANDS],
@@ -261,11 +259,12 @@ def products_in_collection(slug: str, sort: str = "featured") -> list[Product]:
 # -- Makers --------------------------------------------------------------
 
 def all_makers() -> list[Maker]:
-    return list(Maker.objects.filter(is_active=True))
+    return [localize_maker(maker) for maker in Maker.objects.filter(is_active=True)]
 
 
 def get_maker(slug: str) -> Maker | None:
-    return Maker.objects.filter(slug=slug, is_active=True).first()
+    maker = Maker.objects.filter(slug=slug, is_active=True).first()
+    return localize_maker(maker) if maker else None
 
 
 # -- Journal -------------------------------------------------------------
@@ -306,15 +305,21 @@ def search(query: str) -> dict[str, list]:
     collections += list(Category.objects.filter(
         Q(name__icontains=q) | Q(tagline__icontains=q) | Q(description__icontains=q),
         is_active=True))
+    makers = list(Maker.objects.filter(
+        Q(name__icontains=q) | Q(discipline__icontains=q)
+        | Q(location__icontains=q) | Q(tagline__icontains=q), is_active=True))
 
     return {
-        "products": list(_base_queryset().search(q)),
-        "collections": collections,
-        "makers": list(Maker.objects.filter(
-            Q(name__icontains=q) | Q(discipline__icontains=q)
-            | Q(location__icontains=q) | Q(tagline__icontains=q), is_active=True)),
-        "articles": list(cast(ArticleQuerySet, Article.objects).published().filter(
-            Q(title__icontains=q) | Q(standfirst__icontains=q) | Q(category__icontains=q))),
+        "products": [localize_product(product) for product in _base_queryset().search(q)],
+        "collections": [localize_collection(collection) for collection in collections],
+        "makers": [localize_maker(maker) for maker in makers],
+        "articles": [
+            localize_article(article)
+            for article in cast(ArticleQuerySet, Article.objects).published().filter(
+                Q(title__icontains=q) | Q(standfirst__icontains=q)
+                | Q(category__icontains=q)
+            )
+        ],
     }
 
 
@@ -339,5 +344,5 @@ def catalogue_payload() -> dict[str, dict]:
             "url": reverse("product_detail", args=[p.slug]),
             "stock": p.stock_status,
         }
-        for p in _base_queryset()
+        for p in (localize_product(product) for product in _base_queryset())
     }

@@ -266,6 +266,9 @@ COMMERCE = {
 PAYMENT_BACKEND = env("PAYMENT_BACKEND")
 PAYMENT_RESERVATION_MINUTES = env("PAYMENT_RESERVATION_MINUTES")
 EMAIL_SENDER_CLASS = env("EMAIL_BACKEND_CLASS")
+STRIPE_SECRET_KEY = env.str("STRIPE_SECRET_KEY", default="")
+STRIPE_WEBHOOK_SECRET = env.str("STRIPE_WEBHOOK_SECRET", default="")
+SITE_URL = env.str("SITE_URL", default="http://127.0.0.1:8000")
 
 
 # -- Django password-reset email -----------------------------------------

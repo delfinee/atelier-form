@@ -8,7 +8,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.test import TestCase
 
 from orders import services
-from orders.models import FulfillmentStatus, Order, SellerFulfillment
+from orders.models import FulfillmentStatus, Order, OrderStatus, PaymentStatus, SellerFulfillment
 
 from .factories import make_bare_order, make_category, make_maker, make_order_item, make_product
 
@@ -50,8 +50,12 @@ class StatusValidationTests(TestCase):
         self.bob_f = SellerFulfillment.objects.create(order=self.order, maker=self.bob)
 
     def test_valid_existing_status_is_accepted(self):
+        # A successful dispatch is exercised on a paid, confirmed order; the
+        # class's shared unpaid order stays as-is for the rejection tests.
+        paid_order = make_bare_order(status=OrderStatus.CONFIRMED, payment_status=PaymentStatus.PAID)
+        alice_f = SellerFulfillment.objects.create(order=paid_order, maker=self.alice)
         updated = services.update_seller_fulfillment(
-            self.alice_f, acting_maker=self.alice, status=FulfillmentStatus.FULFILLED)
+            alice_f, acting_maker=self.alice, status=FulfillmentStatus.FULFILLED)
         self.assertEqual(updated.status, FulfillmentStatus.FULFILLED)
 
     def test_invalid_status_is_rejected(self):
@@ -133,7 +137,8 @@ class SellerTrackingIsolationTests(TestCase):
 class ShippedAtTests(TestCase):
     def setUp(self):
         self.alice = make_maker("alice", "Alice")
-        self.order = make_bare_order()
+        # Paid and confirmed: these tests exercise successful dispatch.
+        self.order = make_bare_order(status=OrderStatus.CONFIRMED, payment_status=PaymentStatus.PAID)
         self.fulfillment = SellerFulfillment.objects.create(order=self.order, maker=self.alice)
 
     def test_null_on_creation(self):
@@ -170,7 +175,8 @@ class ParentOrderAggregationTests(TestCase):
     def setUp(self):
         self.alice = make_maker("alice", "Alice")
         self.bob = make_maker("bob", "Bob")
-        self.order = make_bare_order()
+        # Paid and confirmed: these tests exercise successful dispatch.
+        self.order = make_bare_order(status=OrderStatus.CONFIRMED, payment_status=PaymentStatus.PAID)
         self.alice_f = SellerFulfillment.objects.create(order=self.order, maker=self.alice)
         self.bob_f = SellerFulfillment.objects.create(order=self.order, maker=self.bob)
 
@@ -198,7 +204,8 @@ class ThreeSellerAggregationTests(TestCase):
     """The aggregation rule must generalise past exactly two sellers."""
 
     def setUp(self):
-        self.order = make_bare_order()
+        # Paid and confirmed: these tests exercise successful dispatch.
+        self.order = make_bare_order(status=OrderStatus.CONFIRMED, payment_status=PaymentStatus.PAID)
         self.makers = {name: make_maker(name, name.title())
                        for name in ("alice", "bob", "charlie")}
         self.fulfillments = {

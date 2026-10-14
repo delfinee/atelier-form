@@ -20,7 +20,7 @@ E – Validation: bad input is rejected before touching the database
 from django.test import TestCase
 from rest_framework.test import APIClient
 
-from orders.models import FulfillmentStatus, SellerFulfillment
+from orders.models import FulfillmentStatus, OrderStatus, PaymentStatus, SellerFulfillment
 
 from .factories import (
     make_bare_order,
@@ -48,7 +48,12 @@ class SellerAPIBase(TestCase):
     Alice's SellerFulfillment and Bob's SellerFulfillment are created and
     attached to the same order, mimicking what services.create_order() does
     at real checkout time.
+
+    `shared_order_fields` lets a subclass set the shared order's status and
+    payment_status; by default it is a freshly placed, unpaid order.
     """
+
+    shared_order_fields = {}
 
     def setUp(self):
         category = make_category()
@@ -72,7 +77,7 @@ class SellerAPIBase(TestCase):
                                         slug="bob-chair", name="Bob's Chair", price="30.00")
 
         # One shared order containing items from BOTH sellers
-        self.order = make_bare_order()
+        self.order = make_bare_order(**self.shared_order_fields)
         self.alice_item = make_order_item(order=self.order, product=self.alice_product,
                                           quantity=2)
         self.bob_item = make_order_item(order=self.order, product=self.bob_product,
@@ -218,6 +223,9 @@ class SellerFulfilmentReadTests(SellerAPIBase):
 
 class SellerFulfilmentUpdateTests(SellerAPIBase):
     """Alice can update her own carrier, tracking number, and status."""
+
+    # Paid and confirmed: these tests include a successful dispatch.
+    shared_order_fields = {"status": OrderStatus.CONFIRMED, "payment_status": PaymentStatus.PAID}
 
     def _patch(self, uuid, payload):
         return self.client.patch(

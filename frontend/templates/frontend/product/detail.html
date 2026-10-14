@@ -53,14 +53,16 @@
           <div class="variant-group" data-variant-group>
             <div class="variant-group__label">
               <span class="label">{% translate "Colour" %}</span>
-              <span class="value" data-variant-value>{{ colours.0.label }}</span>
+              <span class="value" data-variant-value>{% colour_label colours.0.label %}</span>
             </div>
             <div class="variants">
               {% for v in colours %}
+                {% colour_label v.label as display_label %}
                 <button class="variant variant--swatch" type="button" data-variant="{{ v.label }}"
+                        data-display-label="{{ display_label }}"
                         aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
                         {% if not v.available %}disabled{% endif %}
-                        aria-label="{% if v.available %}{{ v.label }}{% else %}{% blocktranslate with label=v.label %}{{ label }} — sold out{% endblocktranslate %}{% endif %}">
+                        aria-label="{% if v.available %}{{ display_label }}{% else %}{% blocktranslate with label=display_label %}{{ label }} — sold out{% endblocktranslate %}{% endif %}">
                   <span style="background:{{ v.swatch }}"></span>
                 </button>
               {% endfor %}
@@ -72,13 +74,15 @@
           <div class="variant-group" data-variant-group>
             <div class="variant-group__label">
               <span class="label">{% translate "Size" %}</span>
-              <span class="value" data-variant-value>{{ sizes.0.label }}</span>
+              <span class="value" data-variant-value>{% size_label sizes.0.label %}</span>
             </div>
             <div class="variants">
               {% for v in sizes %}
+                {% size_label v.label as display_label %}
                 <button class="variant" type="button" data-variant="{{ v.label }}"
+                        data-display-label="{{ display_label }}"
                         aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
-                        {% if not v.available %}disabled{% endif %}>{{ v.label }}</button>
+                        {% if not v.available %}disabled{% endif %}>{{ display_label }}</button>
               {% endfor %}
             </div>
           </div>

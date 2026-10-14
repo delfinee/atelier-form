@@ -539,6 +539,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: var(--gap) 0; }
   padding: 0.3rem 0.75rem; font-size: var(--step--1);
 }
 .chip:hover { border-color: var(--smoke); }
+.chip[aria-current="page"] { background: var(--ink); color: var(--bone); border-color: var(--ink); }
 .filter-trigger { display: none; }
 @media (max-width: 900px) {
   .filter-trigger { display: inline-flex; }

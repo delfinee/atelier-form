@@ -1,0 +1,66 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell page-head">
+  <p class="eyebrow">{{ maker.name }} · {% translate "Seller portal" %}</p>
+  <h1 style="font-size:var(--step-3)">{% translate "Your Products" %}</h1>
+  <p class="lede">{% translate "Manage your small-batch catalogue, update prices, variant options, and stock levels." %}</p>
+
+  <div style="display:flex;gap:0.75rem;margin-top:1.2rem;flex-wrap:wrap;align-items:center">
+    <a class="btn btn--primary btn--sm" href="{% url 'seller_product_create' %}">{% icon "plus" 16 %} {% translate "Add new product" %}</a>
+    <a class="btn btn--secondary btn--sm" href="{% url 'seller_dashboard' %}">{% translate "Analytics Dashboard" %}</a>
+    <a class="btn btn--secondary btn--sm" href="{% url 'seller_order_list' %}">{% translate "Orders" %}</a>
+  </div>
+</div>
+
+<div class="shell" style="padding-bottom:var(--section)">
+  <div class="panel">
+    <div class="panel__head">
+      <h2>{% translate "Product catalogue" %}</h2>
+      <span>{% blocktranslate count n=products|length %}{{ n }} product{% plural %}{{ n }} products{% endblocktranslate %}</span>
+    </div>
+
+    {% for product in products %}
+      <div class="summary__row" style="align-items:center;padding:1.2rem 0;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+        <div>
+          <div style="display:flex;align-items:center;gap:0.6rem">
+            <strong style="font-size:1.1rem">{{ product.name }}</strong>
+            {% if not product.is_active %}
+              <span class="badge" style="background:var(--sand-dark);color:var(--ink-soft)">{% translate "Draft / Hidden" %}</span>
+            {% endif %}
+            {% if product.is_made_to_order %}
+              <span class="badge">{% translate "Made to order" %}</span>
+            {% elif product.stock_status == "low-stock" %}
+              <span class="badge badge--accent">{% translate "Low stock" %}</span>
+            {% elif product.stock_status == "sold-out" %}
+              <span class="badge" style="background:#fee2e2;color:#991b1b">{% translate "Sold out" %}</span>
+            {% endif %}
+          </div>
+
+          <div style="font-size:0.9rem;color:var(--ink-soft);margin-top:0.35rem">
+            {{ product.category.name }} · {{ product.price|money }}
+            {% if product.product_variants.exists %}
+              · {% blocktranslate count n=product.product_variants.count %}{{ n }} variant{% plural %}{{ n }} variants{% endblocktranslate %}
+            {% else %}
+              · {% blocktranslate count n=product.stock_quantity %}{{ n }} in stock{% plural %}{{ n }} in stock{% endblocktranslate %}
+            {% endif %}
+          </div>
+        </div>
+
+        <div style="display:flex;gap:0.75rem;align-items:center">
+          <a class="btn btn--sm" href="{% url 'product_detail' product.slug %}" target="_blank">{% translate "View in store" %}</a>
+          <a class="btn btn--secondary btn--sm" href="{% url 'seller_product_edit' product.slug %}">{% translate "Edit" %}</a>
+        </div>
+      </div>
+    {% empty %}
+      <div style="padding:2.5rem 0;text-align:center">
+        <p class="muted" style="margin-bottom:1.2rem">{% translate "You haven't listed any products yet." %}</p>
+        <a class="btn btn--primary btn--sm" href="{% url 'seller_product_create' %}">{% translate "Create your first product" %}</a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

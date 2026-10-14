@@ -46,13 +46,18 @@ def make_product(*, maker, category, slug, name="Test product", price="20.00", s
     )
 
 
-def make_bare_order(*, currency="CNY", email="buyer@example.test"):
+def make_bare_order(*, currency="CNY", email="buyer@example.test",
+                    status=OrderStatus.PENDING, payment_status=PaymentStatus.UNPAID):
     """An Order with no items and no SellerFulfillment rows -- for tests that
     exercise the model/service layer directly, without going through the
-    heavier real checkout path in orders.services.create_order."""
+    heavier real checkout path in orders.services.create_order.
+
+    Defaults to a freshly placed, unpaid order. Tests that exercise a
+    successful dispatch pass status=CONFIRMED, payment_status=PAID -- the
+    state a real order reaches once its payment succeeds."""
     return Order.objects.create(
         order_number=OrderNumberSequence.next_number(),
-        status=OrderStatus.PENDING, payment_status=PaymentStatus.UNPAID,
+        status=status, payment_status=payment_status,
         customer_email=email, currency=currency,
     )
 

@@ -5,6 +5,7 @@ import re
 import shutil
 import subprocess
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 from pathlib import Path
 from unittest import skipUnless
 from unittest.mock import PropertyMock, patch
@@ -20,9 +21,18 @@ from django.contrib.sessions.models import Session
 from django.core import mail
 from django.test import Client, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone as django_timezone
 from django.utils.html import escape
+from rest_framework.test import APIClient
 
-from orders.models import Order
+from accounts.models import WishlistItem
+from orders.models import (
+    FulfillmentStatus, Order, OrderItem, OrderNumberSequence, OrderStatus,
+    PaymentStatus, SellerFulfillment,
+)
+from frontend.templatetags.frontend_extras import money as money_filter
+from products.models import Category, Maker, Product, ProductVariant
+from reviews.models import Review
 
 from .forms import ProfileForm, RegistrationForm
 
@@ -1143,3 +1153,819 @@ class AccountNavigationTests(TestCase):
                     next_page = self.client.get(reverse("account_profile"))
                     for _, message, _ in queued:
                         self.assertNotContains(next_page, escape(message))
+
+
+@override_settings(
+    STORAGES={
+        **settings.STORAGES,
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    },
+)
+class SellerDashboardAnalyticsTests(TestCase):
+    """Gate 2 backend validation for frontend.views.seller_dashboard.
+
+    Each seller/maker/product/order is built directly through the ORM,
+    matching this file's existing convention (no third-party factory
+    library, no cross-app fixture import).
+    """
+
+    password = "Studio-owner-57!"
+
+    @classmethod
+    def setUpTestData(cls):
+        User = get_user_model()
+        cls.seller = User.objects.create_user(
+            email="alice.analytics@example.com", password=cls.password, is_seller=True)
+        cls.other_seller = User.objects.create_user(
+            email="bob.analytics@example.com", password=cls.password, is_seller=True)
+
+        cls.category = Category.objects.create(slug="analytics-category", name="Analytics Category")
+
+        cls.maker = Maker.objects.create(
+            slug="alice-analytics", name="Alice", owner=cls.seller,
+            discipline="Ceramics", location="Singapore")
+        cls.other_maker = Maker.objects.create(
+            slug="bob-analytics", name="Bob", owner=cls.other_seller,
+            discipline="Woodwork", location="Singapore")
+
+    def setUp(self):
+        self.client.force_login(self.seller)
+
+    # -- local fixture helpers ---------------------------------------------
+
+    def make_product(self, maker, slug, *, price="20.00", stock_quantity=50, category=None,
+                     is_made_to_order=False):
+        return Product.objects.create(
+            slug=slug, name=slug.replace("-", " ").title(), maker=maker,
+            category=category or self.category, price=Decimal(price),
+            stock_quantity=stock_quantity, is_active=True,
+            is_made_to_order=is_made_to_order,
+        )
+
+    def make_variant(self, product, *, label, stock_quantity, is_active=True):
+        return ProductVariant.objects.create(
+            product=product, group="colour", label=label,
+            sku=f"{product.slug[:20].upper()}-{label[:6].upper()}",
+            stock_quantity=stock_quantity, is_active=is_active,
+        )
+
+    def make_order(self, *, user=None, payment_status=PaymentStatus.PAID,
+                   status=OrderStatus.CONFIRMED, placed_at=None):
+        placed_at = placed_at or django_timezone.now()
+        return Order.objects.create(
+            order_number=OrderNumberSequence.next_number(placed_at.year),
+            user=user, status=status, payment_status=payment_status,
+            customer_email=(user.email if user else "buyer@example.test"),
+            placed_at=placed_at,
+        )
+
+    def make_order_item(self, order, product, *, quantity=1, unit_price=None):
+        unit_price = Decimal(unit_price) if unit_price is not None else product.price
+        return OrderItem.objects.create(
+            order=order, product=product, maker=product.maker,
+            product_slug=product.slug, product_name=product.name,
+            maker_name=product.maker.name, unit_price=unit_price, quantity=quantity,
+            line_total=unit_price * quantity,
+        )
+
+    def get_dashboard(self, period="all"):
+        return self.client.get(reverse("seller_dashboard") + f"?period={period}")
+
+    # -- 1. seller isolation -------------------------------------------------
+
+    def test_seller_isolation_across_all_metrics(self):
+        alice_product = self.make_product(self.maker, "alice-mug", price="20.00")
+        bob_product = self.make_product(self.other_maker, "bob-chair", price="100.00")
+
+        alice_order = self.make_order(user=self.seller)
+        self.make_order_item(alice_order, alice_product, quantity=2)  # 2 units, $40.00
+
+        bob_order = self.make_order(user=self.other_seller)
+        self.make_order_item(bob_order, bob_product, quantity=5)  # 5 units, $500.00
+
+        # a product being on someone else's wishlist must not count for this seller
+        WishlistItem.objects.create(user=self.other_seller, product=alice_product)
+        WishlistItem.objects.create(user=self.seller, product=bob_product)
+
+        Review.objects.create(product=alice_product, user=self.other_seller, rating=5, is_published=True)
+        Review.objects.create(product=bob_product, user=self.seller, rating=1, is_published=True)
+
+        self.make_variant(alice_product, label="Small", stock_quantity=2)
+        self.make_variant(bob_product, label="Oak", stock_quantity=1)
+
+        SellerFulfillment.objects.create(order=alice_order, maker=self.maker)
+        SellerFulfillment.objects.create(order=bob_order, maker=self.other_maker)
+
+        response = self.get_dashboard()
+        ctx = response.context
+
+        self.assertEqual(ctx["total_revenue"], Decimal("40.00"))
+        self.assertEqual(ctx["total_units"], 2)
+        self.assertEqual(ctx["total_orders"], 1)
+        self.assertEqual(ctx["average_order_value"], Decimal("40.00"))
+        self.assertEqual(ctx["total_wishlist_saves"], 1)
+        self.assertEqual(ctx["review_count"], 1)
+        self.assertEqual(float(ctx["avg_rating"]), 5.0)
+        self.assertEqual(ctx["pending_dispatch_count"], 1)
+
+        best_seller_ids = [row["product_id"] for row in ctx["best_sellers"]]
+        self.assertIn(alice_product.id, best_seller_ids)
+        self.assertNotIn(bob_product.id, best_seller_ids)
+
+        low_stock_ids = [p.id for p in ctx["low_stock_products"]]
+        self.assertIn(alice_product.id, low_stock_ids)
+        self.assertNotIn(bob_product.id, low_stock_ids)
+
+        # Gate 3: the existing "Your products" / "Incoming order lines" sections
+        # still render this seller's own data, and never the other seller's.
+        self.assertContains(response, alice_product.name)
+        self.assertNotContains(response, bob_product.name)
+        self.assertContains(response, alice_order.order_number)
+        self.assertNotContains(response, bob_order.order_number)
+
+    # -- 2. paid vs unpaid ----------------------------------------------------
+
+    def test_only_paid_orders_count_toward_financial_metrics(self):
+        product = self.make_product(self.maker, "paid-vs-unpaid", price="30.00")
+        paid_order = self.make_order(payment_status=PaymentStatus.PAID)
+        self.make_order_item(paid_order, product, quantity=1)
+
+        unpaid_order = self.make_order(payment_status=PaymentStatus.UNPAID, status=OrderStatus.PENDING)
+        self.make_order_item(unpaid_order, product, quantity=10)  # would dominate if wrongly counted
+
+        ctx = self.get_dashboard().context
+        self.assertEqual(ctx["total_revenue"], Decimal("30.00"))
+        self.assertEqual(ctx["total_units"], 1)
+        self.assertEqual(ctx["total_orders"], 1)
+        self.assertEqual(ctx["average_order_value"], Decimal("30.00"))
+
+        best_seller = ctx["best_sellers"][0]
+        self.assertEqual(best_seller["units"], 1)
+        self.assertEqual(best_seller["revenue"], Decimal("30.00"))
+
+    # -- 3. distinct order counting -------------------------------------------
+
+    def test_one_order_multiple_lines_counts_as_one_order(self):
+        product_a = self.make_product(self.maker, "multi-line-a", price="10.00")
+        product_b = self.make_product(self.maker, "multi-line-b", price="15.00")
+        order = self.make_order()
+        self.make_order_item(order, product_a, quantity=1)
+        self.make_order_item(order, product_b, quantity=1)
+
+        self.assertEqual(self.get_dashboard().context["total_orders"], 1)
+
+    # -- 4. AOV ----------------------------------------------------------------
+
+    def test_average_order_value_computation(self):
+        product = self.make_product(self.maker, "aov-product", price="50.00")
+        order1 = self.make_order()
+        self.make_order_item(order1, product, quantity=1)  # $50
+        order2 = self.make_order()
+        self.make_order_item(order2, product, quantity=3)  # $150
+        # total revenue $200 across 2 orders -> AOV $100
+
+        ctx = self.get_dashboard().context
+        self.assertEqual(ctx["total_revenue"], Decimal("200.00"))
+        self.assertEqual(ctx["total_orders"], 2)
+        self.assertEqual(ctx["average_order_value"], Decimal("100.00"))
+
+    def test_average_order_value_is_safe_zero_with_no_paid_orders(self):
+        response = self.get_dashboard()
+        self.assertEqual(response.status_code, 200)
+        ctx = response.context
+        self.assertEqual(ctx["total_orders"], 0)
+        self.assertEqual(ctx["average_order_value"], Decimal("0"))
+
+    # -- 5. time-window filtering ----------------------------------------------
+
+    def test_time_window_filtering_7d(self):
+        product = self.make_product(self.maker, "time-window", price="10.00")
+        recent_order = self.make_order(placed_at=django_timezone.now() - timedelta(days=1))
+        self.make_order_item(recent_order, product, quantity=1)
+
+        old_order = self.make_order(placed_at=django_timezone.now() - timedelta(days=10))
+        self.make_order_item(old_order, product, quantity=5)
+
+        ctx_7d = self.get_dashboard(period="7d").context
+        self.assertEqual(ctx_7d["total_orders"], 1)
+        self.assertEqual(ctx_7d["total_units"], 1)
+
+        ctx_all = self.get_dashboard(period="all").context
+        self.assertEqual(ctx_all["total_orders"], 2)
+        self.assertEqual(ctx_all["total_units"], 6)
+
+    def test_time_window_filtering_24h(self):
+        """Near-boundary check: just inside 24h is included, just outside is
+        not -- not merely "2h vs 30h", which a coarser off-by-a-lot bug would
+        also pass."""
+        product = self.make_product(self.maker, "time-window-24h", price="10.00")
+        within = self.make_order(placed_at=django_timezone.now() - timedelta(hours=23, minutes=59))
+        self.make_order_item(within, product, quantity=1)
+
+        outside = self.make_order(placed_at=django_timezone.now() - timedelta(hours=24, minutes=1))
+        self.make_order_item(outside, product, quantity=1)
+
+        self.assertEqual(self.get_dashboard(period="24h").context["total_orders"], 1)
+
+    def test_operational_metrics_are_not_time_filtered(self):
+        """Wishlist/rating/pending-dispatch/low-stock reflect current state,
+        not the selected period -- an old paid order's unfulfilled dispatch
+        must still show up even under a narrow window (Finding G)."""
+        product = self.make_product(self.maker, "operational", price="10.00")
+        old_order = self.make_order(placed_at=django_timezone.now() - timedelta(days=30))
+        self.make_order_item(old_order, product, quantity=1)
+        SellerFulfillment.objects.create(order=old_order, maker=self.maker)
+        WishlistItem.objects.create(user=self.other_seller, product=product)
+        Review.objects.create(product=product, user=self.other_seller, rating=4, is_published=True)
+        self.make_variant(product, label="Tiny", stock_quantity=1)
+
+        ctx = self.get_dashboard(period="24h").context
+        # financial metrics ARE windowed and exclude the old order
+        self.assertEqual(ctx["total_orders"], 0)
+        # operational metrics are NOT windowed
+        self.assertEqual(ctx["pending_dispatch_count"], 1)
+        self.assertEqual(ctx["total_wishlist_saves"], 1)
+        self.assertEqual(ctx["review_count"], 1)
+        self.assertEqual([p.id for p in ctx["low_stock_products"]], [product.id])
+
+    # -- 6. best-seller join multiplication -------------------------------------
+
+    def test_best_seller_totals_are_not_inflated_by_wishlist_joins(self):
+        """Reproduces Finding D exactly: one product, two separate paid
+        OrderItem rows, four WishlistItem rows. Before the fix this returned
+        units=20/revenue=$200.00 (5 units x 4 wishlist rows) instead of the
+        correct units=5/revenue=$50.00 -- Count(distinct=True) alone does not
+        protect Sum() in the same annotate() call."""
+        product = self.make_product(self.maker, "popular-mug", price="10.00")
+        order = self.make_order()
+        self.make_order_item(order, product, quantity=2)  # line 1: 2 units, $20.00
+        self.make_order_item(order, product, quantity=3)  # line 2: 3 units, $30.00
+
+        for i in range(4):
+            wisher = get_user_model().objects.create_user(
+                email=f"wisher{i}@example.com", password=self.password)
+            WishlistItem.objects.create(user=wisher, product=product)
+
+        response = self.get_dashboard()
+        best_sellers = list(response.context["best_sellers"])
+        self.assertEqual(len(best_sellers), 1)
+        row = best_sellers[0]
+        self.assertEqual(row["units"], 5)
+        self.assertEqual(row["revenue"], Decimal("50.00"))
+        self.assertEqual(row["wishlist_saves"], 4)
+
+        # Gate 3: the corrected (non-inflated) numbers actually reach the page
+        self.assertContains(response, product.name)
+
+    # -- 7. pending dispatch payment state ---------------------------------------
+
+    def test_pending_dispatch_counts_only_paid_unfulfilled(self):
+        product = self.make_product(self.maker, "dispatch-product", price="10.00")
+
+        paid_order = self.make_order(payment_status=PaymentStatus.PAID)
+        self.make_order_item(paid_order, product, quantity=1)
+        SellerFulfillment.objects.create(order=paid_order, maker=self.maker)  # counts
+
+        unpaid_order = self.make_order(payment_status=PaymentStatus.UNPAID, status=OrderStatus.PENDING)
+        self.make_order_item(unpaid_order, product, quantity=1)
+        SellerFulfillment.objects.create(order=unpaid_order, maker=self.maker)  # must not count
+
+        cancelled_order = self.make_order(payment_status=PaymentStatus.FAILED, status=OrderStatus.CANCELLED)
+        self.make_order_item(cancelled_order, product, quantity=1)
+        SellerFulfillment.objects.create(order=cancelled_order, maker=self.maker)  # must not count
+
+        fulfilled_paid_order = self.make_order(payment_status=PaymentStatus.PAID)
+        self.make_order_item(fulfilled_paid_order, product, quantity=1)
+        SellerFulfillment.objects.create(order=fulfilled_paid_order, maker=self.maker,
+                                         status=FulfillmentStatus.FULFILLED)  # already shipped, must not count
+
+        # paid, then cancelled (e.g. an admin cancels ahead of a refund) --
+        # nothing left to pack even though payment_status is still PAID
+        paid_cancelled_order = self.make_order(payment_status=PaymentStatus.PAID,
+                                               status=OrderStatus.CANCELLED)
+        self.make_order_item(paid_cancelled_order, product, quantity=1)
+        SellerFulfillment.objects.create(order=paid_cancelled_order, maker=self.maker)  # must not count
+
+        self.assertEqual(self.get_dashboard().context["pending_dispatch_count"], 1)
+
+    # -- 8. low stock -------------------------------------------------------------
+
+    def test_low_stock_uses_actual_relation_threshold_and_excludes_sold_out(self):
+        threshold = settings.COMMERCE["LOW_STOCK_THRESHOLD"]
+
+        low_product = self.make_product(self.maker, "low-stock-product")
+        self.make_variant(low_product, label="Low", stock_quantity=threshold)  # at threshold -> included
+
+        sold_out_product = self.make_product(self.maker, "sold-out-product")
+        self.make_variant(sold_out_product, label="None", stock_quantity=0)  # sold out -> excluded
+
+        healthy_product = self.make_product(self.maker, "healthy-product")
+        self.make_variant(healthy_product, label="Plenty", stock_quantity=threshold + 50)  # excluded
+
+        other_seller_product = self.make_product(self.other_maker, "other-seller-low-stock")
+        self.make_variant(other_seller_product, label="Low", stock_quantity=1)  # must not leak
+
+        inactive_product = self.make_product(self.maker, "inactive-variant-product")
+        self.make_variant(inactive_product, label="Retired", stock_quantity=1,
+                          is_active=False)  # not offered for sale -> excluded
+
+        made_to_order_product = self.make_product(self.maker, "made-to-order-product",
+                                                   is_made_to_order=True)
+        self.make_variant(made_to_order_product, label="Low", stock_quantity=1)  # stock is irrelevant -> excluded
+
+        response = self.get_dashboard()
+        self.assertEqual(response.status_code, 200)
+        low_stock_ids = {p.id for p in response.context["low_stock_products"]}
+        self.assertEqual(low_stock_ids, {low_product.id})
+
+        # Gate 3: within the Low stock alerts panel specifically, only the
+        # qualifying product appears -- excluded products are expected to
+        # still show up elsewhere on the page (e.g. in "Your products"),
+        # so the check is scoped rather than page-wide.
+        html = response.content.decode()
+        low_stock_html = re.search(r'Low stock alerts.*?</section>', html, re.S).group()
+        self.assertIn(low_product.name, low_stock_html)
+        self.assertNotIn(healthy_product.name, low_stock_html)
+        self.assertNotIn(made_to_order_product.name, low_stock_html)
+        self.assertNotIn(inactive_product.name, low_stock_html)
+
+    # -- 9. reviews -----------------------------------------------------------------
+
+    def test_review_metrics(self):
+        product = self.make_product(self.maker, "reviewed-product")
+        other_product = self.make_product(self.other_maker, "other-reviewed-product")
+
+        Review.objects.create(product=product, user=self.other_seller, rating=5, is_published=True)
+        reviewer2 = get_user_model().objects.create_user(email="reviewer2@example.com", password=self.password)
+        Review.objects.create(product=product, user=reviewer2, rating=3, is_published=True)
+        reviewer3 = get_user_model().objects.create_user(email="reviewer3@example.com", password=self.password)
+        Review.objects.create(product=product, user=reviewer3, rating=1, is_published=False)  # excluded
+        Review.objects.create(product=other_product, user=self.seller, rating=5, is_published=True)  # excluded
+
+        ctx = self.get_dashboard().context
+        self.assertEqual(ctx["review_count"], 2)
+        self.assertAlmostEqual(float(ctx["avg_rating"]), 4.0)
+
+    # -- 10. invalid period / empty seller ---------------------------------------
+
+    def test_invalid_period_falls_back_to_default(self):
+        response = self.client.get(reverse("seller_dashboard") + "?period=bogus")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["period_key"], "30d")
+
+    def test_empty_seller_does_not_crash(self):
+        """Also the regression guard for Finding E: before the fix, this
+        request 500'd with FieldError on `variants__stock_quantity`."""
+        response = self.get_dashboard()
+        self.assertEqual(response.status_code, 200)
+        ctx = response.context
+        self.assertEqual(ctx["total_revenue"], 0)
+        self.assertEqual(ctx["total_units"], 0)
+        self.assertEqual(ctx["total_orders"], 0)
+        self.assertEqual(ctx["average_order_value"], Decimal("0"))
+        self.assertEqual(ctx["total_wishlist_saves"], 0)
+        self.assertIsNone(ctx["avg_rating"])
+        self.assertEqual(ctx["review_count"], 0)
+        self.assertEqual(ctx["pending_dispatch_count"], 0)
+        self.assertEqual(list(ctx["best_sellers"]), [])
+        self.assertEqual(list(ctx["low_stock_products"]), [])
+
+        # Gate 3: a seller with nothing yet gets a sensible neutral empty state
+        # everywhere, never a raw `None` for the missing rating.
+        self.assertContains(response, "No reviews yet")
+        self.assertContains(response, "No sales yet in this period.")
+        self.assertContains(response, "Nothing running low right now.")
+        self.assertContains(response, "No products yet.")
+        self.assertContains(response, "No incoming orders yet.")
+
+    # -- 11. Gate 3 presentation -----------------------------------------------
+
+    def test_dashboard_renders_kpi_labels_and_validated_values(self):
+        """The already-validated backend values actually reach the page, and
+        the existing product/incoming-order sections survive alongside them."""
+        product = self.make_product(self.maker, "presentation-product", price="25.00")
+        order = self.make_order()
+        self.make_order_item(order, product, quantity=2)  # $50.00 revenue
+
+        response = self.get_dashboard()
+        self.assertEqual(response.status_code, 200)
+
+        for label in ("Revenue", "Orders", "Units sold", "Average order value",
+                     "Wishlist saves", "Awaiting dispatch", "Best sellers",
+                     "Low stock alerts", "Your products", "Incoming order lines"):
+            self.assertContains(response, label)
+
+        # tied to the same context values Gate 2 already validated, not
+        # hardcoded numbers/currency-symbol assumptions
+        self.assertContains(response, money_filter(response.context["total_revenue"]))
+        self.assertContains(response, money_filter(response.context["average_order_value"]))
+
+    def test_period_selector_marks_the_selected_chip(self):
+        response = self.get_dashboard(period="7d")
+        html = response.content.decode()
+        chips_html = re.search(r'<nav class="chips".*?</nav>', html, re.S).group()
+        # exactly one chip is marked selected, and it is the requested period
+        self.assertEqual(chips_html.count('aria-current="page"'), 1)
+        self.assertRegex(chips_html, r'href="\?period=7d"[^>]*aria-current="page"')
+
+
+@override_settings(
+    STORAGES={
+        **settings.STORAGES,
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    },
+)
+class SellerOrderDetailBrowserTests(TestCase):
+    """CP2: the server-rendered seller order page and its fulfilment form.
+
+    Writes must reach orders.services.update_seller_fulfillment(); these tests
+    assert its observable effects (fields, shipped_at, parent sync) rather
+    than re-deriving them.
+    """
+
+    password = "Studio-owner-57!"
+
+    @classmethod
+    def setUpTestData(cls):
+        User = get_user_model()
+        cls.alice = User.objects.create_user(
+            email="alice.fulfil@example.com", password=cls.password, is_seller=True)
+        cls.bob = User.objects.create_user(
+            email="bob.fulfil@example.com", password=cls.password, is_seller=True)
+        cls.buyer = User.objects.create_user(
+            email="buyer.fulfil@example.com", password=cls.password)
+
+        category = Category.objects.create(slug="fulfil-category", name="Fulfil Category")
+        cls.alice_maker = Maker.objects.create(
+            slug="alice-fulfil", name="Alice Studio", owner=cls.alice,
+            discipline="Ceramics", location="Singapore")
+        cls.bob_maker = Maker.objects.create(
+            slug="bob-fulfil", name="Bob Workshop", owner=cls.bob,
+            discipline="Woodwork", location="Singapore")
+        cls.alice_product = Product.objects.create(
+            slug="alice-fulfil-vase", name="Alice Fulfil Vase", maker=cls.alice_maker,
+            category=category, price=Decimal("20.00"), stock_quantity=10, is_active=True)
+        cls.bob_product = Product.objects.create(
+            slug="bob-fulfil-stool", name="Bob Fulfil Stool", maker=cls.bob_maker,
+            category=category, price=Decimal("30.00"), stock_quantity=10, is_active=True)
+
+    def setUp(self):
+        # Order X: one commercial order, one line from each seller.
+        self.order = self.make_order()
+        self.make_order_item(self.order, self.alice_product, quantity=2)  # 40.00
+        self.make_order_item(self.order, self.bob_product, quantity=1)    # 30.00
+        self.alice_f = SellerFulfillment.objects.create(
+            order=self.order, maker=self.alice_maker,
+            carrier="SF Express", tracking_number="SF-ALICE-1")
+        self.bob_f = SellerFulfillment.objects.create(
+            order=self.order, maker=self.bob_maker,
+            carrier="FedEx", tracking_number="FX-BOB-999")
+
+        self.bob_only_order = self.make_order()
+        self.make_order_item(self.bob_only_order, self.bob_product)
+        self.bob_only_f = SellerFulfillment.objects.create(
+            order=self.bob_only_order, maker=self.bob_maker)
+
+    # -- helpers -------------------------------------------------------------
+
+    def make_order(self, **fields):
+        return Order.objects.create(
+            order_number=OrderNumberSequence.next_number(),
+            status=OrderStatus.CONFIRMED, payment_status=PaymentStatus.PAID,
+            customer_email="buyer.fulfil@example.com",
+            shipping_address_snapshot={
+                "first_name": "Wei", "last_name": "Buyer", "address_line_1": "1 Kiln Lane",
+                "city": "Shanghai", "postal_code": "200000", "country": "China",
+            },
+            **fields,
+        )
+
+    def make_order_item(self, order, product, *, quantity=1):
+        return OrderItem.objects.create(
+            order=order, product=product, maker=product.maker,
+            product_slug=product.slug, product_name=product.name,
+            maker_name=product.maker.name, unit_price=product.price, quantity=quantity,
+            line_total=product.price * quantity,
+        )
+
+    def url(self, order):
+        return reverse("seller_order_detail", args=[order.order_number])
+
+    def post_update(self, order, **data):
+        payload = {"status": FulfillmentStatus.UNFULFILLED, "carrier": "", "tracking_number": ""}
+        payload.update(data)
+        return self.client.post(self.url(order), payload)
+
+    def snapshot(self, fulfillment):
+        fulfillment.refresh_from_db()
+        return (fulfillment.status, fulfillment.carrier, fulfillment.tracking_number,
+                fulfillment.shipped_at)
+
+    # -- authentication / access --------------------------------------------
+
+    def test_anonymous_user_is_sent_to_login(self):
+        response = self.client.get(self.url(self.order))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response["Location"].startswith(reverse("login")))
+
+    def test_anonymous_post_is_sent_to_login_and_changes_nothing(self):
+        before = self.snapshot(self.alice_f)
+        response = self.post_update(self.order, carrier="DHL")
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response["Location"].startswith(reverse("login")))
+        self.assertEqual(self.snapshot(self.alice_f), before)
+
+    def test_non_seller_is_forbidden(self):
+        self.client.force_login(self.buyer)
+        self.assertEqual(self.client.get(self.url(self.order)).status_code, 403)
+        before = self.snapshot(self.alice_f)
+        self.assertEqual(self.post_update(self.order, carrier="DHL").status_code, 403)
+        self.assertEqual(self.snapshot(self.alice_f), before)
+
+    def test_seller_can_open_an_order_containing_their_items(self):
+        self.client.force_login(self.alice)
+        response = self.client.get(self.url(self.order))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.order.order_number)
+
+    def test_other_sellers_order_is_not_found(self):
+        self.client.force_login(self.alice)
+        self.assertEqual(self.client.get(self.url(self.bob_only_order)).status_code, 404)
+        before = self.snapshot(self.bob_only_f)
+        response = self.post_update(self.bob_only_order, status=FulfillmentStatus.FULFILLED,
+                                    carrier="DHL")
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(self.snapshot(self.bob_only_f), before)
+
+    def test_unknown_order_number_is_not_found(self):
+        self.client.force_login(self.alice)
+        response = self.client.get(reverse("seller_order_detail", args=["PS-0000-000000"]))
+        self.assertEqual(response.status_code, 404)
+
+    # -- seller isolation on a shared order ----------------------------------
+
+    def test_shared_order_shows_only_own_items_subtotal_and_fulfilment(self):
+        self.client.force_login(self.alice)
+        response = self.client.get(self.url(self.order))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, "Alice Fulfil Vase")
+        self.assertNotContains(response, "Bob Fulfil Stool")
+        self.assertContains(response, money_filter(Decimal("40.00")))  # Alice's subtotal
+        self.assertEqual(response.context["seller_subtotal"], Decimal("40.00"))
+        self.assertEqual(response.context["fulfillment"], self.alice_f)
+
+        self.assertContains(response, "SF Express")
+        self.assertContains(response, "SF-ALICE-1")
+        self.assertNotContains(response, "FedEx")
+        self.assertNotContains(response, "FX-BOB-999")
+        # The parent commercial total (70.00) is not part of the seller view.
+        self.assertNotContains(response, money_filter(Decimal("70.00")))
+
+    # -- dashboard link ------------------------------------------------------
+
+    def test_dashboard_incoming_line_links_to_seller_order_detail(self):
+        self.client.force_login(self.alice)
+        response = self.client.get(reverse("seller_dashboard"))
+        self.assertContains(response, f'href="{self.url(self.order)}"')
+        self.assertNotContains(response, f'href="{self.url(self.bob_only_order)}"')
+
+    # -- valid update --------------------------------------------------------
+
+    def test_valid_update_goes_through_service_and_syncs_parent(self):
+        self.client.force_login(self.alice)
+        bob_before = self.snapshot(self.bob_f)
+        self.order.carrier, self.order.tracking_number = "LEGACY-CARRIER", "LEGACY-TRACK"
+        self.order.save(update_fields=["carrier", "tracking_number"])
+
+        response = self.post_update(self.order, status=FulfillmentStatus.FULFILLED,
+                                    carrier="ZTO", tracking_number="ZTO-123")
+        # Not fetched here: that GET would consume the one-time success message.
+        self.assertRedirects(response, self.url(self.order), fetch_redirect_response=False)
+
+        self.alice_f.refresh_from_db()
+        self.assertEqual(self.alice_f.status, FulfillmentStatus.FULFILLED)
+        self.assertEqual(self.alice_f.carrier, "ZTO")
+        self.assertEqual(self.alice_f.tracking_number, "ZTO-123")
+        self.assertIsNotNone(self.alice_f.shipped_at)  # service sets it on first FULFILLED
+
+        self.assertEqual(self.snapshot(self.bob_f), bob_before)
+
+        self.order.refresh_from_db()
+        # Alice fulfilled, Bob still unfulfilled -> service aggregates to PARTIAL.
+        self.assertEqual(self.order.fulfillment_status, FulfillmentStatus.PARTIAL)
+        # Seller writes never touch the parent's legacy carrier/tracking fields.
+        self.assertEqual(self.order.carrier, "LEGACY-CARRIER")
+        self.assertEqual(self.order.tracking_number, "LEGACY-TRACK")
+
+        page = self.client.get(response["Location"])
+        self.assertContains(page, "Fulfilment updated.")
+
+    def test_single_seller_order_fully_fulfilled_syncs_parent_to_fulfilled(self):
+        alice_only = self.make_order()
+        self.make_order_item(alice_only, self.alice_product)
+        SellerFulfillment.objects.create(order=alice_only, maker=self.alice_maker)
+        self.client.force_login(self.alice)
+
+        self.post_update(alice_only, status=FulfillmentStatus.FULFILLED)
+        alice_only.refresh_from_db()
+        self.assertEqual(alice_only.fulfillment_status, FulfillmentStatus.FULFILLED)
+
+    def test_tracking_only_update_leaves_shipped_at_unset(self):
+        self.client.force_login(self.alice)
+        self.post_update(self.order, status=FulfillmentStatus.UNFULFILLED,
+                         carrier="EMS", tracking_number="EMS-1")
+        self.alice_f.refresh_from_db()
+        self.assertEqual(self.alice_f.tracking_number, "EMS-1")
+        self.assertIsNone(self.alice_f.shipped_at)
+
+    # -- invalid input -------------------------------------------------------
+
+    def assert_rejected_without_change(self, **data):
+        self.client.force_login(self.alice)
+        alice_before, bob_before = self.snapshot(self.alice_f), self.snapshot(self.bob_f)
+        parent_before = self.order.fulfillment_status
+
+        response = self.post_update(self.order, **data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["form"].errors)
+        self.assertContains(response, 'class="field-error"')
+        self.assertEqual(self.snapshot(self.alice_f), alice_before)
+        self.assertEqual(self.snapshot(self.bob_f), bob_before)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.fulfillment_status, parent_before)
+        return response
+
+    def test_invalid_status_is_rejected(self):
+        response = self.assert_rejected_without_change(status="flying", carrier="DHL")
+        self.assertIn("status", response.context["form"].errors)
+
+    def test_over_length_carrier_is_rejected(self):
+        response = self.assert_rejected_without_change(
+            status=FulfillmentStatus.FULFILLED, carrier="X" * 81)
+        self.assertIn("carrier", response.context["form"].errors)
+
+    def test_over_length_tracking_number_is_rejected(self):
+        response = self.assert_rejected_without_change(
+            status=FulfillmentStatus.FULFILLED, tracking_number="X" * 81)
+        self.assertIn("tracking_number", response.context["form"].errors)
+
+    # -- missing SellerFulfillment ------------------------------------------
+
+    def test_order_without_seller_fulfillment_is_readable_but_not_editable(self):
+        legacy = self.make_order(carrier="LEGACY-CARRIER", tracking_number="LEGACY-TRACK")
+        self.make_order_item(legacy, self.alice_product)
+        self.client.force_login(self.alice)
+
+        response = self.client.get(self.url(legacy))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Alice Fulfil Vase")
+        self.assertIsNone(response.context["fulfillment"])
+        self.assertContains(response, "Fulfilment details are not available for this order.")
+        self.assertNotContains(response, 'name="tracking_number"')
+        # Parent fields are not presented as if they were this seller's own.
+        self.assertNotContains(response, "LEGACY-CARRIER")
+        self.assertNotContains(response, "LEGACY-TRACK")
+
+    def test_post_without_seller_fulfillment_is_not_found_and_creates_nothing(self):
+        legacy = self.make_order()
+        self.make_order_item(legacy, self.alice_product)
+        self.client.force_login(self.alice)
+
+        response = self.post_update(legacy, status=FulfillmentStatus.FULFILLED, carrier="DHL")
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(SellerFulfillment.objects.filter(order=legacy).exists())
+
+    # -- CSRF ----------------------------------------------------------------
+
+    def test_post_requires_csrf_token_rendered_by_the_form(self):
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.alice)
+        payload = {"status": FulfillmentStatus.FULFILLED, "carrier": "DHL",
+                   "tracking_number": "DHL-1"}
+
+        before = self.snapshot(self.alice_f)
+        self.assertEqual(client.post(self.url(self.order), payload).status_code, 403)
+        self.assertEqual(self.snapshot(self.alice_f), before)
+
+        page = client.get(self.url(self.order))
+        token = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"',
+                          page.content.decode()).group(1)
+        response = client.post(self.url(self.order), {**payload, "csrfmiddlewaretoken": token})
+        self.assertEqual(response.status_code, 302)
+        self.alice_f.refresh_from_db()
+        self.assertEqual(self.alice_f.carrier, "DHL")
+        self.assertEqual(self.alice_f.status, FulfillmentStatus.FULFILLED)
+
+
+@override_settings(
+    STORAGES={
+        **settings.STORAGES,
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    },
+)
+class SellerDispatchEligibilityBrowserTests(TestCase):
+    """CP-M6: the seller order page surfaces the service's dispatch rules as
+    form errors (never a 500), and agrees with the seller API."""
+
+    password = "Studio-owner-57!"
+
+    @classmethod
+    def setUpTestData(cls):
+        User = get_user_model()
+        cls.seller = User.objects.create_user(
+            email="dispatch.seller@example.com", password=cls.password, is_seller=True)
+        category = Category.objects.create(slug="dispatch-category", name="Dispatch Category")
+        cls.maker = Maker.objects.create(
+            slug="dispatch-maker", name="Dispatch Studio", owner=cls.seller,
+            discipline="Ceramics", location="Singapore")
+        cls.product = Product.objects.create(
+            slug="dispatch-bowl", name="Dispatch Bowl", maker=cls.maker,
+            category=category, price=Decimal("25.00"), stock_quantity=10, is_active=True)
+
+    def setUp(self):
+        self.client.force_login(self.seller)
+
+    def make_order(self, *, status, payment_status):
+        order = Order.objects.create(
+            order_number=OrderNumberSequence.next_number(),
+            status=status, payment_status=payment_status,
+            customer_email="dispatch.buyer@example.com",
+        )
+        OrderItem.objects.create(
+            order=order, product=self.product, maker=self.maker,
+            product_slug=self.product.slug, product_name=self.product.name,
+            maker_name=self.maker.name, unit_price=self.product.price, quantity=1,
+            line_total=self.product.price,
+        )
+        fulfillment = SellerFulfillment.objects.create(order=order, maker=self.maker)
+        return order, fulfillment
+
+    def post(self, order, **data):
+        payload = {"status": FulfillmentStatus.UNFULFILLED, "carrier": "", "tracking_number": ""}
+        payload.update(data)
+        return self.client.post(reverse("seller_order_detail", args=[order.order_number]), payload)
+
+    @staticmethod
+    def snapshot(fulfillment):
+        row = SellerFulfillment.objects.get(pk=fulfillment.pk)
+        return (row.status, row.carrier, row.tracking_number, row.shipped_at)
+
+    def test_dispatching_an_ineligible_order_shows_a_form_error(self):
+        cases = [("unpaid", OrderStatus.PENDING, PaymentStatus.UNPAID),
+                 ("paid but cancelled", OrderStatus.CANCELLED, PaymentStatus.PAID)]
+        for label, status, payment_status in cases:
+            with self.subTest(order=label):
+                order, fulfillment = self.make_order(status=status, payment_status=payment_status)
+                response = self.post(order, status=FulfillmentStatus.FULFILLED,
+                                     carrier="DHL", tracking_number="DHL-1")
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("status", response.context["form"].errors)
+                self.assertContains(response, "This order cannot be dispatched")
+                self.assertContains(response, 'class="field-error"')
+                self.assertEqual(self.snapshot(fulfillment),
+                                 (FulfillmentStatus.UNFULFILLED, "", "", None))
+                order.refresh_from_db()
+                self.assertEqual(order.fulfillment_status, FulfillmentStatus.UNFULFILLED)
+
+    def test_tracking_correction_after_a_refund_is_saved(self):
+        order, fulfillment = self.make_order(status=OrderStatus.CONFIRMED,
+                                             payment_status=PaymentStatus.REFUNDED)
+        shipped_at = django_timezone.now() - timedelta(days=2)
+        SellerFulfillment.objects.filter(pk=fulfillment.pk).update(
+            status=FulfillmentStatus.FULFILLED, shipped_at=shipped_at,
+            carrier="SF Express", tracking_number="OLD")
+
+        response = self.post(order, status=FulfillmentStatus.FULFILLED,
+                             carrier="SF Express", tracking_number="NEW")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.snapshot(fulfillment),
+                         (FulfillmentStatus.FULFILLED, "SF Express", "NEW", shipped_at))
+
+    def test_carrier_only_update_on_an_unpaid_order_is_saved(self):
+        order, fulfillment = self.make_order(status=OrderStatus.PENDING,
+                                             payment_status=PaymentStatus.UNPAID)
+        response = self.post(order, carrier="DHL", tracking_number="DHL-5")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.snapshot(fulfillment),
+                         (FulfillmentStatus.UNFULFILLED, "DHL", "DHL-5", None))
+
+    def test_browser_and_api_reject_the_same_dispatch_identically(self):
+        browser_order, browser_f = self.make_order(status=OrderStatus.PENDING,
+                                                   payment_status=PaymentStatus.UNPAID)
+        api_order, api_f = self.make_order(status=OrderStatus.PENDING,
+                                           payment_status=PaymentStatus.UNPAID)
+
+        browser = self.post(browser_order, status=FulfillmentStatus.FULFILLED)
+        api_client = APIClient()
+        api_client.force_authenticate(user=self.seller)
+        api = api_client.patch(f"/api/seller/orders/{api_order.uuid}/fulfilment/",
+                               data={"status": FulfillmentStatus.FULFILLED}, format="json")
+
+        self.assertEqual(browser.status_code, 200)
+        self.assertEqual(api.status_code, 400)
+        self.assertEqual([str(e) for e in browser.context["form"].errors["status"]],
+                         [str(e) for e in api.data["errors"]["status"]])
+        self.assertEqual(self.snapshot(browser_f), self.snapshot(api_f))
+        self.assertEqual(self.snapshot(api_f), (FulfillmentStatus.UNFULFILLED, "", "", None))

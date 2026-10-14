@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path, reverse_lazy
 
-from frontend import views
+from frontend import views, views_seller
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -71,6 +71,11 @@ urlpatterns = [
 
     # Seller surface
     path("seller/", views.seller_dashboard, name="seller_dashboard"),
+    path("seller/orders/<str:order_number>/", views.seller_order_detail, name="seller_order_detail"),
+    path("seller/products/", views_seller.seller_product_list, name="seller_product_list"),
+    path("seller/products/add/", views_seller.seller_product_create, name="seller_product_create"),
+    path("seller/products/<slug:slug>/edit/", views_seller.seller_product_edit, name="seller_product_edit"),
+    path("seller/orders/", views_seller.seller_order_list, name="seller_order_list"),
 
     # Editorial
     path("our-story/", views.our_story, name="our_story"),

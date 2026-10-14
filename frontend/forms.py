@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 from accounts.models import User
+from orders.models import FulfillmentStatus, SellerFulfillment
 
 
 class RegistrationForm(forms.Form):
@@ -62,3 +63,18 @@ class ProfileForm(forms.Form):
             setattr(self.user, field, self.cleaned_data[field])
         self.user.save(update_fields=[*self.fields, "updated_at"])
         return self.user
+
+
+class SellerFulfillmentForm(forms.Form):
+    """Validates a seller's fulfilment input; it deliberately has no save().
+
+    Constraints come from the existing model definitions (the same ones the
+    seller API serializer uses), and the write itself always goes through
+    orders.services.update_seller_fulfillment().
+    """
+
+    status = forms.ChoiceField(choices=FulfillmentStatus.choices)
+    carrier = forms.CharField(
+        required=False, max_length=SellerFulfillment._meta.get_field("carrier").max_length)
+    tracking_number = forms.CharField(
+        required=False, max_length=SellerFulfillment._meta.get_field("tracking_number").max_length)

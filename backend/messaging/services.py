@@ -120,24 +120,21 @@ def get_or_create_conversation(
         order=order,
     )
 
-    # Automatically send an initial welcome greeting from the maker to the buyer
+    # Send an automated welcome greeting on behalf of the maker if they have an active owner
     seller_user = maker.owner
-    if not seller_user:
-        from django.contrib.auth import get_user_model
-        seller_user = get_user_model().objects.filter(is_seller=True).first()
-
     if seller_user:
         if product:
             welcome_text = (
-                f"Hello! Welcome to {maker.name}. "
+                f"[Automated] Hello! Welcome to {maker.name}. "
                 f"I see you're viewing our {product.name}. "
-                "Feel free to ask about materials, dimensions, or custom crafting!"
+                "Feel free to ask about materials, dimensions, or custom crafting, and the maker will reply here!"
             )
         else:
             welcome_text = (
-                f"Hello! Welcome to {maker.name}. "
+                f"[Automated] Hello! Welcome to {maker.name}. "
                 "We craft handmade studio pieces with care. "
-                "How can we help you today with our items or custom commissions?"
+                "How can we help you today with our items or custom commissions? "
+                "Leave a message and the maker will reply here!"
             )
         ConversationMessage.objects.create(
             conversation=conversation,

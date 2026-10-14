@@ -2037,6 +2037,8 @@ class CraftyChatbotTests(TestCase):
     @patch("frontend.chatbot_service.call_gemini")
     def test_chat_api_endpoint(self, mock_gemini):
         mock_gemini.return_value = {"status": "ok", "reply": "Hello from mock artisan"}
+        user = get_user_model().objects.create_user(email="concierge.tester@example.com", password="Pass-123-word!")
+        self.client.force_login(user)
         response = self.client.post(
             reverse("chat_api"),
             data=json.dumps({"message": "Hello Crafty"}),
@@ -2046,3 +2048,13 @@ class CraftyChatbotTests(TestCase):
         data = response.json()
         self.assertEqual(data.get("status"), "ok")
         self.assertIn("reply", data)
+
+    def test_chat_api_requires_authentication(self):
+        response = self.client.post(
+            reverse("chat_api"),
+            data=json.dumps({"message": "Hello Crafty"}),
+            content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 401)
+        data = response.json()
+        self.assertEqual(data.get("status"), "error")

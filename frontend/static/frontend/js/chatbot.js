@@ -466,6 +466,12 @@
 
   // --- Wire Event Listeners ---
   function init() {
+    // If on full-page workbench (/chat/ or /concierge/) without drawer launcher
+    if (!drawer && messagesContainer) {
+      readPageContext();
+      initConversation();
+    }
+
     // 1. Launcher button
     launcher?.addEventListener('click', openDrawer);
 

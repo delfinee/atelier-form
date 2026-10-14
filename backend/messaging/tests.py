@@ -3,8 +3,9 @@
 import json
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -16,6 +17,12 @@ from .models import Conversation, ConversationMessage
 from . import services
 
 
+@override_settings(
+    STORAGES={
+        **settings.STORAGES,
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    },
+)
 class MessagingTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -109,6 +116,7 @@ class MessagingTests(TestCase):
         welcome_msg = ConversationMessage.objects.filter(conversation=conv).order_by("created_at").first()
         self.assertEqual(welcome_msg.sender, self.seller_user)
         self.assertIn("Welcome", welcome_msg.body)
+        self.assertIn("[Automated]", welcome_msg.body)
 
         saved_msg = ConversationMessage.objects.get(uuid=msg_resp.data["uuid"])
         self.assertEqual(saved_msg.sender, self.buyer)
@@ -291,3 +299,17 @@ class MessagingTests(TestCase):
     def test_unauthenticated_cannot_create_or_send(self):
         resp = self.client.post("/api/conversations/", {"maker": str(self.maker.slug)})
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_maker_without_owner_does_not_attribute_automated_messages_to_other_sellers(self):
+        maker_no_owner = Maker.objects.create(
+            slug="no-owner-maker",
+            name="No Owner Studio",
+            discipline="Ceramics",
+            location="Kyoto",
+            owner=None,
+        )
+        self.client.force_authenticate(user=self.buyer)
+        resp = self.client.post("/api/conversations/", {"maker": str(maker_no_owner.slug)})
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        conv = Conversation.objects.get(uuid=resp.data["uuid"])
+        self.assertEqual(ConversationMessage.objects.filter(conversation=conv).count(), 0)

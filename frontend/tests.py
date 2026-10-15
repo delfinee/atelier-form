@@ -1969,3 +1969,42 @@ class SellerDispatchEligibilityBrowserTests(TestCase):
                          [str(e) for e in api.data["errors"]["status"]])
         self.assertEqual(self.snapshot(browser_f), self.snapshot(api_f))
         self.assertEqual(self.snapshot(api_f), (FulfillmentStatus.UNFULFILLED, "", "", None))
+
+
+@override_settings(
+    LANGUAGE_CODE="en", SECURE_SSL_REDIRECT=False,
+    STORAGES={
+        **settings.STORAGES,
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    },
+)
+class MessagingWidgetTests(TestCase):
+    def get_all_ids(self, html_content):
+        """Extract all HTML element IDs from rendered HTML string."""
+        return re.findall(r'\bid=["\']([^"\']+)["\']', html_content)
+
+    def test_storefront_pages_render_messaging_widget(self):
+        for path in (reverse("home"), reverse("shop")):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                html = response.content.decode("utf-8")
+
+                # Drawer and launcher elements must be present
+                self.assertContains(response, 'id="crafty-drawer"')
+                self.assertContains(response, 'id="crafty-launcher"')
+                self.assertContains(response, 'id="crafty-messages"')
+                self.assertContains(response, 'id="crafty-input"')
+                self.assertContains(response, 'id="crafty-send-btn"')
+
+                # Labels indicate real seller chat
+                self.assertContains(response, "Messages")
+                self.assertContains(response, "Chat with Seller")
+
+                # Check all crafty-* IDs have no duplicates
+                crafty_ids = [id_val for id_val in self.get_all_ids(html) if id_val.startswith("crafty-")]
+                duplicate_crafty_ids = [id_val for id_val in set(crafty_ids) if crafty_ids.count(id_val) > 1]
+                self.assertEqual(
+                    duplicate_crafty_ids, [],
+                    f"Found duplicate crafty IDs on {path}: {duplicate_crafty_ids}"
+                )

@@ -697,6 +697,54 @@ def seller_order_detail(request, order_number):
     })
 
 
+@login_required
+def seller_messages_inbox(request):
+    if not request.user.is_seller or not hasattr(request.user, "maker_profile"):
+        raise PermissionDenied("A linked seller profile is required.")
+    maker = request.user.maker_profile
+    from messaging.models import Conversation
+    conversations = (
+        Conversation.objects.filter(maker=maker)
+        .select_related("buyer", "product", "order")
+        .prefetch_related("messages", "messages__sender")
+        .order_by("-updated_at")
+    )
+    return render(request, "frontend/seller/messages_inbox.html", {
+        "maker": maker,
+        "conversations": conversations,
+        "meta_title": f"Customer Inquiries — {SITE['brand']}",
+    })
+
+
+@login_required
+def seller_message_thread(request, conversation_uuid):
+    if not request.user.is_seller or not hasattr(request.user, "maker_profile"):
+        raise PermissionDenied("A linked seller profile is required.")
+    maker = request.user.maker_profile
+    from messaging.models import Conversation
+    from messaging import services as messaging_services
+    conversation = get_object_or_404(
+        Conversation.objects.select_related("buyer", "maker", "product", "order"),
+        maker=maker,
+        uuid=conversation_uuid,
+    )
+    if request.method == "POST":
+        body = (request.POST.get("body") or "").strip()
+        if body:
+            messaging_services.send_message(conversation, request.user, body)
+            messages.success(request, _("Reply sent."))
+            return redirect("seller_message_thread", conversation_uuid=conversation.uuid)
+
+    messaging_services.mark_messages_read(conversation, request.user)
+    thread_messages = conversation.messages.select_related("sender").order_by("created_at")
+    return render(request, "frontend/seller/message_thread.html", {
+        "maker": maker,
+        "conversation": conversation,
+        "messages_list": thread_messages,
+        "meta_title": f"Inquiry from {conversation.buyer.get_full_name() or conversation.buyer.email} — {SITE['brand']}",
+    })
+
+
 # -- Editorial & informational -------------------------------------------
 
 def our_story(request):
@@ -808,3 +856,5 @@ def newsletter_signup(request):
         "ok": True,
         "message": _("You're on the list. Look out for the next note."),
     })
+
+

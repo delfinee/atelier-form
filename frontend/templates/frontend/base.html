@@ -10,6 +10,7 @@
 <meta name="theme-color" content="#F7F2E9">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%232E2A24'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' fill='%23EFE7DA' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="{% static 'frontend/css/site.css' %}">
+<link rel="stylesheet" href="{% static 'frontend/css/chatbot.css' %}">
 {% block head %}{% endblock %}
 </head>
 <body{% block body_attrs %}{% endblock %}>
@@ -38,8 +39,12 @@
 {% include "frontend/partials/footer.html" %}
 
 {% include "frontend/partials/cart_drawer.html" %}
+{% block chatbot_drawer %}
+{% include "frontend/partials/chatbot.html" %}
+{% endblock %}
 
 <script src="{% static 'frontend/js/site.js' %}" defer></script>
+<script src="{% static 'frontend/js/chatbot.js' %}" defer></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

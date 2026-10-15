@@ -76,6 +76,8 @@ urlpatterns = [
     path("seller/products/add/", views_seller.seller_product_create, name="seller_product_create"),
     path("seller/products/<slug:slug>/edit/", views_seller.seller_product_edit, name="seller_product_edit"),
     path("seller/orders/", views_seller.seller_order_list, name="seller_order_list"),
+    path("seller/messages/", views.seller_messages_inbox, name="seller_messages"),
+    path("seller/messages/<uuid:conversation_uuid>/", views.seller_message_thread, name="seller_message_thread"),
 
     # Editorial
     path("our-story/", views.our_story, name="our_story"),

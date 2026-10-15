@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "reviews",
     "content",
     "recommendations",
+    "messaging",
 
     # Photography held in PostgreSQL, shared by every surface
     "imagery",

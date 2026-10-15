@@ -10,7 +10,10 @@
   <a href="{{ u_wishlist }}"{% if current_path == u_wishlist %} aria-current="page"{% endif %}>{% translate "Wishlist" %}</a>
   <a href="{{ u_addresses }}"{% if current_path == u_addresses %} aria-current="page"{% endif %}>{% translate "Addresses" %}</a>
   <a href="{{ u_profile }}"{% if current_path == u_profile %} aria-current="page"{% endif %}>{% translate "Profile" %}</a>
-  {% if user.is_seller %}<a href="{% url 'seller_dashboard' %}">{% translate "Seller dashboard" %}</a>{% endif %}
+  {% if user.is_seller %}
+    <a href="{% url 'seller_dashboard' %}">{% translate "Seller dashboard" %}</a>
+    <a href="{% url 'seller_messages' %}">{% translate "Messages" %}</a>
+  {% endif %}
 </nav>
 <form method="post" action="{% url 'logout' %}" style="margin-top:0.6rem">
   {% csrf_token %}

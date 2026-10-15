@@ -19,7 +19,10 @@ needs to change.
 
 from __future__ import annotations
 
-import stripe
+try:
+    import stripe
+except ImportError:
+    stripe = None
 import logging
 import uuid
 from abc import ABC, abstractmethod

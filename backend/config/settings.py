@@ -39,8 +39,6 @@ env = environ.Env(
     DJANGO_CONN_MAX_AGE=(int, 60),
     SECURE_SSL_REDIRECT=(bool, True),
     SECURE_HSTS_SECONDS=(int, 60 * 60 * 24 * 30),
-    GEMINI_API_KEY=(str, ""),
-    GEMINI_MODEL=(str, "gemini-3.8-flash"),
 )
 
 # Read .env if present. Never committed -- see .env.example.
@@ -49,9 +47,6 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or get_random_secret_key()
 DEBUG = env.bool("DJANGO_DEBUG")
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS")
-
-GEMINI_API_KEY = env.str("GEMINI_API_KEY", default="")
-GEMINI_MODEL = env.str("GEMINI_MODEL", default="gemini-3.8-flash")
 
 if not DEBUG and not os.environ.get("DJANGO_SECRET_KEY"):
     from django.core.exceptions import ImproperlyConfigured

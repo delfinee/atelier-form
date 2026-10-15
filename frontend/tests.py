@@ -1978,53 +1978,28 @@ class SellerDispatchEligibilityBrowserTests(TestCase):
         "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
     },
 )
-class CraftyChatbotTests(TestCase):
+class MessagingWidgetTests(TestCase):
     def get_all_ids(self, html_content):
         """Extract all HTML element IDs from rendered HTML string."""
         return re.findall(r'\bid=["\']([^"\']+)["\']', html_content)
 
-    def test_fullpage_chat_and_concierge_have_no_drawer_or_duplicate_ids(self):
-        for path in (reverse("chat_page"), reverse("concierge_page")):
-            with self.subTest(path=path):
-                response = self.client.get(path)
-                self.assertEqual(response.status_code, 200)
-                html = response.content.decode("utf-8")
-
-                # Must contain full-page workbench
-                self.assertIn("crafty-fullpage", html)
-                self.assertContains(response, 'id="crafty-messages"')
-                self.assertContains(response, 'id="crafty-input"')
-                self.assertContains(response, 'id="crafty-form"')
-                self.assertContains(response, 'id="crafty-settings-modal"')
-
-                # Must NOT contain the drawer partial elements
-                self.assertNotContains(response, 'id="crafty-drawer"')
-                self.assertNotContains(response, 'id="crafty-launcher"')
-                self.assertNotContains(response, 'id="crafty-backdrop"')
-
-                # Verify strictly zero duplicate IDs across entire page
-                ids = self.get_all_ids(html)
-                duplicate_ids = [id_val for id_val in set(ids) if ids.count(id_val) > 1]
-                self.assertEqual(
-                    duplicate_ids, [],
-                    f"Found duplicate IDs on {path}: {duplicate_ids}"
-                )
-
-    def test_standard_pages_render_drawer_widget_without_duplicate_crafty_ids(self):
+    def test_storefront_pages_render_messaging_widget(self):
         for path in (reverse("home"), reverse("shop")):
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
                 html = response.content.decode("utf-8")
 
-                # Drawer widget elements must be present
+                # Drawer and launcher elements must be present
                 self.assertContains(response, 'id="crafty-drawer"')
                 self.assertContains(response, 'id="crafty-launcher"')
                 self.assertContains(response, 'id="crafty-messages"')
-                self.assertContains(response, 'id="crafty-settings-modal"')
+                self.assertContains(response, 'id="crafty-input"')
+                self.assertContains(response, 'id="crafty-send-btn"')
 
-                # Fullpage container must NOT be present
-                self.assertNotIn("crafty-fullpage", html)
+                # Labels indicate real seller chat
+                self.assertContains(response, "Messages")
+                self.assertContains(response, "Chat with Seller")
 
                 # Check all crafty-* IDs have no duplicates
                 crafty_ids = [id_val for id_val in self.get_all_ids(html) if id_val.startswith("crafty-")]
@@ -2033,28 +2008,3 @@ class CraftyChatbotTests(TestCase):
                     duplicate_crafty_ids, [],
                     f"Found duplicate crafty IDs on {path}: {duplicate_crafty_ids}"
                 )
-
-    @patch("frontend.chatbot_service.call_gemini")
-    def test_chat_api_endpoint(self, mock_gemini):
-        mock_gemini.return_value = {"status": "ok", "reply": "Hello from mock artisan"}
-        user = get_user_model().objects.create_user(email="concierge.tester@example.com", password="Pass-123-word!")
-        self.client.force_login(user)
-        response = self.client.post(
-            reverse("chat_api"),
-            data=json.dumps({"message": "Hello Crafty"}),
-            content_type="application/json"
-        )
-        self.assertEqual(response.status_code, 200)
-        data = response.json()
-        self.assertEqual(data.get("status"), "ok")
-        self.assertIn("reply", data)
-
-    def test_chat_api_requires_authentication(self):
-        response = self.client.post(
-            reverse("chat_api"),
-            data=json.dumps({"message": "Hello Crafty"}),
-            content_type="application/json"
-        )
-        self.assertEqual(response.status_code, 401)
-        data = response.json()
-        self.assertEqual(data.get("status"), "error")

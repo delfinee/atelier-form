@@ -54,7 +54,7 @@
   const i18n = {
     zh: {
       launcher: '联系卖家',
-      defaultTitle: '手作人客服',
+      defaultTitle: '联系卖家',
       connected: '在线',
       loginPrompt: '请先登录以直接联系手作人。',
       loginBtn: '立即登录',
@@ -72,7 +72,7 @@
     },
     en: {
       launcher: 'Messages',
-      defaultTitle: 'Artisan Support',
+      defaultTitle: 'Chat with Seller',
       connected: 'Active',
       loginPrompt: 'Please sign in to message artisans directly.',
       loginBtn: 'Sign In',
@@ -466,12 +466,6 @@
 
   // --- Wire Event Listeners ---
   function init() {
-    // If on full-page workbench (/chat/ or /concierge/) without drawer launcher
-    if (!drawer && messagesContainer) {
-      readPageContext();
-      initConversation();
-    }
-
     // 1. Launcher button
     launcher?.addEventListener('click', openDrawer);
 

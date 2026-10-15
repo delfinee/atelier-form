@@ -44,12 +44,12 @@ class ConversationViewSet(viewsets.ModelViewSet):
                 raise PermissionDenied("A linked seller profile is required to view seller conversations.")
             return Conversation.objects.filter(
                 maker=user.maker_profile
-            ).select_related("buyer", "maker", "product", "order").prefetch_related("messages", "messages__sender")
+            ).select_related("buyer", "maker", "product", "order").prefetch_related("messages", "messages__sender").order_by("-updated_at")
 
         if role == "buyer":
             return Conversation.objects.filter(
                 buyer=user
-            ).select_related("buyer", "maker", "product", "order").prefetch_related("messages", "messages__sender")
+            ).select_related("buyer", "maker", "product", "order").prefetch_related("messages", "messages__sender").order_by("-updated_at")
 
         # By default (and for detail actions such as retrieve and messages action),
         # return any conversation where the user is either buyer or seller:
@@ -59,7 +59,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
         return q.distinct().select_related(
             "buyer", "maker", "product", "order"
-        ).prefetch_related("messages", "messages__sender")
+        ).prefetch_related("messages", "messages__sender").order_by("-updated_at")
 
     def create(self, request, *args, **kwargs):
         serializer = CreateConversationSerializer(data=request.data)

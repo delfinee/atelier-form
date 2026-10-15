@@ -121,11 +121,44 @@
     return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   }
 
+  // --- Unread Badge & Background Notification ---
+  async function updateUnreadBadge() {
+    if (!CFG.authenticated || !unreadBadge) return;
+    try {
+      const res = await fetch('/api/conversations/?role=buyer', {
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!res.ok) return;
+      const listData = await res.json();
+      const items = Array.isArray(listData) ? listData : (listData.items || []);
+      let totalUnread = 0;
+      items.forEach(c => {
+        totalUnread += (c.unread_count || 0);
+      });
+
+      if (totalUnread > 0 && !drawer?.classList.contains('is-open')) {
+        unreadBadge.textContent = totalUnread > 99 ? '99+' : String(totalUnread);
+        unreadBadge.style.display = 'inline-block';
+        unreadBadge.style.background = '#e11d48';
+        unreadBadge.style.color = '#ffffff';
+        unreadBadge.style.boxShadow = '0 0 8px rgba(225, 29, 72, 0.6)';
+      } else if (drawer?.classList.contains('is-open')) {
+        unreadBadge.style.display = 'none';
+      } else {
+        unreadBadge.style.display = 'none';
+      }
+    } catch (e) {}
+  }
+
   // --- Open / Close Drawer ---
   function openDrawer() {
     if (drawer) drawer.classList.add('is-open');
     if (backdrop) backdrop.classList.add('is-open');
     document.body.style.overflow = 'hidden';
+
+    // Clear unread badge immediately when opening chat
+    if (unreadBadge) unreadBadge.style.display = 'none';
 
     readPageContext();
     initConversation();
@@ -136,6 +169,7 @@
     if (backdrop) backdrop.classList.remove('is-open');
     document.body.style.overflow = '';
     stopPolling();
+    updateUnreadBadge();
   }
 
   // --- Read Page Context ---
@@ -169,6 +203,26 @@
     }
   }
 
+  // --- Helper to clean up empty state placeholders ---
+  function removeEmptyPlaceholder() {
+    if (!messagesContainer) return;
+    const t = i18n[currentLang] || i18n.en;
+    const placeholders = messagesContainer.querySelectorAll('.crafty-empty-placeholder');
+    placeholders.forEach(el => el.remove());
+
+    const firstChild = messagesContainer.firstElementChild;
+    if (firstChild && !firstChild.classList.contains('crafty-msg') && !firstChild.classList.contains('shopee-date-divider')) {
+      firstChild.remove();
+    }
+
+    if (!messagesContainer.querySelector('.shopee-date-divider')) {
+      const dateDivider = document.createElement('div');
+      dateDivider.className = 'shopee-date-divider';
+      dateDivider.innerHTML = `<span class="shopee-date-pill">${t.today}</span>`;
+      messagesContainer.prepend(dateDivider);
+    }
+  }
+
   // --- Initialize or Fetch Active Conversation ---
   async function initConversation() {
     const t = i18n[currentLang] || i18n.en;
@@ -176,7 +230,7 @@
     if (!CFG.authenticated) {
       if (messagesContainer) {
         messagesContainer.innerHTML = `
-          <div style="text-align:center; padding:3rem 1.5rem; color:var(--crafty-muted);">
+          <div class="crafty-empty-placeholder" style="text-align:center; padding:3rem 1.5rem; color:var(--crafty-muted);">
             <div style="font-size:2rem; margin-bottom:1rem;">💬</div>
             <p style="margin-bottom:1.5rem; font-size:0.95rem;">${t.loginPrompt}</p>
             <a href="${URLS.login || '/account/login/'}?next=${encodeURIComponent(window.location.pathname)}" class="btn btn--sm" style="display:inline-block; text-decoration:none;">
@@ -188,9 +242,9 @@
       return;
     }
 
-    if (messagesContainer) {
+    if (messagesContainer && !messagesContainer.querySelector('.crafty-msg')) {
       messagesContainer.innerHTML = `
-        <div style="text-align:center; padding:2rem; color:var(--crafty-muted); font-size:0.85rem;">
+        <div class="crafty-empty-placeholder" style="text-align:center; padding:2rem; color:var(--crafty-muted); font-size:0.85rem;">
           ...
         </div>
       `;
@@ -199,7 +253,7 @@
     try {
       let conv = null;
 
-      // If we have a product or maker from current context, get or create that thread
+      // 1. If we have a product or maker from current context, get or create that thread
       if (currentContext.productSlug || currentContext.makerSlug || currentContext.orderId) {
         const payload = {};
         if (currentContext.productSlug) payload.product = currentContext.productSlug;
@@ -222,9 +276,25 @@
         }
       }
 
-      // If no context or thread creation didn't return, fetch most recent thread
+      // 2. If no context, check if we had an active conversation stored in session
       if (!conv) {
-        const listRes = await fetch('/api/conversations/', {
+        const savedUuid = sessionStorage.getItem('crafty_active_conv_uuid');
+        if (savedUuid) {
+          try {
+            const savedRes = await fetch(`/api/conversations/${savedUuid}/`, {
+              credentials: 'same-origin',
+              headers: { 'Accept': 'application/json' }
+            });
+            if (savedRes.ok) {
+              conv = await savedRes.json();
+            }
+          } catch (e) {}
+        }
+      }
+
+      // 3. Fallback: fetch buyer conversations, prioritizing unread replies, then newest
+      if (!conv) {
+        const listRes = await fetch('/api/conversations/?role=buyer', {
           credentials: 'same-origin',
           headers: { 'Accept': 'application/json' }
         });
@@ -232,12 +302,13 @@
           const listData = await listRes.json();
           const items = Array.isArray(listData) ? listData : (listData.items || []);
           if (items.length > 0) {
-            conv = items[0];
+            const unreadConv = items.find(c => (c.unread_count || 0) > 0);
+            conv = unreadConv || items[0];
           }
         }
       }
 
-      // If buyer has no existing conversations, initialize a new thread with the studio
+      // 4. If buyer has no existing conversations, initialize a new thread
       if (!conv) {
         const createRes = await fetch('/api/conversations/', {
           method: 'POST',
@@ -257,15 +328,23 @@
       activeConversation = conv;
 
       if (activeConversation) {
+        if (activeConversation.uuid) {
+          sessionStorage.setItem('crafty_active_conv_uuid', activeConversation.uuid);
+        }
         if (sellerTitle && activeConversation.maker_name) {
           sellerTitle.textContent = activeConversation.maker_name;
+        }
+        if (pinnedBar && !currentContext.productName && activeConversation.product_name) {
+          pinnedBar.style.display = 'flex';
+          if (pinnedTitle) pinnedTitle.textContent = activeConversation.product_name;
+          if (pinnedPrice) pinnedPrice.textContent = activeConversation.product_price || '';
         }
         await loadMessages(activeConversation.uuid);
         startPolling();
       } else {
         if (messagesContainer) {
           messagesContainer.innerHTML = `
-            <div style="text-align:center; padding:3rem 1.5rem; color:var(--crafty-muted); font-size:0.9rem;">
+            <div class="crafty-empty-placeholder" style="text-align:center; padding:3rem 1.5rem; color:var(--crafty-muted); font-size:0.9rem;">
               ${t.noMessages}
             </div>
           `;
@@ -301,7 +380,7 @@
 
     if (!Array.isArray(msgs) || msgs.length === 0) {
       messagesContainer.innerHTML = `
-        <div style="text-align:center; padding:2.5rem 1rem; color:var(--crafty-muted); font-size:0.9rem;">
+        <div class="crafty-empty-placeholder" style="text-align:center; padding:2.5rem 1rem; color:var(--crafty-muted); font-size:0.9rem;">
           ${t.noMessages}
         </div>
       `;
@@ -325,6 +404,8 @@
     if (!messagesContainer) return;
     const t = i18n[currentLang] || i18n.en;
     lastMessageUuid = m.uuid;
+
+    removeEmptyPlaceholder();
 
     const isUser = Boolean(m.is_sender);
     const msgEl = document.createElement('div');
@@ -395,11 +476,7 @@
 
       if (res.ok) {
         const savedMsg = await res.json();
-        // Remove empty placeholder message if present
-        const emptyPlaceholder = messagesContainer?.querySelector('.shopee-date-divider') ? null : messagesContainer?.firstElementChild;
-        if (emptyPlaceholder && !emptyPlaceholder.classList.contains('crafty-msg')) {
-          emptyPlaceholder.remove();
-        }
+        removeEmptyPlaceholder();
         appendMessageToDOM(savedMsg);
       }
     } catch (err) {
@@ -407,7 +484,7 @@
     }
   }
 
-  // --- Polling for New Messages ---
+  // --- Polling for New Messages in Open Drawer ---
   function startPolling() {
     stopPolling();
     pollInterval = setInterval(async () => {
@@ -432,7 +509,7 @@
           });
         }
       } catch (e) {}
-    }, 4000);
+    }, 3000);
   }
 
   function stopPolling() {
@@ -567,6 +644,12 @@
       if (input) input.placeholder = t.inputPlaceholder;
       if (sellerTitle && !currentContext.makerName) sellerTitle.textContent = t.defaultTitle;
     });
+
+    // 8. Start background unread checking for authenticated buyers
+    if (CFG.authenticated) {
+      updateUnreadBadge();
+      setInterval(updateUnreadBadge, 8000);
+    }
   }
 
   if (document.readyState === 'loading') {

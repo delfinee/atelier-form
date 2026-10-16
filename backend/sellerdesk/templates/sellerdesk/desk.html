@@ -1,0 +1,62 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seller workspace · Atelier Form</title>
+<link rel="stylesheet" href="{% static 'sellerdesk/workbench.css' %}">
+<script src="{% static 'sellerdesk/workbench.js' %}" defer></script></head>
+<body data-csrf-cookie="{{ csrf_cookie_name }}">
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="/seller/workbench/"><span class="brand-symbol">af.</span><span>ATELIER FORM<small>SELLER WORKSPACE</small></span></a>
+    <div class="store-card"><span class="avatar">AF</span><div><strong>{{ maker.name }}</strong><small>Merchant workspace</small></div></div>
+    <p class="nav-label">WORKSPACE</p>
+    <nav aria-label="Workspace navigation">
+      <button class="nav-item active" data-page="orders"><span>▦</span> Orders <b id="nav-orders">0</b></button>
+      <button class="nav-item" data-page="inbox"><span>◷</span> Customer inbox <b id="nav-inbox">0</b></button>
+      <button class="nav-item" data-page="inventory"><span>▤</span> Inventory</button>
+      <button class="nav-item" data-page="channel"><span>↔</span> WeChat channel</button>
+    </nav>
+    <div class="sidebar-bottom"><span class="live-dot"></span> Demo workspace<p>Payments and shipments are simulated.</p><a href="/seller/assistant/">Open original assistant ↗</a></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><span>Workspace <span class="slash">/</span> <strong id="breadcrumb">Orders</strong></span><div><span class="status-pill">Preview environment</span><span class="avatar small">S</span></div></header>
+    <div class="content">
+      <div class="page-heading"><div><p class="eyebrow">YOUR BUSINESS, IN ONE PLACE</p><h1 id="page-title">Order operations</h1><p id="page-subtitle">From the first customer message to the final parcel.</p></div><button class="button primary" id="new-preview">＋ Create customer preview</button></div>
+      <div id="alert" class="alert" role="alert" hidden></div>
+      <section id="page-orders" class="page">
+        <div class="metric-grid">
+          <button class="metric" data-stage="review"><span>Awaiting confirmation</span><strong id="count-review">0</strong><small>Customer care</small></button>
+          <button class="metric" data-stage="payment"><span>Awaiting payment</span><strong id="count-payment">0</strong><small>Cashier</small></button>
+          <button class="metric" data-stage="packing"><span>To pick &amp; pack</span><strong id="count-packing">0</strong><small>Fulfillment</small></button>
+          <button class="metric" data-stage="dispatch"><span>Ready to ship</span><strong id="count-dispatch">0</strong><small>Dispatch</small></button>
+        </div>
+        <section class="panel"><div class="panel-heading"><div><h2>Order queue <span class="count" id="order-total">0</span></h2><p>Each order moves to the next queue when its current step is complete.</p></div><button class="button subtle" id="refresh">↻ Refresh</button></div>
+          <div class="table-toolbar"><div class="filters" role="group" aria-label="Filter orders"><button data-filter="all" class="active">All orders</button><button data-filter="review">Review</button><button data-filter="payment">Payment</button><button data-filter="packing">Packing</button><button data-filter="dispatch">Dispatch</button><button data-filter="shipped">Shipped</button><button data-filter="attention">Attention</button></div><input id="order-search" type="search" aria-label="Search orders" placeholder="Search customer or order…"></div>
+          <div id="order-table"></div>
+        </section>
+        <div class="connection-banner"><span class="connection-icon">↔</span><div><strong>A connected customer experience</strong><p>Try the customer preview in another tab. Messages and order updates appear here automatically.</p></div><button class="button" data-page="channel">View channel</button></div>
+      </section>
+      <section id="page-inbox" class="page" hidden>
+        <div class="inbox-layout">
+          <section class="panel conversation-list"><div class="panel-heading"><h2>Conversations</h2></div><div id="conversation-list"></div></section>
+          <section class="panel thread"><div class="panel-heading"><div><h2 id="thread-title">Customer inbox</h2><p id="thread-subtitle">Select a conversation to get started.</p></div></div><div id="thread-messages" class="messages"><div class="empty"><span class="empty-icon">↔</span><h3>Every conversation, in context</h3><p>Create a customer preview to receive your first message.</p></div></div><form id="reply-form" class="composer" hidden><label class="sr-only" for="seller-reply">Reply to customer</label><textarea id="seller-reply" rows="2" maxlength="2000" placeholder="Reply as the seller…" required></textarea><div><span>Your reply is visible to the customer.</span><button class="button primary" type="submit">Send reply ↗</button></div></form></section>
+          <aside class="order-context"><section class="panel" id="quote-panel" hidden><div class="panel-heading"><div><h2>Order builder</h2><p>Review the details, then send a quote.</p></div></div><form id="quote-form" class="quote-form">
+            <label>Product<select id="quote-product"></select></label><div class="form-row"><label>Option<select id="quote-variant"></select></label><label class="quantity">Quantity<input id="quote-quantity" type="number" min="1" max="99" value="1" required></label></div>
+            <button type="button" class="button full" id="add-line">＋ Add item</button><div id="quote-lines"></div>
+            <details><summary>Customer &amp; delivery details</summary><p class="muted">Use test details in this demo.</p><label>Email<input id="quote-email" type="email" value="alex@example.test" required maxlength="254"></label><div class="form-row"><label>First name<input id="quote-first" value="Alex" required maxlength="80"></label><label>Last name<input id="quote-last" value="Chen" required maxlength="80"></label></div><label>Phone<input id="quote-phone" value="" maxlength="32"></label><label>Address<input id="quote-address" value="100 Demo Road" required maxlength="255"></label><div class="form-row"><label>City<input id="quote-city" value="Shanghai" required maxlength="80"></label><label>Postal code<input id="quote-postal" value="200000" required maxlength="20"></label></div><label>Delivery<select id="quote-delivery"><option value="standard">Standard delivery</option><option value="express">Express delivery</option></select></label></details>
+            <p class="muted">Prices and availability are checked again when the customer confirms.</p><button class="button primary full" type="submit">Send quote for confirmation</button>
+          </form></section><div id="draft-cards"></div></aside>
+        </div>
+      </section>
+      <section id="page-inventory" class="page" hidden><section class="panel"><div class="panel-heading"><div><h2>Available inventory</h2><p>Current stock from your store. Confirmed orders reserve stock through the existing order service.</p></div></div><div id="inventory-table"></div></section></section>
+      <section id="page-channel" class="page" hidden>
+        <div class="channel-grid"><section class="panel channel-card"><div class="channel-logo">↔</div><span class="badge muted-badge">Not connected</span><h2>WeChat Mini Program</h2><p>Connect your future customer Mini Program to this seller workspace. Customers browse and chat; you manage orders and fulfillment here.</p><div class="checklist"><p><span class="check">✓</span> Shared catalogue and order workflow</p><p><span class="check">✓</span> Separate customer and seller permissions</p><p><span class="check">✓</span> Versioned customer API and browser preview</p><p><span class="pending">○</span> WeChat AppID, secure login and approved domain</p><p><span class="pending">○</span> WeChat Pay and courier connections</p></div><button class="button primary" id="channel-preview">Try the customer preview ↗</button><p class="muted">No WeChat account is connected. The preview runs in your browser.</p></section>
+        <section class="panel channel-card"><p class="eyebrow">HOW THE DEMO WORKS</p><h2>Two sides. One order.</h2><ol class="steps"><li><strong>Customer sends a message</strong><p>Open a customer preview and ask about a product.</p></li><li><strong>Seller reviews and quotes</strong><p>Reply, select products and send a quote from the inbox.</p></li><li><strong>Customer confirms and pays</strong><p>Review the quote and simulate payment in the preview.</p></li><li><strong>Seller packs and ships</strong><p>Complete the packing check, then enter carrier and tracking details.</p></li></ol><div class="note">Each preview is linked to one conversation in your workspace. You can share its link with a teammate to test the customer side.</div></section></div>
+      </section>
+      <footer class="workspace-footer"><span id="sync-status" role="status">Loading workspace…</span><span>{% if public_demo %}No login needed · Isolated team demo{% else %}Seller access · Demo orders only{% endif %}</span></footer>
+    </div>
+  </main>
+</div>
+<dialog id="preview-dialog"><form id="invite-form"><div class="dialog-heading"><h2>Create a customer preview</h2><button class="icon-button" type="button" id="close-dialog" aria-label="Close">×</button></div><p>Give this customer a name so you can find their messages in your inbox.</p><label>Customer name<input id="customer-name" value="Alex · Demo customer" maxlength="80" required></label><button class="button primary full" id="invite-submit" type="submit">Create linked preview</button></form><div id="invitation-result" hidden><p class="success">Your customer preview is ready.</p><p>This link opens only this customer's conversation and order. It expires in 24 hours.</p><a id="preview-link" class="button primary full" target="_blank" rel="noopener">Open customer preview ↗</a><button id="copy-preview" class="button full">Copy link for a teammate</button><button id="go-inbox" class="button subtle full">Go to customer inbox</button></div></dialog>
+</body></html>

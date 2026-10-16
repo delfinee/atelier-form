@@ -15,7 +15,7 @@
 </div>
 
 <div class="shell" style="padding-bottom:var(--section);max-width:860px">
-  <form method="post" class="flow" novalidate>
+  <form enctype="multipart/form-data" method="post" class="flow" novalidate>
     {% csrf_token %}
 
     {% if form.non_field_errors %}
@@ -197,7 +197,7 @@
             {{ img_form.id }}
             <div class="field">
               <label style="font-size:0.8rem">{% translate "Image Key" %}</label>
-              {{ img_form.image }}
+              {{ img_form.image }}<label>Upload photo (up to 5 MB)</label>{{ img_form.upload }}{{ img_form.upload.errors }}
               {% if img_form.image.errors %}<p class="field-error">{{ img_form.image.errors.0 }}</p>{% endif %}
             </div>
             <div class="field">

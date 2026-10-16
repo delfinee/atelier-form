@@ -1,0 +1,6 @@
+{% load static %}
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My products · Atelier Form</title><link rel="stylesheet" href="{% static 'seller_agent/desk.css' %}"><link rel="stylesheet" href="{% static 'seller_agent/editor.css' %}"></head>
+<body><main class="product-editor"><p class="eyebrow">ATELIER FORM · SELLER</p><a href="{% url 'seller_ai' %}">← Seller assistant</a><h1>My products</h1><p>{{ maker.name }} · {% if request.seller_public_demo %}Your private sample products.{% else %}Changes are shared with your WeChat Mini Program.{% endif %}</p>
+{% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
+<p><a href="{% url 'seller_product_create' %}">Add a product</a></p><div class="record-grid">
+{% for product in products %}<article class="record"><h2>{{ product.name }}</h2><p>{{ product.currency }} {{ product.price }} · {% if product.is_active %}Active{% else %}Unpublished{% endif %}</p><p>{% if product.is_made_to_order %}Made to order{% else %}{{ product.available_quantity }} available{% endif %}</p><a href="{% url 'seller_product_edit' product.slug %}">Edit photos, options and publication</a></article>{% empty %}<p>No products yet. Start a listing with your seller assistant.</p>{% endfor %}</div></main></body></html>

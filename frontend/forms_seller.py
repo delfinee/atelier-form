@@ -1,8 +1,12 @@
 """Forms for seller product and catalogue management."""
 
 from decimal import Decimal
+from io import BytesIO
+from uuid import uuid4
 from django import forms
+from django.db import transaction
 from django.forms import inlineformset_factory
+from PIL import Image, ImageOps
 
 from products.models import Product, ProductImage, ProductVariant, VariantGroup
 
@@ -83,6 +87,55 @@ SellerVariantFormSet = inlineformset_factory(
 
 class SellerProductImageForm(forms.ModelForm):
     """Product image row in inline formset."""
+
+    image = forms.CharField(required=False, label="Existing image reference (optional)")
+    upload = forms.ImageField(required=False, label="Upload photo",
+        help_text="JPEG, PNG or WebP, up to 5 MB and 20 megapixels.",
+        widget=forms.ClearableFileInput(attrs={"accept": "image/jpeg,image/png,image/webp"}))
+
+    def clean_upload(self):
+        upload = self.cleaned_data.get("upload")
+        if not upload:
+            return None
+        if upload.size > 5 * 1024 * 1024:
+            raise forms.ValidationError("Choose an image smaller than 5 MB.")
+        try:
+            upload.seek(0)
+            with Image.open(upload) as source:
+                if source.format not in {"JPEG", "PNG", "WEBP"} or source.width * source.height > 20_000_000:
+                    raise ValueError()
+                photo = ImageOps.exif_transpose(source)
+                photo.thumbnail((2048, 2048))
+                rgba = photo.convert("RGBA")
+                clean = Image.new("RGB", rgba.size, "white")
+                clean.paste(rgba, mask=rgba.getchannel("A"))
+                encoded = BytesIO()
+                clean.save(encoded, format="JPEG", quality=88)
+                self.photo_data = (encoded.getvalue(), clean.width, clean.height)
+        except (OSError, ValueError, Image.DecompressionBombError) as exc:
+            raise forms.ValidationError("Choose a valid JPEG, PNG or WebP under 20 megapixels.") from exc
+        return upload
+
+    def clean(self):
+        data = super().clean()
+        if data.get("upload"):
+            data["image"] = "seller-photo-" + uuid4().hex
+        elif not data.get("image") and not data.get("DELETE"):
+            self.add_error("upload", "Upload a photo or enter an existing image reference.")
+        return data
+
+    @transaction.atomic
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if commit:
+            if self.cleaned_data.get("upload"):
+                from imagery.models import SiteImage
+                payload, width, height = self.photo_data
+                SiteImage.objects.create(name=instance.image, data=payload, width=width,
+                    height=height, content_type="image/jpeg", alt_text=instance.alt_text,
+                    provider="seller-upload")
+            instance.save()
+        return instance
 
     class Meta:
         model = ProductImage

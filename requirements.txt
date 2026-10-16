@@ -13,9 +13,10 @@ django-filter==25.2
 drf-spectacular==0.28.0          # OpenAPI schema + Swagger UI at /api/docs/
 django-cors-headers==4.9.0
 gunicorn==23.0.0                # production WSGI server
+waitress==3.0.2                 # local cross-platform seller/WeChat preview server
 whitenoise==6.9.0               # compressed, cacheable static assets
 
 Pillow==11.3.0                   # crop/encode fetched photography (imagery app)
 requests==2.32.5                 # Openverse image search + download
-stripe
+stripe==16.0.0                  # match the tested delivery runtime
 

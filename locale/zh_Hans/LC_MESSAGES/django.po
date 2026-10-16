@@ -4030,3 +4030,112 @@ msgstr "手织茶巾"
 #: frontend/catalogue_i18n.py
 msgid "Pure beeswax"
 msgstr "纯蜂蜡"
+
+msgid "Your shopping assistant"
+msgstr "你的选购助手"
+
+msgid "Tell us what you are looking for."
+msgstr "告诉我，你在寻找什么。"
+
+msgid ""
+"Find real pieces, compare prices and reviews, then make the choice yours."
+msgstr "查找在售商品，对比价格与真实评价，由你决定购买。"
+
+msgid "What are you looking for?"
+msgstr "你想找什么商品？"
+
+msgid "Find blue ceramic mugs under CNY 100"
+msgstr "找100元以内的蓝色陶瓷杯"
+
+msgid "Ask assistant"
+msgstr "问问助手"
+
+msgid "Shopping assistant"
+msgstr "选购助手"
+
+msgid "Find something you love"
+msgstr "找到心仪的手作"
+
+msgid "Close shopping assistant"
+msgstr "关闭选购助手"
+
+msgid "Real products · Current prices"
+msgstr "在售商品 · 当前价格"
+
+msgid "New conversation"
+msgstr "新对话"
+
+msgid ""
+"Tell me about the piece you need. You can refine by budget, colour, "
+"availability or reviews."
+msgstr "告诉我你想找的商品，可继续按预算、颜色、库存或评价筛选。"
+
+msgid "Ceramic mugs"
+msgstr "陶瓷杯"
+
+msgid "Cheapest options"
+msgstr "最便宜的"
+
+msgid "Only blue"
+msgstr "只看蓝色"
+
+msgid "Good reviews"
+msgstr "好评商品"
+
+msgid "Message the shopping assistant"
+msgstr "向选购助手提问"
+
+msgid "What would you like to find?"
+msgstr "你想找什么？"
+
+msgid ""
+"You choose and check out. The assistant never places an order or pays for "
+"you."
+msgstr "由你选择并结账，助手不会代你下单或付款。"
+
+msgid "For makers"
+msgstr "卖家入口"
+
+msgid "Your shop, in WeChat."
+msgstr "在微信里管理你的店铺。"
+
+msgid ""
+"Use the seller Mini Program to check products and orders, prepare listings, "
+"update stock and confirm shipments."
+msgstr "通过卖家小程序查看商品和订单、准备商品草稿、修改库存并确认发货。"
+
+msgid ""
+"During testing, open the current preview code supplied by the project owner."
+" The Mini Program is not yet publicly searchable."
+msgstr "测试期间请扫描项目负责人提供的最新预览码，小程序尚未公开发布。"
+
+msgid ""
+"Link your existing website account inside the Mini Program. Seller access is"
+" verified; opening the app does not create a shop or grant seller "
+"permissions."
+msgstr "在小程序内绑定已有网站账号。卖家权限会经过核验，打开小程序不会自动创建店铺或授予卖家权限。"
+
+msgid "Sign in for account linking"
+msgstr "登录以绑定账号"
+
+msgid ""
+"Product photos, options and publication can be completed through the secure "
+"website link shown in the Mini Program."
+msgstr "商品图片、规格和发布可通过小程序提供的安全网页链接完成。"
+
+msgid "Seller Mini Program"
+msgstr "卖家微信小程序"
+
+#~ msgid ""
+#~ "Password reset email delivery is not connected yet — the request is accepted"
+#~ " and logged."
+#~ msgstr "重设密码邮件发送功能尚未接入——请求已受理并记录。"
+
+#~ msgid "Change your password through the API endpoint"
+#~ msgstr "通过 API 接口修改密码"
+
+#~ msgid "POST /api/auth/change-password/"
+#~ msgstr "POST /api/auth/change-password/"
+
+#~ msgid ". A frontend form for this is not built yet."
+#~ msgstr "。前台表单尚未开发。"

@@ -1,0 +1,37 @@
+name: atelier-marketplace-demo
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: atelier_marketplace_demo
+      POSTGRES_USER: atelier_demo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a random demo database password}
+    volumes: [marketplace_database:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U atelier_demo -d atelier_marketplace_demo']
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    env_file: .env.marketplace-demo
+    environment:
+      DJANGO_SETTINGS_MODULE: config.marketplace_demo
+      DJANGO_DEBUG: '0'
+      DATABASE_URL: postgresql://atelier_demo:${POSTGRES_PASSWORD:?Set a random demo database password}@db:5432/atelier_marketplace_demo
+    depends_on:
+      db: {condition: service_healthy}
+    restart: unless-stopped
+    init: true
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate --url http://app:8000
+    depends_on: [app]
+    restart: unless-stopped
+volumes:
+  marketplace_database:

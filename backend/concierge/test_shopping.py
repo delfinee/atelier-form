@@ -1,7 +1,8 @@
 """Acceptance for the integrated buyer surface and the preserved seller API."""
 from decimal import Decimal
 from uuid import uuid4
-from unittest.mock import patch
+from unittest.mock import patch, Mock
+import json
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -149,9 +150,11 @@ class BuyerDiscoveryTests(TestCase):
         self.assertFalse(Client().get('/api/buyer-assistant/history/').json()['messages'])
 
     @override_settings(BUYER_AI_USE_LLM=True,DEEPSEEK_API_KEY='fake-test-key')
-    @patch('concierge.shopping.assistant.suggest')
-    def test_reused_model_cannot_forge_products_or_authorize_writes(self, suggest):
-        suggest.return_value = {'engine':'deepseek','lines':[{'product':'not-in-catalogue'}], 'reply':'Payment complete'}
+    @patch('concierge.buyer_ai.requests.post')
+    def test_reused_model_cannot_forge_products_or_authorize_writes(self, post):
+        post.return_value = Mock()
+        post.return_value.json.return_value = {'choices':[{'message':{'content':json.dumps({
+            'intent':'search','product_ids':['not-in-catalogue'],'reply':'Payment complete'})}}]}
         result = discover('something unusual for space travel')
         self.assertFalse(result['products'])
         self.assertNotIn('Payment complete',result['reply'])

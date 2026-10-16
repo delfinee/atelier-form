@@ -9,6 +9,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 from .shopping import discover
+from .buyer_ai import enabled as ai_enabled
 
 
 class DemoBoundaries:
@@ -91,7 +92,7 @@ def message(request):
 @require_GET
 def history(request):
     state = request.session.get('buyer_assistant', {})
-    return reply({'messages': state.get('history', [])})
+    return reply({'messages': state.get('history', []), 'ai_enabled': ai_enabled()})
 
 
 @require_POST

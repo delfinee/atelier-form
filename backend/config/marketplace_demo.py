@@ -8,8 +8,8 @@ if DATABASES['default']['NAME'] != 'atelier_marketplace_demo' or len(os.environ.
 DEBUG = False
 ROOT_URLCONF = 'config.marketplace_urls'
 MARKETPLACE_PUBLIC_DEMO = True
-BUYER_AI_USE_LLM = False
-DEEPSEEK_API_KEY = ''
+BUYER_AI_USE_LLM = env.bool('BUYER_AI_USE_LLM', default=False)
+DEEPSEEK_API_KEY = env.str('DEEPSEEK_API_KEY', default='')
 SELLER_AGENT_ENABLED = True
 SELLER_AGENT_USE_LLM = False
 WECHAT_SELLER_ENABLED = False

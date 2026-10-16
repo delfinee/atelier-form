@@ -21,9 +21,15 @@ No reviews means no rating; sold-out and made-to-order records are distinguished
 Product cards link into the existing product, bag and checkout pages. The assistant
 cannot place an order, report payment, grant seller rights or change stock.
 
-`BUYER_AI_USE_LLM=1` with a private `DEEPSEEK_API_KEY` allows the retained DeepSeek
-adapter to help with otherwise unmatched requests. Guided catalogue queries work
-without paid calls. Model text never becomes price/review/payment authority.
+`BUYER_AI_USE_LLM=1` with a private `DEEPSEEK_API_KEY` enables DeepSeek understanding
+and replies for buyer chat, including English/Chinese follow-ups, gift suggestions
+and comparisons. `DEEPSEEK_MODEL` defaults to `deepseek-flash`; the shared daily
+provider-call allowance is set by `BUYER_AI_DAILY_LIMIT` (default 500).
+Only messages, limited conversation context and public catalogue facts are sent.
+The widget discloses model processing and shows the active mode. Model-selected
+IDs and filters are validated; prices, variants, availability and published review
+facts are rendered from the database. The model cannot place orders or pay.
+Provider errors/quota exhaustion fall back to guided catalogue queries with a notice.
 
 ## Preserved earlier work
 

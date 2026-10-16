@@ -110,10 +110,11 @@ ROOT_URLCONF = "config.urls"
 # One codebase: buyer website discovery and seller Mini Program operations.
 BUYER_ASSISTANT_ENABLED = env.bool("BUYER_ASSISTANT_ENABLED", default=True)
 BUYER_AI_USE_LLM = env.bool("BUYER_AI_USE_LLM", default=False)
+BUYER_AI_DAILY_LIMIT = env.int("BUYER_AI_DAILY_LIMIT", default=500)
 CONCIERGE_DEMO = env.bool("CONCIERGE_DEMO", default=False)
 PUBLIC_CONCIERGE_DEMO = False
 DEEPSEEK_API_KEY = env.str("DEEPSEEK_API_KEY", default="")
-DEEPSEEK_MODEL = env.str("DEEPSEEK_MODEL", default="deepseek-chat")
+DEEPSEEK_MODEL = env.str("DEEPSEEK_MODEL", default="deepseek-flash")
 
 TEMPLATES = [
     {

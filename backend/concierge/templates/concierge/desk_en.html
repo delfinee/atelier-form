@@ -1,0 +1,29 @@
+{% load static %}
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Customer Service Demo · Atelier Form</title><link rel="stylesheet" href="{% static 'concierge/desk.css' %}"></head>
+<body><header><a class="brand" href="/seller/assistant/">ATELIER FORM <small>Handmade for slower living</small></a><span>Team demo · No login needed</span></header>
+<main><div class="heading"><div><p class="eyebrow">CUSTOMER SERVICE STUDIO</p><h1>From first hello to delivery.</h1><p class="muted">{{ maker.name }} · Customer service &amp; fulfillment</p></div><span class="pill">● Public demo</span></div>
+<div class="notice">Try the full journey: chat, review an order, confirm, simulate payment, pack and ship. This demo uses simulated messaging, payments and shipping. No money is charged. Use fictional details; chat messages may be processed by DeepSeek. Each browser gets a separate workspace.</div>
+<div id="error" role="alert" hidden></div>
+<nav class="steps" aria-label="Order journey"><span>01 Chat &amp; choose</span><span>02 Review draft</span><span>03 Confirm &amp; pay</span><span>04 Pack &amp; ship</span></nav>
+<div class="desk">
+<section class="panel"><div class="panel-title"><h2>Handmade catalogue</h2><span id="catalog-count" class="muted"></span></div><label class="sr-only" for="search">Filter products</label><input id="search" placeholder="Search product names…" type="search"><div id="catalog" class="catalog"></div></section>
+<section class="panel chat-panel"><div class="panel-title"><h2>Customer chat <small>Demo</small></h2><button id="new-chat" class="text-button">New chat ＋</button></div>
+<label class="sr-only" for="conversation">Chat history</label><select id="conversation"></select>
+<div id="messages" class="messages" role="log" aria-live="polite"></div>
+<p id="engine" class="engine">{% if ai_configured %}DeepSeek ready · Send a message to start{% else %}Offline catalogue matching{% endif %}</p>
+<form id="chat-form"><label class="sr-only" for="chat-text">Customer message</label><textarea id="chat-text" maxlength="2000" rows="3" required placeholder="For example: I'd like two ceramic bowls. What can you recommend?"></textarea><button type="submit" class="primary full">Send demo customer message →</button></form>
+<p class="small muted">Review AI suggestions before ordering. Chat alone never places an order. Use fictional information.</p></section>
+<section class="panel order-panel"><div class="panel-title"><h2>Order &amp; fulfillment</h2><span class="pill neutral" id="state">Choose products</span></div>
+<div id="selection"></div><button id="clear-selection" class="text-button">Clear selection</button>
+<form id="draft-form"><details id="address-details"><summary>Demo delivery details <span class="muted">Editable</span></summary><div class="fields">
+<label>Last name<input name="last_name" value="Chen" required maxlength="80"></label><label>First name<input name="first_name" value="Alex" required maxlength="80"></label>
+<label class="wide">Email<input name="email" type="email" value="demo-buyer@example.test" required></label>
+<label class="wide">Phone<input name="phone" value="13800000000" maxlength="32"></label>
+<label class="wide">Street address<input name="address_line_1" value="100 Demo Road (fictional address)" required maxlength="200"></label>
+<label>City<input name="city" value="Shanghai" required maxlength="100"></label><label>Postal code<input name="postal_code" value="200000" required maxlength="20"></label>
+<label class="wide">Delivery method<select name="delivery_method"><option value="standard">Standard delivery</option><option value="express">Express delivery</option></select></label></div></details>
+<button id="quote-button" type="submit" class="primary full">Create order draft</button></form>
+<div id="draft-area" hidden><div class="divider"></div><label for="draft-history" class="small">Order drafts in this chat</label><select id="draft-history"></select><div id="draft"></div><div id="actions"></div><ol id="events" class="events"></ol></div>
+</section></div><footer>Drafts expire in 30 minutes · Prices and stock are checked again when you confirm · All prices in CNY</footer></main>
+{% csrf_token %}<script src="{% static 'concierge/desk.js' %}" defer></script></body></html>

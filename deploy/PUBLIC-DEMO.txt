@@ -1,0 +1,39 @@
+Isolated public seller website demo
+
+Run this legacy seller demo from its dedicated deployment directory.
+The unified buyer website is documented in UNIFIED_DELIVERY.md.
+This is a temporary public website, not the released WeChat Mini Program.
+No real business database or WeChat secret was copied to this deployment.
+Native development upload 0.9.20261016 still uses the separate phone preview backend.
+
+From the deployment directory:
+docker compose --env-file deploy/.env.public-demo -f deploy/public-demo.compose.yml ps
+docker compose --env-file deploy/.env.public-demo -f deploy/public-demo.compose.yml logs --tail 80 app tunnel
+
+The private .env.public-demo contains independently generated POSTGRES_PASSWORD
+and DJANGO_SECRET_KEY values. Never commit or distribute it.
+The dedicated database must be named atelier_public_demo; settings reject other names.
+Visitors use CSRF-protected Start demo to create a private synthetic shop.
+Sessions last 24 hours. Accounts have unusable passwords and no admin privileges.
+The demo limits new sessions per IP and caps total visitor accounts at 1,000.
+No automatic data-deletion job is installed. Any cleanup must target this demo only.
+
+Optional DeepSeek AI (enabled on the existing shared demo): set SELLER_AGENT_USE_LLM=1,
+SELLER_AGENT_MODEL=deepseek-flash, and SELLER_AGENT_API_KEY in the private server env.
+Natural English/Chinese requests and follow-ups use the model; exact quick actions
+still work without paid calls. Only the message, limited recent context and relevant
+sample catalogue/order facts are sent; buyer contact/address fields are excluded.
+The website discloses model processing. Use synthetic information only.
+SELLER_AGENT_LLM_DAILY_LIMIT defaults to 500 provider requests across the deployment.
+Every write still needs a validated preview and an explicit human confirmation.
+Provider failure or quota exhaustion falls back to guided commands with a notice.
+
+The app, database and tunnel have restart policies. No application or database
+port is published on the host. The public HTTPS route is provided by cloudflared.
+Quick Tunnel has no uptime guarantee, and a tunnel restart may change its URL.
+For a code-only update, rebuild app and recreate app with --no-deps; preserve tunnel.
+Never use compose down -v unless intentionally discarding this demo's database.
+
+Production uses the separate compose.yml and seller_production settings and
+requires a permanent domain, operator information, independent credentials,
+platform setup and review. Do not substitute these public demo settings there.

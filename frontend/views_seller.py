@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -16,14 +17,14 @@ from .forms_seller import SellerImageFormSet, SellerProductForm, SellerVariantFo
 
 def _get_seller_maker(request):
     """Enforce seller role and return linked Maker profile."""
-    if not request.user.is_authenticated or not getattr(request.user, "is_seller", False) or not hasattr(request.user, "maker_profile"):
+    if not request.user.is_authenticated or not request.user.is_active or not getattr(request.user, "is_seller", False) or not hasattr(request.user, "maker_profile") or not request.user.maker_profile.is_active:
         raise PermissionDenied("A linked seller profile is required.")
     return request.user.maker_profile
 
 
 @login_required
 @require_http_methods(["GET"])
-def seller_product_list(request):
+def seller_product_list(request, template_name="frontend/seller/products.html"):
     """List all products owned by the authenticated seller."""
     maker = _get_seller_maker(request)
     products = (
@@ -32,7 +33,7 @@ def seller_product_list(request):
         .prefetch_related("product_variants", "product_images")
         .order_by("-updated_at")
     )
-    return render(request, "frontend/seller/products.html", {
+    return render(request, template_name, {
         "maker": maker,
         "products": products,
         "meta_title": f"Products — {maker.name}",
@@ -41,14 +42,15 @@ def seller_product_list(request):
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def seller_product_create(request):
+@transaction.atomic
+def seller_product_create(request, template_name="frontend/seller/product_form.html"):
     """Create a new product with variants and image references."""
     maker = _get_seller_maker(request)
 
     if request.method == "POST":
         form = SellerProductForm(request.POST)
         variant_formset = SellerVariantFormSet(request.POST)
-        image_formset = SellerImageFormSet(request.POST)
+        image_formset = SellerImageFormSet(request.POST, request.FILES)
 
         if form.is_valid() and variant_formset.is_valid() and image_formset.is_valid():
             product = form.save(commit=False)
@@ -80,7 +82,7 @@ def seller_product_create(request):
         variant_formset = SellerVariantFormSet()
         image_formset = SellerImageFormSet()
 
-    return render(request, "frontend/seller/product_form.html", {
+    return render(request, template_name, {
         "maker": maker,
         "form": form,
         "variant_formset": variant_formset,
@@ -92,15 +94,17 @@ def seller_product_create(request):
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def seller_product_edit(request, slug):
+@transaction.atomic
+def seller_product_edit(request, slug, template_name="frontend/seller/product_form.html"):
     """Edit an existing seller product and its variants/images."""
     maker = _get_seller_maker(request)
-    product = get_object_or_404(maker.products, slug=slug)
+    products = maker.products.select_for_update() if request.method == "POST" else maker.products
+    product = get_object_or_404(products, slug=slug)
 
     if request.method == "POST":
         form = SellerProductForm(request.POST, instance=product)
         variant_formset = SellerVariantFormSet(request.POST, instance=product)
-        image_formset = SellerImageFormSet(request.POST, instance=product)
+        image_formset = SellerImageFormSet(request.POST, request.FILES, instance=product)
 
         if form.is_valid() and variant_formset.is_valid() and image_formset.is_valid():
             product = form.save()
@@ -116,7 +120,7 @@ def seller_product_edit(request, slug):
         variant_formset = SellerVariantFormSet(instance=product)
         image_formset = SellerImageFormSet(instance=product)
 
-    return render(request, "frontend/seller/product_form.html", {
+    return render(request, template_name, {
         "maker": maker,
         "product": product,
         "form": form,

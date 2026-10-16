@@ -1,0 +1,61 @@
+name: atelier-seller-prod
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: atelier_seller
+      POSTGRES_USER: atelier_seller
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a unique database password}
+    volumes:
+      - seller_database:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U atelier_seller -d atelier_seller']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 1g
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: '3'}
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+    env_file: .env.production
+    environment:
+      DJANGO_DEBUG: '0'
+      DJANGO_SETTINGS_MODULE: config.marketplace_production
+      DATABASE_URL: postgresql://atelier_seller:${POSTGRES_PASSWORD:?Set a unique database password}@db:5432/atelier_seller
+    depends_on:
+      db: {condition: service_healthy}
+    restart: unless-stopped
+    init: true
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    mem_limit: 1g
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: '3'}
+  https:
+    image: caddy:2
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?Set the registered domain}
+      ACME_EMAIL: ${ACME_EMAIL:?Set a certificate contact email}
+    ports: ['80:80', '443:443']
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - seller_tls:/data
+      - seller_caddy_config:/config
+    depends_on: [app]
+    restart: unless-stopped
+    mem_limit: 256m
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: '3'}
+volumes:
+  seller_database:
+  seller_tls:
+  seller_caddy_config:

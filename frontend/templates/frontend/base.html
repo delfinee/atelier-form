@@ -11,6 +11,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%232E2A24'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' fill='%23EFE7DA' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="{% static 'frontend/css/site.css' %}">
 <link rel="stylesheet" href="{% static 'frontend/css/chatbot.css' %}">
+{% if buyer_assistant_enabled %}<link rel="stylesheet" href="{% static 'concierge/buyer.css' %}">{% endif %}
 {% block head %}{% endblock %}
 </head>
 <body{% block body_attrs %}{% endblock %}>
@@ -19,6 +20,7 @@
 {{ af_config|json_script:"af-config" }}
 
 {% include "frontend/partials/header.html" %}
+{% if marketplace_public_demo %}<p role="status" style="padding:10px 20px;margin:0;text-align:center;background:#e7eee5;font-size:13px">Group acceptance demo · Sample products and reviews · Simulated payments and shipping only</p>{% endif %}
 {% include "frontend/partials/mobile_nav.html" %}
 {% include "frontend/partials/search_overlay.html" %}
 
@@ -43,8 +45,11 @@
 {% include "frontend/partials/chatbot.html" %}
 {% endblock %}
 
+{% if buyer_assistant_enabled %}{% include "concierge/buyer_widget.html" %}{% endif %}
+
 <script src="{% static 'frontend/js/site.js' %}" defer></script>
 <script src="{% static 'frontend/js/chatbot.js' %}" defer></script>
+{% if buyer_assistant_enabled %}<script src="{% static 'concierge/buyer.js' %}" defer></script>{% endif %}
 {% block scripts %}{% endblock %}
 </body>
 </html>

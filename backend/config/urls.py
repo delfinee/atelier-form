@@ -9,8 +9,20 @@ from django.contrib.auth import views as auth_views
 from django.urls import include, path, reverse_lazy
 
 from frontend import views, views_seller
+from concierge import buyer_views
 
 urlpatterns = [
+    path("api/buyer-assistant/messages/", buyer_views.message, name="buyer_assistant_message"),
+    path("api/buyer-assistant/history/", buyer_views.history, name="buyer_assistant_history"),
+    path("api/buyer-assistant/reset/", buyer_views.reset, name="buyer_assistant_reset"),
+    path("seller/mini-program/", buyer_views.seller_mini_program, name="seller_mini_program"),
+    # Preserve the earlier demo contracts; their own guards require explicit demo mode.
+    path("seller/assistant/", include("concierge.urls")),
+    path("seller/workbench/", include("sellerdesk.urls")),
+    path("customer/preview/", include("sellerdesk.preview_urls")),
+    path("api/mini-store/v1/", include("sellerdesk.customer_urls")),
+    path("seller/ai/", include("seller_agent.web_urls")),
+    path("api/seller-agent/v1/", include("seller_agent.urls")),
     path("admin/", admin.site.urls),
     path("i18n/", include("django.conf.urls.i18n")),
 

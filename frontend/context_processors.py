@@ -38,6 +38,8 @@ def frontend(request) -> dict:
         "footer_nav": FOOTER_NAV,
         "popular_searches": POPULAR_SEARCHES,
         "current_path": request.path,
+        "buyer_assistant_enabled": getattr(settings, "BUYER_ASSISTANT_ENABLED", True) and not request.path.startswith("/seller/"),
+        "marketplace_public_demo": getattr(settings, "MARKETPLACE_PUBLIC_DEMO", False),
         # Rendered into the page with |json_script -- never hand-built in the
         # template, where autoescaping would corrupt any string it contains.
         "af_config": {

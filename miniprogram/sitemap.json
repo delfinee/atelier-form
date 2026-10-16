@@ -1,0 +1,1 @@
+{"desc":"Only the public introduction can be indexed. Seller records stay private.","rules":[{"action":"allow","page":"pages/home/index"},{"action":"disallow","page":"*"}]}

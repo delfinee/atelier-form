@@ -1,0 +1,11 @@
+{% load i18n %}
+<button class="buyer-launcher" id="buyer-open" aria-controls="buyer-panel" aria-expanded="false">✧ {% translate "Shopping assistant" %}</button>
+<section id="buyer-panel" class="buyer-panel" role="dialog" aria-modal="false" aria-labelledby="buyer-title" hidden>
+  <header class="buyer-head"><div><span class="buyer-kicker">ATELIER FORM</span><h2 id="buyer-title">{% translate "Find something you love" %}</h2></div><button id="buyer-close" aria-label="{% translate 'Close shopping assistant' %}">×</button></header>
+  <div class="buyer-tools"><span>{% translate "Real products · Current prices" %}</span><button id="buyer-reset">{% translate "New conversation" %}</button></div>
+  <div id="buyer-messages" class="buyer-messages" aria-live="polite"><p class="buyer-welcome">{% translate "Tell me about the piece you need. You can refine by budget, colour, availability or reviews." %}</p></div>
+  <div class="buyer-suggestions"><button data-buyer-prompt="Find ceramic mugs">{% translate "Ceramic mugs" %}</button><button data-buyer-prompt="Show the cheapest options">{% translate "Cheapest options" %}</button><button data-buyer-prompt="Only blue ones">{% translate "Only blue" %}</button><button data-buyer-prompt="Which have good reviews?">{% translate "Good reviews" %}</button></div>
+  <p id="buyer-error" class="buyer-error" role="alert" hidden></p>
+  <form id="buyer-form"><label class="sr-only" for="buyer-text">{% translate "Message the shopping assistant" %}</label><input id="buyer-text" maxlength="2000" autocomplete="off" placeholder="{% translate 'What would you like to find?' %}" required><button type="submit" aria-label="{% translate 'Send message' %}">↑</button></form>
+  <small class="buyer-footnote">{% translate "You choose and check out. The assistant never places an order or pays for you." %}</small>
+</section>

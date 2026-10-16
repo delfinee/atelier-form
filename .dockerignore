@@ -1,0 +1,16 @@
+*
+!requirements.txt
+!backend/
+!backend/**
+!frontend/
+!frontend/**
+!locale/
+!locale/**
+!deploy/
+!deploy/Dockerfile
+!deploy/entrypoint.sh
+**/__pycache__
+**/*.pyc
+**/.env*
+.seller-agent-runtime
+.git

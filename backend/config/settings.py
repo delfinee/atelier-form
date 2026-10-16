@@ -42,7 +42,7 @@ env = environ.Env(
 )
 
 # Read .env if present. Never committed -- see .env.example.
-environ.Env.read_env(BASE_DIR / ".env")
+environ.Env.read_env(os.environ.get("DIP_ENV_FILE", BASE_DIR / ".env"))
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or get_random_secret_key()
 DEBUG = env.bool("DJANGO_DEBUG")
@@ -80,6 +80,10 @@ INSTALLED_APPS = [
     "content",
     "recommendations",
     "messaging",
+    "seller_agent",
+    # Retained buyer/customer conversation and explicitly labelled legacy demo.
+    "concierge",
+    "sellerdesk",
 
     # Photography held in PostgreSQL, shared by every surface
     "imagery",
@@ -102,6 +106,14 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "config.urls"
+
+# One codebase: buyer website discovery and seller Mini Program operations.
+BUYER_ASSISTANT_ENABLED = env.bool("BUYER_ASSISTANT_ENABLED", default=True)
+BUYER_AI_USE_LLM = env.bool("BUYER_AI_USE_LLM", default=False)
+CONCIERGE_DEMO = env.bool("CONCIERGE_DEMO", default=False)
+PUBLIC_CONCIERGE_DEMO = False
+DEEPSEEK_API_KEY = env.str("DEEPSEEK_API_KEY", default="")
+DEEPSEEK_MODEL = env.str("DEEPSEEK_MODEL", default="deepseek-chat")
 
 TEMPLATES = [
     {
@@ -259,6 +271,15 @@ COMMERCE = {
 }
 
 PAYMENT_BACKEND = env("PAYMENT_BACKEND")
+SELLER_AGENT_ENABLED = env.bool("SELLER_AGENT_ENABLED", default=True)
+SELLER_AGENT_USE_LLM = env.bool("SELLER_AGENT_USE_LLM", default=False)
+SELLER_AGENT_MODEL = env.str("SELLER_AGENT_MODEL", default="deepseek-flash")
+SELLER_AGENT_API_KEY = env.str("SELLER_AGENT_API_KEY", default="")
+SELLER_AGENT_LLM_DAILY_LIMIT = env.int("SELLER_AGENT_LLM_DAILY_LIMIT", default=500)
+WECHAT_SELLER_ENABLED = env.bool("WECHAT_SELLER_ENABLED", default=False)
+WECHAT_SELLER_DEV_LOGIN = env.bool("WECHAT_SELLER_DEV_LOGIN", default=False)
+WECHAT_APP_ID = env.str("WECHAT_APP_ID", default="")
+WECHAT_APP_SECRET = env.str("WECHAT_APP_SECRET", default="")
 PAYMENT_RESERVATION_MINUTES = env("PAYMENT_RESERVATION_MINUTES")
 EMAIL_SENDER_CLASS = env("EMAIL_BACKEND_CLASS")
 STRIPE_SECRET_KEY = env.str("STRIPE_SECRET_KEY", default="")

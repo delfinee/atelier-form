@@ -1,0 +1,16 @@
+{% load static %}
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ meta_title }}</title><link rel="stylesheet" href="{% static 'seller_agent/desk.css' %}"><link rel="stylesheet" href="{% static 'seller_agent/editor.css' %}"></head>
+<body><main class="product-editor"><p class="eyebrow">ATELIER FORM · SELLER</p><nav><a href="{% url 'seller_ai' %}">Seller assistant</a> · <a href="{% url 'seller_product_list' %}">My products</a></nav>
+<h1>{% if is_edit %}Edit {{ product.name }}{% else %}New product{% endif %}</h1>
+<p>Save your photos, options and product details here. Select “Is active” when the product is ready to appear in your shop.</p>
+{% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
+<form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
+<section class="panel info"><h2>Product details</h2>{{ form.as_p }}</section>
+<section class="panel info"><h2>Options</h2><p>Add sizes, colours or finishes. Each option has its own stock and a unique SKU. Save to add another row.</p>
+{{ variant_formset.management_form }}{{ variant_formset.non_form_errors }}
+{% for row in variant_formset %}<fieldset><legend>Option {{ forloop.counter }}</legend>{{ row.as_p }}</fieldset>{% endfor %}</section>
+<section class="panel info"><h2>Photos</h2><p>Choose a photo from your phone or computer. Save to add another photo.</p>
+{{ image_formset.management_form }}{{ image_formset.non_form_errors }}
+{% for row in image_formset %}<fieldset><legend>Photo {{ forloop.counter }}</legend>{% if row.instance.pk %}<img class="product-photo" src="{{ row.instance.url }}" alt="{{ row.instance.alt_text }}">{% endif %}{{ row.as_p }}</fieldset>{% endfor %}</section>
+<div class="save-bar"><button class="primary" type="submit">Save product</button><a href="{% url 'seller_product_list' %}">Cancel</a></div>
+</form></main></body></html>

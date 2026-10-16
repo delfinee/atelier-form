@@ -7,6 +7,10 @@
   const tr = (en, cn) => zh ? cn : en;
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let busy = false, loaded = false, loading = false, pending = null, returnFocus = null;
+  function engine(enabled) {
+    $('buyer-engine').textContent = enabled ? tr('DeepSeek AI · Verified catalogue','DeepSeek AI · 真实商品目录') : tr('Catalogue matching · Current prices','目录匹配 · 实时价格');
+    $('buyer-footnote').textContent = enabled ? tr('DeepSeek processes your messages and public catalogue data. No orders or payments are executed. Please do not enter private information.','DeepSeek 会处理你的消息和公开商品信息。不会下单或付款，请勿输入私人信息。') : tr('You choose and check out. The assistant never places an order or pays for you.','由你选择并结账。助手不会代你下单或付款。');
+  }
   async function request(path, body) {
     const r = await fetch('/api/buyer-assistant/' + path + '/', {method:body === undefined ? 'GET' : 'POST', credentials:'same-origin', cache:'no-store', headers:{'Content-Type':'application/json','X-CSRFToken':config.csrf || ''}, body:body === undefined ? undefined : JSON.stringify(body)});
     const result = await r.json();
@@ -20,12 +24,12 @@
       const stock = p.made_to_order ? tr('Made to order','按单制作') : p.available ? tr('Available','有货') : tr('Currently unavailable','暂时缺货');
       return `<a class="buyer-product" href="${esc(p.url)}"><img src="${esc(p.image)}" alt="" loading="lazy"><div><strong>${esc(p.name)}</strong><span>${esc(p.maker)}</span><span class="buyer-price">${p.price_label === 'from' ? tr('From ','起价 ') : ''}${esc(p.currency)} ${esc(p.price)}</span><span>${esc(stock)} · ${esc(rating)}</span><span>${esc((p.materials || []).join(' · '))}</span><span>${tr('View product →','查看商品 →')}</span></div></a>`;
     }).join('');
-    turn.innerHTML = `<div class="buyer-user">${esc(text)}</div><p class="buyer-reply">${esc(response.reply)}</p>${cards}<small class="buyer-basis">${esc(response.comparison_basis || '')}</small>`;
+    turn.innerHTML = `<div class="buyer-user">${esc(text)}</div><p class="buyer-reply">${esc((response.notice ? response.notice+'\n\n' : '') + response.reply)}</p>${cards}<small class="buyer-basis">${esc(response.comparison_basis || '')}</small>`;
     $('buyer-messages').append(turn); $('buyer-messages').scrollTop = $('buyer-messages').scrollHeight;
   }
   async function open() {
     returnFocus = document.activeElement; panel.hidden = false; $('buyer-open').setAttribute('aria-expanded','true'); $('buyer-text').focus();
-    if (!loaded) {loaded = true; loading = true; $('buyer-form').querySelector('button').disabled = true; try {const data = await request('history'); if (data.messages.length) {$('buyer-messages').replaceChildren(); data.messages.forEach(m => render(m.text,m.response));}} catch (e) {loaded = false;} finally {loading = false; $('buyer-form').querySelector('button').disabled = busy;}}
+    if (!loaded) {loaded = true; loading = true; $('buyer-form').querySelector('button').disabled = true; try {const data = await request('history'); engine(data.ai_enabled); if (data.messages.length) {$('buyer-messages').replaceChildren(); data.messages.forEach(m => render(m.text,m.response));}} catch (e) {loaded = false;} finally {loading = false; $('buyer-form').querySelector('button').disabled = busy;}}
   }
   function close() {panel.hidden = true; $('buyer-open').setAttribute('aria-expanded','false'); returnFocus?.focus();}
   async function send(text) {

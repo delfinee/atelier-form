@@ -13,6 +13,7 @@
     <a class="btn btn--secondary btn--sm" href="{% url 'seller_dashboard' %}">{% translate "Analytics Dashboard" %}</a>
     <a class="btn btn--secondary btn--sm" href="{% url 'seller_product_list' %}">{% translate "Products" %}</a>
     <a class="btn btn--secondary btn--sm" href="{% url 'seller_product_create' %}">{% icon "plus" 16 %} {% translate "Add product" %}</a>
+    <a class="btn btn--secondary btn--sm" href="{% url 'seller_returns' %}">{% translate "Returns" %}</a>
   </div>
 </div>
 
@@ -39,6 +40,10 @@
               {% endif %}
             {% else %}
               <span class="badge" style="background:var(--sand-dark)">{% translate "Legacy order" %}</span>
+            {% endif %}
+
+            {% if row.open_returns %}
+              <a class="badge badge--accent" href="{% url 'seller_returns' %}">{% blocktranslate count n=row.open_returns %}{{ n }} open return{% plural %}{{ n }} open returns{% endblocktranslate %}</a>
             {% endif %}
 
             <span class="muted" style="font-size:0.9rem">· {{ row.order.date }}</span>

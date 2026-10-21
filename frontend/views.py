@@ -36,6 +36,7 @@ from content.models import FAQGroup, NewsletterSubscriber
 from orders.models import (
     FulfillmentStatus, Order, OrderItem, OrderStatus, PaymentStatus, SellerFulfillment, ZERO,
 )
+from orders.returns import open_return_count
 from orders.services import get_cart, merge_session_cart, update_seller_fulfillment
 from payments.models import Payment, PaymentProviderChoices
 from payments.services import MockPaymentProvider
@@ -306,11 +307,15 @@ def account_orders(request):
 def account_order_detail(request, order_id):
     # Scoped to the signed-in user: another customer's order number 404s.
     order = Order.objects.filter(user=request.user, order_number=order_id) \
-        .prefetch_related("items").first()
+        .prefetch_related("items", "items__return_requests").first()
     if not order:
         raise Http404("Unknown order")
     return render(request, "frontend/account/order_detail.html", {
         "customer": request.user, "order": order,
+        # Per-line rules (shipped, window, quantity) are checked on the return form itself.
+        "returns_possible": (order.payment_status == PaymentStatus.PAID
+                             and order.status != OrderStatus.CANCELLED
+                             and order.fulfillment_status != FulfillmentStatus.UNFULFILLED),
         "current_path": reverse("account_orders"),
         "meta_title": f"{_('Order %(number)s') % {'number': order.order_number}} — {SITE['brand']}",
     })
@@ -641,6 +646,7 @@ def seller_dashboard(request):
         "avg_rating": avg_rating,
         "review_count": review_count,
         "pending_dispatch_count": pending_dispatch_count,
+        "open_return_count": open_return_count(maker),
         "best_sellers": best_sellers,
         "low_stock_products": low_stock_products,
     })
@@ -693,6 +699,7 @@ def seller_order_detail(request, order_number):
         "seller_subtotal": sum((item.line_total for item in items), ZERO),
         "fulfillment": fulfillment,
         "form": form,
+        "returns": order.return_requests.filter(maker=maker).select_related("order_item"),
         "meta_title": f"Order {order.order_number} — {SITE['brand']}",
     })
 

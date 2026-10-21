@@ -1,0 +1,76 @@
+{% extends "frontend/account/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block account_title %}{% translate "Return a piece" %}{% endblock %}
+{% block account_lede %}<p class="lede">{% blocktranslate with number=order.order_number %}From order {{ number }}{% endblocktranslate %}</p>{% endblock %}
+
+{% block account_content %}
+<p style="margin-bottom:var(--gap)">
+  <a class="link" href="{% url 'account_order_detail' order.order_number %}">{% icon "chevron-left" 16 %} {% blocktranslate with number=order.order_number %}Back to order {{ number }}{% endblocktranslate %}</a>
+</p>
+
+<div class="panel">
+  <div class="line-item">
+    <span class="media"><img src="{% placeholder item.image %}" alt="" loading="lazy"></span>
+    <div>
+      <span class="line-item__name">{% order_item_name item %}</span>
+      <div class="line-item__meta">
+        {% if item.variant_name %}{% order_item_variant item %} · {% endif %}{% blocktranslate with n=item.quantity %}Quantity {{ n }}{% endblocktranslate %}{% if item.maker_name %} · {{ item.maker_name }}{% endif %}
+      </div>
+    </div>
+    <div class="line-item__price">{{ item.line_total|money }}</div>
+  </div>
+</div>
+
+{% if blocked %}
+  <div class="panel">
+    <p role="alert">{% translate blocked %}</p>
+    <p class="form-note" style="margin-top:1rem">
+      <a class="text-link" href="{% url 'contact' %}">{% translate "Email the studio" %}</a> {% blocktranslate with number=order.order_number %}and quote {{ number }}.{% endblocktranslate %}
+    </p>
+  </div>
+{% else %}
+  <form class="panel" method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {% for error in form.non_field_errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+
+    <fieldset class="field">
+      <legend class="label">{{ form.reason.label }}</legend>
+      <div class="option-cards">
+        {% for choice in form.reason %}
+          <label class="option-card">
+            {{ choice.tag }}
+            <span style="flex:1"><span class="option-card__title"><strong>{% translate choice.choice_label %}</strong></span></span>
+          </label>
+        {% endfor %}
+      </div>
+      {% for error in form.reason.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+    </fieldset>
+
+    <div class="field" style="margin-top:1.1rem;max-width:12rem">
+      <label class="label" for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
+      {{ form.quantity }}
+      {% for error in form.quantity.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+    </div>
+
+    <div class="field" style="margin-top:1.1rem">
+      <label class="label" for="{{ form.details.id_for_label }}">{{ form.details.label }}</label>
+      {{ form.details }}
+      {% for error in form.details.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+    </div>
+
+    <div class="field" style="margin-top:1.1rem">
+      <label class="label" for="{{ form.photo.id_for_label }}">{{ form.photo.label }}</label>
+      {{ form.photo }}
+      <p class="form-note">{{ form.photo.help_text }}</p>
+      {% for error in form.photo.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+    </div>
+
+    <p class="form-note" style="margin-top:1.1rem">
+      {% translate "If the piece arrived broken, you do not need to send it back. For other returns, the maker will confirm before you post anything." %}
+      <a class="text-link" href="{% url 'shipping_returns' %}">{% translate "Returns policy" %}</a>
+    </p>
+    <p style="margin-top:1.4rem"><button class="btn" type="submit">{% translate "Send return request" %}</button></p>
+  </form>
+{% endif %}
+{% endblock %}

@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path, reverse_lazy
 
-from frontend import views, views_seller
+from frontend import views, views_returns, views_seller
 from concierge import buyer_views
 
 urlpatterns = [
@@ -55,6 +55,8 @@ urlpatterns = [
     path("account/", views.account_overview, name="account_overview"),
     path("account/orders/", views.account_orders, name="account_orders"),
     path("account/orders/<str:order_id>/", views.account_order_detail, name="account_order_detail"),
+    path("account/orders/<str:order_id>/return/<int:item_id>/", views_returns.account_return_request,
+         name="account_return_request"),
     path("account/profile/", views.account_profile, name="account_profile"),
     path("account/change-password/", views.account_change_password, name="account_change_password"),
     path("account/addresses/", views.account_addresses, name="account_addresses"),
@@ -88,6 +90,8 @@ urlpatterns = [
     path("seller/products/add/", views_seller.seller_product_create, name="seller_product_create"),
     path("seller/products/<slug:slug>/edit/", views_seller.seller_product_edit, name="seller_product_edit"),
     path("seller/orders/", views_seller.seller_order_list, name="seller_order_list"),
+    path("seller/returns/", views_returns.seller_returns, name="seller_returns"),
+    path("seller/returns/<uuid:uuid>/", views_returns.seller_return_detail, name="seller_return_detail"),
     path("seller/messages/", views.seller_messages_inbox, name="seller_messages"),
     path("seller/messages/<uuid:conversation_uuid>/", views.seller_message_thread, name="seller_message_thread"),
 

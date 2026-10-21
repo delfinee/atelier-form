@@ -4196,7 +4196,7 @@ class OrderDisplayLocalizationTests(SimpleTestCase):
                 filtered.reset_mock()
                 views.account_order_detail(request, order.order_number)
                 filtered.assert_called_once_with(user=request.user, order_number=order.order_number)
-                filtered.return_value.prefetch_related.assert_called_once_with("items")
+                filtered.return_value.prefetch_related.assert_called_once_with("items", "items__return_requests")
                 data = render.call_args.args[2]
                 self.assertIs(data["order"], order)
                 self.assertEqual(data["current_path"], views.reverse("account_orders"))

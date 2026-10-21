@@ -362,3 +362,76 @@ class SellerFulfillment(UUIDModel, TimeStampedModel):
     def items(self):
         """The purchased lines this seller is responsible for within the order."""
         return self.order.items.filter(maker=self.maker)
+
+
+# -- Returns --------------------------------------------------------------
+
+class ReturnReason(models.TextChoices):
+    DAMAGED = "damaged", "Arrived damaged"
+    FAULTY = "faulty", "Faulty"
+    WRONG_ITEM = "wrong_item", "Wrong item sent"
+    NOT_AS_DESCRIBED = "not_as_described", "Not as described"
+    CHANGED_MIND = "changed_mind", "No longer wanted"
+
+
+class ReturnStatus(models.TextChoices):
+    REQUESTED = "requested", "Requested"
+    APPROVED = "approved", "Approved — awaiting parcel"
+    REJECTED = "rejected", "Rejected"
+    REFUNDED = "refunded", "Refunded"
+    REPLACED = "replaced", "Replacement sent"
+
+
+class ReturnRequest(UUIDModel, TimeStampedModel):
+    """A buyer's request to return, or report a problem with, one purchased line.
+
+    Scoped to one OrderItem, so it always belongs to exactly one seller: the
+    (order, maker) pair matches the seller's SellerFulfillment. A line can have
+    several requests (e.g. 1 of 3 mugs now, another later) as long as their
+    open and settled quantities never exceed what was bought; rejected
+    requests do not count towards that total.
+
+    `refund_amount` records the agreed refund. No money is moved here -- the
+    payment providers do not implement refunds yet (payments.services).
+    """
+
+    order = models.ForeignKey(Order, related_name="return_requests", on_delete=models.CASCADE)
+    order_item = models.ForeignKey(OrderItem, related_name="return_requests", on_delete=models.CASCADE)
+    maker = models.ForeignKey("products.Maker", related_name="return_requests",
+                              on_delete=models.PROTECT)
+    buyer = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="return_requests",
+                              null=True, blank=True, on_delete=models.SET_NULL)
+
+    quantity = models.PositiveIntegerField()
+    reason = models.CharField(max_length=20, choices=ReturnReason.choices)
+    details = models.TextField(blank=True)
+    photo = models.CharField(max_length=200, blank=True,
+                             help_text="SiteImage name of the buyer's photograph.")
+
+    status = models.CharField(max_length=20, choices=ReturnStatus.choices,
+                              default=ReturnStatus.REQUESTED, db_index=True)
+    seller_note = models.TextField(blank=True, help_text="Shown to the buyer.")
+    refund_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["maker", "status", "-created_at"])]
+        constraints = [
+            models.CheckConstraint(condition=models.Q(quantity__gt=0), name="return_quantity_positive"),
+            models.CheckConstraint(condition=models.Q(refund_amount__isnull=True)
+                                   | models.Q(refund_amount__gte=0),
+                                   name="return_refund_not_negative"),
+        ]
+
+    def __str__(self):
+        return f"{self.order.order_number} · {self.quantity} × {self.order_item.product_name} ({self.status})"
+
+    @property
+    def is_open(self) -> bool:
+        return self.status in (ReturnStatus.REQUESTED, ReturnStatus.APPROVED)
+
+    @property
+    def requested_value(self):
+        return self.order_item.unit_price * self.quantity

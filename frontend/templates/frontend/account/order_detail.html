@@ -40,6 +40,17 @@
         <div class="line-item__meta">
           {% if item.variant_name %}{% order_item_variant item %} · {% endif %}{% blocktranslate with n=item.quantity %}Quantity {{ n }}{% endblocktranslate %}
         </div>
+        {% for rr in item.return_requests.all %}
+          <div class="line-item__meta">
+            {% blocktranslate with n=rr.quantity %}Return of {{ n }}{% endblocktranslate %}:
+            <span class="status status--{{ rr.status }}">{% translate rr.get_status_display %}</span>
+            {% if rr.status == "refunded" and rr.refund_amount is not None %}{{ rr.refund_amount|money }}{% endif %}
+            {% if rr.seller_note %}<br><span class="muted">{{ rr.seller_note }}</span>{% endif %}
+          </div>
+        {% endfor %}
+        {% if returns_possible %}
+          <a class="text-link" style="font-size:0.9rem" href="{% url 'account_return_request' order.order_number item.pk %}">{% translate "Return or report a problem" %}</a>
+        {% endif %}
       </div>
       <div class="line-item__price">{{ item.line_total|money }}</div>
     </div>

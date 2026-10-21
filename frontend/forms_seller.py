@@ -85,6 +85,31 @@ SellerVariantFormSet = inlineformset_factory(
 )
 
 
+def clean_photo_upload(upload):
+    """Validate an uploaded photo and re-encode it as a JPEG.
+
+    Returns `(jpeg_bytes, width, height)`; raises ValidationError for anything
+    that is not a reasonably sized JPEG, PNG or WebP.
+    """
+    if upload.size > 5 * 1024 * 1024:
+        raise forms.ValidationError("Choose an image smaller than 5 MB.")
+    try:
+        upload.seek(0)
+        with Image.open(upload) as source:
+            if source.format not in {"JPEG", "PNG", "WEBP"} or source.width * source.height > 20_000_000:
+                raise ValueError()
+            photo = ImageOps.exif_transpose(source)
+            photo.thumbnail((2048, 2048))
+            rgba = photo.convert("RGBA")
+            clean = Image.new("RGB", rgba.size, "white")
+            clean.paste(rgba, mask=rgba.getchannel("A"))
+            encoded = BytesIO()
+            clean.save(encoded, format="JPEG", quality=88)
+            return encoded.getvalue(), clean.width, clean.height
+    except (OSError, ValueError, Image.DecompressionBombError) as exc:
+        raise forms.ValidationError("Choose a valid JPEG, PNG or WebP under 20 megapixels.") from exc
+
+
 class SellerProductImageForm(forms.ModelForm):
     """Product image row in inline formset."""
 
@@ -97,23 +122,7 @@ class SellerProductImageForm(forms.ModelForm):
         upload = self.cleaned_data.get("upload")
         if not upload:
             return None
-        if upload.size > 5 * 1024 * 1024:
-            raise forms.ValidationError("Choose an image smaller than 5 MB.")
-        try:
-            upload.seek(0)
-            with Image.open(upload) as source:
-                if source.format not in {"JPEG", "PNG", "WEBP"} or source.width * source.height > 20_000_000:
-                    raise ValueError()
-                photo = ImageOps.exif_transpose(source)
-                photo.thumbnail((2048, 2048))
-                rgba = photo.convert("RGBA")
-                clean = Image.new("RGB", rgba.size, "white")
-                clean.paste(rgba, mask=rgba.getchannel("A"))
-                encoded = BytesIO()
-                clean.save(encoded, format="JPEG", quality=88)
-                self.photo_data = (encoded.getvalue(), clean.width, clean.height)
-        except (OSError, ValueError, Image.DecompressionBombError) as exc:
-            raise forms.ValidationError("Choose a valid JPEG, PNG or WebP under 20 megapixels.") from exc
+        self.photo_data = clean_photo_upload(upload)
         return upload
 
     def clean(self):

@@ -12,6 +12,7 @@
     <a class="btn btn--secondary btn--sm" href="{% url 'seller_product_list' %}">{% translate "Manage Products" %}</a>
     <a class="btn btn--primary btn--sm" href="{% url 'seller_product_create' %}">{% icon "plus" 16 %} {% translate "Add Product" %}</a>
     <a class="btn btn--secondary btn--sm" href="{% url 'seller_order_list' %}">{% translate "View Orders" %}</a>
+    <a class="btn btn--secondary btn--sm" href="{% url 'seller_returns' %}">{% translate "Returns" %}{% if open_return_count %} <span class="badge badge--accent">{{ open_return_count }}</span>{% endif %}</a>
     <a class="btn btn--secondary btn--sm" href="{% url 'seller_messages' %}">{% translate "Customer inquiries" %}</a>
     {% url 'seller_ai' as seller_ai_url %}{% if seller_ai_url %}<a class="btn btn--secondary btn--sm" href="{{ seller_ai_url }}">{% translate "Seller assistant" %}</a>{% endif %}
     <a class="btn btn--quiet btn--sm" href="/api/docs/">{% translate "API Docs" %}</a>

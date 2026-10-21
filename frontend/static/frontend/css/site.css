@@ -775,6 +775,9 @@ hr { border: 0; border-top: 1px solid var(--line); margin: var(--gap) 0; }
 .status--dispatched { background: color-mix(in srgb, var(--olive) 18%, var(--paper)); color: var(--olive); }
 .status--delivered { background: var(--sand-deep); }
 .status--production { background: color-mix(in srgb, var(--clay) 15%, var(--paper)); color: var(--clay-deep); }
+/* Return requests */
+.status--requested, .status--approved { background: color-mix(in srgb, var(--clay) 15%, var(--paper)); color: var(--clay-deep); }
+.status--refunded, .status--replaced { background: color-mix(in srgb, var(--olive) 18%, var(--paper)); color: var(--olive); }
 
 .timeline { display: grid; gap: 0; margin-top: 1.2rem; }
 .timeline li { display: grid; grid-template-columns: 22px 1fr; gap: 0.9rem; list-style: none; padding-bottom: 1.2rem; position: relative; }

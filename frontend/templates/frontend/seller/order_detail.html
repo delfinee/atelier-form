@@ -99,5 +99,18 @@
       <p class="muted">{% translate "Fulfilment details are not available for this order." %}</p>
     {% endif %}
   </section>
+
+  {% if returns %}
+    <section class="panel">
+      <div class="panel__head"><h2>{% translate "Returns" %}</h2></div>
+      {% for rr in returns %}
+        <div class="summary__row">
+          <span>{{ rr.quantity }} × {{ rr.order_item.product_name }} · {% translate rr.get_reason_display %}<br>
+            <span class="status status--{{ rr.status }}">{% translate rr.get_status_display %}</span></span>
+          <a class="link" href="{% url 'seller_return_detail' rr.uuid %}">{% if rr.is_open %}{% translate "Review" %}{% else %}{% translate "View" %}{% endif %} →</a>
+        </div>
+      {% endfor %}
+    </section>
+  {% endif %}
 </div>
 {% endblock %}

@@ -145,7 +145,7 @@ def seller_order_list(request):
     orders = (
         Order.objects.filter(id__in=order_ids)
         .select_related("user")
-        .prefetch_related("items", "seller_fulfillments")
+        .prefetch_related("items", "seller_fulfillments", "return_requests")
         .order_by("-placed_at")
     )
 
@@ -160,6 +160,8 @@ def seller_order_list(request):
             "item_count": sum(item.quantity for item in seller_items),
             "seller_subtotal": seller_subtotal,
             "fulfillment": fulfillment,
+            "open_returns": sum(1 for r in order.return_requests.all()
+                                if r.maker_id == maker.id and r.is_open),
         })
 
     return render(request, "frontend/seller/order_list.html", {

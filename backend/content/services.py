@@ -90,6 +90,34 @@ def send_order_delivered(order) -> bool:
     )
 
 
+def send_return_requested(return_request) -> bool:
+    """Tell the seller a buyer has asked to return one of their pieces."""
+    owner = return_request.maker.owner
+    if owner is None or not owner.email:
+        return False
+    item = return_request.order_item
+    return get_email_sender().send(
+        to=owner.email,
+        subject=f"Return requested on order {return_request.order.order_number}",
+        body=(f"A buyer has asked to return {return_request.quantity} × {item.product_name} "
+              f"({return_request.get_reason_display()}). Review it in your seller returns page."),
+    )
+
+
+def send_return_update(return_request) -> bool:
+    """Tell the buyer what the seller decided."""
+    order = return_request.order
+    lines = [f"Your return for {return_request.order_item.product_name} in order "
+             f"{order.order_number} is now: {return_request.get_status_display()}."]
+    if return_request.refund_amount is not None and return_request.status == "refunded":
+        lines.append(f"Refund: {return_request.refund_amount} {order.currency}.")
+    if return_request.seller_note:
+        lines.append(f"Note from the maker: {return_request.seller_note}")
+    return get_email_sender().send(to=order.customer_email,
+                                   subject=f"Update on your return for order {order.order_number}",
+                                   body="\n\n".join(lines))
+
+
 def send_welcome(user) -> bool:
     return get_email_sender().send(
         to=user.email, subject="Welcome to Atelier Form",

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Cart, CartItem, Order, OrderItem, OrderNumberSequence, SellerFulfillment
+from .models import Cart, CartItem, Order, OrderItem, OrderNumberSequence, ReturnRequest, SellerFulfillment
 
 
 class OrderItemInline(admin.TabularInline):
@@ -46,4 +46,14 @@ class SellerFulfillmentAdmin(admin.ModelAdmin):
     list_filter = ["status"]
     search_fields = ["order__order_number", "maker__name", "tracking_number"]
     readonly_fields = ["uuid", "created_at", "updated_at"]
+    date_hierarchy = "created_at"
+
+
+@admin.register(ReturnRequest)
+class ReturnRequestAdmin(admin.ModelAdmin):
+    list_display = ["order", "maker", "order_item", "quantity", "reason", "status",
+                    "refund_amount", "created_at"]
+    list_filter = ["status", "reason"]
+    search_fields = ["order__order_number", "maker__name", "order_item__product_name"]
+    readonly_fields = ["uuid", "order", "order_item", "maker", "buyer", "created_at", "updated_at"]
     date_hierarchy = "created_at"

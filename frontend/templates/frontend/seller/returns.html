@@ -1,0 +1,56 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell page-head">
+  <p class="eyebrow">{{ maker.name }} · {% translate "Seller portal" %}</p>
+  <h1 style="font-size:var(--step-3)">{% translate "Returns" %}</h1>
+  <p class="lede">{% translate "Buyers' return requests and damage reports for your pieces." %}</p>
+
+  <div style="display:flex;gap:0.75rem;margin-top:1.2rem;flex-wrap:wrap;align-items:center">
+    <a class="btn btn--secondary btn--sm" href="{% url 'seller_dashboard' %}">{% translate "Analytics Dashboard" %}</a>
+    <a class="btn btn--secondary btn--sm" href="{% url 'seller_order_list' %}">{% translate "View Orders" %}</a>
+    <a class="btn btn--secondary btn--sm" href="{% url 'seller_messages' %}">{% translate "Customer inquiries" %}</a>
+  </div>
+</div>
+
+<div class="shell" style="padding-bottom:var(--section);display:grid;gap:2rem">
+  <nav class="chips" aria-label="{% translate "Filter returns" %}">
+    {% for value, label in filters %}
+      <a class="chip" href="?status={{ value }}" {% if value == status_key %}aria-current="page"{% endif %}>{% translate label %}</a>
+    {% endfor %}
+  </nav>
+
+  <div class="panel">
+    <div class="panel__head">
+      <h2>{% translate "Return requests" %}</h2>
+      <span>{% blocktranslate count n=returns|length %}{{ n }} request{% plural %}{{ n }} requests{% endblocktranslate %}</span>
+    </div>
+
+    {% for rr in returns %}
+      <div style="padding:1.4rem 0;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;align-items:center">
+        <div>
+          <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap">
+            <strong style="font-size:1.15rem"><a href="{% url 'seller_return_detail' rr.uuid %}">{{ rr.order.order_number }}</a></strong>
+            <span class="status status--{{ rr.status }}">{% translate rr.get_status_display %}</span>
+            <span class="badge{% if rr.reason == 'damaged' %} badge--accent{% endif %}">{% translate rr.get_reason_display %}</span>
+            <span class="muted" style="font-size:0.9rem">· {{ rr.created_at|date:"j M Y" }}</span>
+          </div>
+          <div style="font-size:0.9rem;color:var(--ink-soft);margin-top:0.4rem">
+            {{ rr.quantity }} × {{ rr.order_item.product_name }}{% if rr.order_item.variant_name %} · {{ rr.order_item.variant_name }}{% endif %}
+            · {{ rr.requested_value|money }}
+            {% if rr.refund_amount is not None %}· {% translate "Refunded" %} {{ rr.refund_amount|money }}{% endif %}
+          </div>
+        </div>
+        <a class="btn btn--primary btn--sm" href="{% url 'seller_return_detail' rr.uuid %}">{% if rr.is_open %}{% translate "Review" %}{% else %}{% translate "View" %}{% endif %} →</a>
+      </div>
+    {% empty %}
+      <div style="padding:2.5rem 0;text-align:center">
+        <p class="muted">{% translate "No returns here." %}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

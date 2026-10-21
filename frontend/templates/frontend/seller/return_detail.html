@@ -1,0 +1,95 @@
+{% extends "frontend/base.html" %}
+{% load i18n frontend_extras %}
+
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell page-head">
+  <p class="eyebrow">{{ maker.name }} · {% translate "Returns" %}</p>
+  <h1 style="font-size:var(--step-3)">{% blocktranslate with number=order.order_number %}Return on order {{ number }}{% endblocktranslate %}</h1>
+  <p class="lede">{% blocktranslate with date=return_request.created_at|date:"j F Y" reason=return_request.get_reason_display %}Requested {{ date }} · {{ reason }}{% endblocktranslate %}</p>
+  <p style="margin-top:1.1rem;display:flex;gap:1.2rem;flex-wrap:wrap">
+    <a class="link" href="{% url 'seller_returns' %}">{% icon "chevron-left" 16 %} {% translate "All returns" %}</a>
+    <a class="link" href="{% url 'seller_order_detail' order.order_number %}">{% translate "View order" %}</a>
+  </p>
+</div>
+
+<div class="shell" style="padding-bottom:var(--section);display:grid;gap:2rem">
+
+  <section class="panel">
+    <div class="panel__head">
+      <h2>{% translate "What the buyer reported" %}</h2>
+      <span class="status status--{{ return_request.status }}">{% translate return_request.get_status_display %}</span>
+    </div>
+    <div class="summary__row">
+      <span>{{ return_request.quantity }} × {{ item.product_name }}{% if item.variant_name %} · {{ item.variant_name }}{% endif %}{% if item.sku %}<br><span class="muted">{{ item.sku }}</span>{% endif %}<br>
+        <span class="muted">{% blocktranslate with n=item.quantity %}{{ n }} bought{% endblocktranslate %}</span></span>
+      <span>{{ return_request.requested_value|money }}</span>
+    </div>
+    {% if return_request.details %}
+      <p style="margin-top:1rem;white-space:pre-line">{{ return_request.details }}</p>
+    {% else %}
+      <p class="muted" style="margin-top:1rem">{% translate "No further details given." %}</p>
+    {% endif %}
+    {% if return_request.photo %}
+      <p style="margin-top:1rem">
+        <a href="{% placeholder return_request.photo %}" target="_blank" rel="noopener">
+          <img src="{% placeholder return_request.photo %}" alt="{% translate "Buyer's photograph" %}" style="max-width:min(100%,420px);border-radius:var(--radius, 6px)">
+        </a>
+      </p>
+    {% endif %}
+    <p class="muted" style="margin-top:1rem">
+      {{ order.customer_email }}{% if order.customer_phone %} · {{ order.customer_phone }}{% endif %}
+    </p>
+  </section>
+
+  {% if return_request.is_open %}
+    <section class="panel">
+      <div class="panel__head"><h2>{% translate "Decide" %}</h2></div>
+      <p class="muted" style="margin-bottom:1rem">
+        {% if return_request.reason == "damaged" %}
+          {% translate "Damaged pieces do not need to be sent back: refund or send a replacement once you have checked the photograph." %}
+        {% else %}
+          {% translate "Approve to ask the buyer to post the piece back, then refund or replace it once it arrives." %}
+        {% endif %}
+        {% translate "No money is moved automatically — a refund here is recorded for the buyer and for your records." %}
+      </p>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% for error in form.non_field_errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+        <fieldset class="field">
+          <legend class="label">{% translate "Decision" %}</legend>
+          <div class="option-cards">
+            {% for choice in form.action %}
+              {% if choice.data.value != "approve" or return_request.status == "requested" %}
+                <label class="option-card">{{ choice.tag }}<span style="flex:1"><span class="option-card__title"><strong>{{ choice.choice_label }}</strong></span></span></label>
+              {% endif %}
+            {% endfor %}
+          </div>
+          {% for error in form.action.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+        </fieldset>
+        <div class="field" style="margin-top:1.1rem;max-width:14rem">
+          <label class="label" for="{{ form.refund_amount.id_for_label }}">{{ form.refund_amount.label }}</label>
+          {{ form.refund_amount }}
+          <p class="form-note">{% blocktranslate with amount=max_refund|money %}Only used for a refund. Up to {{ amount }}.{% endblocktranslate %}</p>
+          {% for error in form.refund_amount.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+        </div>
+        <div class="field" style="margin-top:1.1rem">
+          <label class="label" for="{{ form.seller_note.id_for_label }}">{{ form.seller_note.label }}</label>
+          {{ form.seller_note }}
+          <p class="form-note">{% translate "Required when rejecting. Sent to the buyer." %}</p>
+          {% for error in form.seller_note.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+        </div>
+        <p style="margin-top:1.4rem"><button class="btn" type="submit">{% translate "Save decision" %}</button></p>
+      </form>
+    </section>
+  {% else %}
+    <section class="panel">
+      <div class="panel__head"><h2>{% translate "Outcome" %}</h2></div>
+      <p>{% translate return_request.get_status_display %}{% if return_request.refund_amount is not None %} · {{ return_request.refund_amount|money }}{% endif %}
+        {% if return_request.resolved_at %}<span class="muted">· {{ return_request.resolved_at|date:"j F Y, H:i" }}</span>{% endif %}</p>
+      {% if return_request.seller_note %}<p class="muted" style="margin-top:0.8rem;white-space:pre-line">{{ return_request.seller_note }}</p>{% endif %}
+    </section>
+  {% endif %}
+</div>
+{% endblock %}

@@ -128,6 +128,13 @@ def localize_order_timeline(order) -> list[dict]:
     return localized
 
 
+def localize_short_date(value) -> str:
+    """A date in the order timeline's short style: "2 Jan" or "1月2日"."""
+    if _is_chinese():
+        return f"{value.month}月{value.day}日"
+    return f"{value.day} {value.strftime('%b')}"
+
+
 def _is_chinese() -> bool:
     return (get_language() or "").lower().startswith("zh")
 

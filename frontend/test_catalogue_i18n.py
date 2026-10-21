@@ -4113,7 +4113,8 @@ class OrderDisplayLocalizationTests(SimpleTestCase):
         order = self._order()
         item = self._item()
         custom = self._item(name="Custom <engraved>", variant="Bone <special>")
-        order._prefetched_objects_cache = {"items": [item, custom]}
+        # Mirrors the views' prefetch; no seller has shipped this order.
+        order._prefetched_objects_cache = {"items": [item, custom], "seller_fulfillments": []}
         order_before, item_before, custom_before = (
             record.__dict__.copy() for record in (order, item, custom)
         )
@@ -4188,7 +4189,8 @@ class OrderDisplayLocalizationTests(SimpleTestCase):
                 queryset.first.return_value = order
                 views.account_orders(request)
                 filtered.assert_called_once_with(user=request.user)
-                filtered.return_value.prefetch_related.assert_called_once_with("items")
+                filtered.return_value.prefetch_related.assert_called_once_with(
+                    "items", "seller_fulfillments__maker")
                 self.assertIs(render.call_args.args[2]["orders"], queryset)
                 self.assertEqual(render.call_args.args[2]["meta_title"],
                                  ("订单" if language == "zh-hans" else "Orders")
@@ -4196,7 +4198,8 @@ class OrderDisplayLocalizationTests(SimpleTestCase):
                 filtered.reset_mock()
                 views.account_order_detail(request, order.order_number)
                 filtered.assert_called_once_with(user=request.user, order_number=order.order_number)
-                filtered.return_value.prefetch_related.assert_called_once_with("items")
+                filtered.return_value.prefetch_related.assert_called_once_with(
+                    "items", "seller_fulfillments__maker")
                 data = render.call_args.args[2]
                 self.assertIs(data["order"], order)
                 self.assertEqual(data["current_path"], views.reverse("account_orders"))
@@ -4618,7 +4621,7 @@ class RecommendationAndOrderCountLocalizationTests(SimpleTestCase):
         }
         for count in (0, 1, 2):
             items = [OrderDisplayLocalizationTests._item() for _ in range(count)]
-            order._prefetched_objects_cache = {"items": items}
+            order._prefetched_objects_cache = {"items": items, "seller_fulfillments": []}
             before = order.__dict__.copy()
             for language in ("en", "zh-hans", "en"):
                 with (

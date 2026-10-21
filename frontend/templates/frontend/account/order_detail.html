@@ -12,18 +12,24 @@
 <div class="panel">
   <div class="panel__head">
     <h3>{% translate "Progress" %}</h3>
-    <span class="status status--{{ order.status }}">{% order_status order.status_label %}</span>
+    <span class="status status--{{ order.status }}">{{ shipping_progress.label }}</span>
   </div>
   <ul class="timeline">
-    {% order_timeline order as timeline %}
-    {% for step in timeline %}
+    {% for step in shipping_progress.timeline %}
       <li class="{% if step.done %}is-done{% endif %}">
         <span class="mark">{% icon "check" 12 %}</span>
         <span>{{ step.label }}<br><span class="when">{{ step.date }}</span></span>
       </li>
     {% endfor %}
   </ul>
-  {% if order.tracking_number %}
+  {% if shipping_progress.shipments %}
+    <div style="margin-top:1.2rem">
+      {% for shipment in shipping_progress.shipments %}
+        <p class="muted">{{ shipment.maker.name }} · {% translate "Dispatched" %}{% if shipment.shipped_at %} {{ shipment.shipped_at|date:"j M Y" }}{% endif %}
+        {% if shipment.tracking_number %} · {{ shipment.carrier }} · {% blocktranslate with number=shipment.tracking_number %}Tracking {{ number }}{% endblocktranslate %}{% endif %}</p>
+      {% endfor %}
+    </div>
+  {% elif order.tracking_number %}
     <p class="muted" style="margin-top:1.2rem">{% blocktranslate with carrier=order.carrier number=order.tracking_number %}{{ carrier }} · Tracking {{ number }}{% endblocktranslate %}</p>
   {% endif %}
 </div>

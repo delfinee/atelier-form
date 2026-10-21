@@ -2,6 +2,7 @@
 
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import models
 from django.utils.dateparse import parse_datetime
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
@@ -9,6 +10,8 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+from products.models import Maker
 
 from .models import Conversation, ConversationMessage
 from .permissions import IsConversationParticipant
@@ -40,10 +43,13 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
         role = self.request.query_params.get("role")
         if role == "seller":
-            if not user.is_seller or not hasattr(user, "maker_profile"):
+            makers_qs = Maker.objects.filter(owner=user)
+            if not makers_qs.exists() and hasattr(user, "maker_profile") and user.maker_profile:
+                makers_qs = Maker.objects.filter(pk=user.maker_profile.pk)
+            if not makers_qs.exists():
                 raise PermissionDenied("A linked seller profile is required to view seller conversations.")
             return Conversation.objects.filter(
-                maker=user.maker_profile
+                maker__in=makers_qs
             ).select_related("buyer", "maker", "product", "order").prefetch_related("messages", "messages__sender").order_by("-updated_at")
 
         if role == "buyer":
@@ -53,11 +59,9 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
         # By default (and for detail actions such as retrieve and messages action),
         # return any conversation where the user is either buyer or seller:
-        q = Conversation.objects.filter(buyer=user)
-        if user.is_seller and hasattr(user, "maker_profile"):
-            q = Conversation.objects.filter(buyer=user) | Conversation.objects.filter(maker=user.maker_profile)
-
-        return q.distinct().select_related(
+        return Conversation.objects.filter(
+            models.Q(buyer=user) | models.Q(maker__owner=user)
+        ).distinct().select_related(
             "buyer", "maker", "product", "order"
         ).prefetch_related("messages", "messages__sender").order_by("-updated_at")
 
@@ -92,7 +96,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
         if request.method == "GET":
             # Polling support via ?after=
-            after_val = request.query_params.get("after")
+            after_val = (request.query_params.get("after") or "").strip()
             messages_qs = conversation.messages.select_related("sender", "conversation", "conversation__maker")
 
             if after_val:

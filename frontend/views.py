@@ -699,9 +699,12 @@ def seller_order_detail(request, order_number):
 
 @login_required
 def seller_messages_inbox(request):
-    if not request.user.is_seller or not hasattr(request.user, "maker_profile"):
+    from products.models import Maker
+    maker = getattr(request.user, "maker_profile", None)
+    if not maker:
+        maker = Maker.objects.filter(owner=request.user).first()
+    if not maker:
         raise PermissionDenied("A linked seller profile is required.")
-    maker = request.user.maker_profile
     from messaging.models import Conversation
     conversations = (
         Conversation.objects.filter(maker=maker)
@@ -718,9 +721,12 @@ def seller_messages_inbox(request):
 
 @login_required
 def seller_message_thread(request, conversation_uuid):
-    if not request.user.is_seller or not hasattr(request.user, "maker_profile"):
+    from products.models import Maker
+    maker = getattr(request.user, "maker_profile", None)
+    if not maker:
+        maker = Maker.objects.filter(owner=request.user).first()
+    if not maker:
         raise PermissionDenied("A linked seller profile is required.")
-    maker = request.user.maker_profile
     from messaging.models import Conversation
     from messaging import services as messaging_services
     conversation = get_object_or_404(
@@ -731,7 +737,16 @@ def seller_message_thread(request, conversation_uuid):
     if request.method == "POST":
         body = (request.POST.get("body") or "").strip()
         if body:
-            messaging_services.send_message(conversation, request.user, body)
+            msg = messaging_services.send_message(conversation, request.user, body)
+            if request.headers.get("x-requested-with") == "XMLHttpRequest" or "application/json" in request.headers.get("accept", ""):
+                return JsonResponse({
+                    "uuid": str(msg.uuid),
+                    "body": msg.body,
+                    "created_at": msg.created_at.isoformat(),
+                    "sender_id": msg.sender_id,
+                    "is_sender": True,
+                    "sender_name": request.user.get_full_name() or request.user.email.split("@")[0],
+                }, status=201)
             messages.success(request, _("Reply sent."))
             return redirect("seller_message_thread", conversation_uuid=conversation.uuid)
 

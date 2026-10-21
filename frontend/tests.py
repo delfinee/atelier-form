@@ -1996,6 +1996,8 @@ class MessagingWidgetTests(TestCase):
                 self.assertContains(response, 'id="crafty-messages"')
                 self.assertContains(response, 'id="crafty-input"')
                 self.assertContains(response, 'id="crafty-send-btn"')
+                self.assertContains(response, 'id="crafty-seller-select"')
+                self.assertContains(response, 'id="crafty-seller-bar"')
 
                 # Labels indicate real seller chat
                 self.assertContains(response, "Messages")
@@ -2008,3 +2010,12 @@ class MessagingWidgetTests(TestCase):
                     duplicate_crafty_ids, [],
                     f"Found duplicate crafty IDs on {path}: {duplicate_crafty_ids}"
                 )
+
+    def test_artisan_profile_renders_message_button(self):
+        """Artisan profile page includes a direct Message button with data-open-chat."""
+        response = self.client.get(reverse("maker_detail", args=["chen-meilin"]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="btn-message-maker"')
+        self.assertContains(response, "data-open-chat")
+        self.assertContains(response, 'data-maker-slug="chen-meilin"')
+        self.assertContains(response, "Message")

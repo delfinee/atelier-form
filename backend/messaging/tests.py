@@ -313,3 +313,80 @@ class MessagingTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         conv = Conversation.objects.get(uuid=resp.data["uuid"])
         self.assertEqual(ConversationMessage.objects.filter(conversation=conv).count(), 0)
+
+    def test_buyer_manually_selects_maker_to_start_conversation(self):
+        """Chat Routing: Buyer manually selects a seller from the widget selector."""
+        self.client.force_authenticate(user=self.buyer)
+        resp = self.client.post("/api/conversations/", {"maker": self.maker.slug})
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.data["maker_slug"], self.maker.slug)
+        self.assertEqual(resp.data["maker_name"], self.maker.name)
+        self.assertIsNone(resp.data["product_slug"])
+
+    def test_buyer_switches_between_sellers_persists_separate_threads(self):
+        """History & Data Privacy: threads remain persistent and separate across sellers."""
+        self.client.force_authenticate(user=self.buyer)
+
+        # Thread with Seller 1 (Lin Studio)
+        r1 = self.client.post("/api/conversations/", {"maker": self.maker.slug})
+        self.assertEqual(r1.status_code, status.HTTP_201_CREATED)
+        c1_uuid = r1.data["uuid"]
+        self.client.post(f"/api/conversations/{c1_uuid}/messages/", {"body": "Question for Lin Studio"})
+
+        # Thread with Seller 2 (Chen Kiln)
+        r2 = self.client.post("/api/conversations/", {"maker": self.other_maker.slug})
+        self.assertEqual(r2.status_code, status.HTTP_201_CREATED)
+        c2_uuid = r2.data["uuid"]
+        self.client.post(f"/api/conversations/{c2_uuid}/messages/", {"body": "Question for Chen Kiln"})
+
+        # Verify threads are distinct
+        self.assertNotEqual(c1_uuid, c2_uuid)
+        c1_msgs = self.client.get(f"/api/conversations/{c1_uuid}/messages/").data
+        c2_msgs = self.client.get(f"/api/conversations/{c2_uuid}/messages/").data
+
+        c1_bodies = [m["body"] for m in c1_msgs]
+        c2_bodies = [m["body"] for m in c2_msgs]
+
+        self.assertIn("Question for Lin Studio", c1_bodies)
+        self.assertNotIn("Question for Lin Studio", c2_bodies)
+        self.assertIn("Question for Chen Kiln", c2_bodies)
+        self.assertNotIn("Question for Chen Kiln", c1_bodies)
+
+    def test_strict_read_access_rules_block_third_parties(self):
+        """History & Data Privacy: conversation exclusively visible to specific buyer and seller."""
+        conv = Conversation.objects.create(buyer=self.buyer, maker=self.maker)
+        services.send_message(conv, self.buyer, "Confidential trade inquiry")
+
+        # Third party buyer cannot view conversation or messages
+        self.client.force_authenticate(user=self.other_buyer)
+        get_resp = self.client.get(f"/api/conversations/{conv.uuid}/")
+        self.assertIn(get_resp.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_404_NOT_FOUND])
+        msgs_resp = self.client.get(f"/api/conversations/{conv.uuid}/messages/")
+        self.assertIn(msgs_resp.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_404_NOT_FOUND])
+
+        # Third party seller cannot view conversation or messages
+        self.client.force_authenticate(user=self.other_seller_user)
+        get_resp_seller = self.client.get(f"/api/conversations/{conv.uuid}/")
+        self.assertIn(get_resp_seller.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_404_NOT_FOUND])
+        msgs_resp_seller = self.client.get(f"/api/conversations/{conv.uuid}/messages/")
+        self.assertIn(msgs_resp_seller.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_404_NOT_FOUND])
+
+        # Authorized seller can access
+        self.client.force_authenticate(user=self.seller_user)
+        auth_resp = self.client.get(f"/api/conversations/{conv.uuid}/messages/")
+        self.assertEqual(auth_resp.status_code, status.HTTP_200_OK)
+
+    def test_seller_ajax_reply_in_message_thread_view(self):
+        """Two-Way Messaging: Seller sends message via thread view with AJAX response."""
+        conv = Conversation.objects.create(buyer=self.buyer, maker=self.maker)
+        self.client.force_login(self.seller_user)
+
+        resp = self.client.post(
+            reverse("seller_message_thread", args=[conv.uuid]),
+            {"body": "Hello Alice, we would love to help you!"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(resp.status_code, 201)
+        data = resp.json()
+        self.assertEqual(data["body"], "Hello Alice, we would love to help you!")
+        self.assertTrue(data["is_sender"])

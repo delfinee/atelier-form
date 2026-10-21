@@ -5,7 +5,8 @@
  * - Messages persisted in database
  * - Scoped by authenticated buyer & artisan maker
  * - Simple polling for incoming replies
- * - Automatic context from active product page
+ * - Automatic context from active product or artisan page
+ * - Manual seller selection from general chat launcher
  */
 
 (function () {
@@ -29,6 +30,7 @@
 
   const sellerTitle = document.getElementById('widgetSellerTitle');
   const sellerStatus = document.getElementById('widgetSellerStatus');
+  const sellerSelect = document.getElementById('crafty-seller-select');
   const pinnedBar = document.getElementById('pinnedProductBar');
   const pinnedTitle = document.getElementById('pinnedTitle');
   const pinnedPrice = document.getElementById('pinnedPrice');
@@ -48,7 +50,19 @@
   let activeConversation = null;
   let lastMessageUuid = null;
   let pollInterval = null;
+  let unreadInterval = null;
   let currentContext = {};
+  let isSending = false;
+  let cachedMakers = [];
+
+  // Fallback makers if /api/makers/ is unavailable
+  const DEFAULT_MAKERS = [
+    { slug: 'chen-meilin', name: 'Chen Meilin', discipline: 'Ceramicist' },
+    { slug: 'lu-wenjing', name: 'Lu Wenjing', discipline: 'Woodcraft' },
+    { slug: 'zhao-hesheng', name: 'Zhao Hesheng', discipline: 'Metalwork' },
+    { slug: 'xu-anying', name: 'Xu Anying', discipline: 'Textiles' },
+    { slug: 'ye-ruolan', name: 'Ye Ruolan', discipline: 'Glassblower' }
+  ];
 
   // i18n Dictionary
   const i18n = {
@@ -68,7 +82,11 @@
       artisan: '手作人',
       buyer: '买家',
       sending: '发送中...',
-      langToggleText: 'EN'
+      langToggleText: 'EN',
+      selectArtisanPrompt: '选择手作人',
+      selectArtisanDesc: '请选择一位手作人直接咨询其工作室作品。',
+      chooseArtisan: '选择手作人...',
+      startChat: '发起对话 →'
     },
     en: {
       launcher: 'Messages',
@@ -86,7 +104,11 @@
       artisan: 'Artisan',
       buyer: 'Buyer',
       sending: 'Sending...',
-      langToggleText: '中文'
+      langToggleText: '中文',
+      selectArtisanPrompt: 'Select an Artisan',
+      selectArtisanDesc: 'Choose an artisan to start a conversation directly with their studio.',
+      chooseArtisan: 'Select an artisan...',
+      startChat: 'Start Chat →'
     }
   };
 
@@ -121,6 +143,118 @@
     return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   }
 
+  // --- Load Makers into Selector Dropdown ---
+  async function loadMakersList() {
+    if (cachedMakers.length > 0) return cachedMakers;
+
+    try {
+      const res = await fetch('/api/makers/', {
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        cachedMakers = Array.isArray(data) ? data : (data.results || data.items || []);
+      }
+    } catch (e) {
+      console.warn('Failed to fetch makers via API; falling back to default list.', e);
+    }
+
+    if (!cachedMakers || cachedMakers.length === 0) {
+      cachedMakers = DEFAULT_MAKERS;
+    }
+
+    populateSellerDropdown(cachedMakers);
+    return cachedMakers;
+  }
+
+  function populateSellerDropdown(makers) {
+    if (!sellerSelect) return;
+    const t = i18n[currentLang] || i18n.en;
+    const currentVal = sellerSelect.value;
+
+    sellerSelect.innerHTML = `<option value="">-- ${t.chooseArtisan} --</option>`;
+
+    makers.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m.slug;
+      opt.dataset.name = m.name;
+      opt.textContent = `${m.name}${m.discipline ? ' (' + m.discipline + ')' : ''}`;
+      sellerSelect.appendChild(opt);
+    });
+
+    if (currentVal) {
+      sellerSelect.value = currentVal;
+    }
+  }
+
+  // --- Render Artisan Picker View (When general chat opens with no active maker) ---
+  function renderArtisanPicker() {
+    if (!messagesContainer) return;
+    const t = i18n[currentLang] || i18n.en;
+
+    const listHtml = (cachedMakers.length > 0 ? cachedMakers : DEFAULT_MAKERS).map(m => `
+      <div class="crafty-artisan-card" data-seller-slug="${escapeHtml(m.slug)}" data-seller-name="${escapeHtml(m.name)}">
+        <div class="crafty-artisan-card-avatar">🪵</div>
+        <div class="crafty-artisan-card-meta">
+          <div class="crafty-artisan-card-name">${escapeHtml(m.name)}</div>
+          <div class="crafty-artisan-card-sub">${escapeHtml(m.discipline || 'Artisan')}${m.location ? ' · ' + escapeHtml(m.location) : ''}</div>
+        </div>
+        <div class="crafty-artisan-card-action">${t.startChat}</div>
+      </div>
+    `).join('');
+
+    messagesContainer.innerHTML = `
+      <div class="crafty-seller-picker-view">
+        <div style="font-size:2rem; margin-bottom:0.25rem;">🏺</div>
+        <h4 class="crafty-seller-picker-title">${t.selectArtisanPrompt}</h4>
+        <p class="crafty-seller-picker-desc">${t.selectArtisanDesc}</p>
+        <div class="crafty-seller-picker-list">
+          ${listHtml}
+        </div>
+      </div>
+    `;
+
+    messagesContainer.querySelectorAll('.crafty-artisan-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const slug = card.getAttribute('data-seller-slug');
+        const name = card.getAttribute('data-seller-name');
+        if (slug) {
+          switchSeller(slug, name);
+        }
+      });
+    });
+  }
+
+  // --- Switch Active Seller ---
+  async function switchSeller(makerSlug, makerName) {
+    if (!makerSlug) return;
+    stopPolling();
+    activeConversation = null;
+    lastMessageUuid = null;
+
+    currentContext.makerSlug = makerSlug;
+    currentContext.makerName = makerName || '';
+    // Reset product context on manual seller switch
+    currentContext.productSlug = '';
+    currentContext.productName = '';
+    currentContext.productPrice = '';
+    currentContext.orderId = '';
+    currentContext.orderNumber = '';
+
+    if (sellerSelect) {
+      sellerSelect.value = makerSlug;
+    }
+    if (sellerTitle) {
+      sellerTitle.textContent = currentContext.makerName || makerSlug;
+    }
+    if (pinnedBar) {
+      pinnedBar.style.display = 'none';
+    }
+
+    await initConversation();
+  }
+
   // --- Unread Badge & Background Notification ---
   async function updateUnreadBadge() {
     if (!CFG.authenticated || !unreadBadge) return;
@@ -152,7 +286,7 @@
   }
 
   // --- Open / Close Drawer ---
-  function openDrawer() {
+  function openDrawer(explicitContext) {
     if (drawer) drawer.classList.add('is-open');
     if (backdrop) backdrop.classList.add('is-open');
     document.body.style.overflow = 'hidden';
@@ -160,8 +294,10 @@
     // Clear unread badge immediately when opening chat
     if (unreadBadge) unreadBadge.style.display = 'none';
 
-    readPageContext();
-    initConversation();
+    readPageContext(explicitContext || {});
+    loadMakersList().then(() => {
+      initConversation();
+    });
   }
 
   function closeDrawer() {
@@ -191,6 +327,11 @@
       sellerTitle.textContent = currentContext.makerName || t.defaultTitle;
     }
 
+    // Seller Dropdown Sync
+    if (sellerSelect && currentContext.makerSlug) {
+      sellerSelect.value = currentContext.makerSlug;
+    }
+
     // Pinned Bar
     if (pinnedBar) {
       if (currentContext.productName) {
@@ -207,7 +348,7 @@
   function removeEmptyPlaceholder() {
     if (!messagesContainer) return;
     const t = i18n[currentLang] || i18n.en;
-    const placeholders = messagesContainer.querySelectorAll('.crafty-empty-placeholder');
+    const placeholders = messagesContainer.querySelectorAll('.crafty-empty-placeholder, .crafty-seller-picker-view');
     placeholders.forEach(el => el.remove());
 
     const firstChild = messagesContainer.firstElementChild;
@@ -242,22 +383,14 @@
       return;
     }
 
-    if (messagesContainer && !messagesContainer.querySelector('.crafty-msg')) {
-      messagesContainer.innerHTML = `
-        <div class="crafty-empty-placeholder" style="text-align:center; padding:2rem; color:var(--crafty-muted); font-size:0.85rem;">
-          ...
-        </div>
-      `;
-    }
-
     try {
       let conv = null;
 
-      // 1. If we have a product or maker from current context, get or create that thread
-      if (currentContext.productSlug || currentContext.makerSlug || currentContext.orderId) {
+      // 1. If we have a maker or product from current context, get or create that thread
+      if (currentContext.makerSlug || currentContext.productSlug || currentContext.orderId) {
         const payload = {};
-        if (currentContext.productSlug) payload.product = currentContext.productSlug;
         if (currentContext.makerSlug) payload.maker = currentContext.makerSlug;
+        if (currentContext.productSlug) payload.product = currentContext.productSlug;
         if (currentContext.orderId) payload.order = currentContext.orderId;
 
         const res = await fetch('/api/conversations/', {
@@ -276,23 +409,7 @@
         }
       }
 
-      // 2. If no context, check if we had an active conversation stored in session
-      if (!conv) {
-        const savedUuid = sessionStorage.getItem('crafty_active_conv_uuid');
-        if (savedUuid) {
-          try {
-            const savedRes = await fetch(`/api/conversations/${savedUuid}/`, {
-              credentials: 'same-origin',
-              headers: { 'Accept': 'application/json' }
-            });
-            if (savedRes.ok) {
-              conv = await savedRes.json();
-            }
-          } catch (e) {}
-        }
-      }
-
-      // 3. Fallback: fetch buyer conversations, prioritizing unread replies, then newest
+      // 2. If no explicit maker context, inspect existing conversations for this buyer
       if (!conv) {
         const listRes = await fetch('/api/conversations/?role=buyer', {
           credentials: 'same-origin',
@@ -302,54 +419,51 @@
           const listData = await listRes.json();
           const items = Array.isArray(listData) ? listData : (listData.items || []);
           if (items.length > 0) {
+            // Priority: unread conversation, then most recently updated
             const unreadConv = items.find(c => (c.unread_count || 0) > 0);
             conv = unreadConv || items[0];
           }
         }
       }
 
-      // 4. If buyer has no existing conversations, initialize a new thread
+      // 3. If buyer has NO existing conversations and opened general chat, show Artisan Picker
       if (!conv) {
-        const createRes = await fetch('/api/conversations/', {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken(),
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({})
-        });
-        if (createRes.ok) {
-          conv = await createRes.json();
+        activeConversation = null;
+        if (sellerTitle) {
+          sellerTitle.textContent = t.defaultTitle;
         }
+        if (sellerSelect) {
+          sellerSelect.value = '';
+        }
+        renderArtisanPicker();
+        return;
       }
 
+      // Conversation successfully selected or initialized
       activeConversation = conv;
+      lastMessageUuid = null;
 
-      if (activeConversation) {
-        if (activeConversation.uuid) {
-          sessionStorage.setItem('crafty_active_conv_uuid', activeConversation.uuid);
-        }
-        if (sellerTitle && activeConversation.maker_name) {
-          sellerTitle.textContent = activeConversation.maker_name;
-        }
-        if (pinnedBar && !currentContext.productName && activeConversation.product_name) {
-          pinnedBar.style.display = 'flex';
-          if (pinnedTitle) pinnedTitle.textContent = activeConversation.product_name;
-          if (pinnedPrice) pinnedPrice.textContent = activeConversation.product_price || '';
-        }
-        await loadMessages(activeConversation.uuid);
-        startPolling();
-      } else {
-        if (messagesContainer) {
-          messagesContainer.innerHTML = `
-            <div class="crafty-empty-placeholder" style="text-align:center; padding:3rem 1.5rem; color:var(--crafty-muted); font-size:0.9rem;">
-              ${t.noMessages}
-            </div>
-          `;
+      if (activeConversation.uuid) {
+        sessionStorage.setItem('crafty_active_conv_uuid', activeConversation.uuid);
+      }
+      if (activeConversation.maker_slug) {
+        currentContext.makerSlug = activeConversation.maker_slug;
+        currentContext.makerName = activeConversation.maker_name || activeConversation.maker_slug;
+        if (sellerSelect) {
+          sellerSelect.value = activeConversation.maker_slug;
         }
       }
+      if (sellerTitle && activeConversation.maker_name) {
+        sellerTitle.textContent = activeConversation.maker_name;
+      }
+      if (pinnedBar && !currentContext.productName && activeConversation.product_name) {
+        pinnedBar.style.display = 'flex';
+        if (pinnedTitle) pinnedTitle.textContent = activeConversation.product_name;
+        if (pinnedPrice) pinnedPrice.textContent = activeConversation.product_price || '';
+      }
+
+      await loadMessages(activeConversation.uuid);
+      startPolling();
     } catch (err) {
       console.error('Failed to initialize conversation:', err);
     }
@@ -397,11 +511,17 @@
       appendMessageToDOM(m);
     });
 
+    if (msgs.length > 0) {
+      lastMessageUuid = msgs[msgs.length - 1].uuid;
+    }
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
   function appendMessageToDOM(m) {
-    if (!messagesContainer) return;
+    if (!messagesContainer || !m || !m.uuid) return;
+    // Prevent duplicate rendering
+    if (messagesContainer.querySelector(`[data-msg-uuid="${m.uuid}"]`)) return;
+
     const t = i18n[currentLang] || i18n.en;
     lastMessageUuid = m.uuid;
 
@@ -446,11 +566,21 @@
 
   // --- Send Message ---
   async function sendMessage(textOverride) {
+    if (isSending) return;
+
     const raw = textOverride !== undefined ? textOverride : (input ? input.value : '');
     const text = (raw || '').trim();
     if (!text) return;
 
     if (!activeConversation) {
+      if (!currentContext.makerSlug) {
+        if (sellerSelect) {
+          sellerSelect.focus();
+          sellerSelect.style.borderColor = '#e11d48';
+          setTimeout(() => { sellerSelect.style.borderColor = ''; }, 2000);
+        }
+        return;
+      }
       await initConversation();
       if (!activeConversation) {
         console.warn('Could not establish conversation with artisan.');
@@ -458,6 +588,7 @@
       }
     }
 
+    isSending = true;
     if (textOverride === undefined && input) {
       input.value = '';
     }
@@ -478,20 +609,31 @@
         const savedMsg = await res.json();
         removeEmptyPlaceholder();
         appendMessageToDOM(savedMsg);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        console.error('Failed to send message:', err);
+        if (textOverride === undefined && input) {
+          input.value = text;
+        }
       }
     } catch (err) {
       console.error('Failed to send message:', err);
+      if (textOverride === undefined && input) {
+        input.value = text;
+      }
+    } finally {
+      isSending = false;
     }
   }
 
-  // --- Polling for New Messages in Open Drawer ---
+  // --- Polling for New Messages in Open Drawer (Fast 2s Polling) ---
   function startPolling() {
     stopPolling();
     pollInterval = setInterval(async () => {
       if (!activeConversation || !drawer?.classList.contains('is-open')) return;
       try {
         const url = lastMessageUuid
-          ? `/api/conversations/${activeConversation.uuid}/messages/?after=${lastMessageUuid}`
+          ? `/api/conversations/${activeConversation.uuid}/messages/?after=${encodeURIComponent(lastMessageUuid)}`
           : `/api/conversations/${activeConversation.uuid}/messages/`;
 
         const res = await fetch(url, {
@@ -503,13 +645,12 @@
         const newMsgs = await res.json();
         if (Array.isArray(newMsgs) && newMsgs.length > 0) {
           newMsgs.forEach(m => {
-            if (!messagesContainer?.querySelector(`[data-msg-uuid="${m.uuid}"]`)) {
-              appendMessageToDOM(m);
-            }
+            appendMessageToDOM(m);
           });
+          lastMessageUuid = newMsgs[newMsgs.length - 1].uuid;
         }
       } catch (e) {}
-    }, 3000);
+    }, 2000);
   }
 
   function stopPolling() {
@@ -544,32 +685,31 @@
   // --- Wire Event Listeners ---
   function init() {
     // 1. Launcher button
-    launcher?.addEventListener('click', openDrawer);
+    launcher?.addEventListener('click', () => {
+      openDrawer();
+    });
 
     // 2. Close buttons
     closeBtn?.addEventListener('click', closeDrawer);
     backBtn?.addEventListener('click', closeDrawer);
     backdrop?.addEventListener('click', closeDrawer);
 
-    // 3. Form submit & send button
+    // 3. Manual seller selection dropdown
+    sellerSelect?.addEventListener('change', (e) => {
+      const selectedSlug = e.target.value;
+      if (!selectedSlug) return;
+      const selectedOpt = e.target.options[e.target.selectedIndex];
+      const selectedName = selectedOpt?.dataset?.name || selectedOpt?.text || selectedSlug;
+      switchSeller(selectedSlug, selectedName);
+    });
+
+    // 4. Form submit & enter key (single binding prevents duplicate calls)
     form?.addEventListener('submit', (e) => {
       e.preventDefault();
       sendMessage();
     });
 
-    sendBtn?.addEventListener('click', (e) => {
-      e.preventDefault();
-      sendMessage();
-    });
-
-    input?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-
-    // 4. Global buttons with [data-open-chat]
+    // 5. Global buttons with [data-open-chat]
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-open-chat]');
       if (btn) {
@@ -583,12 +723,11 @@
           orderId: btn.dataset.orderId || '',
           orderNumber: btn.dataset.orderNumber || ''
         };
-        readPageContext(ctx);
-        openDrawer();
+        openDrawer(ctx);
       }
     });
 
-    // 5. Tools tray toggle
+    // 6. Tools tray toggle
     btnPlusTool?.addEventListener('click', () => {
       if (toolsTray) {
         toolsTray.style.display = toolsTray.style.display === 'none' ? 'flex' : 'none';
@@ -613,7 +752,7 @@
       if (toolsTray) toolsTray.style.display = 'none';
     });
 
-    // 6. Emoji Picker
+    // 7. Emoji Picker
     renderEmojiGrid('faces');
     btnEmojiToggle?.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -636,19 +775,23 @@
       }
     });
 
-    // 7. Language toggle
+    // 8. Language toggle
     langToggle?.addEventListener('click', () => {
       currentLang = currentLang === 'zh' ? 'en' : 'zh';
       const t = i18n[currentLang] || i18n.en;
       if (langToggle) langToggle.textContent = t.langToggleText;
       if (input) input.placeholder = t.inputPlaceholder;
       if (sellerTitle && !currentContext.makerName) sellerTitle.textContent = t.defaultTitle;
+      populateSellerDropdown(cachedMakers.length > 0 ? cachedMakers : DEFAULT_MAKERS);
     });
 
-    // 8. Start background unread checking for authenticated buyers
+    // 9. Pre-fetch makers list
+    loadMakersList();
+
+    // 10. Start background unread checking for authenticated buyers (every 4s)
     if (CFG.authenticated) {
       updateUnreadBadge();
-      setInterval(updateUnreadBadge, 8000);
+      unreadInterval = setInterval(updateUnreadBadge, 4000);
     }
   }
 

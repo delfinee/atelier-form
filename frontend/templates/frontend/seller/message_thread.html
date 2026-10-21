@@ -46,22 +46,24 @@
     </div>
 
     <!-- Reply Form -->
-    <form method="post" action="{% url 'seller_message_thread' conversation.uuid %}" style="display:flex; flex-direction:column; gap:0.75rem;">
+    <form id="seller-reply-form" method="post" action="{% url 'seller_message_thread' conversation.uuid %}" style="display:flex; flex-direction:column; gap:0.75rem;">
       {% csrf_token %}
       <label for="reply-body" class="sr-only">{% translate "Your reply" %}</label>
       <textarea id="reply-body" name="body" rows="3" class="input" placeholder="{% translate "Type your reply to the buyer..." %}" required style="width:100%; border-radius:8px; padding:0.75rem; resize:vertical;"></textarea>
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <span class="muted" style="font-size:0.8rem;">{% translate "Replies are saved and delivered to the buyer." %}</span>
-        <button type="submit" class="btn btn--sm">{% translate "Send reply" %}</button>
+        <button type="submit" id="seller-send-btn" class="btn btn--sm">{% translate "Send reply" %}</button>
       </div>
     </form>
   </section>
 </div>
 
 <script>
-  // Simple polling for new incoming buyer messages
   (function() {
     const thread = document.getElementById('seller-thread-messages');
+    const replyForm = document.getElementById('seller-reply-form');
+    const replyBody = document.getElementById('reply-body');
+    const sendBtn = document.getElementById('seller-send-btn');
     if (!thread) return;
     thread.scrollTop = thread.scrollHeight;
 
@@ -72,9 +74,84 @@
       lastMsgId = items[items.length - 1].getAttribute('data-msg-uuid');
     }
 
+    function appendMessageRow(m) {
+      if (!m || !m.uuid) return;
+      if (thread.querySelector(`[data-msg-uuid="${m.uuid}"]`)) return;
+      lastMsgId = m.uuid;
+
+      const isMe = Boolean(m.is_sender);
+      const row = document.createElement('div');
+      row.className = 'chat-bubble-row';
+      row.setAttribute('data-msg-uuid', m.uuid);
+      row.style.cssText = isMe
+        ? 'display:flex; flex-direction:column; align-items:flex-end;'
+        : 'display:flex; flex-direction:column; align-items:flex-start;';
+
+      const senderLabel = isMe ? 'You (Seller)' : `${m.sender_name || 'Buyer'} (Buyer)`;
+      const label = document.createElement('div');
+      label.style.cssText = 'font-size:0.75rem; color:var(--ink-soft); margin-bottom:2px;';
+      const labelText = document.createElement('span');
+      labelText.style.fontWeight = '600';
+      if (isMe) labelText.style.color = 'var(--earth)';
+      labelText.textContent = senderLabel;
+      label.appendChild(labelText);
+      label.appendChild(document.createTextNode(' · Just now'));
+
+      const bubble = document.createElement('div');
+      bubble.style.cssText = isMe
+        ? 'padding:0.75rem 1rem; border-radius:12px; max-width:80%; font-size:0.95rem; line-height:1.45; white-space:pre-wrap; background:var(--earth); color:#fff; border-bottom-right-radius:2px;'
+        : 'padding:0.75rem 1rem; border-radius:12px; max-width:80%; font-size:0.95rem; line-height:1.45; white-space:pre-wrap; background:var(--paper-soft); color:var(--ink); border:1px solid var(--border); border-bottom-left-radius:2px;';
+      bubble.textContent = m.body ?? '';
+
+      row.appendChild(label);
+      row.appendChild(bubble);
+      thread.appendChild(row);
+      thread.scrollTop = thread.scrollHeight;
+    }
+
+    // Intercept reply form submit for instant sending without page reload
+    replyForm?.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const text = (replyBody?.value || '').trim();
+      if (!text) return;
+
+      const csrfInput = replyForm.querySelector('input[name="csrfmiddlewaretoken"]');
+      const csrfToken = csrfInput ? csrfInput.value : '';
+
+      if (sendBtn) sendBtn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/conversations/${convUuid}/messages/`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ body: text })
+        });
+
+        if (res.ok) {
+          const newMsg = await res.json();
+          if (replyBody) replyBody.value = '';
+          appendMessageRow(newMsg);
+        } else {
+          replyForm.submit();
+        }
+      } catch (err) {
+        replyForm.submit();
+      } finally {
+        if (sendBtn) sendBtn.disabled = false;
+      }
+    });
+
+    // Fast polling for incoming buyer messages (every 2 seconds)
     setInterval(async function() {
       try {
-        const url = `/api/conversations/${convUuid}/messages/?after=${lastMsgId}`;
+        const url = lastMsgId
+          ? `/api/conversations/${convUuid}/messages/?after=${encodeURIComponent(lastMsgId)}`
+          : `/api/conversations/${convUuid}/messages/`;
         const res = await fetch(url, {
           credentials: 'same-origin',
           headers: { 'Accept': 'application/json' }
@@ -83,35 +160,12 @@
         const newMsgs = await res.json();
         if (Array.isArray(newMsgs) && newMsgs.length > 0) {
           newMsgs.forEach(m => {
-            lastMsgId = m.uuid;
-            const row = document.createElement('div');
-            row.className = 'chat-bubble-row';
-            row.setAttribute('data-msg-uuid', m.uuid);
-            row.style.cssText = m.is_sender ? 'display:flex; flex-direction:column; align-items:flex-end;' : 'display:flex; flex-direction:column; align-items:flex-start;';
-
-            const senderLabel = m.is_sender ? 'You (Seller)' : `${m.sender_name} (Buyer)`;
-            const label = document.createElement('div');
-            label.style.cssText = 'font-size:0.75rem; color:var(--ink-soft); margin-bottom:2px;';
-            const labelText = document.createElement('span');
-            labelText.style.fontWeight = '600';
-            labelText.textContent = senderLabel;
-            label.appendChild(labelText);
-            label.appendChild(document.createTextNode(' · Just now'));
-
-            const bubble = document.createElement('div');
-            bubble.style.cssText = m.is_sender
-              ? 'padding:0.75rem 1rem; border-radius:12px; max-width:80%; font-size:0.95rem; line-height:1.45; white-space:pre-wrap; background:var(--earth); color:#fff; border-bottom-right-radius:2px;'
-              : 'padding:0.75rem 1rem; border-radius:12px; max-width:80%; font-size:0.95rem; line-height:1.45; white-space:pre-wrap; background:var(--paper-soft); color:var(--ink); border:1px solid var(--border); border-bottom-left-radius:2px;';
-            bubble.textContent = m.body ?? '';
-
-            row.appendChild(label);
-            row.appendChild(bubble);
-            thread.appendChild(row);
+            appendMessageRow(m);
           });
-          thread.scrollTop = thread.scrollHeight;
+          lastMsgId = newMsgs[newMsgs.length - 1].uuid;
         }
       } catch (e) {}
-    }, 4000);
+    }, 2000);
   })();
 </script>
 {% endblock %}

@@ -90,6 +90,14 @@ class ConversationViewSet(viewsets.ModelViewSet):
         status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
         return Response(out_serializer.data, status=status_code)
 
+    @action(detail=False, methods=["post"], url_path="translate")
+    def translate(self, request):
+        """Translate message between English and Chinese."""
+        text = (request.data.get("text") or "").strip()
+        target_lang = (request.data.get("target_lang") or request.data.get("target") or "").strip() or None
+        result = services.translate_message(text, target_lang=target_lang)
+        return Response(result, status=status.HTTP_200_OK)
+
     @action(detail=True, methods=["get", "post"], url_path="messages")
     def messages(self, request, uuid=None):
         conversation = self.get_object()

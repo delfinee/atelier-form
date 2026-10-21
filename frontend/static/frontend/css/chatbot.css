@@ -1491,4 +1491,70 @@
   white-space: nowrap;
 }
 
+/* ==========================================================================
+   Message Translation Functionality (EN ⇄ ZH)
+   ========================================================================== */
+
+.crafty-translate-btn {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--crafty-line);
+  color: var(--crafty-muted);
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.1rem 0.35rem;
+  cursor: pointer;
+  line-height: 1.2;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.crafty-translate-btn:hover {
+  background: var(--crafty-sand);
+  color: var(--crafty-ink);
+  border-color: var(--crafty-clay);
+}
+
+.crafty-translation-box {
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+  border-top: 1px dashed rgba(128, 128, 128, 0.3);
+  font-size: 0.88em;
+}
+
+.crafty-translation-header {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--crafty-clay);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.2rem;
+}
+
+.crafty-msg--user .crafty-translation-header {
+  color: #ffe4d6;
+}
+
+.crafty-translation-hide-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: inherit;
+  opacity: 0.7;
+  padding: 0 3px;
+}
+
+.crafty-translation-hide-btn:hover {
+  opacity: 1;
+}
+
+.crafty-translation-content {
+  font-size: 0.88rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
 

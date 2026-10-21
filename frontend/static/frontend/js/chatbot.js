@@ -143,6 +143,112 @@
     return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   }
 
+  // --- Bilingual Translation Service (EN ⇄ ZH) ---
+  const CLIENT_TRANSLATION_PAIRS = [
+    [/\[automated\]\s*hello!\s*welcome to ([^.]+)\.\s*how can we help you today with our items or custom commissions\?\s*leave a message and the maker will reply here!?/i,
+     "[自动回复] 您好！欢迎光临 $1。今天我们在商品或定制委托方面能为您提供什么帮助？请留言，手作人将在此回复！"],
+    [/\[automated\]\s*hello!\s*welcome to ([^.]+)\.\s*i see you're viewing our ([^.]+)\.\s*feel free to ask about materials, dimensions, or custom crafting, and the maker will reply here!?/i,
+     "[自动回复] 您好！欢迎光临 $1。看到您正在浏览我们的 $2。欢迎咨询材质、尺寸或定制工艺，手作人将在此回复！"],
+    [/hello,?\s*is this (?:keepsake box|product|item) currently in stock\??/i,
+     "您好，请问这件作品目前有现货吗？"],
+    [/is this (?:in stock|available)\??/i,
+     "请问有现货吗？"],
+    [/can you engrave initials on the lid\??/i,
+     "请问可以在盖子上刻首字母吗？"],
+    [/yes,?\s*we can engrave on the inner lid!?/i,
+     "是的，我们可以在内盖上刻字！"],
+    [/can this be customized\??/i,
+     "请问这个可以定制吗？"],
+    [/when will this be shipped\??/i,
+     "请问什么时候可以发货？"],
+    [/inquiring about order #?([A-Za-z0-9-]+)/i,
+     "咨询订单 #$1"],
+    [/inquiring about ([^()]+)(?:\s*\(([^)]+)\))?/i,
+     "咨询关于 $1"],
+    [/could you help me check my order status\??/i,
+     "您能帮我查询一下订单状态吗？"],
+    [/hello!?\s*i would like to inquire about your craft work\.?/i,
+     "您好！我想咨询关于您的手工作品。"],
+    [/thank you very much!?/i,
+     "非常感谢！"],
+    [/thank you!?/i,
+     "谢谢！"],
+    [/you're welcome!?/i,
+     "不客气！"],
+    [/it is high-fired porcelain,?\s*excellent for retaining heat\.?/i,
+     "这是高温烧制瓷器，保温性能极佳。"],
+    [/in stock,?\s*can be shipped today\.?/i,
+     "有现货，今天即可发货。"]
+  ];
+
+  const CLIENT_ZH_TO_EN_PAIRS = [
+    [/\[自动回复\]\s*您好！欢迎光临\s*([^。]+)。今天我们在商品或定制委托方面能为您提供什么帮助？请留言，手作人将在此回复！/,
+     "[Automated] Hello! Welcome to $1. How can we help you today with our items or custom commissions? Leave a message and the maker will reply here!"],
+    [/\[自动回复\]\s*您好！欢迎光临\s*([^。]+)。看到您正在浏览我们的\s*([^。]+)。欢迎咨询材质、尺寸或定制工艺，手作人将在此回复！/,
+     "[Automated] Hello! Welcome to $1. I see you're viewing our $2. Feel free to ask about materials, dimensions, or custom crafting, and the maker will reply here!"],
+    [/您好，请问这件作品目前有现货吗？?/, "Hello, is this piece currently in stock?"],
+    [/请问有现货吗？?/, "Is this in stock?"],
+    [/请问可以在盖子上刻首字母吗？?/, "Can you engrave initials on the lid?"],
+    [/是的，我们可以在内盖上刻字！?/, "Yes, we can engrave on the inner lid!"],
+    [/请问这个可以定制吗？?/, "Can this be customized?"],
+    [/请问什么时候可以发货？?/, "When will this be shipped?"],
+    [/咨询订单\s*#?([A-Za-z0-9-]+)/, "Inquiring about order #$1"],
+    [/您能帮我查询一下订单状态吗？?/, "Could you help me check my order status?"],
+    [/您好！我想咨询关于您的手工作品。?/, "Hello! I would like to inquire about your craft work."],
+    [/非常感谢！?/, "Thank you very much!"],
+    [/谢谢！?/, "Thank you!"],
+    [/不客气！?/, "You are welcome!"],
+    [/有现货，今天即可发货。?/, "In stock, can be shipped today."]
+  ];
+
+  function clientFallbackTranslate(text, sourceLang, targetLang) {
+    if (sourceLang === 'en' && targetLang === 'zh') {
+      for (const [re, repl] of CLIENT_TRANSLATION_PAIRS) {
+        if (re.test(text)) {
+          return text.replace(re, repl);
+        }
+      }
+    } else if (sourceLang === 'zh' && targetLang === 'en') {
+      for (const [re, repl] of CLIENT_ZH_TO_EN_PAIRS) {
+        if (re.test(text)) {
+          return text.replace(re, repl);
+        }
+      }
+    }
+    return text;
+  }
+
+  async function translateMessage(text, targetLang) {
+    if (!text) return { translated: '', target_lang: 'zh' };
+
+    try {
+      const res = await fetch('/api/conversations/translate/', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCsrfToken(),
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ text, target_lang: targetLang })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.translated) return data;
+      }
+    } catch (e) {}
+
+    const hasChinese = /[\u4e00-\u9fff]/.test(text);
+    const sourceLang = hasChinese ? 'zh' : 'en';
+    const resolvedTarget = targetLang || (hasChinese ? 'en' : 'zh');
+    return {
+      original: text,
+      translated: clientFallbackTranslate(text, sourceLang, resolvedTarget),
+      source_lang: sourceLang,
+      target_lang: resolvedTarget
+    };
+  }
+
   // --- Load Makers into Selector Dropdown ---
   async function loadMakersList() {
     if (cachedMakers.length > 0) return cachedMakers;
@@ -533,10 +639,17 @@
     msgEl.setAttribute('data-msg-uuid', m.uuid);
 
     const timeStr = formatTime(m.created_at);
+    const translateBtnHtml = `
+      <button type="button" class="crafty-translate-btn" data-translate-btn title="${currentLang === 'zh' ? '翻译此消息 (中英互译)' : 'Translate message (EN ⇄ ZH)'}">
+        🌐 文/A
+      </button>
+    `;
+
     let metaHtml = '';
     if (isUser) {
       metaHtml = `
         <div class="crafty-msg-meta">
+          ${translateBtnHtml}
           <span>${timeStr}</span>
           <span class="crafty-receipt">✓</span>
         </div>
@@ -549,6 +662,7 @@
           <span class="crafty-maker-badge">${escapeHtml(badgeText)}</span>
           <span>•</span>
           <span>${timeStr}</span>
+          ${translateBtnHtml}
         </div>
       `;
     }
@@ -556,9 +670,62 @@
     msgEl.innerHTML = `
       ${metaHtml}
       <div class="crafty-bubble">
-        <p style="white-space:pre-wrap; margin:0;">${escapeHtml(m.body)}</p>
+        <p class="crafty-bubble-body" style="white-space:pre-wrap; margin:0;">${escapeHtml(m.body)}</p>
+        <div class="crafty-translation-box" style="display:none;"></div>
       </div>
     `;
+
+    // Wire translation button click
+    const translateBtn = msgEl.querySelector('[data-translate-btn]');
+    const translationBox = msgEl.querySelector('.crafty-translation-box');
+
+    translateBtn?.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!translationBox) return;
+
+      // Toggle off if already displayed
+      if (translationBox.style.display !== 'none') {
+        translationBox.style.display = 'none';
+        return;
+      }
+
+      // Re-show cached translation if already loaded
+      if (translationBox.dataset.translated === 'true') {
+        translationBox.style.display = 'block';
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        return;
+      }
+
+      const origText = translateBtn.innerHTML;
+      translateBtn.innerHTML = '...';
+      translateBtn.disabled = true;
+
+      try {
+        const result = await translateMessage(m.body);
+        const isTargetZh = result.target_lang === 'zh';
+        const badgeLabel = isTargetZh ? '🌐 翻译 (中文)' : '🌐 Translation (English)';
+        translationBox.innerHTML = `
+          <div class="crafty-translation-header">
+            <span>${badgeLabel}</span>
+            <button type="button" class="crafty-translation-hide-btn" title="Hide">✕</button>
+          </div>
+          <div class="crafty-translation-content">${escapeHtml(result.translated)}</div>
+        `;
+        translationBox.dataset.translated = 'true';
+        translationBox.style.display = 'block';
+
+        translationBox.querySelector('.crafty-translation-hide-btn')?.addEventListener('click', () => {
+          translationBox.style.display = 'none';
+        });
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      } catch (err) {
+        console.error('Translation error:', err);
+      } finally {
+        translateBtn.innerHTML = origText;
+        translateBtn.disabled = false;
+      }
+    });
 
     messagesContainer.appendChild(msgEl);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;

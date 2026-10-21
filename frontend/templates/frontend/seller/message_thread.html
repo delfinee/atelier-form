@@ -25,16 +25,20 @@
     <div id="seller-thread-messages" style="display:flex; flex-direction:column; gap:1rem; margin-bottom:1.5rem; max-height:500px; overflow-y:auto; padding-right:0.5rem;">
       {% for msg in messages_list %}
         <div class="chat-bubble-row" data-msg-uuid="{{ msg.uuid }}" style="display:flex; flex-direction:column; {% if msg.sender_id == request.user.id %}align-items:flex-end;{% else %}align-items:flex-start;{% endif %}">
-          <div style="font-size:0.75rem; color:var(--ink-soft); margin-bottom:2px;">
+          <div style="font-size:0.75rem; color:var(--ink-soft); margin-bottom:2px; display:flex; align-items:center; gap:0.35rem;">
             {% if msg.sender_id == request.user.id %}
               <span style="font-weight:600; color:var(--earth);">{% translate "You (Seller)" %}</span>
             {% else %}
               <span style="font-weight:600;">{{ msg.sender.get_full_name|default:msg.sender.email }} ({% translate "Buyer" %})</span>
             {% endif %}
             · {{ msg.created_at|date:"M j, H:i" }}
+            <button type="button" class="thread-translate-btn" data-translate-btn title="{% translate "Translate (EN ⇄ 中文)" %}" style="background:var(--paper-soft); border:1px solid var(--border); border-radius:4px; font-size:0.68rem; font-weight:600; padding:1px 5px; cursor:pointer; color:var(--ink-soft); margin-left:4px; line-height:1.2;">
+              🌐 文/A
+            </button>
           </div>
-          <div style="padding:0.75rem 1rem; border-radius:12px; max-width:80%; font-size:0.95rem; line-height:1.45; white-space:pre-wrap; {% if msg.sender_id == request.user.id %}background:var(--earth); color:#fff; border-bottom-right-radius:2px;{% else %}background:var(--paper-soft); color:var(--ink); border:1px solid var(--border); border-bottom-left-radius:2px;{% endif %}">
-            {{ msg.body }}
+          <div class="thread-bubble" style="padding:0.75rem 1rem; border-radius:12px; max-width:80%; font-size:0.95rem; line-height:1.45; white-space:pre-wrap; {% if msg.sender_id == request.user.id %}background:var(--earth); color:#fff; border-bottom-right-radius:2px;{% else %}background:var(--paper-soft); color:var(--ink); border:1px solid var(--border); border-bottom-left-radius:2px;{% endif %}">
+            <div class="thread-bubble-body">{{ msg.body }}</div>
+            <div class="thread-translation-box" style="display:none; margin-top:0.45rem; padding-top:0.45rem; border-top:1px dashed rgba(120,120,120,0.3); font-size:0.88em;"></div>
           </div>
           {% if msg.sender_id == request.user.id and msg.read_at %}
             <div style="font-size:0.7rem; color:var(--ink-soft); margin-top:2px;">{% translate "Read" %} ✓</div>
@@ -74,6 +78,86 @@
       lastMsgId = items[items.length - 1].getAttribute('data-msg-uuid');
     }
 
+    function escapeHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function wireTranslationRow(row, text) {
+      const btn = row.querySelector('[data-translate-btn]');
+      const box = row.querySelector('.thread-translation-box');
+      if (!btn || !box) return;
+
+      btn.addEventListener('click', async function(e) {
+        e.stopPropagation();
+        if (box.style.display !== 'none') {
+          box.style.display = 'none';
+          return;
+        }
+        if (box.dataset.translated === 'true') {
+          box.style.display = 'block';
+          thread.scrollTop = thread.scrollHeight;
+          return;
+        }
+
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = '...';
+        btn.disabled = true;
+
+        const csrfInput = replyForm.querySelector('input[name="csrfmiddlewaretoken"]');
+        const csrfToken = csrfInput ? csrfInput.value : '';
+
+        try {
+          const res = await fetch('/api/conversations/translate/', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken,
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({ text: text })
+          });
+          let data = null;
+          if (res.ok) {
+            data = await res.json();
+          }
+          if (!data || !data.translated) {
+            data = { translated: text, target_lang: 'zh' };
+          }
+          const isTargetZh = data.target_lang === 'zh';
+          const label = isTargetZh ? '🌐 翻译 (中文)' : '🌐 Translation (English)';
+          box.innerHTML = `
+            <div style="font-size:0.7rem; font-weight:600; opacity:0.85; margin-bottom:2px; display:flex; justify-content:space-between; align-items:center;">
+              <span>${label}</span>
+              <button type="button" class="thread-trans-close" style="background:none; border:none; cursor:pointer; color:inherit; opacity:0.7; padding:0 3px;">✕</button>
+            </div>
+            <div style="line-height:1.4;">${escapeHtml(data.translated)}</div>
+          `;
+          box.dataset.translated = 'true';
+          box.style.display = 'block';
+          box.querySelector('.thread-trans-close')?.addEventListener('click', () => {
+            box.style.display = 'none';
+          });
+          thread.scrollTop = thread.scrollHeight;
+        } catch (err) {
+          console.error(err);
+        } finally {
+          btn.innerHTML = origHtml;
+          btn.disabled = false;
+        }
+      });
+    }
+
+    // Wire up all existing rendered message rows
+    thread.querySelectorAll('.chat-bubble-row').forEach(row => {
+      const bodyEl = row.querySelector('.thread-bubble-body');
+      const text = bodyEl ? bodyEl.textContent.trim() : '';
+      wireTranslationRow(row, text);
+    });
+
     function appendMessageRow(m) {
       if (!m || !m.uuid) return;
       if (thread.querySelector(`[data-msg-uuid="${m.uuid}"]`)) return;
@@ -89,7 +173,7 @@
 
       const senderLabel = isMe ? 'You (Seller)' : `${m.sender_name || 'Buyer'} (Buyer)`;
       const label = document.createElement('div');
-      label.style.cssText = 'font-size:0.75rem; color:var(--ink-soft); margin-bottom:2px;';
+      label.style.cssText = 'font-size:0.75rem; color:var(--ink-soft); margin-bottom:2px; display:flex; align-items:center; gap:0.35rem;';
       const labelText = document.createElement('span');
       labelText.style.fontWeight = '600';
       if (isMe) labelText.style.color = 'var(--earth)';
@@ -97,15 +181,36 @@
       label.appendChild(labelText);
       label.appendChild(document.createTextNode(' · Just now'));
 
+      const transBtn = document.createElement('button');
+      transBtn.type = 'button';
+      transBtn.className = 'thread-translate-btn';
+      transBtn.setAttribute('data-translate-btn', '');
+      transBtn.title = 'Translate (EN ⇄ 中文)';
+      transBtn.style.cssText = 'background:var(--paper-soft); border:1px solid var(--border); border-radius:4px; font-size:0.68rem; font-weight:600; padding:1px 5px; cursor:pointer; color:var(--ink-soft); margin-left:4px; line-height:1.2;';
+      transBtn.textContent = '🌐 文/A';
+      label.appendChild(transBtn);
+
       const bubble = document.createElement('div');
+      bubble.className = 'thread-bubble';
       bubble.style.cssText = isMe
         ? 'padding:0.75rem 1rem; border-radius:12px; max-width:80%; font-size:0.95rem; line-height:1.45; white-space:pre-wrap; background:var(--earth); color:#fff; border-bottom-right-radius:2px;'
         : 'padding:0.75rem 1rem; border-radius:12px; max-width:80%; font-size:0.95rem; line-height:1.45; white-space:pre-wrap; background:var(--paper-soft); color:var(--ink); border:1px solid var(--border); border-bottom-left-radius:2px;';
-      bubble.textContent = m.body ?? '';
+
+      const bodyDiv = document.createElement('div');
+      bodyDiv.className = 'thread-bubble-body';
+      bodyDiv.textContent = m.body ?? '';
+      bubble.appendChild(bodyDiv);
+
+      const transBox = document.createElement('div');
+      transBox.className = 'thread-translation-box';
+      transBox.style.cssText = 'display:none; margin-top:0.45rem; padding-top:0.45rem; border-top:1px dashed rgba(120,120,120,0.3); font-size:0.88em;';
+      bubble.appendChild(transBox);
 
       row.appendChild(label);
       row.appendChild(bubble);
       thread.appendChild(row);
+
+      wireTranslationRow(row, m.body ?? '');
       thread.scrollTop = thread.scrollHeight;
     }
 

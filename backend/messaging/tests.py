@@ -390,3 +390,27 @@ class MessagingTests(TestCase):
         data = resp.json()
         self.assertEqual(data["body"], "Hello Alice, we would love to help you!")
         self.assertTrue(data["is_sender"])
+
+    def test_translate_english_to_chinese_endpoint(self):
+        """Translation Function: English message translated to Chinese."""
+        self.client.force_authenticate(user=self.buyer)
+        resp = self.client.post("/api/conversations/translate/", {
+            "text": "Hello, is this keepsake box currently in stock?"
+        })
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.json()
+        self.assertEqual(data["source_lang"], "en")
+        self.assertEqual(data["target_lang"], "zh")
+        self.assertIn("现货", data["translated"])
+
+    def test_translate_chinese_to_english_endpoint(self):
+        """Translation Function: Chinese message translated to English."""
+        self.client.force_authenticate(user=self.buyer)
+        resp = self.client.post("/api/conversations/translate/", {
+            "text": "请问有现货吗？"
+        })
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.json()
+        self.assertEqual(data["source_lang"], "zh")
+        self.assertEqual(data["target_lang"], "en")
+        self.assertIn("stock", data["translated"].lower())

@@ -4,6 +4,7 @@ Never changes commercial Order.status or the fulfilment write path. A partial
 shipment is not an order-wide shipment; cancellation/delivery take precedence.
 """
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from orders.models import FulfillmentStatus, OrderStatus, PaymentStatus
 
@@ -35,16 +36,16 @@ def buyer_shipping_progress(order):
 
     if fulfillments and all(f.status == FulfillmentStatus.FULFILLED for f in fulfillments):
         if order.status in (OrderStatus.CONFIRMED, OrderStatus.PROCESSING, OrderStatus.SHIPPED):
-            label = "On its way"
+            label = _("On its way")
             ship_dates = [f.shipped_at for f in fulfillments if f.shipped_at]
-            shipped_date = timezone.localtime(max(ship_dates)).strftime("%d %b").lstrip("0") if ship_dates else "Shipped"
+            shipped_date = timezone.localtime(max(ship_dates)).strftime("%d %b").lstrip("0") if ship_dates else _("Shipped")
             # No packing-completed timestamp exists in the seller fulfilment model.
             timeline = [
-                {**step, "done": True, "date": "Completed" if i == 2 else shipped_date}
+                {**step, "done": True, "date": _("Completed") if i == 2 else shipped_date}
                 if i in (2, 3) else step
                 for i, step in enumerate(timeline)
             ]
     elif shipments and order.status in (OrderStatus.CONFIRMED, OrderStatus.PROCESSING, OrderStatus.SHIPPED):
-        label = "Partially dispatched"
+        label = _("Partially dispatched")
 
     return {"timeline": timeline, "label": label, "shipments": shipments}

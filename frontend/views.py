@@ -309,8 +309,10 @@ def account_order_detail(request, order_id):
         .prefetch_related("items").first()
     if not order:
         raise Http404("Unknown order")
+    from .order_progress import buyer_shipping_progress
+    progress = buyer_shipping_progress(order)
     return render(request, "frontend/account/order_detail.html", {
-        "customer": request.user, "order": order,
+        "customer": request.user, "order": order, "shipping_progress": progress,
         "current_path": reverse("account_orders"),
         "meta_title": f"{_('Order %(number)s') % {'number': order.order_number}} — {SITE['brand']}",
     })

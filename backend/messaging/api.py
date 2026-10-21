@@ -8,7 +8,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from products.models import Maker
@@ -35,6 +35,11 @@ class ConversationViewSet(viewsets.ModelViewSet):
         if self.action == "create":
             return CreateConversationSerializer
         return ConversationSerializer
+
+    def get_permissions(self):
+        if self.action == "translate":
+            return [AllowAny()]
+        return super().get_permissions()
 
     def get_queryset(self):
         user = self.request.user
@@ -90,7 +95,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
         status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
         return Response(out_serializer.data, status=status_code)
 
-    @action(detail=False, methods=["post"], url_path="translate")
+    @action(detail=False, methods=["post"], url_path="translate", permission_classes=[AllowAny])
     def translate(self, request):
         """Translate message between English and Chinese."""
         text = (request.data.get("text") or "").strip()

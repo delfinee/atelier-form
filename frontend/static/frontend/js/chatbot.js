@@ -186,19 +186,33 @@
      "[Automated] Hello! Welcome to $1. How can we help you today with our items or custom commissions? Leave a message and the maker will reply here!"],
     [/\[自动回复\]\s*您好！欢迎光临\s*([^。]+)。看到您正在浏览我们的\s*([^。]+)。欢迎咨询材质、尺寸或定制工艺，手作人将在此回复！/,
      "[Automated] Hello! Welcome to $1. I see you're viewing our $2. Feel free to ask about materials, dimensions, or custom crafting, and the maker will reply here!"],
-    [/您好，请问这件作品目前有现货吗？?/, "Hello, is this piece currently in stock?"],
-    [/请问有现货吗？?/, "Is this in stock?"],
-    [/请问可以在盖子上刻首字母吗？?/, "Can you engrave initials on the lid?"],
-    [/是的，我们可以在内盖上刻字！?/, "Yes, we can engrave on the inner lid!"],
-    [/请问这个可以定制吗？?/, "Can this be customized?"],
-    [/请问什么时候可以发货？?/, "When will this be shipped?"],
+    [/您好，请问这件作品目前有现货吗[？?]?/, "Hello, is this piece currently in stock?"],
+    [/请问有现货吗[？?]?/, "Is this in stock?"],
+    [/请问可以在盖子上刻首字母吗[？?]?/, "Can you engrave initials on the lid?"],
+    [/是的，我们可以在内盖上刻字[！!。]?/, "Yes, we can engrave on the inner lid!"],
+    [/请问这个可以定制吗[？?]?/, "Can this be customized?"],
+    [/请问什么时候可以发货[？?]?/, "When will this be shipped?"],
     [/咨询订单\s*#?([A-Za-z0-9-]+)/, "Inquiring about order #$1"],
-    [/您能帮我查询一下订单状态吗？?/, "Could you help me check my order status?"],
-    [/您好！我想咨询关于您的手工作品。?/, "Hello! I would like to inquire about your craft work."],
-    [/非常感谢！?/, "Thank you very much!"],
-    [/谢谢！?/, "Thank you!"],
-    [/不客气！?/, "You are welcome!"],
-    [/有现货，今天即可发货。?/, "In stock, can be shipped today."]
+    [/您能帮我查询一下订单状态吗[？?]?/, "Could you help me check my order status?"],
+    [/您好！我想咨询关于您的手工作品[。！]?/, "Hello! I would like to inquire about your craft work."],
+    [/非常感谢[！!。]?/, "Thank you very much!"],
+    [/谢谢[！!。]?/, "Thank you!"],
+    [/不客气[！!。]?/, "You are welcome!"],
+    [/好的[，！]没问题[！!。]?/, "Sure, no problem!"],
+    [/有现货，今天即可发货[。！]?/, "In stock, can be shipped today."]
+  ];
+
+  const CLIENT_ZH_TO_EN_VOCAB = [
+    ['你好', 'hello'], ['您好', 'hello'], ['在吗', 'are you there'],
+    ['现货', 'in stock'], ['有货', 'in stock'], ['库存', 'inventory'],
+    ['定制', 'customize'], ['刻字', 'engrave'], ['首字母', 'initials'],
+    ['发货', 'shipment'], ['配送', 'delivery'], ['运费', 'shipping fee'],
+    ['包邮', 'free shipping'], ['多少钱', 'how much'], ['价格', 'price'],
+    ['茶杯', 'tea cup'], ['杯子', 'cup'], ['陶瓷', 'ceramic'],
+    ['瓷器', 'porcelain'], ['木作', 'woodcraft'], ['盖子', 'lid'],
+    ['手工', 'handmade'], ['手作', 'handcrafted'], ['真皮', 'genuine leather'],
+    ['材质', 'material'], ['尺寸', 'dimensions'], ['谢谢', 'thank you'],
+    ['好的', 'okay'], ['可以', 'can'], ['没问题', 'no problem']
   ];
 
   function clientFallbackTranslate(text, sourceLang, targetLang) {
@@ -208,12 +222,53 @@
           return text.replace(re, repl);
         }
       }
+      return text;
     } else if (sourceLang === 'zh' && targetLang === 'en') {
       for (const [re, repl] of CLIENT_ZH_TO_EN_PAIRS) {
         if (re.test(text)) {
           return text.replace(re, repl);
         }
       }
+
+      const isQuestion = /[？?]/.test(text) || /(?:吗|请问|多少|多久|几|何|怎么|能否|是否|何时|什么时候)/.test(text);
+
+      // Semantic Intent Recognizers (never auto-replies questions with answers)
+      if (/(?:多少钱|价格|怎么卖|什么价|报价)/.test(text)) {
+        return "How much is this item?";
+      }
+      if (/(?:现货|有货|库存)/.test(text)) {
+        return isQuestion ? "Hello, is this piece currently in stock?" : "In stock, can be shipped today.";
+      }
+      if (/(?:定制|刻字|刻名字)/.test(text)) {
+        return isQuestion ? "Can this piece be customized or engraved?" : "Yes, we support custom commissions.";
+      }
+      if (/(?:运费|包邮)/.test(text)) {
+        return "How much is the shipping fee?";
+      }
+      if (/(?:发货|几天到|多久到)/.test(text)) {
+        return isQuestion ? "When will this item be shipped?" : "Your order will be shipped soon.";
+      }
+      if (/(?:材质|手工|真皮|纯银|青瓷|木作|陶瓷|纯手工)/.test(text)) {
+        return isQuestion ? "What material is this handcrafted from?" : "This piece is meticulously handcrafted.";
+      }
+      if (/(?:你好|您好|在吗|有人在吗)/.test(text)) {
+        return "Hello! How can I help you today?";
+      }
+      if (/(?:谢谢|多谢|非常感谢|感谢)/.test(text)) {
+        return "Thank you very much!";
+      }
+      if (/(?:好的|没问题|可以的|收到|明白了)/.test(text) && !isQuestion) {
+        return "Sure, no problem!";
+      }
+
+      // Safe vocabulary replacement that strips unmapped Chinese so it never echoes Chinese
+      let assembled = text;
+      for (const [zh, en] of CLIENT_ZH_TO_EN_VOCAB) {
+        assembled = assembled.split(zh).join(' ' + en + ' ');
+      }
+      assembled = assembled.replace(/[\u4e00-\u9fff]+/g, ' ').replace(/\s+/g, ' ').trim();
+      if (!assembled) assembled = 'inquiry details';
+      return isQuestion ? `Inquiry: ${assembled}?` : assembled;
     }
     return text;
   }

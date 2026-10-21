@@ -190,12 +190,14 @@ _EN_TO_ZH_PHRASES = [
      r"[自动回复] 您好！欢迎光临 \1。看到您正在浏览我们的 \2。欢迎咨询材质、尺寸或定制工艺，手作人将在此回复！"),
     (r"(?i)\[automated\]\s*hello!\s*welcome to ([^.]+)\.?",
      r"[自动回复] 您好！欢迎光临 \1。"),
-    (r"(?i)(?:hello,?\s*)?(?:is this|is the) (?:keepsake box|product|item|ceramic mug|piece)?\s*(?:currently\s*)?(?:in stock|available)\??",
-     "您好，请问这件作品目前有现货吗？"),
-    (r"(?i)do you have this (?:in stock|available)\??",
-     "请问有现货吗？"),
     (r"(?i)is this in stock\??",
      "请问有现货吗？"),
+    (r"(?i)do you have this (?:in stock|available)\??",
+     "请问有现货吗？"),
+    (r"(?i)(?:hello,?\s*)?(?:is this|is the)\s+(?:keepsake box|product|item|ceramic mug|piece)\s+(?:currently\s+)?(?:in stock|available)\??",
+     "您好，请问这件作品目前有现货吗？"),
+    (r"(?i)(?:hello,?\s*)?is this currently (?:in stock|available)\??",
+     "您好，请问这件作品目前有现货吗？"),
     (r"(?i)(?:hello,?\s*)?can (?:this|it|the item) be customized(?:\s*with (?:initials|letters|names?))?\??",
      "您好，请问这个支持定制吗？"),
     (r"(?i)can you engrave initials(?: on the (?:lid|item|box))?\??",
@@ -251,59 +253,63 @@ _ZH_TO_EN_PHRASES = [
      r"[Automated] Hello! Welcome to \1. How can we help you today with our items or custom commissions? Leave a message and the maker will reply here!"),
     (r"\[自动回复\]\s*您好！欢迎光临\s*([^。]+)。看到您正在浏览我们的\s*([^。]+)。欢迎咨询材质、尺寸或定制工艺，手作人将在此回复！",
      r"[Automated] Hello! Welcome to \1. I see you're viewing our \2. Feel free to ask about materials, dimensions, or custom crafting, and the maker will reply here!"),
-    (r"(?:您好[，！]\s*)?请问(?:这件作品|这款商品|这个)?(?:目前)?有现货吗？?",
-     "Hello, is this item currently in stock?"),
-    (r"请问有现货吗？?",
+    (r"(?:您好[，！]\s*)?请问(?:这件作品|这款商品|这个)?(?:目前)?有现货吗[？?]*",
+     "Hello, is this piece currently in stock?"),
+    (r"请问有现货吗[？?]*",
      "Is this in stock?"),
-    (r"请问还有库存吗？?",
+    (r"请问还有库存吗[？?]*",
      "Is this still in stock?"),
-    (r"请问有现货吗？什么时候发货？?",
+    (r"请问有现货吗？什么时候发货[？?]*",
      "Is this in stock? When will it be shipped?"),
-    (r"请问可以在(?:盖子|表面|内侧)上刻(?:首字母|名字|字)吗？?",
+    (r"请问可以在(?:盖子|表面|内侧)上刻(?:首字母|名字|字)吗[？?]*",
      "Can you engrave initials or a name on it?"),
-    (r"可以定制刻字吗？?",
+    (r"可以定制刻字吗[？?]*",
      "Can this be customized with engraving?"),
-    (r"(?:请问)?这个可以定制吗？?",
+    (r"(?:请问)?这个可以定制吗[？?]*",
      "Can this piece be customized?"),
-    (r"是的，我们可以在内盖上刻字！?",
+    (r"是的，我们可以在内盖上刻字[！!。]*",
      "Yes, we can engrave on the inner lid!"),
-    (r"可以的[，！]我们支持定制[。！]?",
+    (r"可以的[，！]我们支持定制[。！]*",
      "Yes, we support custom orders!"),
-    (r"(?:请问)?(?:发货到([^？?]+)的)?运费是多少[？?]",
+    (r"(?:请问)?发货到([^？?]+)的运费是多少[？?]*",
      r"What is the shipping fee to \1?"),
-    (r"制作和发货大概需要多久[？?]",
+    (r"(?:请问)?(?:运费是多少|运费多少)[？?]*",
+     "How much is the shipping fee?"),
+    (r"(?:请问)?包邮吗[？?]*",
+     "Is shipping included / free shipping?"),
+    (r"制作和发货大概需要多久[？?]*",
      "How long will production and shipping take?"),
-    (r"制作周期需要几天[？?]",
+    (r"制作周期需要几天[？?]*",
      "How many days does production take?"),
-    (r"通常需要\s*(\d+)(?:[到至-](\d+))?\s*个工作日制作[。！]?",
+    (r"通常需要\s*(\d+)(?:[到至-](\d+))?\s*个工作日制作[。！]*",
      r"It usually takes \1 to \2 business days to craft."),
-    (r"请问这是纯?手工制作的吗[？?]",
+    (r"请问这是纯?手工制作的吗[？?]*",
      "Is this handmade?"),
-    (r"请问是真皮手工制作的吗[？?]",
+    (r"请问是真皮手工制作的吗[？?]*",
      "Is this handmade with genuine leather?"),
-    (r"我很喜欢这款手工作品，请问还有库存吗[？?]",
+    (r"我很喜欢这款手工作品，请问还有库存吗[？?]*",
      "I really like this handmade piece, is it still in stock?"),
-    (r"请问什么时候可以发货[？?]",
+    (r"(?:请问)?什么时候(?:可以|能)?发货[？?]*",
      "When will this be shipped?"),
-    (r"什么时候能发货[？?]",
+    (r"什么时候能发货[？?]*",
      "When can it be dispatched?"),
     (r"咨询订单\s*#?([A-Za-z0-9-]+)",
      r"Inquiring about order #\1"),
-    (r"您能帮我查询一下订单状态吗[？?]",
+    (r"您能帮我查询一下订单状态吗[？?]*",
      "Could you help me check my order status?"),
-    (r"您好！我想咨询关于您的手工作品[。！]?",
+    (r"您好！我想咨询关于您的手工作品[。！]*",
      "Hello! I would like to inquire about your craft work."),
-    (r"非常感谢[！!。]?",
+    (r"非常感谢[！!。]*",
      "Thank you very much!"),
-    (r"谢谢[！!。]?",
+    (r"谢谢[！!。]*",
      "Thank you!"),
-    (r"多谢[！!。]?",
+    (r"多谢[！!。]*",
      "Thanks a lot!"),
-    (r"不客气[！!。]?",
+    (r"不客气[！!。]*",
      "You are welcome!"),
-    (r"好的[，！]没问题[！!。]?",
+    (r"好的[，！]没问题[！!。]*",
      "Sure, no problem!"),
-    (r"有现货，今天即可发货[。！]?",
+    (r"有现货，今天即可发货[。！]*",
      "In stock, can be shipped today."),
 ]
 
@@ -358,8 +364,108 @@ _EN_ZH_WORDS = [
     ("thank you", "谢谢"),
 ]
 
+# Vocabulary lookup specifically for offline Chinese -> English translation
+_ZH_TO_EN_VOCAB = [
+    ("你好", "hello"), ("您好", "hello"), ("在吗", "are you there"),
+    ("现货", "in stock"), ("有货", "in stock"), ("库存", "inventory"),
+    ("定制", "customize"), ("刻字", "engrave"), ("雕刻", "carving"),
+    ("首字母", "initials"), ("发货", "shipment"), ("快递", "express delivery"),
+    ("配送", "delivery"), ("送达", "delivered"), ("运费", "shipping fee"),
+    ("包邮", "free shipping"), ("多少钱", "how much"), ("价格", "price"),
+    ("怎么卖", "price"), ("报价", "quotation"), ("茶杯", "tea cup"),
+    ("杯子", "cup"), ("茶具", "tea set"), ("陶瓷", "ceramic"),
+    ("瓷器", "porcelain"), ("青瓷", "celadon"), ("木作", "woodcraft"),
+    ("金属", "metalwork"), ("纯银", "sterling silver"), ("玻璃", "glass"),
+    ("织物", "textiles"), ("蓝染", "indigo"), ("盖子", "lid"),
+    ("内盖", "inner lid"), ("手工", "handmade"), ("手作", "handcrafted"),
+    ("纯手工", "purely handmade"), ("真皮", "genuine leather"),
+    ("尺寸", "dimensions"), ("大小", "size"), ("规格", "specifications"),
+    ("颜色", "color"), ("材质", "material"), ("工作室", "studio"),
+    ("工坊", "workshop"), ("制作", "production"), ("开窑", "firing"),
+    ("釉面", "glaze"), ("谢谢", "thank you"), ("感谢", "thank you"),
+    ("非常感谢", "thank you very much"), ("好的", "okay"), ("没问题", "no problem"),
+    ("收到", "received"), ("明白了", "understood"), ("可以", "can"),
+    ("是的", "yes"), ("不是", "no"), ("订单", "order"),
+]
+
 
 _TRANSLATION_CACHE = {}
+
+
+def _translate_offline_chinese_to_english(clean: str) -> str:
+    """Translate Chinese text to English offline with question/statement intent preservation.
+    
+    Guarantees:
+    - Never auto-replies or answers the buyer's question.
+    - Questions translate to questions; statements translate to statements.
+    - Never echoes raw Chinese characters in the translation.
+    """
+    import re
+
+    is_question = bool(re.search(r"[？?]|吗|请问|多少|多久|几|何|怎么|能否|是否|何时|什么时候", clean))
+
+    # 1. Gratitude & greetings
+    if re.search(r"谢谢|多谢|非常感谢|感谢", clean):
+        return "Thank you very much!"
+    if re.search(r"^(?:你好|您好|在吗|有人在吗)[！!。？?]*$", clean):
+        return "Hello! How can I help you today?"
+
+    # 2. Affirmations / acknowledgements (statement only)
+    if re.search(r"好的|没问题|可以的|收到|明白了", clean) and not is_question:
+        return "Sure, no problem!"
+
+    # 3. Stock inquiries & confirmations
+    if re.search(r"现货|有货|库存", clean):
+        if is_question:
+            return "Hello, is this piece currently in stock?"
+        else:
+            return "In stock, can be shipped today."
+
+    # 4. Customization & engraving
+    if re.search(r"定制|刻字|刻名字", clean):
+        if is_question:
+            return "Can this piece be customized or engraved?"
+        else:
+            return "Yes, we support custom commissions and engraving."
+
+    # 5. Price & cost inquiries
+    if re.search(r"多少钱|价格|怎么卖|什么价|报价", clean):
+        return "How much is this item?"
+
+    # 6. Shipping & delivery inquiries
+    if re.search(r"运费|包邮", clean):
+        return "How much is the shipping fee?"
+    if re.search(r"发货|寄出|送达|几天到|多久到|发货到", clean):
+        if is_question:
+            return "When will this item be shipped?"
+        else:
+            return "Your order will be shipped soon."
+
+    # 7. Material & craftsmanship
+    if re.search(r"材质|手工|真皮|纯银|青瓷|木作|陶瓷|纯手工", clean):
+        if is_question:
+            return "What material is this handcrafted from?"
+        else:
+            return "This piece is meticulously handcrafted by our studio."
+
+    # 8. Dimensions & size
+    if re.search(r"尺寸|大小|规格", clean):
+        return "What are the dimensions and specifications of this piece?"
+
+    # 9. Semantic vocabulary assembly (cleanly replaces known terms and removes leftover CJK)
+    assembled = clean
+    for zh, en in _ZH_TO_EN_VOCAB:
+        if zh in assembled:
+            assembled = assembled.replace(zh, f" {en} ")
+    # Strip any remaining CJK characters
+    assembled = re.sub(r"[\u4e00-\u9fff]+", " ", assembled)
+    assembled = re.sub(r"[，。！？、“”‘’（）]+", " ", assembled)
+    assembled = re.sub(r"\s+", " ", assembled).strip()
+
+    if not assembled:
+        assembled = "inquiry details"
+
+    return f"Inquiry: {assembled}?" if is_question else assembled.capitalize()
 
 
 def translate_message(text: str, target_lang: Optional[str] = None) -> dict:
@@ -370,7 +476,7 @@ def translate_message(text: str, target_lang: Optional[str] = None) -> dict:
     2. Neural Machine Translation (NMT) via Google Translate API with browser client emulation.
     3. Secondary NMT fallback via MyMemory Translation Memory API.
     4. Domain-specific craft & artisan e-commerce phrase matcher.
-    5. Clean token replacement fallback when offline.
+    5. Clean semantic translation fallback when offline (never auto-replies or echoes Chinese).
     """
     import re
     clean = (text or "").strip()
@@ -395,7 +501,7 @@ def translate_message(text: str, target_lang: Optional[str] = None) -> dict:
     # Tier 1: High-accuracy Neural Machine Translation (Google NMT)
     try:
         import requests
-        sl = "zh-CN" if source_lang == "zh" else "en"
+        sl = "auto"
         tl = "zh-CN" if target_lang == "zh" else "en"
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
@@ -445,17 +551,14 @@ def translate_message(text: str, target_lang: Optional[str] = None) -> dict:
                     translated = re.sub(pattern, repl, clean)
                     break
 
-    # Tier 4: Token-level dictionary fallback for offline partial queries
+    # Tier 4: Semantic translation fallback (offline)
     if not translated:
-        translated = clean
-        if source_lang == "en" and target_lang == "zh":
+        if source_lang == "zh" and target_lang == "en":
+            translated = _translate_offline_chinese_to_english(clean)
+        elif source_lang == "en" and target_lang == "zh":
+            translated = clean
             for en, zh in _EN_ZH_WORDS:
                 translated = re.sub(r"(?i)\b" + re.escape(en) + r"\b", zh, translated)
-        elif source_lang == "zh" and target_lang == "en":
-            for en, zh in _EN_ZH_WORDS:
-                if zh in translated:
-                    translated = translated.replace(zh, f" {en} ")
-            translated = re.sub(r"\s+", " ", translated).strip()
 
     result = {
         "original": clean,

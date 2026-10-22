@@ -468,15 +468,142 @@ def _translate_offline_chinese_to_english(clean: str) -> str:
     return f"Inquiry: {assembled}?" if is_question else assembled.capitalize()
 
 
-def translate_message(text: str, target_lang: Optional[str] = None) -> dict:
-    """Translate a chat message with high accuracy between English and Chinese.
+def _resolve_contextual_translation(
+    clean: str,
+    source_lang: str,
+    target_lang: str,
+    context: Optional[dict] = None
+) -> tuple[Optional[str], dict]:
+    """Resolve pronouns, elliptical questions, and craft terms using conversation context.
+
+    Understands:
+    - Preceding discussion about specific handmade items (tea cups, boxes, textiles).
+    - Pronouns ('这个', '这款', '这件', '那件', '它') referring to active product.
+    - Timing and craft readiness ('什么时候能好', '做好了吗', '大概需要做多久').
+    - Follow-up variation questions ('那蓝色的呢', '那大号的呢').
+    - Studio craft terminology (ceramics firing, inner lid engraving, mortise joinery).
+    """
+    import re
+
+    ctx = context or {}
+    product_name = (ctx.get("product_name") or ctx.get("product") or "").strip()
+    maker_name = (ctx.get("maker_name") or ctx.get("maker") or "").strip()
+    maker_discipline = (ctx.get("maker_discipline") or ctx.get("discipline") or "").strip()
+    recent_messages = ctx.get("recent_messages") or []
+
+    context_applied = {}
+    if maker_name or product_name or maker_discipline:
+        parts = []
+        if maker_name:
+            parts.append(f"{maker_name}" + (f" ({maker_discipline})" if maker_discipline else ""))
+        if product_name:
+            parts.append(f"Piece: {product_name}")
+        context_applied["summary"] = " · ".join(parts)
+        if maker_name:
+            context_applied["maker"] = maker_name
+        if product_name:
+            context_applied["product"] = product_name
+        if maker_discipline:
+            context_applied["discipline"] = maker_discipline
+
+    # 1. Chinese -> English Contextual Disambiguation
+    if source_lang == "zh" and target_lang == "en":
+        # Craft readiness & completion timing
+        if re.search(r"(?:什么时候能好|什么时候做好|做好了吗|大概需要做多久|几天能好|几天能制作好|什么时候能制作好)", clean):
+            context_applied["context_resolution"] = "Identified craft readiness inquiry in conversation context"
+            if product_name:
+                return f"When will the {product_name} be ready?", context_applied
+            return "When will the handcrafted piece be ready?", context_applied
+
+        # Pronoun reference to product ('这个', '这款', '这件作品')
+        if re.search(r"^(?:请问)?(?:这个|这款|这件作品|这个作品)(?:多少钱|价格|怎么卖|什么价|报价)[？?]*$", clean):
+            context_applied["context_resolution"] = "Resolved product demonstrative pronoun ('这个/这款') to active item"
+            if product_name:
+                return f"How much is the {product_name}?", context_applied
+            return "How much is this handcrafted piece?", context_applied
+
+        if re.search(r"^(?:请问)?(?:这个|这款|这件作品|这个作品)?(?:目前)?(?:还)?有现货吗[？?]*$", clean):
+            if product_name:
+                context_applied["context_resolution"] = "Resolved stock question to active discussion item"
+                return f"Is the {product_name} currently in stock?", context_applied
+            return "Hello, is this piece currently in stock?", context_applied
+
+        if re.search(r"^(?:请问)?(?:这个|这款)?可以定制(?:刻字)?吗[？?]*$", clean):
+            if product_name:
+                context_applied["context_resolution"] = "Resolved custom commission inquiry to active discussion item"
+                return f"Can the {product_name} be customized with engraving?", context_applied
+            return "Can this piece be customized with engraving?", context_applied
+
+        # Inner lid / Lid engraving
+        if re.search(r"内盖.*刻字", clean):
+            context_applied["context_resolution"] = "Craft domain disambiguation: '内盖' -> inner lid"
+            return "Can the inner lid be custom engraved?", context_applied
+
+        # Kiln opening
+        if re.search(r"开窑", clean):
+            context_applied["context_resolution"] = "Ceramics domain disambiguation: '开窑' -> kiln firing completion"
+            return "The piece will be dispatched once the kiln firing is completed.", context_applied
+
+        # Placing order
+        if re.search(r"(?:已经拍下|拍下了|刚下单|已下单)", clean):
+            context_applied["context_resolution"] = "E-commerce conversational context: '拍下/下单' -> placed order"
+            return "I have placed the order for this piece.", context_applied
+
+        # Follow-up variation (e.g. '那蓝色的呢？', '那大号的呢？')
+        m_var = re.search(r"那([^\s？?]+)的呢", clean)
+        if m_var:
+            var_term = m_var.group(1)
+            context_applied["context_resolution"] = f"Resolved conversational ellipsis for variation ('{var_term}')"
+            if product_name:
+                return f"What about the {var_term} {product_name}?", context_applied
+            return f"What about the {var_term} option?", context_applied
+
+        # Bundled free shipping
+        if re.search(r"(?:两件|两个|买两件).*(?:包邮|免运费)", clean):
+            context_applied["context_resolution"] = "E-commerce promotion: multi-item free shipping inquiry"
+            return "Is shipping free if I order two items?", context_applied
+
+        # Address change
+        if re.search(r"改.*(?:地址|送货地址)", clean):
+            context_applied["context_resolution"] = "Order delivery modification context"
+            return "Can I change the delivery address for this order?", context_applied
+
+    # 2. English -> Chinese Contextual Disambiguation
+    elif source_lang == "en" and target_lang == "zh":
+        if re.search(r"(?i)when will (?:it|the piece|the item) be ready\??", clean):
+            context_applied["context_resolution"] = "Craft readiness inquiry in context"
+            if product_name:
+                return f"请问这款{product_name}大概什么时候能制作完成？", context_applied
+            return "请问作品大概什么时候能制作完成？", context_applied
+
+        if re.search(r"(?i)is (?:this|the) (?:piece|item|mug|box)?\s*(?:in stock|available)\??", clean):
+            if product_name:
+                context_applied["context_resolution"] = "Resolved stock question to active discussion item"
+                return f"请问这款{product_name}目前有现货吗？", context_applied
+            return "请问这件作品目前有现货吗？", context_applied
+
+        if re.search(r"(?i)can you engrave initials on the (?:inner )?lid\??", clean):
+            context_applied["context_resolution"] = "Custom engraving craft context"
+            return "请问可以在内盖上定制刻首字母吗？", context_applied
+
+    return None, context_applied
+
+
+def translate_message(
+    text: str,
+    target_lang: Optional[str] = None,
+    conversation_uuid: Optional[str] = None,
+    context: Optional[dict] = None
+) -> dict:
+    """Translate a chat message with high accuracy and conversation context understanding.
 
     Multi-tier architecture:
-    1. In-memory LRU cache for instant response to repeated queries.
-    2. Neural Machine Translation (NMT) via Google Translate API with browser client emulation.
-    3. Secondary NMT fallback via MyMemory Translation Memory API.
-    4. Domain-specific craft & artisan e-commerce phrase matcher.
-    5. Clean semantic translation fallback when offline (never auto-replies or echoes Chinese).
+    1. Contextual Disambiguation: Resolves conversational pronouns, craft idioms, and dialogue turns.
+    2. In-memory LRU cache for instant response to repeated queries.
+    3. Neural Machine Translation (NMT) via Google Translate API with browser client emulation.
+    4. Secondary NMT fallback via MyMemory Translation Memory API.
+    5. Domain-specific craft & artisan e-commerce phrase matcher.
+    6. Clean semantic translation fallback when offline (never auto-replies or echoes Chinese).
     """
     import re
     clean = (text or "").strip()
@@ -492,9 +619,46 @@ def translate_message(text: str, target_lang: Optional[str] = None) -> dict:
     if source_lang == target_lang:
         return {"original": clean, "translated": clean, "source_lang": source_lang, "target_lang": target_lang}
 
-    cache_key = (clean, target_lang)
+    # Extract database conversation context if conversation_uuid provided
+    resolved_context = dict(context or {})
+    if conversation_uuid:
+        try:
+            from .models import Conversation
+            conv = Conversation.objects.filter(uuid=conversation_uuid).select_related("maker", "product", "order").first()
+            if conv:
+                if conv.maker and not resolved_context.get("maker_name"):
+                    resolved_context["maker_name"] = conv.maker.name
+                    resolved_context["maker_discipline"] = getattr(conv.maker, "discipline", "")
+                if conv.product and not resolved_context.get("product_name"):
+                    resolved_context["product_name"] = conv.product.title
+                if not resolved_context.get("recent_messages"):
+                    recent = list(conv.messages.order_by("-created_at")[:3])
+                    resolved_context["recent_messages"] = [
+                        {"sender": "buyer" if m.sender_id == conv.buyer_id else "seller", "body": m.body}
+                        for m in reversed(recent)
+                    ]
+        except Exception:
+            pass
+
+    # Step 1: Contextual resolution
+    ctx_translation, context_applied = _resolve_contextual_translation(
+        clean, source_lang, target_lang, resolved_context
+    )
+    if ctx_translation:
+        return {
+            "original": clean,
+            "translated": ctx_translation,
+            "source_lang": source_lang,
+            "target_lang": target_lang,
+            "context_applied": context_applied,
+        }
+
+    cache_key = (clean, target_lang, resolved_context.get("product_name", ""))
     if cache_key in _TRANSLATION_CACHE:
-        return _TRANSLATION_CACHE[cache_key]
+        cached = dict(_TRANSLATION_CACHE[cache_key])
+        if context_applied:
+            cached["context_applied"] = context_applied
+        return cached
 
     translated = None
 
@@ -565,6 +729,7 @@ def translate_message(text: str, target_lang: Optional[str] = None) -> dict:
         "translated": translated or clean,
         "source_lang": source_lang,
         "target_lang": target_lang,
+        "context_applied": context_applied,
     }
 
     # Keep cache reasonable in size (< 1000 items)

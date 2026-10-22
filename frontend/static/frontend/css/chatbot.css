@@ -1558,3 +1558,23 @@
   white-space: pre-wrap;
 }
 
+.crafty-context-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 1px 6px;
+  margin-bottom: 0.3rem;
+  border-radius: 4px;
+  background: rgba(184, 91, 53, 0.08);
+  color: var(--crafty-clay);
+  border: 1px solid rgba(184, 91, 53, 0.2);
+}
+
+.crafty-msg--user .crafty-context-badge {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+

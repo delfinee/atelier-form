@@ -97,10 +97,18 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], url_path="translate", permission_classes=[AllowAny])
     def translate(self, request):
-        """Translate message between English and Chinese."""
+        """Translate message between English and Chinese with conversation context understanding."""
         text = (request.data.get("text") or "").strip()
         target_lang = (request.data.get("target_lang") or request.data.get("target") or "").strip() or None
-        result = services.translate_message(text, target_lang=target_lang)
+        conversation_uuid = request.data.get("conversation") or request.data.get("conversation_uuid") or request.data.get("conversation_id")
+        context = request.data.get("context") or {}
+
+        result = services.translate_message(
+            text,
+            target_lang=target_lang,
+            conversation_uuid=conversation_uuid,
+            context=context,
+        )
         return Response(result, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["get", "post"], url_path="messages")

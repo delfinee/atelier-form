@@ -72,6 +72,8 @@
     thread.scrollTop = thread.scrollHeight;
 
     const convUuid = "{{ conversation.uuid }}";
+    const convProduct = "{{ conversation.product.name|default:''|escapejs }}";
+    const convMaker = "{{ conversation.maker.name|default:''|escapejs }}";
     let lastMsgId = "";
     const items = thread.querySelectorAll('[data-msg-uuid]');
     if (items.length > 0) {
@@ -118,7 +120,14 @@
               'X-CSRFToken': csrfToken,
               'Accept': 'application/json'
             },
-            body: JSON.stringify({ text: text })
+            body: JSON.stringify({
+              text: text,
+              conversation: convUuid,
+              context: {
+                product_name: convProduct,
+                maker_name: convMaker
+              }
+            })
           });
           let data = null;
           if (res.ok) {
@@ -130,9 +139,12 @@
             let fallback = text;
             if (hasZh) {
               const isQ = /[？?]/.test(text) || /(?:吗|请问|多少|多久|几|何|怎么|能否|是否|何时|什么时候)/.test(text);
-              if (/(?:多少钱|价格|怎么卖|什么价|报价)/.test(text)) fallback = "How much is this item?";
-              else if (/(?:现货|有货|库存)/.test(text)) fallback = isQ ? "Hello, is this piece currently in stock?" : "In stock, can be shipped today.";
+              if (/(?:什么时候能好|什么时候做好|做好了吗|大概需要多久|几天能好)/.test(text)) fallback = convProduct ? `When will the ${convProduct} be ready?` : 'When will the handcrafted piece be ready?';
+              else if (/(?:多少钱|价格|怎么卖|什么价|报价)/.test(text)) fallback = convProduct ? `How much is the ${convProduct}?` : "How much is this item?";
+              else if (/(?:现货|有货|库存)/.test(text)) fallback = isQ ? (convProduct ? `Is the ${convProduct} currently in stock?` : "Hello, is this piece currently in stock?") : "In stock, can be shipped today.";
               else if (/(?:定制|刻字|刻名字)/.test(text)) fallback = isQ ? "Can this piece be customized or engraved?" : "Yes, we support custom commissions.";
+              else if (/内盖.*刻字/.test(text)) fallback = "Can the inner lid be custom engraved?";
+              else if (/开窑/.test(text)) fallback = "The piece will be shipped once the kiln firing is completed.";
               else if (/(?:发货|几天到|多久到)/.test(text)) fallback = isQ ? "When will this item be shipped?" : "Your order will be shipped soon.";
               else if (/(?:运费|包邮)/.test(text)) fallback = "How much is the shipping fee?";
               else if (/(?:材质|手工|真皮|纯银|青瓷|木作|陶瓷|纯手工)/.test(text)) fallback = isQ ? "What material is this handcrafted from?" : "This piece is meticulously handcrafted.";
@@ -140,15 +152,26 @@
               else if (/(?:谢谢|多谢|非常感谢|感谢)/.test(text)) fallback = "Thank you very much!";
               else if (/(?:好的|没问题|可以的|收到|明白了)/.test(text)) fallback = "Sure, no problem!";
             }
-            data = { translated: fallback, target_lang: target };
+            data = {
+              translated: fallback,
+              target_lang: target,
+              context_applied: (convProduct || convMaker) ? { summary: [convMaker, convProduct].filter(Boolean).join(' · ') } : null
+            };
           }
           const isTargetZh = data.target_lang === 'zh';
           const label = isTargetZh ? '🌐 翻译 (中文)' : '🌐 Translation (English)';
+          const ctxBadge = data.context_applied?.summary ? `
+            <div style="font-size:0.68rem; font-weight:500; padding:1px 6px; margin-bottom:4px; display:inline-block; border-radius:4px; background:rgba(37,99,235,0.08); color:#2563eb; border:1px solid rgba(37,99,235,0.2);">
+              📌 Context: ${escapeHtml(data.context_applied.summary)}
+            </div>
+          ` : '';
+
           box.innerHTML = `
             <div style="font-size:0.7rem; font-weight:600; opacity:0.85; margin-bottom:2px; display:flex; justify-content:space-between; align-items:center;">
               <span>${label}</span>
               <button type="button" class="thread-trans-close" style="background:none; border:none; cursor:pointer; color:inherit; opacity:0.7; padding:0 3px;">✕</button>
             </div>
+            ${ctxBadge}
             <div style="line-height:1.4;">${escapeHtml(data.translated)}</div>
           `;
           box.dataset.translated = 'true';

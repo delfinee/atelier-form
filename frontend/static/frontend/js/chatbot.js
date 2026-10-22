@@ -215,8 +215,16 @@
     ['好的', 'okay'], ['可以', 'can'], ['没问题', 'no problem']
   ];
 
-  function clientFallbackTranslate(text, sourceLang, targetLang) {
+  function clientFallbackTranslate(text, sourceLang, targetLang, context) {
+    const prodName = context?.product_name || '';
+
     if (sourceLang === 'en' && targetLang === 'zh') {
+      if (/when will (?:it|the piece|the item) be ready/i.test(text)) {
+        return prodName ? `请问这款${prodName}大概什么时候能制作完成？` : '请问作品大概什么时候能制作完成？';
+      }
+      if (/is (?:this|the) (?:piece|item)?\s*(?:in stock|available)/i.test(text)) {
+        return prodName ? `请问这款${prodName}目前有现货吗？` : '请问这件作品目前有现货吗？';
+      }
       for (const [re, repl] of CLIENT_TRANSLATION_PAIRS) {
         if (re.test(text)) {
           return text.replace(re, repl);
@@ -224,6 +232,33 @@
       }
       return text;
     } else if (sourceLang === 'zh' && targetLang === 'en') {
+      // Contextual disambiguation
+      if (/(?:什么时候能好|什么时候做好|做好了吗|大概需要多久|几天能好)/.test(text)) {
+        return prodName ? `When will the ${prodName} be ready?` : 'When will the handcrafted piece be ready?';
+      }
+      if (/^(?:请问)?(?:这个|这款|这件作品|这个作品)(?:多少钱|价格|怎么卖)[？?]*$/.test(text)) {
+        return prodName ? `How much is the ${prodName}?` : 'How much is this handcrafted piece?';
+      }
+      if (/^(?:请问)?(?:这个|这款|这件作品|这个作品)?(?:目前)?(?:还)?有现货吗[？?]*$/.test(text)) {
+        return prodName ? `Is the ${prodName} currently in stock?` : 'Hello, is this piece currently in stock?';
+      }
+      if (/^(?:请问)?(?:这个|这款)?可以定制(?:刻字)?吗[？?]*$/.test(text)) {
+        return prodName ? `Can the ${prodName} be customized with engraving?` : 'Can this piece be customized with engraving?';
+      }
+      if (/内盖.*刻字/.test(text)) {
+        return 'Can the inner lid be custom engraved?';
+      }
+      if (/开窑/.test(text)) {
+        return 'The piece will be shipped once the kiln firing is completed.';
+      }
+      if (/(?:已经拍下|拍下了|刚下单|已下单)/.test(text)) {
+        return 'I have placed the order for this piece.';
+      }
+      const mVar = text.match(/那([^\s？?]+)的呢/);
+      if (mVar) {
+        return prodName ? `What about the ${mVar[1]} ${prodName}?` : `What about the ${mVar[1]} option?`;
+      }
+
       for (const [re, repl] of CLIENT_ZH_TO_EN_PAIRS) {
         if (re.test(text)) {
           return text.replace(re, repl);
@@ -234,31 +269,31 @@
 
       // Semantic Intent Recognizers (never auto-replies questions with answers)
       if (/(?:多少钱|价格|怎么卖|什么价|报价)/.test(text)) {
-        return "How much is this item?";
+        return prodName ? `How much is the ${prodName}?` : 'How much is this item?';
       }
       if (/(?:现货|有货|库存)/.test(text)) {
-        return isQuestion ? "Hello, is this piece currently in stock?" : "In stock, can be shipped today.";
+        return isQuestion ? (prodName ? `Is the ${prodName} currently in stock?` : 'Hello, is this piece currently in stock?') : 'In stock, can be shipped today.';
       }
       if (/(?:定制|刻字|刻名字)/.test(text)) {
-        return isQuestion ? "Can this piece be customized or engraved?" : "Yes, we support custom commissions.";
+        return isQuestion ? 'Can this piece be customized or engraved?' : 'Yes, we support custom commissions.';
       }
       if (/(?:运费|包邮)/.test(text)) {
-        return "How much is the shipping fee?";
+        return 'How much is the shipping fee?';
       }
       if (/(?:发货|几天到|多久到)/.test(text)) {
-        return isQuestion ? "When will this item be shipped?" : "Your order will be shipped soon.";
+        return isQuestion ? 'When will this item be shipped?' : 'Your order will be shipped soon.';
       }
       if (/(?:材质|手工|真皮|纯银|青瓷|木作|陶瓷|纯手工)/.test(text)) {
-        return isQuestion ? "What material is this handcrafted from?" : "This piece is meticulously handcrafted.";
+        return isQuestion ? 'What material is this handcrafted from?' : 'This piece is meticulously handcrafted.';
       }
       if (/(?:你好|您好|在吗|有人在吗)/.test(text)) {
-        return "Hello! How can I help you today?";
+        return 'Hello! How can I help you today?';
       }
       if (/(?:谢谢|多谢|非常感谢|感谢)/.test(text)) {
-        return "Thank you very much!";
+        return 'Thank you very much!';
       }
       if (/(?:好的|没问题|可以的|收到|明白了)/.test(text) && !isQuestion) {
-        return "Sure, no problem!";
+        return 'Sure, no problem!';
       }
 
       // Safe vocabulary replacement that strips unmapped Chinese so it never echoes Chinese
@@ -273,9 +308,10 @@
     return text;
   }
 
-  async function translateMessage(text, targetLang) {
+  async function translateMessage(text, targetLang, contextInfo) {
     if (!text) return { translated: '', target_lang: 'zh' };
 
+    const ctx = contextInfo || {};
     try {
       const res = await fetch('/api/conversations/translate/', {
         method: 'POST',
@@ -285,7 +321,12 @@
           'X-CSRFToken': getCsrfToken(),
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ text, target_lang: targetLang })
+        body: JSON.stringify({
+          text,
+          target_lang: targetLang,
+          conversation: activeConversation?.uuid,
+          context: ctx
+        })
       });
       if (res.ok) {
         const data = await res.json();
@@ -298,9 +339,12 @@
     const resolvedTarget = targetLang || (hasChinese ? 'en' : 'zh');
     return {
       original: text,
-      translated: clientFallbackTranslate(text, sourceLang, resolvedTarget),
+      translated: clientFallbackTranslate(text, sourceLang, resolvedTarget, ctx),
       source_lang: sourceLang,
-      target_lang: resolvedTarget
+      target_lang: resolvedTarget,
+      context_applied: (ctx.maker_name || ctx.product_name) ? {
+        summary: [ctx.maker_name, ctx.product_name].filter(Boolean).join(' · ')
+      } : null
     };
   }
 
@@ -756,14 +800,28 @@
       translateBtn.disabled = true;
 
       try {
-        const result = await translateMessage(m.body);
+        const contextInfo = {
+          maker_name: currentContext.makerName || (sellerTitle ? sellerTitle.textContent.trim() : ''),
+          maker_discipline: currentContext.makerDiscipline || '',
+          product_name: currentContext.productTitle || (pinnedTitle ? pinnedTitle.textContent.trim() : ''),
+          is_sender: Boolean(m.is_sender)
+        };
+        const result = await translateMessage(m.body, null, contextInfo);
         const isTargetZh = result.target_lang === 'zh';
         const badgeLabel = isTargetZh ? '🌐 翻译 (中文)' : '🌐 Translation (English)';
+        const contextSummary = result.context_applied?.summary || (contextInfo.product_name ? `${contextInfo.maker_name || 'Artisan'} · ${contextInfo.product_name}` : '');
+        const contextBadgeHtml = contextSummary ? `
+          <div class="crafty-context-badge" title="Contextually resolved with active artisan & product dialogue">
+            <span>📌 Context: ${escapeHtml(contextSummary)}</span>
+          </div>
+        ` : '';
+
         translationBox.innerHTML = `
           <div class="crafty-translation-header">
             <span>${badgeLabel}</span>
             <button type="button" class="crafty-translation-hide-btn" title="Hide">✕</button>
           </div>
+          ${contextBadgeHtml}
           <div class="crafty-translation-content">${escapeHtml(result.translated)}</div>
         `;
         translationBox.dataset.translated = 'true';

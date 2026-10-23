@@ -1,5 +1,9 @@
 # Atelier Form
 
+Current integrated delivery: **buyer website + seller WeChat Mini Program**.
+Start with `START-ATELIER.cmd` or `python launch_seller.py --storefront`.
+See [UNIFIED_DELIVERY.md](UNIFIED_DELIVERY.md) for the merged features and checks.
+
 A handmade-goods marketplace for the China market: a Django web platform with a
 server-rendered buyer frontend, a JSON API, PostgreSQL persistence and Django's
 built-in admin. NTU EE3180 Design & Innovation Project, group **E006**.

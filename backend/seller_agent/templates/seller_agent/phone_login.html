@@ -1,0 +1,8 @@
+{% load static %}
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Seller sign in · Atelier Form</title><link rel="stylesheet" href="{% static 'seller_agent/desk.css' %}"></head>
+<body><main class="link-page"><p class="eyebrow">ATELIER FORM · SELLER</p><h1>Sign in to your seller account</h1><p>Use your existing website seller account. Manage your shop or approve a connection from your own Mini Program after signing in.</p>
+<form method="post" class="panel info">{% csrf_token %}
+{% if form.errors %}<p class="notice" role="alert">The email or password was not accepted. Please try again.</p>{% endif %}
+<label>Email<input type="email" name="username" value="{{ form.username.value|default:'' }}" autocomplete="username" required></label>
+<label>Password<input type="password" name="password" autocomplete="current-password" required></label>
+<input type="hidden" name="next" value="{{ next }}"><button type="submit" class="primary">Sign in</button></form></main></body></html>

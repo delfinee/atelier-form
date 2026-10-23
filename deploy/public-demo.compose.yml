@@ -1,0 +1,42 @@
+name: atelier-public-demo
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: atelier_public_demo
+      POSTGRES_USER: public_demo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
+    volumes: [public_demo_database:/var/lib/postgresql/data]
+    restart: unless-stopped
+    mem_limit: 512m
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U public_demo -d atelier_public_demo']
+      interval: 5s
+      retries: 20
+    logging: {driver: local, options: {max-size: 10m, max-file: '2'}}
+  app:
+    build: {context: '..', dockerfile: deploy/Dockerfile}
+    env_file: .env.public-demo
+    environment:
+      DJANGO_SETTINGS_MODULE: config.seller_public_demo
+      DATABASE_URL: postgresql://public_demo:${POSTGRES_PASSWORD:?required}@db:5432/atelier_public_demo
+      DJANGO_DEBUG: '0'
+      DIP_ENV_FILE: /dev/null
+      CURRENCY: SGD
+    depends_on:
+      db: {condition: service_healthy}
+    restart: unless-stopped
+    init: true
+    mem_limit: 768m
+    security_opt: ['no-new-privileges:true']
+    cap_drop: [ALL]
+    logging: {driver: local, options: {max-size: 10m, max-file: '2'}}
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate --url http://app:8000
+    depends_on: [app]
+    restart: unless-stopped
+    mem_limit: 128m
+    logging: {driver: local, options: {max-size: 10m, max-file: '2'}}
+volumes:
+  public_demo_database:

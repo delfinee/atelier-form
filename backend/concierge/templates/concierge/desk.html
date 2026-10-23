@@ -1,0 +1,29 @@
+{% load static %}
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>微信客服模拟台 · Atelier Form</title><link rel="stylesheet" href="{% static 'concierge/desk.css' %}"></head>
+<body><header><a class="brand" href="/">ATELIER FORM <small>手作，让生活慢一点</small></a>{% if public_demo %}<span>团队试用 · 免登录</span>{% else %}<a href="{% url 'seller_dashboard' %}">返回商家中心 ↗</a>{% endif %}</header>
+<main><div class="heading"><div><p class="eyebrow">CUSTOMER SERVICE STUDIO</p><h1>从一句喜欢，到一份送达。</h1><p class="muted">{{ maker.name }} · 微信客服与履约工作台</p></div><span class="pill">● {% if public_demo %}团队公开演示{% else %}本地模拟演示{% endif %}</span></div>
+<div class="notice">模拟微信消息与付款，不连接真实微信、不产生真实扣款。聊天可使用 DeepSeek；收货表单不会发送给模型。请使用演示资料。</div>
+<div id="error" role="alert" hidden></div>
+<nav class="steps" aria-label="订单流程"><span>01 聊天选品</span><span>02 核对草稿</span><span>03 确认付款</span><span>04 打包发货</span></nav>
+<div class="desk">
+<section class="panel"><div class="panel-title"><h2>手作目录</h2><span id="catalog-count" class="muted"></span></div><label class="sr-only" for="search">筛选商品</label><input id="search" placeholder="搜索商品名称…" type="search"><div id="catalog" class="catalog"></div></section>
+<section class="panel chat-panel"><div class="panel-title"><h2>微信对话 <small>模拟</small></h2><button id="new-chat" class="text-button">新对话 ＋</button></div>
+<label class="sr-only" for="conversation">历史对话</label><select id="conversation"></select>
+<div id="messages" class="messages" role="log" aria-live="polite"></div>
+<p id="engine" class="engine">{% if ai_configured %}DeepSeek 已配置 · 发送后显示实际使用模式{% else %}离线目录匹配{% endif %}</p>
+<form id="chat-form"><label class="sr-only" for="chat-text">客户消息</label><textarea id="chat-text" maxlength="2000" rows="3" required placeholder="例如：想买两个陶碗，帮我看看有什么选择？"></textarea><button type="submit" class="primary full">发送模拟客户消息 →</button></form>
+<p class="small muted">AI 建议需要核对，聊天本身不会下单。勿在聊天中输入真实隐私信息。</p></section>
+<section class="panel order-panel"><div class="panel-title"><h2>订单与履约</h2><span class="pill neutral" id="state">待选品</span></div>
+<div id="selection"></div><button id="clear-selection" class="text-button">清空待选商品</button>
+<form id="draft-form"><details id="address-details"><summary>演示收货信息 <span class="muted">可编辑</span></summary><div class="fields">
+<label>姓<input name="last_name" value="陈" required maxlength="80"></label><label>名<input name="first_name" value="小禾" required maxlength="80"></label>
+<label class="wide">邮箱<input name="email" type="email" value="demo-buyer@example.test" required></label>
+<label class="wide">电话<input name="phone" value="13800000000" maxlength="32"></label>
+<label class="wide">街道地址<input name="address_line_1" value="演示路 100 号（虚拟地址）" required maxlength="200"></label>
+<label>城市<input name="city" value="上海" required maxlength="100"></label><label>邮编<input name="postal_code" value="200000" required maxlength="20"></label>
+<label class="wide">配送方式<select name="delivery_method"><option value="standard">标准配送</option><option value="express">加急配送</option></select></label></div></details>
+<button id="quote-button" type="submit" class="primary full">生成订单草稿</button></form>
+<div id="draft-area" hidden><div class="divider"></div><label for="draft-history" class="small">本对话的订单草稿</label><select id="draft-history"></select><div id="draft"></div><div id="actions"></div><ol id="events" class="events"></ol></div>
+</section></div><footer>草稿有效期 30 分钟 · 确认订单时重新核验价格与库存 · 金额单位 CNY</footer></main>
+{% csrf_token %}<script src="{% static 'concierge/desk.js' %}" defer></script></body></html>

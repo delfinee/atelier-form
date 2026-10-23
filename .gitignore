@@ -13,6 +13,9 @@ env/
 !.env.example
 
 # Django
+.seller-agent-runtime/
+deploy/backups/
+miniprogram/project.private.config.json
 db.sqlite3
 db.sqlite3-journal
 staticfiles/

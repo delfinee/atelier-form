@@ -57,7 +57,13 @@ def image_url(name: str) -> str:
         return ""
     checksum = _index().get(name)
     if not checksum:
-        return static(f"{PLACEHOLDER_PREFIX}/{name}.svg")
+        try:
+            return static(f"{PLACEHOLDER_PREFIX}/{name}.svg")
+        except ValueError:
+            # Catalogue image names can lack both a photo and a generated SVG.
+            # Manifest storage raises in production; keep the page renderable
+            # with a bundled placeholder, without disabling manifest validation.
+            return static(f"{PLACEHOLDER_PREFIX}/product-placeholder.svg")
     # The version token makes the URL change whenever the bytes do, which is
     # what allows the response to be cached immutably for a year.
     return f"{reverse('site_image', args=[name])}?v={checksum[:12]}"

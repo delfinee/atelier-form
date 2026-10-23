@@ -211,7 +211,7 @@ class StripeWeChatProvider(PaymentProvider):
 
         try:
             session = client.checkout.Session.create(
-                payment_method_types=["wechat_pay"],
+                allowed_payment_method_types=["wechat_pay"],
                 payment_method_options={"wechat_pay": {"client": "web"}},
                 line_items=[
                     {

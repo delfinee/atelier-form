@@ -1,0 +1,6 @@
+{
+  "description":"Seller operations assistant using the shared Django seller-agent API",
+  "miniprogramRoot":"./", "compileType":"miniprogram", "appid":"wx7a2ccbb3acf46816", "projectname":"atelier-form-seller",
+  "setting":{"es6":true,"enhance":true,"minified":true,"urlCheck":false},
+  "packOptions":{"ignore":[{"type":"folder","value":"tests"}]}
+}

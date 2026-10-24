@@ -630,7 +630,7 @@ def translate_message(
                     resolved_context["maker_name"] = conv.maker.name
                     resolved_context["maker_discipline"] = getattr(conv.maker, "discipline", "")
                 if conv.product and not resolved_context.get("product_name"):
-                    resolved_context["product_name"] = conv.product.title
+                    resolved_context["product_name"] = conv.product.name
                 if not resolved_context.get("recent_messages"):
                     recent = list(conv.messages.order_by("-created_at")[:3])
                     resolved_context["recent_messages"] = [

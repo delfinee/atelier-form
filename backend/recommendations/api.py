@@ -16,7 +16,7 @@ from .services import recommend
     description=(
         "Returns personalised multi-factor recommendations for the current user. "
         "Pass ?product=<slug> for content-similar recommendations. "
-        "Anonymous/new users fall back to popular available products. "
+        "Guests use their session's browsing and bag activity; new visitors get popular available products. "
         "Each result includes an explainable factor-score breakdown."
     ),
     responses=ProductListSerializer(many=True),
@@ -37,7 +37,7 @@ def recommendations(request):
         if product is None:
             return Response({"detail": "Unknown product."}, status=404)
 
-    ranked = recommend(user=request.user, product=product, limit=limit)
+    ranked = recommend(user=request.user, product=product, session=request.session, limit=limit)
     serializer = ProductListSerializer(
         [item.product for item in ranked], many=True, context={"request": request}
     )
@@ -63,4 +63,7 @@ def recommendations(request):
         enriched["recommendation_factors"] = meta["factors"]
         data.append(enriched)
 
-    return Response({"count": len(data), "results": data})
+    return Response(
+        {"count": len(data), "results": data},
+        headers={"Cache-Control": "private, no-store"},
+    )

@@ -1,10 +1,10 @@
 from decimal import Decimal
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 
 from accounts.models import User, WishlistItem
-from orders.models import Order, OrderItem, PaymentStatus
+from orders.models import Cart, CartItem, Order, OrderItem, PaymentStatus
 from products.models import (
     Category,
     Maker,
@@ -15,6 +15,8 @@ from products.models import (
 )
 
 from .services import (
+    MAX_RECENT_VIEWS,
+    RECENT_VIEWS_KEY,
     _product_similarity,
     recommendations_for_user,
     similar_products,
@@ -316,3 +318,86 @@ class RecommendationTests(TestCase):
             first["recommendation_factors"]["category"],
             first["recommendation_factors"]["colour"],
         )
+
+    @override_settings(DEBUG=True)
+    def test_guest_browsing_personalises_home_shop_and_api_without_login(self):
+        response = self.client.get(f"/products/{self.source.slug}/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.client.session[RECENT_VIEWS_KEY], [self.source.pk])
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+        response = self.client.get("/api/recommendations/?limit=2")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["results"][0]["slug"], self.similar.slug)
+        self.assertIn("recently viewed", response.data["results"][0]["recommendation_reasons"])
+        self.assertEqual(response["Cache-Control"], "private, no-store")
+        for path in ("/", "/shop/", "/bag/"):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertContains(response, "data-recommendations")
+                self.assertContains(response, "No sign-in needed.")
+                self.assertContains(response, f'data-slug="{self.similar.slug}"')
+
+    def test_guest_bag_personalises_without_browsing(self):
+        session = self.client.session
+        cart = Cart.objects.create(session_key=session.session_key)
+        CartItem.objects.create(cart=cart, product=self.source, quantity=1)
+
+        response = self.client.get("/api/recommendations/?limit=2")
+        first = response.data["results"][0]
+        self.assertEqual(first["slug"], self.similar.slug)
+        self.assertIn("cart activity", first["recommendation_reasons"])
+        self.assertNotIn(self.source.slug, [p["slug"] for p in response.data["results"]])
+
+    @override_settings(DEBUG=True)
+    def test_guest_recommendation_copy_is_translated(self):
+        response = self.client.get("/shop/", HTTP_ACCEPT_LANGUAGE="zh-hans")
+        self.assertContains(response, "为您精选热门作品，无需登录即可浏览推荐。")
+        self.client.get(f"/products/{self.source.slug}/")
+        response = self.client.get("/shop/", HTTP_ACCEPT_LANGUAGE="zh-hans")
+        self.assertContains(response, "根据您本次浏览和加入购物袋的商品推荐，无需登录。")
+
+    def test_guest_signals_do_not_leak_to_another_session(self):
+        session = self.client.session
+        session[RECENT_VIEWS_KEY] = [self.source.pk]
+        session.save()
+        cart = Cart.objects.create(session_key=session.session_key)
+        CartItem.objects.create(cart=cart, product=self.source, quantity=1)
+        response = APIClient().get("/api/recommendations/?limit=2")
+        self.assertEqual(response.status_code, 200)
+        for row in response.data["results"]:
+            self.assertEqual(row["recommendation_reasons"], ["popular"])
+            self.assertEqual(row["recommendation_score"], 0)
+
+    def test_guest_ignores_inactive_bag_and_signed_in_users_bag(self):
+        session = self.client.session
+        inactive = Cart.objects.create(session_key=session.session_key, is_active=False)
+        CartItem.objects.create(cart=inactive, product=self.source, quantity=1)
+        user = User.objects.create_user("other-cart@example.com", "StrongPass123!")
+        owned = Cart.objects.create(user=user, session_key=session.session_key)
+        CartItem.objects.create(cart=owned, product=self.source, quantity=1)
+        response = self.client.get("/api/recommendations/")
+        self.assertTrue(all(row["recommendation_reasons"] == ["popular"] for row in response.data["results"]))
+
+    @override_settings(DEBUG=True)
+    def test_guest_recent_views_are_bounded_and_deduplicated(self):
+        session = self.client.session
+        session[RECENT_VIEWS_KEY] = list(range(1000, 1000 + MAX_RECENT_VIEWS))
+        session.save()
+        for _ in range(2):
+            self.assertEqual(self.client.get(f"/products/{self.source.slug}/").status_code, 200)
+        recent = self.client.session[RECENT_VIEWS_KEY]
+        self.assertEqual(len(recent), MAX_RECENT_VIEWS)
+        self.assertEqual(recent[-1], self.source.pk)
+        self.assertEqual(recent.count(self.source.pk), 1)
+
+    def test_guest_signals_never_recommend_unavailable_products(self):
+        session = self.client.session
+        session[RECENT_VIEWS_KEY] = [self.source.pk]
+        session.save()
+        self.similar.stock_status = StockStatus.SOLD_OUT
+        self.similar.save()
+        self.other.is_active = False
+        self.other.save()
+        response = self.client.get("/api/recommendations/")
+        self.assertEqual(response.data["results"], [])

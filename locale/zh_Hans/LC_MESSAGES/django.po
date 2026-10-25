@@ -3891,6 +3891,18 @@ msgstr "根据这件作品推荐"
 msgid "Picked for you"
 msgstr "为您精选"
 
+#: backend/recommendations/templatetags/recommendations.py
+msgid "Similar pieces based on this product."
+msgstr "根据当前商品为您推荐相似作品。"
+
+#: backend/recommendations/templatetags/recommendations.py
+msgid "Based on what you browse and add to your bag in this visit. No sign-in needed."
+msgstr "根据您本次浏览和加入购物袋的商品推荐，无需登录。"
+
+#: backend/recommendations/templatetags/recommendations.py
+msgid "Popular pieces to get you started. No sign-in needed."
+msgstr "为您精选热门作品，无需登录即可浏览推荐。"
+
 #: frontend/catalogue_i18n.py
 msgid "Jingdezhen stoneware"
 msgstr "景德镇炻器"

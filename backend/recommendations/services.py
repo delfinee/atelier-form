@@ -22,8 +22,8 @@ Behaviour strength is applied on top of product similarity:
 - wishlist/favourites: 3x
 - active cart activity: 2x
 
-Anonymous/new users fall back to popular available catalogue items. Sold-out and
-inactive products are never returned.
+Guests use recent views and their own session's bag; new visitors fall back to
+popular available catalogue items. Sold-out and inactive products are never returned.
 """
 
 from __future__ import annotations
@@ -62,7 +62,20 @@ BEHAVIOUR_WEIGHTS = {
     "purchase history": 5.0,
     "wishlist": 3.0,
     "cart activity": 2.0,
+    "recently viewed": 1.0,
 }
+
+RECENT_VIEWS_KEY = "recommendation_recent_views"
+MAX_RECENT_VIEWS = 12
+
+
+def record_product_view(request, product: Product) -> None:
+    """Keep a small, deduplicated browsing history in the visitor's own session."""
+    if request.method != "GET" or request.user.is_authenticated:
+        return
+    recent = request.session.get(RECENT_VIEWS_KEY, [])
+    recent = [pk for pk in recent if type(pk) is int and pk != product.pk]
+    request.session[RECENT_VIEWS_KEY] = (recent + [product.pk])[-MAX_RECENT_VIEWS:]
 
 
 @dataclass(frozen=True)
@@ -328,9 +341,49 @@ def recommendations_for_user(user, limit: int = 8) -> list[Recommendation]:
         return popular_products(limit)
 
     purchased_ids = {row.product_id for row in purchase_rows if row.product_id}
+    return _rank_from_seeds(seeds, limit, exclude_ids=purchased_ids)
+
+
+def recommendations_for_guest(session=None, limit: int = 8) -> list[Recommendation]:
+    """Use only server-owned session history and that session's anonymous bag."""
+    if session is None:
+        return popular_products(limit)
+
+    recent_ids = [
+        pk for pk in session.get(RECENT_VIEWS_KEY, []) if type(pk) is int
+    ][-MAX_RECENT_VIEWS:]
+    recent = Product.objects.active().with_related().filter(pk__in=recent_ids)
+    seeds = [(p, BEHAVIOUR_WEIGHTS["recently viewed"], "recently viewed") for p in recent]
+    if session.session_key:
+        cart_rows = (
+            CartItem.objects.filter(
+                cart__session_key=session.session_key,
+                cart__user__isnull=True,
+                cart__is_active=True,
+                product__is_active=True,
+            )
+            .select_related("product", "product__category", "product__maker")
+            .prefetch_related("product__collections", "product__product_variants")[:30]
+        )
+        seeds.extend(
+            (row.product, BEHAVIOUR_WEIGHTS["cart activity"], "cart activity")
+            for row in cart_rows
+        )
+    if not seeds:
+        return popular_products(limit)
+    return _rank_from_seeds(seeds, limit, exclude_ids={p.pk for p, _, _ in seeds})
+
+
+def _rank_from_seeds(
+    seeds: Iterable[tuple[Product, float, str]],
+    limit: int,
+    *,
+    exclude_ids: Iterable[int],
+) -> list[Recommendation]:
+    """Share the same product-factor ranking for account and guest signals."""
     candidate_map = {
         product.pk: product
-        for product in _candidate_queryset().exclude(pk__in=purchased_ids)
+        for product in _candidate_queryset().exclude(pk__in=exclude_ids)
     }
 
     scores: defaultdict[int, float] = defaultdict(float)
@@ -387,7 +440,7 @@ def recommendations_for_user(user, limit: int = 8) -> list[Recommendation]:
     ]
 
     if len(ranked) < limit:
-        existing_ids = purchased_ids | {r.product.pk for r in ranked}
+        existing_ids = set(exclude_ids) | {r.product.pk for r in ranked}
         ranked.extend(popular_products(limit - len(ranked), exclude_ids=existing_ids))
 
     return ranked[:limit]
@@ -397,9 +450,12 @@ def recommend(
     *,
     user=None,
     product: Product | None = None,
+    session=None,
     limit: int = 8,
 ) -> list[Recommendation]:
     limit = max(1, min(int(limit or 8), 24))
     if product is not None:
         return similar_products(product, limit)
+    if not user or not getattr(user, "is_authenticated", False):
+        return recommendations_for_guest(session, limit)
     return recommendations_for_user(user, limit)

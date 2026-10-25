@@ -41,6 +41,7 @@ from payments.models import Payment, PaymentProviderChoices
 from payments.services import MockPaymentProvider
 from reviews.models import Review
 from reviews.errors import is_duplicate_review_error
+from recommendations.services import record_product_view
 
 from . import services
 from .forms import ProfileForm, RegistrationForm, SellerFulfillmentForm
@@ -128,6 +129,8 @@ def product_detail(request, slug):
     product = services.get_product(slug)
     if not product:
         raise Http404("Unknown product")
+
+    record_product_view(request, product)
 
     review_state = "login_required"
     order_item = None

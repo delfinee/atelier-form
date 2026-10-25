@@ -9,7 +9,8 @@ COPY backend /app/backend
 COPY frontend /app/frontend
 COPY locale /app/locale
 COPY deploy/entrypoint.sh /app/entrypoint.sh
-RUN mkdir -p /app/staticfiles && chown seller:seller /app/staticfiles \
+RUN chmod -R a+rX /app/backend /app/frontend /app/locale \
+    && mkdir -p /app/staticfiles && chown seller:seller /app/staticfiles \
     && chmod 755 /app/entrypoint.sh
 USER seller
 ENV PYTHONPATH=/app/backend DJANGO_SETTINGS_MODULE=config.marketplace_production

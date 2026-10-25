@@ -13,6 +13,7 @@ RUN chmod -R a+rX /app/backend /app/frontend /app/locale \
     && mkdir -p /app/staticfiles && chown seller:seller /app/staticfiles \
     && chmod 755 /app/entrypoint.sh
 USER seller
+RUN test -r /app/backend/config/marketplace_production.py && test -x /app/entrypoint.sh
 ENV PYTHONPATH=/app/backend DJANGO_SETTINGS_MODULE=config.marketplace_production
 EXPOSE 8000
 ENTRYPOINT ["/app/entrypoint.sh"]

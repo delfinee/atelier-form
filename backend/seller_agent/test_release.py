@@ -37,6 +37,13 @@ class ReleaseViewsTests(TestCase):
         self.assertEqual(response.status_code, 503)
         self.assertNotContains(response, 'credentials', status_code=503)
 
+    @override_settings(SELLER_AGENT_USE_LLM=True, SELLER_AGENT_API_KEY='test-only-key')
+    def test_privacy_discloses_enabled_model_processing(self):
+        response = self.client.get('/privacy/', secure=True)
+        self.assertContains(response, 'DeepSeek processes your messages')
+        self.assertContains(response, 'not automatically sent')
+        self.assertNotContains(response, 'AI is disabled')
+
     def test_release_does_not_offer_download_or_developer_pages(self):
         user = make_seller_user('release@example.com')
         self.client.force_login(user)

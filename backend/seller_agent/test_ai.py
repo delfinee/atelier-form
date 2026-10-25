@@ -1,8 +1,12 @@
 import json
+import os
+import subprocess
+import sys
 from unittest.mock import Mock, patch
 from uuid import uuid4
 
 import requests
+from django.conf import settings
 from django.core.cache import cache
 from django.test import SimpleTestCase, TestCase, override_settings
 from rest_framework.test import APIClient
@@ -10,6 +14,39 @@ from rest_framework.test import APIClient
 from orders.tests.factories import make_category, make_maker, make_product, make_seller_user
 from . import planner
 from .models import Change
+
+
+class SellerAIConfigurationTests(SimpleTestCase):
+    def load_settings(self, module, *, enabled, key):
+        environment = {**os.environ, "DJANGO_SETTINGS_MODULE": module,
+            "DIP_ENV_FILE": str(settings.BASE_DIR / "missing-test-config.env"),
+            "PYTHONPATH": os.pathsep.join([str(settings.BASE_DIR), str(settings.BASE_DIR / "backend")]),
+            "SELLER_AGENT_USE_LLM": str(int(enabled)), "SELLER_AGENT_API_KEY": "",
+            "DEEPSEEK_API_KEY": key, "DJANGO_DEBUG": "0", "DJANGO_SECRET_KEY": "test-only-" * 8,
+            "WECHAT_APP_ID": "wx0123456789abcdef", "WECHAT_APP_SECRET": "0" * 32,
+            "SELLER_PUBLIC_ORIGIN": "https://seller.example.com", "APP_DOMAIN": "seller.example.com",
+            "SELLER_OPERATOR": "Test operator", "SELLER_CONTACT_EMAIL": "test@example.com",
+            "DATABASE_URL": "postgres://test@127.0.0.1/test"}
+        return subprocess.run([sys.executable, "-c",
+            "from django.conf import settings; import json; print(json.dumps([settings.SELLER_AGENT_USE_LLM, bool(settings.SELLER_AGENT_API_KEY)]))"],
+            env=environment, capture_output=True, text=True, timeout=20)
+
+    def test_phone_honours_opt_in_and_shared_key(self):
+        result = self.load_settings("config.seller_phone", enabled=True, key="test-only-key")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout), [True, True])
+        result = self.load_settings("config.seller_phone", enabled=False, key="test-only-key")
+        self.assertEqual(json.loads(result.stdout), [False, True])
+
+    def test_production_honours_ai_opt_in(self):
+        result = self.load_settings("config.seller_production", enabled=True, key="test-only-key")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout), [True, True])
+
+    def test_production_rejects_ai_enabled_without_a_key(self):
+        result = self.load_settings("config.seller_production", enabled=True, key="")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("before enabling seller AI", result.stderr)
 
 
 def model_response(data):
@@ -136,6 +173,7 @@ class SellerAIIntegrationTests(TestCase):
         sent = json.loads(post.call_args.kwargs["json"]["messages"][-1]["content"])
         self.assertEqual(sent["recent"][-1]["preview"]["target"], "ai-blue-mug")
         self.assertEqual(result.data["change"]["values"]["quantity"], 14)
+        self.assertIn("只有你确认后", result.data["reply"])
         self.product.refresh_from_db()
         self.assertEqual(self.product.stock_quantity, 7)
 
@@ -145,4 +183,24 @@ class SellerAIIntegrationTests(TestCase):
         result = self.send("What should I focus on today?")
         self.assertEqual(result.data["engine"], "deepseek")
         self.assertIn("AI suggestion", result.data["reply"])
+        self.assertFalse(Change.objects.exists())
+
+    @patch("seller_agent.planner.requests.post")
+    def test_natural_order_query_is_scoped_to_current_seller(self, post):
+        from orders.tests.factories import make_bare_order, make_order_item
+        from orders.models import PaymentStatus, OrderStatus
+        own = make_bare_order(payment_status=PaymentStatus.PAID, status=OrderStatus.CONFIRMED)
+        make_order_item(order=own, product=self.product, maker=self.maker)
+        other_seller = make_seller_user("other-ai-seller@example.invalid")
+        other_maker = make_maker("other-ai-studio", "Other AI Studio", owner=other_seller)
+        other_product = make_product(maker=other_maker, category=self.category, slug="other-ai-mug")
+        other = make_bare_order(payment_status=PaymentStatus.PAID, status=OrderStatus.CONFIRMED)
+        make_order_item(order=other, product=other_product, maker=other_maker)
+        post.return_value = model_response({"intent": "orders", "pending": False})
+        result = self.send("帮我看看现在有哪些订单需要跟进")
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.data["engine"], "deepseek")
+        self.assertEqual([row["uuid"] for row in result.data["orders"]], [str(own.uuid)])
+        sent = post.call_args.kwargs["json"]["messages"][-1]["content"]
+        self.assertNotIn(str(other.uuid), sent)
         self.assertFalse(Change.objects.exists())

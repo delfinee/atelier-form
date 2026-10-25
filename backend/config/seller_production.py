@@ -40,7 +40,9 @@ if not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+', SELLER_CONTACT_EMAIL):
 DEBUG = False
 SELLER_PHONE_PREVIEW = False
 SELLER_PRODUCTION = True
-SELLER_AGENT_USE_LLM = False
+SELLER_AGENT_USE_LLM = env.bool('SELLER_AGENT_USE_LLM', default=False)
+if SELLER_AGENT_USE_LLM and not SELLER_AGENT_API_KEY:
+    raise ImproperlyConfigured('Configure SELLER_AGENT_API_KEY or DEEPSEEK_API_KEY before enabling seller AI.')
 WECHAT_SELLER_DEV_LOGIN = False
 ROOT_URLCONF = 'config.seller_production_urls'
 SITE_URL = origin.rstrip('/')

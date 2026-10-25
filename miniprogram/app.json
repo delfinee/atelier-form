@@ -1,5 +1,5 @@
 {
   "pages": ["pages/home/index", "pages/seller/index", "pages/privacy/index"],
-  "window": {"navigationBarTitleText":"Atelier Form · Seller", "navigationBarBackgroundColor":"#285b45", "navigationBarTextStyle":"white", "backgroundColor":"#f4f6f2", "enablePullDownRefresh":true},
+  "window": {"navigationBarTitleText":"卖家智能X助手", "navigationBarBackgroundColor":"#285b45", "navigationBarTextStyle":"white", "backgroundColor":"#f4f6f2", "enablePullDownRefresh":true},
   "style":"v2", "sitemapLocation":"sitemap.json"
 }

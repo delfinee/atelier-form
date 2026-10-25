@@ -46,7 +46,7 @@ def build(origin, appid, operator, contact, version, target):
         'apiBase': origin + '/api/seller-agent/v1', 'authMode': 'wechat'}) + ';\n', encoding='utf-8')
     (target / 'public-config.js').write_text('module.exports = ' + json.dumps({
         'name': '卖家智能X助手', 'operator': operator, 'contact': contact,
-        'privacyVersion': '2026-10-16'}, ensure_ascii=False) + ';\n', encoding='utf-8')
+        'privacyVersion': '2026-10-25'}, ensure_ascii=False) + ';\n', encoding='utf-8')
     project_path = target / 'project.config.json'
     project = json.loads(project_path.read_text(encoding='utf-8'))
     project.update(appid=appid, projectname='seller-release-' + version)

@@ -1,3 +1,5 @@
+import re
+
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
 from products.models import Category
@@ -21,18 +23,21 @@ def respond(user, conversation_id, request_id, text, channel, plan):
     old = conversation.messages.filter(request_id=request_id).first()
     if old:
         return old.response
+    chinese = bool(re.search(r"[\u3400-\u9fff]", text))
+    def say(english, translated):
+        return translated if chinese else english
     intent = plan["intent"]
     result = {"intent":intent, "engine":plan.get("engine","guided")}
     if plan.get("notice"):
         result["notice"] = plan["notice"]
     if intent in ("products", "low_stock"):
         result["products"] = services.products(user, low_stock=intent=="low_stock")
-        result["reply"] = "These are your shop's current product records." if result["products"] else "No matching products in your shop."
+        result["reply"] = say("These are your shop's current product records.", "这是你店铺当前的商品和库存记录。") if result["products"] else say("No matching products in your shop.", "你店铺中暂无符合条件的商品。")
     elif intent == "orders":
         records = services.orders(user)
         if plan.get("pending"):
             records = [o for o in records if o["can_ship"]]
-        result.update(reply="These orders contain only your shop's items and fulfillment details.", orders=records)
+        result.update(reply=say("These orders contain only your shop's items and fulfillment details.", "这是你店铺的订单商品和履约信息。"), orders=records)
     elif intent == "onboarding":
         result["reply"] = ONBOARDING
     elif intent == "listing":
@@ -46,12 +51,16 @@ def respond(user, conversation_id, request_id, text, channel, plan):
         result.update(listing=values, missing=missing,
             categories=[{"slug":c.slug,"name":c.name} for c in Category.objects.filter(is_active=True)])
         if missing:
-            result["reply"] = "Draft in progress. Please provide " + missing[0] + ". Still needed: " + ", ".join(missing) + "."
+            labels = {"name": "商品名称", "category": "分类", "description": "商品描述", "price": "价格", "quantity": "库存数量"}
+            result["reply"] = say(
+                "Draft in progress. Please provide " + missing[0] + ". Still needed: " + ", ".join(missing) + ".",
+                "正在整理商品草稿，请提供" + labels[missing[0]] + "。还需要：" + "、".join(labels[key] for key in missing) + "。",
+            )
         elif not services.has_shop(user):
             result["reply"] = "Your draft details are saved. Complete website seller verification before creating the product. No seller rights were granted."
         else:
             change = services.prepare_change(user, conversation.uuid, request_id, "listing", "", values)
-            result.update(reply="Review this unpublished product draft. It will only be saved after you confirm.", change=services.change_data(change))
+            result.update(reply=say("Review this unpublished product draft. It will only be saved after you confirm.", "请检查商品草稿。你确认后才会保存，商品仍为未发布状态。"), change=services.change_data(change))
     elif intent in ("stock", "price", "fulfillment"):
         target = plan.get("target", "")
         if intent != "fulfillment":
@@ -60,12 +69,12 @@ def respond(user, conversation_id, request_id, text, channel, plan):
                 raise ValidationError("Choose one of your exact product names or slugs. Use 'my products' to see them.")
             target = matches[0]["slug"]
         change = services.prepare_change(user, conversation.uuid, request_id, intent, target, plan.get("values", {}))
-        result.update(reply="Review the before and after values. Nothing changes until you explicitly confirm.", change=services.change_data(change))
+        result.update(reply=say("Review the before and after values. Nothing changes until you explicitly confirm.", "请检查修改前后的内容。只有你确认后，才会更新店铺数据。"), change=services.change_data(change))
     else:
         result["reply"] = ("I can show 'my products', 'low stock' or 'my orders', help with 'new listing', "
             "or prepare 'set stock EXACT PRODUCT NAME to 5'. Select a variant in the product card when needed. "
             "I do not process payments, refunds or ownership changes.")
         if plan.get("engine") == "deepseek" and plan.get("reply"):
-            result["reply"] = "AI suggestion · no changes made\n" + plan["reply"]
+            result["reply"] = say("AI suggestion · no changes made\n", "AI 建议 · 尚未修改数据\n") + plan["reply"]
     Message.objects.create(conversation=conversation, request_id=request_id, text=text, channel=channel, response=result)
     return result

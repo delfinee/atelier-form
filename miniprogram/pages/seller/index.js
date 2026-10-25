@@ -2,12 +2,12 @@ const api=require('../../utils/seller-api');
 const productCards=products=>products.map(p=>({...p,optionIndex:0,optionNames:[p.variants.length?'Select option':'Standard'].concat(p.variants.map(v=>v.label+' 路 '+v.quantity)),editQuantity:p.quantity==null?'':String(p.quantity),editPrice:p.price}));
 const orderCards=orders=>orders.map(o=>({...o,canShip:!!o.can_ship,carrierInput:'',trackingInput:''}));
 Page({
-  data:{busy:false,error:'',me:null,tab:'chat',text:'',messages:[],changes:[],products:[],orders:[],link:null,conversation:'',engine:'guided',local:api.config.authMode==='developer'},
+  data:{busy:false,error:'',me:null,tab:'chat',text:'',messages:[],changes:[],products:[],orders:[],link:null,conversation:'',engine:'guided',aiEnabled:false,local:api.config.authMode==='developer'},
   onLoad(){if(!api.hasConsent()){wx.redirectTo({url:'/pages/home/index'});return;}return this.run(async()=>{await api.connect();await this.refresh();});},
   onShow(){if(this.data.me&&!this.data.busy)return this.run(()=>this.refresh());},
   onPullDownRefresh(){return this.run(()=>this.refresh()).finally(()=>wx.stopPullDownRefresh());},
   async run(fn){if(this.data.busy)return;this.setData({busy:true,error:''});try{await fn();}catch(e){this.setData({error:e.message||'Please retry.'});}finally{this.setData({busy:false});}},
-  async refresh(){const me=await api.request('/me/');this.setData({me,...(me.linked?{link:null}:{})});if(!me.linked)return;
+  async refresh(){const status=await api.request('/status/','GET',undefined,false);const me=await api.request('/me/');this.setData({me,aiEnabled:status.engine==='deepseek',...(me.linked?{link:null}:{})});if(!me.linked)return;
     const list=(await api.request('/conversations/')).conversations;let id=api.read('conversation');
     if(!list.some(c=>c.id===id))id=list.length?list[0].id:(await api.request('/conversations/','POST',{})).id;
     api.write('conversation',id);this.setData({conversation:id});await this.loadConversation();

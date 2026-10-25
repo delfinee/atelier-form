@@ -23,6 +23,12 @@ PostgreSQL and Gunicorn stay on the private Docker network.
    email, certificate contact, and unique random database/Django secrets.
    Use URL-safe characters for `POSTGRES_PASSWORD`. The existing AppSecret
    remains server-only and must be supplied privately.
+   To enable natural-language seller operations, set `SELLER_AGENT_USE_LLM=1`
+   and `SELLER_AGENT_API_KEY` (or reuse the existing `DEEPSEEK_API_KEY`).
+   `SELLER_AGENT_MODEL=deepseek-flash` selects the model; the shared daily limit
+   defaults to 500 calls. Production refuses to start with AI enabled and no key.
+   The native privacy notice explains DeepSeek processing and has a new consent
+   version. Quick actions still work if the provider is unavailable.
 3. Run `sh deploy/start.sh`. Caddy obtains/renews HTTPS certificates. Review
    `docker compose --env-file .env.production -f compose.yml logs` from `deploy/`
    if issuance or startup fails. Do not expose port 8000 or PostgreSQL.

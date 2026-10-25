@@ -11,7 +11,8 @@ from django.views.decorators.http import require_GET
 
 def public_context():
     return {'operator': getattr(settings, 'SELLER_OPERATOR', ''),
-            'contact': getattr(settings, 'SELLER_CONTACT_EMAIL', '')}
+            'contact': getattr(settings, 'SELLER_CONTACT_EMAIL', ''),
+            'seller_ai_enabled': bool(settings.SELLER_AGENT_USE_LLM and settings.SELLER_AGENT_API_KEY)}
 
 
 @require_GET

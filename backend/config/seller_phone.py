@@ -3,7 +3,8 @@ from .settings import *  # noqa: F403
 
 DEBUG = False
 SELLER_AGENT_ENABLED = True
-SELLER_AGENT_USE_LLM = False
+# Opt in using the private server environment; never bundle keys in the client.
+SELLER_AGENT_USE_LLM = env.bool('SELLER_AGENT_USE_LLM', default=False)
 WECHAT_SELLER_ENABLED = True
 WECHAT_SELLER_DEV_LOGIN = False
 ROOT_URLCONF = 'config.seller_phone_urls'

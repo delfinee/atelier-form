@@ -9,11 +9,11 @@ Use Git, Python 3.12 (see `.python-version`) and a local PostgreSQL server. Post
 Clone the current repository into a conveniently named local folder:
 
 ```powershell
-git clone https://github.com/delfinee/dip-new-repo-test.git atelier-form
+git clone https://github.com/delfinee/atelier-form.git atelier-form
 cd atelier-form
 ```
 
-After the owner completes the rename, use `https://github.com/delfinee/atelier-form.git`. Existing clones do not need a new directory or checkout. See [rename instructions](docs/REPOSITORY_RENAME.md).
+The GitHub repository was renamed from `delfinee/dip-new-repo-test` on 26 October 2026. Existing clones do not need a new directory or checkout; update their remote URL using the [post-rename checklist](docs/REPOSITORY_RENAME.md).
 
 ## Python environment
 

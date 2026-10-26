@@ -115,4 +115,4 @@ Real payment processing, email delivery, model-provider calls and public WeChat 
 
 ## Documentation
 
-Start at the [documentation index](docs/README.md), including setup, operational guides, current status and archived team contributions. The [repository rename checklist](docs/REPOSITORY_RENAME.md) covers the planned `delfinee/atelier-form` slug and external integration checks.
+Start at the [documentation index](docs/README.md), including setup, operational guides, current status and archived team contributions. The [post-rename checklist](docs/REPOSITORY_RENAME.md) records the completed move to `delfinee/atelier-form` and the external integration checks still pending.

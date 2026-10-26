@@ -62,7 +62,8 @@ class Status(Public):
     def get(self, request):
         return Response({"wechat_configured": bool(settings.WECHAT_SELLER_ENABLED and settings.WECHAT_APP_ID and settings.WECHAT_APP_SECRET),
             "developer_login": bool(settings.WECHAT_SELLER_ENABLED and wechat.local_developer_allowed(request)),
-            "onboarding": conversation.ONBOARDING, "engine": "deepseek" if settings.SELLER_AGENT_USE_LLM and settings.SELLER_AGENT_API_KEY else "guided"})
+            "onboarding": conversation.DEMO_GUIDE if getattr(settings, "SELLER_PUBLIC_DEMO", False) else conversation.ONBOARDING,
+            "engine": "deepseek" if settings.SELLER_AGENT_USE_LLM and settings.SELLER_AGENT_API_KEY else "guided"})
 
 
 class LoginInput(serializers.Serializer):

@@ -1,4 +1,5 @@
 import re
+from django.conf import settings
 
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
@@ -11,6 +12,10 @@ ONBOARDING = ("Use your website account to complete seller onboarding and shop v
     "Start with 'new listing', then provide name, category, description, price and quantity. "
     "Images, variants and publication are completed in the authenticated product editor.")
 REQUIRED = ["name", "category", "description", "price", "quantity"]
+DEMO_GUIDE = ("This is a coursework demo with sample products and orders. "
+    "No registration or shop verification is needed. Try 'my products', preview and confirm a stock change, "
+    "create an unpublished sample with 'new listing', then inspect 'my orders' and record a simulated shipment. "
+    "Changes are saved to the demo database. Payments and shipping are simulated.")
 
 
 def get_catalog(user):
@@ -39,7 +44,7 @@ def respond(user, conversation_id, request_id, text, channel, plan):
             records = [o for o in records if o["can_ship"]]
         result.update(reply=say("These orders contain only your shop's items and fulfillment details.", "这是你店铺的订单商品和履约信息。"), orders=records)
     elif intent == "onboarding":
-        result["reply"] = ONBOARDING
+        result["reply"] = DEMO_GUIDE if getattr(settings, "SELLER_PUBLIC_DEMO", False) else ONBOARDING
     elif intent == "listing":
         if plan.get("expected_field") and plan["expected_field"] != conversation.context.get("awaiting"):
             raise ValidationError("This draft changed in another channel. Refresh it before continuing.")

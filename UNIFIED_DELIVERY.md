@@ -1,9 +1,10 @@
 # Unified buyer website and seller WeChat delivery
 
-The main website is for buyers. Seller operations are in the native WeChat Mini
-Program, using the same Django models and validated services. The website retains
-secure account linking and product-editor handoffs needed by the Mini Program.
-The old seller web console is not the main delivery entry point.
+The main website includes the buyer storefront and authenticated seller workspace.
+Sellers can use the website, Windows client or native WeChat Mini Program with the
+same Django models and validated services. The existing dashboard, product editor,
+orders and human messaging remain reachable. See `WINDOWS_SELLER.md` for the desktop
+client and the separate sample-data web demo; these do not depend on WeChat approval.
 
 ## Start
 
@@ -26,6 +27,10 @@ and replies for buyer chat, including English/Chinese follow-ups, gift suggestio
 and comparisons. `DEEPSEEK_MODEL` defaults to `deepseek-flash`; the shared daily
 provider-call allowance is set by `BUYER_AI_DAILY_LIMIT` (default 500).
 Only messages, limited conversation context and public catalogue facts are sent.
+The sample environment enables the buyer AI switch; supply the key privately on
+the server. An explicit `BUYER_AI_USE_LLM=0` still selects catalogue-only mode.
+The price, colour, review and comparison buttons use their exact catalogue actions;
+free-text questions and conversational follow-ups use DeepSeek when enabled.
 The widget discloses model processing and shows the active mode. Model-selected
 IDs and filters are validated; prices, variants, availability and published review
 facts are rendered from the database. The model cannot place orders or pay.
@@ -46,8 +51,8 @@ Normal buyer checkout uses the existing `orders` and `payments` services.
 The current native client, identity linking, confirmations, audit records, revocation
 and seller scoping are preserved. `/api/seller-agent/v1/` is unchanged. The combined
 deployment uses `config.marketplace_production` in `deploy/compose.yml`, serving the
-buyer homepage and WeChat APIs from one backend/database. `/seller/ai/` points to
-Mini Program information; `/seller/ai/link/` and authenticated product editing remain.
+buyer homepage and seller APIs from one backend/database. `/seller/ai/` opens the
+authenticated web assistant. `/seller/ai/link/` retains WeChat account linking.
 Do not confuse this source integration with an already published WeChat release.
 The phone-tested development version and the prepared permanent-domain version
 remain separate until platform release steps are completed.

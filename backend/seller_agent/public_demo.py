@@ -26,6 +26,7 @@ def home(request):
     enabled()
     return render(request, 'seller_agent/demo_home.html', {
         'seller_ai_enabled': bool(settings.SELLER_AGENT_USE_LLM and settings.SELLER_AGENT_API_KEY),
+        'auto_open': 'AtelierSeller/' in request.META.get('HTTP_USER_AGENT', ''),
     })
 
 
@@ -34,7 +35,10 @@ def start(request):
     enabled()
     if request.user.is_authenticated:
         return redirect('seller_ai')
-    address = request.META.get('HTTP_CF_CONNECTING_IP', request.META.get('REMOTE_ADDR', ''))
+    if getattr(settings, 'TRUST_PROXY_CLIENT_IP', False):
+        address = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[-1].strip() or request.META.get('REMOTE_ADDR', '')
+    else:
+        address = request.META.get('HTTP_CF_CONNECTING_IP', request.META.get('REMOTE_ADDR', ''))
     key = 'demo-start:' + hashlib.sha256(address.encode()).hexdigest()
     cache.add(key, 0, 3600)
     try:

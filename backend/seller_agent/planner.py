@@ -172,6 +172,14 @@ def plan(text, context, catalog, *, orders=None, categories=None, history=None):
     if not enabled() or canonical or exact_write:
         return {**fallback, "engine":"guided"}
     orders, categories = orders or [], categories or []
+    system_prompt = SYSTEM_PROMPT
+    if getattr(settings, "SELLER_PUBLIC_DEMO", False):
+        system_prompt += (
+            "\nThis is a coursework demonstration, not a live business. The visitor already has "
+            "an isolated sample shop. No registration, seller verification or WeChat connection "
+            "is required. Products and orders are test data; payments and shipments are simulated. "
+            "Explain how to explore the demo. All supported changes still require explicit confirmation."
+        )
     try:
         if not _quota_available():
             return {**fallback, "engine": "guided", "notice": "Today's AI demo allowance is used up; guided commands still work."}
@@ -180,7 +188,7 @@ def plan(text, context, catalog, *, orders=None, categories=None, history=None):
             json={"model":settings.SELLER_AGENT_MODEL, "temperature":0, "max_tokens":900,
                 "thinking": {"type": "disabled"},
                 "response_format":{"type":"json_object"}, "messages":[
-                {"role":"system", "content": SYSTEM_PROMPT},
+                {"role":"system", "content": system_prompt},
                 {"role":"user","content":json.dumps({"request": text, "draft": context,
                     "facts": _facts(catalog, orders, categories), "recent": (history or [])[-6:]}, ensure_ascii=False)}]}, timeout=(5,25))
         response.raise_for_status()

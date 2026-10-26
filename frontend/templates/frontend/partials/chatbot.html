@@ -4,6 +4,7 @@
   <span class="crafty-launcher-pulse"></span>
   <span style="font-size:1.15rem; line-height:1">💬</span>
   <span id="crafty-launcher-text">{% translate "Messages" %}</span>
+  {% if buyer_assistant_enabled %}<span class="support-message-description">{% translate "Contact a real maker about a product or order." %}</span>{% endif %}
   <span id="crafty-unread-badge" style="display:none; background:#e11d48; color:#ffffff; border-radius:9999px; padding:2px 7px; font-size:0.75rem; font-weight:700; margin-left:4px; box-shadow:0 0 8px rgba(225,29,72,0.6);"></span>
 </button>
 
@@ -11,7 +12,7 @@
 <div id="crafty-backdrop"></div>
 
 <!-- Shopee-Style Buyer Chat Widget (Docked Drawer) -->
-<aside id="crafty-drawer" role="dialog" aria-modal="true" aria-label="{% translate "Chat with Seller" %}">
+<aside id="crafty-drawer" role="dialog" aria-modal="true" aria-label="{% translate "Chat with Seller" %}" tabindex="-1">
   
   <!-- 1. Shopee Storefront Header (Seller Profile) -->
   <div class="shopee-widget-head">

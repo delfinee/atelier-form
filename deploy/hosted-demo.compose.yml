@@ -1,0 +1,58 @@
+name: atelier-demo
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: atelier_public_demo
+      POSTGRES_USER: atelier_demo
+      POSTGRES_PASSWORD: ${DEMO_DB_PASSWORD:?Set a random demo-only password}
+    volumes:
+      - demo_database:/var/lib/postgresql/data
+    networks: [private]
+    restart: unless-stopped
+    mem_limit: 384m
+    command: postgres -c shared_buffers=64MB -c max_connections=40
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U atelier_demo -d atelier_public_demo']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: '2'}
+  demo:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.demo
+      args:
+        BASE_IMAGE: ${DEMO_BASE_IMAGE:-atelier-seller-prod-app:latest}
+    env_file: .env.hosted-demo
+    environment:
+      DJANGO_SETTINGS_MODULE: config.seller_hosted_demo
+      DJANGO_DEBUG: '0'
+      DIP_ENV_FILE: /dev/null
+      DATABASE_URL: postgresql://atelier_demo:${DEMO_DB_PASSWORD:?Set a demo-only password}@db:5432/atelier_public_demo
+      CURRENCY: SGD
+      SELLER_AGENT_USE_LLM: '1'
+      SELLER_AGENT_LLM_DAILY_LIMIT: '100'
+    depends_on:
+      db: {condition: service_healthy}
+    networks:
+      private:
+      gateway:
+        aliases: [atelier-demo]
+    restart: unless-stopped
+    init: true
+    mem_limit: 512m
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: '2'}
+networks:
+  private:
+  gateway:
+    external: true
+    name: ${GATEWAY_NETWORK:-atelier-seller-prod_default}
+volumes:
+  demo_database:

@@ -56,3 +56,36 @@ class PublicDemoTests(TestCase):
         user = get_user_model().objects.create_user(email='real@example.com', password=None)
         self.client.force_login(user)
         self.assertEqual(self.client.get('/seller/ai/').status_code, 403)
+
+    def test_coursework_pages_explain_sample_data_without_live_setup(self):
+        self.assertContains(self.client.get('/'), 'Open demo')
+        self.client.post('/demo/start/')
+        response = self.client.get('/seller/ai/')
+        self.assertContains(response, 'Assistant')
+        self.assertContains(response, 'Demo data')
+        self.assertNotContains(response, 'WeChat connection')
+        self.assertNotContains(response, 'Shop verification stays')
+        self.assertNotContains(response, 'Demo walkthrough')
+        self.assertContains(self.client.get('/seller/products/new/'), 'Demo data')
+
+    def test_desktop_auto_opens_with_a_csrf_protected_form(self):
+        response = self.client.get('/', HTTP_USER_AGENT='AtelierSeller/1.1.0')
+        self.assertContains(response, 'data-auto-open="true"')
+        self.assertContains(response, 'csrfmiddlewaretoken')
+        self.assertContains(response, 'action="/demo/start/"')
+        self.assertEqual(get_user_model().objects.count(), 0)
+
+    def test_demo_guide_uses_the_existing_sample_shop_without_verification(self):
+        from uuid import uuid4
+        self.client.post('/demo/start/')
+        root = '/api/seller-agent/v1/'
+        conversation = self.client.post(root + 'conversations/', {}, content_type='application/json').json()['id']
+        count = Product.objects.count()
+        response = self.client.post(root + 'conversations/' + conversation + '/messages/',
+            {'text': 'help me start selling', 'request_id': str(uuid4())},
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('coursework demo', response.json()['reply'])
+        self.assertIn('demo database', response.json()['reply'])
+        self.assertNotIn('Use your website account', response.json()['reply'])
+        self.assertEqual(Product.objects.count(), count)

@@ -1,0 +1,13 @@
+ARG BASE_IMAGE=atelier-seller-prod-app:latest
+FROM ${BASE_IMAGE}
+USER root
+COPY backend /app/backend
+COPY frontend /app/frontend
+COPY locale /app/locale
+COPY deploy/entrypoint.sh /app/entrypoint.sh
+RUN chmod -R a+rX /app/backend /app/frontend /app/locale \
+    && mkdir -p /app/staticfiles && chown seller:seller /app/staticfiles \
+    && chmod 755 /app/entrypoint.sh
+USER seller
+ENV DJANGO_SETTINGS_MODULE=config.seller_hosted_demo
+ENTRYPOINT ["/app/entrypoint.sh"]

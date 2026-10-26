@@ -5,7 +5,9 @@
 
 {% block content %}
 <div class="shell page-head">
-  <p class="eyebrow">{% translate "Staff" %}</p>
+  <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+    <a href="{% url 'account_overview' %}">{% translate "Account" %}</a><span class="sep">/</span><span aria-current="page">{% translate "Seller applications" %}</span>
+  </nav>
   <h1 style="font-size:var(--step-3)">{% translate "Seller applications" %}</h1>
   <p class="lede">{% translate "Review requests to open a shop. Pending applications are listed oldest first." %}</p>
 </div>

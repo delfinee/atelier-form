@@ -40,7 +40,7 @@
           </div>
           <button class="btn btn--block" type="submit" style="margin-top:1.4rem">{% translate "Sign in" %}</button>
         </form>
-        <p class="auth-alt">{% translate "New here?" %} <a class="text-link" href="{% url 'register' %}">{% translate "Create an account" %}</a></p>
+        <p class="auth-alt">{% translate "New here?" %} <a class="text-link" href="{% url 'register' %}{% if switch_next %}?next={{ switch_next|urlencode }}{% endif %}">{% translate "Create an account" %}</a></p>
 
       {% elif mode == "register" %}
         <p class="lede" style="font-size:var(--step-0);margin-top:0.8rem">
@@ -93,7 +93,7 @@
           </div>
           <button class="btn btn--block" type="submit" style="margin-top:1.4rem">{% translate "Create account" %}</button>
         </form>
-        <p class="auth-alt">{% translate "Already have one?" %} <a class="text-link" href="{% url 'login' %}">{% translate "Sign in" %}</a></p>
+        <p class="auth-alt">{% translate "Already have one?" %} <a class="text-link" href="{% url 'login' %}{% if switch_next %}?next={{ switch_next|urlencode }}{% endif %}">{% translate "Sign in" %}</a></p>
 
       {% endif %}
     </div>

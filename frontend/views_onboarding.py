@@ -27,9 +27,12 @@ INCONSISTENT = "inconsistent"  # role and shop disagree; an administrator must r
 NONE = "none"                  # an ordinary buyer account
 
 
-def _seller_state(user) -> str:
+def _seller_state(user, application) -> str:
     maker = Maker.objects.filter(owner=user).first()
-    if user.is_seller and maker is not None and maker.is_active:
+    # An approved application must still be linked to the shop the user owns.
+    linked = (application is None or application.status != SellerApplication.Status.APPROVED
+              or (maker is not None and application.maker_id == maker.pk))
+    if user.is_seller and maker is not None and maker.is_active and linked:
         return SELLER
     if user.is_seller or maker is not None:
         return INCONSISTENT
@@ -41,8 +44,8 @@ def sell_landing(request):
     apply_url = reverse("seller_application")
     state = application = None
     if request.user.is_authenticated:
-        state = _seller_state(request.user)
         application = SellerApplication.objects.filter(user=request.user).first()
+        state = _seller_state(request.user, application)
     return render(request, "frontend/onboarding/landing.html", {
         "state": state,
         "application": application,
@@ -57,11 +60,11 @@ def sell_landing(request):
 @require_http_methods(["GET", "POST"])
 def seller_application(request):
     user = request.user
-    state = _seller_state(user)
+    application = SellerApplication.objects.filter(user=user).first()
+    state = _seller_state(user, application)
     if state == SELLER:
         return redirect("seller_product_list")
 
-    application = SellerApplication.objects.filter(user=user).first()
     context = {"application": application, "form": None, "inconsistent": False,
                "current_path": reverse("seller_application"),
                "meta_title": f"{_('Seller application')} — {SITE['brand']}"}
@@ -84,7 +87,11 @@ def seller_application(request):
         try:
             with transaction.atomic():
                 new_application.save()
-        except IntegrityError:  # a simultaneous submission for this account won
+        except IntegrityError:
+            # Expected only when a simultaneous submission for this account won.
+            # Any other integrity error is real and must not pass as a duplicate.
+            if not SellerApplication.objects.filter(user=user).exists():
+                raise
             messages.info(request, _("You have already applied. Your application's status is below."))
         else:
             messages.success(request, _("Thank you. Your application has been sent for review."))

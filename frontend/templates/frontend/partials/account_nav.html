@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n seller_onboarding_tags %}
 {% url 'account_overview' as u_overview %}
 {% url 'account_orders' as u_orders %}
 {% url 'account_wishlist' as u_wishlist %}
@@ -13,6 +13,13 @@
   {% if user.is_seller %}
     <a href="{% url 'seller_dashboard' %}">{% translate "Seller dashboard" %}</a>
     <a href="{% url 'seller_messages' %}">{% translate "Messages" %}</a>
+  {% else %}
+    {% url 'seller_application' as u_seller_application %}
+    <a href="{{ u_seller_application }}"{% if current_path == u_seller_application %} aria-current="page"{% endif %}>{% translate "Seller application" %}</a>
+  {% endif %}
+  {% can_review_seller_applications as can_review %}
+  {% if can_review %}
+    <a href="{% url 'staff_seller_applications' %}">{% translate "Seller applications" %}</a>
   {% endif %}
 </nav>
 <form method="post" action="{% url 'logout' %}" style="margin-top:0.6rem">

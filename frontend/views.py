@@ -414,6 +414,10 @@ def auth_page(request, mode):
     titles = {"login": _("Sign in"), "register": _("Create an account")}
     if request.user.is_authenticated and mode in {"login", "register"}:
         return redirect("account_overview")
+    # The seller application is the one destination kept when switching between
+    # sign-in and registration, and followed after registering. Compared exactly,
+    # so no other or external `next` value is ever followed or passed on.
+    seller_next = request.GET.get("next", "").strip() == reverse("seller_application")
 
     errors: dict[str, str] = {}
     values: dict[str, str] = {}
@@ -450,10 +454,7 @@ def auth_page(request, mode):
                 merge_session_cart(request, user)
                 login(request, user)
                 messages.success(request, _("Your account is ready."))
-                # One post-registration destination is honoured: the seller
-                # application a visitor started from. Compared exactly, so no
-                # other or external `next` value is ever followed.
-                if request.GET.get("next", "").strip() == reverse("seller_application"):
+                if seller_next:
                     return redirect("seller_application")
                 return redirect("account_overview")
             errors = {field: " ".join(field_errors)
@@ -462,6 +463,7 @@ def auth_page(request, mode):
     return render(request, "frontend/account/auth.html", {
         "mode": mode, "heading": titles[mode], "errors": errors, "values": values,
         "registration_form": registration_form,
+        "switch_next": reverse("seller_application") if seller_next else "",
         "meta_title": f"{titles[mode]} — {SITE['brand']}",
     })
 

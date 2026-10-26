@@ -54,6 +54,7 @@
   let currentContext = {};
   let isSending = false;
   let cachedMakers = [];
+  let returnFocus = null;
 
   // Fallback makers if /api/makers/ is unavailable
   const DEFAULT_MAKERS = [
@@ -492,9 +493,12 @@
 
   // --- Open / Close Drawer ---
   function openDrawer(explicitContext) {
+    returnFocus = document.activeElement;
+    document.dispatchEvent(new CustomEvent('atelier:support-open', {detail: {kind: 'messages'}}));
     if (drawer) drawer.classList.add('is-open');
     if (backdrop) backdrop.classList.add('is-open');
     document.body.style.overflow = 'hidden';
+    drawer?.focus();
 
     // Clear unread badge immediately when opening chat
     if (unreadBadge) unreadBadge.style.display = 'none';
@@ -505,13 +509,21 @@
     });
   }
 
-  function closeDrawer() {
+  function closeDrawer(restoreFocus = true) {
     if (drawer) drawer.classList.remove('is-open');
     if (backdrop) backdrop.classList.remove('is-open');
     document.body.style.overflow = '';
     stopPolling();
     updateUnreadBadge();
+    if (restoreFocus) {
+      const target = returnFocus?.getClientRects().length ? returnFocus : document.getElementById('support-open') || launcher;
+      target?.focus();
+    }
   }
+
+  document.addEventListener('atelier:support-open', event => {
+    if (event.detail?.kind !== 'messages' && drawer?.classList.contains('is-open')) closeDrawer(false);
+  });
 
   // --- Read Page Context ---
   function readPageContext(explicitContext = {}) {
@@ -973,6 +985,9 @@
     closeBtn?.addEventListener('click', closeDrawer);
     backBtn?.addEventListener('click', closeDrawer);
     backdrop?.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && drawer?.classList.contains('is-open')) closeDrawer();
+    });
 
     // 3. Manual seller selection dropdown
     sellerSelect?.addEventListener('change', (e) => {

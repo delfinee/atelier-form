@@ -1,0 +1,18 @@
+{% load static %}
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Atelier Seller</title><link rel="stylesheet" href="{% static 'seller_agent/desk.css' %}"><link rel="stylesheet" href="{% static 'seller_agent/demo.css' %}"><script src="{% static 'seller_agent/desk.js' %}" defer></script></head>
+<body class="simple-workspace {% if request.GET.view == 'orders' %}records-only{% endif %}" data-public-demo="true" data-mode="web" data-csrf-cookie="{{ csrf_cookie_name }}">
+{% include 'seller_agent/demo_nav.html' %}
+<main>
+<div class="workspace-status"><strong id="account-name">Demo shop</strong><span id="account-status" hidden></span><span id="engine-label"></span><button id="refresh" class="subtle">Refresh</button></div>
+<div id="error" class="notice error" role="alert" hidden></div>
+<div class="layout assistant-grid">
+<section class="panel chat"><div class="panel-head"><h1>Assistant</h1><div><select id="conversation-select" aria-label="Conversation"></select><button id="new-conversation" class="subtle">＋ New</button></div></div>
+<div id="messages" aria-live="polite"><div class="empty"><h3>How can I help?</h3><p>Ask about products or orders.</p></div></div>
+<div class="quick"><button data-prompt="my products">Products</button><button data-prompt="low stock">Low stock</button><button data-prompt="my orders">Orders</button><button data-prompt="new listing">New product</button></div>
+<form id="chat-form"><label class="sr-only" for="message">Message the seller assistant</label><textarea id="message" rows="2" maxlength="2000" placeholder="Ask anything about your shop…" required></textarea><div><small>Changes need your confirmation.</small><button type="submit" class="primary">Send →</button></div></form></section>
+<aside id="change-panel" hidden><section class="panel"><div class="panel-head"><h2>Review changes</h2></div><div id="changes"></div></section></aside>
+</div>
+<section id="records" class="panel" hidden><div class="panel-head"><h1 id="records-title">Orders</h1></div><div id="records-body"></div></section>
+<footer class="simple-footer">Demo data · Payment and shipping are simulated. DeepSeek processes chat; use test details only.</footer>
+</main></body></html>

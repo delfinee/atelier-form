@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
-from .shopping import discover
+from .shopping import discover, QUICK_ACTIONS
 from .buyer_ai import enabled as ai_enabled
 
 
@@ -61,6 +61,9 @@ def message(request):
         body = json.loads(request.body)
         text = body['text'].strip()
         request_id = str(UUID(body['request_id']))
+        action = body.get('action')
+        if action is not None and (not isinstance(action, str) or action not in QUICK_ACTIONS):
+            raise ValueError()
         if not isinstance(text, str) or not 1 <= len(text) <= 2000:
             raise ValueError()
     except (ValueError, TypeError, KeyError, AttributeError):
@@ -80,7 +83,7 @@ def message(request):
         count = 1
     if count > 30:
         return reply({'detail': 'Please wait a minute before sending more messages.'}, 429)
-    result = discover(text, state['context'], state['history'])
+    result = discover(text, state['context'], state['history'], action=action)
     state['context'] = result.pop('context')
     state['history'] = (state['history'] + [{'text': text, 'response': result}])[-6:]
     state['responses'][request_id] = result

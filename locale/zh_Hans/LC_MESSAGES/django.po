@@ -4151,3 +4151,48 @@ msgstr "卖家微信小程序"
 
 #~ msgid ". A frontend form for this is not built yet."
 #~ msgstr "。前台表单尚未开发。"
+
+msgid "Help & messages"
+msgstr "帮助与消息"
+
+msgid "How can we help?"
+msgstr "需要什么帮助？"
+
+msgid "Close help menu"
+msgstr "关闭帮助菜单"
+
+msgid "Find pieces and compare prices and reviews."
+msgstr "寻找商品，比较价格与买家评价。"
+
+msgid "Contact a real maker about a product or order."
+msgstr "向真人卖家咨询商品或订单。"
+
+msgid "Try a shopping action"
+msgstr "试试这些选购功能"
+
+msgid "Find ceramic mugs"
+msgstr "找陶瓷杯"
+
+msgid "Show the cheapest options"
+msgstr "按价格从低到高比较"
+
+msgid "Only blue ones"
+msgstr "只看蓝色的商品"
+
+msgid "Which have good reviews?"
+msgstr "查看好评商品"
+
+msgid "Compare these products"
+msgstr "对比这些商品"
+
+msgid "Compare prices"
+msgstr "比较价格"
+
+msgid "Read reviews"
+msgstr "查看评价"
+
+msgid "Compare pieces"
+msgstr "对比商品"
+
+msgid "Looking through the catalogue…"
+msgstr "正在查找商品…"

@@ -10,7 +10,16 @@ from django.db.models import Avg, Count, Q
 from django.urls import reverse
 from imagery.resolver import image_url
 from products.models import Product
+from reviews.models import Review
 from . import buyer_ai
+
+QUICK_ACTIONS = {
+    'mugs': ('Find ceramic mugs', '找陶瓷杯'),
+    'price': ('Show the cheapest options', '按价格最低排序'),
+    'blue': ('Only blue ones', '只看蓝色'),
+    'reviews': ('Which have good reviews?', '只看有好评的商品'),
+    'compare': ('Compare these products', '比较这些商品'),
+}
 
 TYPES = {
     'mug': ('mug', 'mugs', 'cup', 'cups', '杯'),
@@ -174,15 +183,104 @@ def comparison_text(rows, details, zh):
     return '\n'.join(lines)
 
 
-def discover(text, previous=None, history=()):
-    filters = plan(text, previous)
+def result_presentation(text, filters, rows, shown, comparing, action=None):
+    """Explain the result using the effective filters and stored facts only."""
+    zh = filters.get('language') == 'zh'
+    lower = text.casefold()
+    if comparing:
+        mode = 'compare'
+    elif action:
+        mode = {'mugs': 'search', 'blue': 'colour'}.get(action, action)
+    elif keys_in(lower, COLOURS):
+        mode = 'colour'
+    elif any(word in lower for word in ('review', 'rated', 'rating', '评价', '好评', '评分')):
+        mode = 'reviews'
+    elif filters.get('sort') == 'price':
+        mode = 'price'
+    elif filters.get('min_rating'):
+        mode = 'reviews'
+    else:
+        mode = 'search'
+    titles = {
+        'search': ('Matching pieces', '找到的商品'),
+        'price': ('Price comparison', '价格比较'),
+        'colour': ('Matching colours', '符合颜色条件的商品'),
+        'reviews': ('Published customer reviews', '已发布的买家评价'),
+        'compare': ('Compare these pieces', '商品对比'),
+    }
+    labels = {
+        'mug': ('Mugs', '杯子'), 'bowl': ('Bowls', '碗'), 'plate': ('Plates', '盘碟'),
+        'vase': ('Vases', '花瓶'), 'candle': ('Candles', '蜡烛'), 'linen': ('Linen', '亚麻'),
+        'ceramic': ('Ceramic', '陶瓷'), 'wood': ('Wood', '木材'), 'cotton': ('Cotton', '棉'),
+        'brass': ('Brass', '黄铜'), 'blue': ('Blue', '蓝色'), 'white': ('White', '白色'),
+        'black': ('Black', '黑色'), 'green': ('Green', '绿色'), 'red': ('Red', '红色'),
+        'pink': ('Pink', '粉色'), 'yellow': ('Yellow', '黄色'), 'brown': ('Brown', '棕色'),
+    }
+    tags = [labels[value][zh] for key in ('types', 'materials', 'colours')
+            for value in filters.get(key, []) if value in labels]
+    if filters.get('max_price') is not None:
+        budget = f"{filters.get('currency', '')} {filters['max_price']}".strip()
+        tags.append(('预算不超过 ' if zh else 'Up to ') + budget)
+    elif filters.get('currency'):
+        tags.append(filters['currency'])
+    if filters.get('min_rating'):
+        tags.append(f"{filters['min_rating']:g}/5 " + ('及以上' if zh else 'or higher'))
+    if filters.get('in_stock'):
+        tags.append('有货' if zh else 'In stock')
+    tags += filters.get('keywords', [])
+    if filters.get('sort') == 'price':
+        tags.append('价格从低到高 · 同币种' if zh else 'Price: low to high · same currency')
+    elif filters.get('sort') == 'rating':
+        tags.append('评分从高到低' if zh else 'Highest rated first')
+    explanations = {
+        'search': ('Browse pieces that match the filters below.', '查看符合下列条件的商品。'),
+        'price': ('Compare item prices within each currency; delivery is not included.',
+                  '按同一币种比较商品单价，不含运费。'),
+        'colour': ('Only pieces whose name or listed options match the requested colour are shown.',
+                   '仅展示名称或规格符合所选颜色的商品。'),
+        'reviews': ('Ratings and excerpts come from published reviews. Unreviewed pieces do not meet a rating filter.',
+                    '评分与摘录来自已发布评价；无评价商品不计入好评结果。'),
+        'compare': ('Compare the displayed pieces using current catalogue facts.',
+                    '根据当前商品记录，逐项比较已展示的商品。'),
+    }
+    match_word = 'match' if len(rows) == 1 else 'matches'
+    count = (f"找到 {len(rows)} 件，展示 {len(shown)} 件。" if zh else
+             f"{len(rows)} {match_word}; showing {len(shown)}.")
+    if mode == 'price':
+        lowest = {}
+        for item in rows:
+            currency = item['currency']
+            lowest[currency] = min(lowest.get(currency, Decimal(item['price'])), Decimal(item['price']))
+        for item in shown:
+            item['price_difference'] = format(Decimal(item['price']) - lowest[item['currency']], '.2f')
+    if mode == 'reviews':
+        for item in shown:
+            reviews = Review.objects.filter(product__slug=item['slug'], is_published=True).order_by(
+                '-created_at', '-pk').values('rating', 'title', 'body', 'order_item_id')[:2]
+            item['review_examples'] = [{'rating': review['rating'],
+                'title': review['title'][:160], 'body': ' '.join(review['body'].split())[:280],
+                'verified_purchase': review['order_item_id'] is not None} for review in reviews]
+    return {'mode': mode, 'title': titles[mode][zh], 'summary': explanations[mode][zh] + ' ' + count,
+            'filters': tags, 'match_count': len(rows), 'shown_count': len(shown)}
+
+
+def discover(text, previous=None, history=(), action=None):
+    if action is not None and action not in QUICK_ACTIONS:
+        raise ValueError('Unknown shopping action')
+    # Buttons have an exact, server-owned meaning. Free-text conversations still
+    # use the configured model; a price/filter button does not need an LLM call.
+    query = QUICK_ACTIONS[action][bool(re.search(r'[\u4e00-\u9fff]', text))] if action else text
+    filters = plan(query, previous)
+    if action == 'reviews':
+        filters.update(sort='rating', min_rating=4)
     zh = filters.get('language') == 'zh'
     if re.search(r'(?:set|update|delete|refund|ship)\s+(?:stock|price|order|product)|修改库存|修改价格|退款|发货', text, re.I):
         return {'reply': '卖家操作请使用卖家微信小程序。这里仅查询商品，不会修改库存或付款。' if zh else
                 'Use the seller Mini Program for shop operations. This assistant only reads the catalogue; it cannot change stock or payments.',
                 'products': [], 'context': previous or {}, 'engine': 'guided'}
     products = list(catalogue()[:1000])
-    model, problem = buyer_ai.interpret(text, previous, model_facts(products) if buyer_ai.enabled() else [],
+    model, problem = (None, '') if action else buyer_ai.interpret(
+        text, previous, model_facts(products) if buyer_ai.enabled() else [],
         history, {'types': list(TYPES), 'materials': list(MATERIALS), 'colours': list(COLOURS)})
     engine, ai_reply, details = 'guided', '', []
     if model:
@@ -249,5 +347,7 @@ def discover(text, previous=None, history=()):
     if problem:
         notice = ('今日 AI 演示额度已用完，暂时使用目录匹配。' if problem == 'quota' else 'AI 暂时不可用，已切换为目录匹配。') if zh else (
             "Today's AI allowance is used up; using catalogue matching." if problem == 'quota' else 'AI is temporarily unavailable; using catalogue matching.')
+    presentation = result_presentation(text, filters, rows, shown, comparing, action)
     return {'reply': reply, 'products': shown, 'total': len(rows), 'has_more': offset + len(shown) < len(rows),
+            'presentation': presentation,
             'context': filters, 'engine': engine, 'comparison_basis': basis, 'notice': notice}

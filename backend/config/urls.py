@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path, reverse_lazy
 
-from frontend import views, views_seller
+from frontend import views, views_onboarding, views_seller
 from concierge import buyer_views
 
 urlpatterns = [
@@ -80,6 +80,12 @@ urlpatterns = [
         template_name="frontend/account/password_reset_complete.html",
     ), name="password_reset_complete"),
     path("account/logout/", views.account_logout, name="logout"),
+
+    # Public seller onboarding. Outside the "seller/" prefix so the marketplace
+    # URLConf keeps these routes; approval lives in accounts.seller_onboarding.
+    path("sell/", views_onboarding.sell_landing, name="sell"),
+    path("account/seller-application/", views_onboarding.seller_application,
+         name="seller_application"),
 
     # Seller surface
     path("seller/", views.seller_dashboard, name="seller_dashboard"),

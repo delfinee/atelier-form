@@ -450,6 +450,11 @@ def auth_page(request, mode):
                 merge_session_cart(request, user)
                 login(request, user)
                 messages.success(request, _("Your account is ready."))
+                # One post-registration destination is honoured: the seller
+                # application a visitor started from. Compared exactly, so no
+                # other or external `next` value is ever followed.
+                if request.GET.get("next", "").strip() == reverse("seller_application"):
+                    return redirect("seller_application")
                 return redirect("account_overview")
             errors = {field: " ".join(field_errors)
                       for field, field_errors in registration_form.errors.items()}

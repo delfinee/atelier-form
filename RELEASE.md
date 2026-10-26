@@ -108,7 +108,10 @@ Privacy declaration must match the real processing: hashed WeChat identifier,
 linked account email/permissions, shop/order/delivery information, messages and
 confirmation history; essential storage/cookies and user-initiated clipboard
 write; website-selected photo upload. No native location, contacts, microphone,
-camera or photo-library permissions. No external LLM in this release.
+camera or photo-library permissions. If optional DeepSeek processing is enabled,
+declare the actual message/context processing described above and verify the
+native consent notice matches the deployed configuration. A guided-only release
+must explicitly disable external LLM calls; do not claim that mode when AI is enabled.
 
 The actual operator, hosting arrangement and contact details must be verified
 before submission. Do not invent registration or filing information. Keep the

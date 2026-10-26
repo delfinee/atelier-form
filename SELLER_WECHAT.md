@@ -1,10 +1,12 @@
 # Delivery update — 16 October 2026
 
+> This document combines reusable API/acceptance instructions with dated delivery history. Historical test counts and phone confirmations are not current release certification. For present scope use [current status](OUTSTANDING_TASKS.md); for fresh local setup use [development setup](BEGINNER_SETUP.md).
+
 Current integrated entry points and acceptance instructions are in
 [UNIFIED_DELIVERY.md](UNIFIED_DELIVERY.md): buyer website plus seller Mini Program.
 The website seller workspace below is retained as historical implementation detail.
 
-See [TEAM_ACCEPTANCE.md](TEAM_ACCEPTANCE.md) for the current team runbook.
+See [TEAM_ACCEPTANCE.md](TEAM_ACCEPTANCE.md) for the earlier seller-only acceptance record.
 Seller website and real-phone acceptance are complete for this team test build.
 The owner confirmed all four phone actions; stored stock, price, unpublished
 listing and fulfillment results were independently checked. This is not a

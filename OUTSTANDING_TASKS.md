@@ -1,106 +1,51 @@
-# Outstanding Tasks
+# Current implementation and acceptance status
 
-Last reviewed: 8 September 2026.
+Reviewed against `544c3e6a979e7e903f623c7aa14b0bf0edbed23e` on 26 October 2026. This replaces the 8 September checklist. “Implemented” means evidence exists in current source; test files alone do not prove execution or release readiness.
 
-## Recommended delivery order
+## Reconciliation of the previous tracker
 
-1. Finish the seller dashboard and per-seller fulfilment workflow.
-2. Add a complete browser end-to-end buyer-to-seller test.
-3. Complete Simplified Chinese localisation.
-4. Deploy and verify a separate staging build.
-5. Complete account workflow and production polish.
-6. Attempt Could-tier features only if the earlier items pass.
+| Previous task or decision | Current evidence and disposition |
+| --- | --- |
+| Seller create/edit forms, image management, variants, price and stock | Implemented in `frontend/views_seller.py`, `frontend/forms_seller.py` and seller templates; covered by `frontend/tests_seller.py`. |
+| Seller order detail, status, carrier and tracking | Implemented in `frontend/views.py`, `backend/orders/api.py` and `backend/orders/services.py`; seller/API regression cases exist. |
+| Per-seller fulfilment / multi-vendor order structure | `SellerFulfillment` and migration `orders/0004` exist. One commercial order can have separate seller fulfilments; no split-payment settlement is established. |
+| Full buyer-to-seller browser test: sign-in, bag, mock payment, seller visibility, dispatch and buyer tracking | Django checkout, seller API, fulfilment and frontend tests cover portions of the flow. No standalone full-browser automation suite was found. Run and record the complete browser journey on a local/staging instance. |
+| Remaining template/validation/static-copy translations | Translation catalogue, presentation helpers and extensive `frontend/test_catalogue_i18n.py` coverage now exist. Do not treat the old unchecked boxes as missing implementation; complete linguistic coverage still requires review. |
+| Seed catalogue, makers, FAQs and journal translation | Implemented through `frontend/catalogue_i18n.py` and gettext catalogue, with English/Chinese tests and guards preserving customised content. |
+| Chinese address and phone validation | `frontend/forms.py` and account serializers contain validation; localisation tests cover address input contracts. A comprehensive China-specific address/phone acceptance standard is not established by this audit; team review remains. |
+| Fluent-speaker review | Cannot be inferred from code or historical checkboxes. Record reviewer, flows and date. |
+| Change-password form | `account_change_password` view, route and profile form exist. |
+| Reset token, confirmation and completion pages | Django auth views, routes and templates exist. Real email delivery requires SMTP; local console mode prints the reset email. |
+| In-app order/fulfilment notifications | Account overview includes notification presentation; commerce services emit order/shipment/delivery notifications through an email abstraction. A separate persistent notification inbox/read-state service is not established. |
+| Seller analytics | Seller dashboard aggregates current order/product data in `frontend/views.py`. |
+| No-key recommendations / recommendation decision | `backend/recommendations/services.py` implements popular/similar/user/guest ranking with tests. Model-provider credentials are not required for these rankings. |
+| Buyer–seller threaded messaging / transport decision | `backend/messaging/` and `frontend/static/frontend/js/chatbot.js` implement persistent conversations and HTTP polling. This is separate from optional AI assistance. |
+| Could-tier scope decision | Several optional features are integrated. The team should approve the demonstrated scope and acceptance evidence rather than reopen old implementation tasks. |
+| Chinese search decision | Current database text matching remains; a dedicated segmentation/search engine is not established. Evaluate search quality before choosing an extension/service. |
+| Payment splitting | Per-seller fulfilment does not settle funds. Merchant/settlement design remains an external decision. |
+| Real Stripe WeChat Pay | Provider implementation and signature verification exist in `backend/payments/services.py`. Keys, merchant eligibility, payment-method setup and sandbox/live verification remain external gates. |
+| Transactional email | Commerce sender defaults to console; a real commerce sender needs integration. Password-reset SMTP is separately configurable. |
+| Cloud image storage | Database image storage and SVG fallbacks exist. Cloud storage is an optional capacity decision, not required for the current demo. |
+| Custom domain | `demo.maijiax.cn` is referenced by hosted demo configuration and Windows build tooling. This does not establish a custom domain for the buyer storefront or a released native app. |
+| Commissioned photography | Placeholder assets and Openverse storage/fetching exist. Original studio photography and rights review remain team inputs. |
+| Legal/regulatory review | Not established by source inspection. Actual operator, hosting and platform declarations must be reviewed before public release. |
+| Vercel/Neon deployment, migrations, seed catalogue, 130 photos and image credits previously marked complete | Historical deployment claims are not current verification. Source supports Vercel, PostgreSQL and image credits; exact live database contents, region and photo count were not queried. See the cleanup report for current reachability checks. |
+| Separate staging deployment and tested local fallback | Local/isolated demo profiles and launchers exist. Current staging availability and a fresh-machine fallback rehearsal still need recorded acceptance. |
 
-## Completed infrastructure work
+## Acceptance still requiring evidence
 
-- [x] Deploy and verify the production application on Vercel:
-  - [x] Production URL: <https://dip-new-repo.vercel.app>.
-  - [x] Homepage returns HTTP 200.
-  - [x] `/api/health/` returns HTTP 200 with database status `ok`.
-- [x] Provision and connect a pooled Neon Postgres database in Singapore.
-- [x] Apply migrations and load the seed catalogue into production.
-- [x] Fetch and store all 130 openly licensed image slots in Postgres.
-- [x] Verify live JPEG delivery and the image-credits page.
+The former “project-ready” checklist is now an evidence request:
 
-Production deployment does not replace the outstanding requirement for a
-separate staging deployment and a tested local fallback.
+- Run the complete local regression suite and record the commit, database isolation and results. No tracked GitHub Actions workflow was found; remote CI success is unverified.
+- Exercise the complete buyer-to-seller browser journey, including multi-seller access boundaries, mock payment and fulfilment visibility.
+- Review English and Simplified Chinese primary flows with a fluent speaker.
+- Verify the intended staging deployment and a fresh local fallback.
+- Perform a dedicated secrets/release review before distribution; this documentation audit is not a repository-wide security certification.
+- Keep demonstrations explicit about mock payments and simulated shipping.
+- Record WeChat upload/review/publication separately from successful local or phone previews.
 
-### P1 — Required product work
+## Historical review findings
 
-- [ ] Finish the seller dashboard browser experience:
-  - [ ] Add product create and edit forms.
-  - [ ] Add product image management.
-  - [ ] Add variant, price and stock management.
-  - [ ] Add seller order detail pages.
-  - [ ] Let sellers update their fulfilment status, carrier and tracking number.
-- [ ] Model fulfilment per seller rather than only at the whole-order level.
-- [ ] Add one complete browser end-to-end test:
-  - [ ] Buyer signs in or registers.
-  - [ ] Buyer adds a product and completes checkout.
-  - [ ] Buyer completes the mock WeChat Pay flow.
-  - [ ] Seller signs in and sees the correct order lines.
-  - [ ] Seller updates fulfilment and tracking.
-  - [ ] Buyer sees the updated order state.
-- [ ] Complete Simplified Chinese localisation:
-  - [ ] Translate remaining templates and validation messages.
-  - [ ] Translate static page copy.
-  - [ ] Translate seeded catalogue, maker, FAQ and journal content.
-  - [ ] Add appropriate Chinese address and phone validation.
-  - [ ] Have a fluent speaker review the final translations.
-- [ ] Complete the frontend account workflow:
-  - [ ] Add a change-password form using the existing API behaviour.
-  - [ ] Add password-reset token, confirmation and completion pages.
+The original reviews are retained in [docs/archive](docs/README.md). Their “OPEN” labels refer to older branch snapshots. In current source, fulfilment eligibility is enforced centrally, product form writes are transactional, and localisation regression coverage exists. Remaining seller wording/extraction quality and formset UX should be reviewed separately; no application refactoring was performed here.
 
-### P2 — Could-tier features
-
-- [ ] Add in-app order and fulfilment notifications.
-- [ ] Add seller analytics using existing product and order data.
-- [ ] Add popularity- or content-based product recommendations that need no
-      external AI provider.
-- [ ] Add buyer-seller threaded messaging using ordinary HTTP polling.
-
-## Can be started after a team decision
-
-| Decision                     | Practical options                                                   | Why it blocks final implementation                                                               |
-| ---------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Multi-vendor order structure | Seller sub-orders; per-seller fulfilment records                    | The current cart creates one order, while sellers need independently tracked work.               |
-| Payment splitting            | Stripe Connect; demonstration-only settlement ledger                | The choice changes the data model, provider flow and what the demo promises.                     |
-| Chat transport               | HTTP polling; Django Channels/WebSockets                            | WebSockets add Redis and deployment complexity. Polling is the recommended project-scale option. |
-| Chinese search               | Existing `ILIKE`; `pg_trgm`; `zhparser`/`pg_jieba`; external search | Each option has different search quality and infrastructure requirements.                        |
-| Recommendations              | Popularity/content-based; external AI provider                      | The approach determines whether credentials, usage limits and evaluation data are needed.        |
-| Could-tier scope             | Include selected features; formally defer them                      | The Must-tier flow should be complete before optional work begins.                               |
-
-Recommended defaults for the student demonstration are seller sub-orders or
-per-seller fulfilment records, a manual settlement ledger, polling-based
-messaging, the documented `ILIKE` search fallback, and popularity/content-based
-recommendations.
-
-## Blocked on accounts, credentials or external material
-
-These cannot be completed independently from the current workspace.
-
-| Task                                 | Required input or access                                                                                                                                                                                     |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Real Stripe WeChat Pay               | Eligible Stripe/merchant account, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` and an approved settlement design                                                                                             |
-| Transactional email delivery         | Resend, SendGrid or SES account, API key and preferably a verified sending domain                                                                                                                            |
-| Cloud image storage                  | S3, Cloudinary or equivalent account, bucket/configuration and credentials. Only needed once `imagery_siteimage` makes `pg_dump` unwieldy.                                                                   |
-| Custom domain                        | Purchased/approved domain and DNS access                                                                                                                                                                     |
-| Commissioned product photography     | Supplied and licensed studio assets. Openly licensed stand-ins are in place and legally usable, but they photograph other people's pieces, not ours.                                                         |
-| Production legal/regulatory review   | Team/business decisions and qualified legal review                                                                                                                                                           |
-
-The local mock payment provider, console notification sender and the generated SVG
-fallbacks keep the application fully runnable while these integrations remain
-unavailable.
-
-## Definition of project-ready
-
-The project is ready for its assessed demonstration when:
-
-- [ ] All Must-tier acceptance criteria pass.
-- [ ] The automated test suite and remote CI pass.
-- [ ] The complete buyer-to-seller browser test passes.
-- [ ] The English and Simplified Chinese primary flows have been reviewed.
-- [ ] A staging deployment is healthy and a tested local fallback is available.
-- [ ] No production secret is committed.
-- [ ] The demo uses sandbox/mock payments and clearly states that no real money
-      moves.
+See [cleanup validation](docs/CLEANUP_REPORT.md) for checks actually executed during this update.

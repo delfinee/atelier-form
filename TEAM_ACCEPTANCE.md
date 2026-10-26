@@ -1,5 +1,7 @@
 # Archived seller-only acceptance (16 October)
 
+> Historical acceptance record. Dates, tunnel links, test counts and release-archive filenames below describe the original delivery; they were not revalidated by the 26 October documentation audit. Some evidence files belong to that external archive, not this repository. For a fresh installation use [development setup](BEGINNER_SETUP.md). This filename is retained because `launch_seller.py` references it.
+
 **Current delivery:** See [UNIFIED_DELIVERY.md](UNIFIED_DELIVERY.md). The buyer
 assistant is now integrated into the main website; seller operations are in the
 WeChat Mini Program. The notes below record the earlier seller-only acceptance.

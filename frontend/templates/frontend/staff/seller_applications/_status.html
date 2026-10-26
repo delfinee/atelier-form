@@ -1,0 +1,1 @@
+{% load i18n %}{% if application.status == "pending" %}<span class="badge badge--quiet">{% translate "Pending" %}</span>{% elif application.status == "approved" %}<span class="badge badge--accent">{% translate "Approved" %}</span>{% elif application.status == "rejected" %}<span class="badge">{% translate "Rejected" %}</span>{% endif %}

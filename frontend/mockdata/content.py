@@ -50,6 +50,7 @@ FOOTER_NAV = [
         {"label": _("Makers"), "href": "/makers/"},
         {"label": _("Materials"), "href": "/our-story/#materials"},
         {"label": _("Journal"), "href": "/journal/"},
+        {"label": _("Sell with us"), "href": "/sell/"},
     ]},
     {"title": _("Help"), "links": [
         {"label": _("Shipping"), "href": "/shipping-returns/#shipping"},

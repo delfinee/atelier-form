@@ -6,6 +6,7 @@ frontend never asks for one.
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 
 from config.mixins import TimeStampedModel, UUIDModel
@@ -167,3 +168,58 @@ class WishlistItem(TimeStampedModel):
 
     def __str__(self):
         return f"{self.user.email} ♥ {self.product.name}"
+
+
+class SellerApplication(UUIDModel, TimeStampedModel):
+    """One moderated request per user to become a seller.
+
+    Creating an application grants nothing. Its status, reviewer fields and
+    `maker` are written only by the server-side approval service; the database
+    checks below reject any combination that service could never produce.
+    """
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
+
+    user = models.OneToOneField(User, related_name="seller_application", on_delete=models.CASCADE)
+    shop_name = models.CharField(max_length=160)    # becomes Maker.name
+    discipline = models.CharField(max_length=120)   # Maker.discipline is required
+    location = models.CharField(max_length=120)     # Maker.location is required
+    description = models.TextField(max_length=2000, blank=True)  # becomes Maker.short_bio
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING,
+                              db_index=True)
+    # SET_NULL keeps a decision on record if the reviewer's account is later deleted.
+    reviewed_by = models.ForeignKey(User, related_name="+", null=True, blank=True,
+                                    on_delete=models.SET_NULL)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    review_note = models.TextField(max_length=1000, blank=True)
+    # PROTECT: a shop created by an approval cannot be deleted out from under it.
+    maker = models.OneToOneField("products.Maker", related_name="seller_application",
+                                 null=True, blank=True, on_delete=models.PROTECT)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.CheckConstraint(
+                name="seller_application_status_valid",
+                condition=Q(status__in=["pending", "approved", "rejected"]),
+            ),
+            models.CheckConstraint(
+                name="seller_application_review_state_consistent",
+                condition=(
+                    Q(status="pending", reviewed_at__isnull=True, reviewed_by__isnull=True,
+                      maker__isnull=True)
+                    | Q(status="approved", reviewed_at__isnull=False, maker__isnull=False)
+                    | Q(status="rejected", reviewed_at__isnull=False, maker__isnull=True)
+                ),
+            ),
+            models.CheckConstraint(
+                name="seller_application_required_text",
+                condition=~Q(shop_name="") & ~Q(discipline="") & ~Q(location=""),
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.shop_name} ({self.get_status_display()}) — {self.user.email}"

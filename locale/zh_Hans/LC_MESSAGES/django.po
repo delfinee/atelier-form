@@ -4196,3 +4196,278 @@ msgstr "对比商品"
 
 msgid "Looking through the catalogue…"
 msgstr "正在查找商品…"
+
+# Seller onboarding: public application, applicant status and administrator review.
+
+msgid "Sell with us"
+msgstr "成为卖家"
+
+msgid "Atelier Form is a short list of makers we know by name. If you make by hand in small batches, apply to open a shop here."
+msgstr "Atelier Form 只与我们叫得出名字的少数匠人合作。如果您以手工小批量制作，欢迎在这里申请开设店铺。"
+
+msgid "How it works"
+msgstr "申请流程"
+
+msgid "Sign in, or create an account with your email."
+msgstr "登录，或用邮箱创建账户。"
+
+msgid "Tell us about your shop: its name, what you make and where you work."
+msgstr "介绍您的店铺：店铺名称、您制作的作品以及工作地点。"
+
+msgid "We review every application. Once approved, you can add your products and manage your shop."
+msgstr "每一份申请我们都会审核。通过后，您即可添加商品并管理店铺。"
+
+msgid "Manage your products"
+msgstr "管理您的商品"
+
+msgid "View your application"
+msgstr "查看您的申请"
+
+msgid "Start your application"
+msgstr "开始申请"
+
+msgid "Create an account to apply"
+msgstr "创建账户以申请"
+
+msgid "Already have an account?"
+msgstr "已有账户？"
+
+msgid "Seller application"
+msgstr "卖家申请"
+
+msgid "Apply to open a shop on Atelier Form."
+msgstr "申请在 Atelier Form 开设店铺。"
+
+msgid "We need to check your account"
+msgstr "我们需要核查您的账户"
+
+msgid "Your account's seller details need attention from our team before anything else can happen. Please contact us and we will sort it out."
+msgstr "您账户的卖家信息需要我们的团队先行处理，之后才能继续。请联系我们，我们会为您解决。"
+
+msgid "Under review"
+msgstr "审核中"
+
+msgid "Not approved"
+msgstr "未通过"
+
+msgid "Thank you for applying. We review every application and will let you know the outcome here."
+msgstr "感谢您的申请。每一份申请我们都会审核，结果将在此页面告知您。"
+
+msgid "We're not able to approve this application."
+msgstr "很抱歉，我们无法通过这份申请。"
+
+msgid "What you make"
+msgstr "您制作的作品"
+
+msgid "Where you work"
+msgstr "工作地点"
+
+msgid "About your shop"
+msgstr "关于您的店铺"
+
+msgid "Applying does not open a shop straight away. We review every application first."
+msgstr "提交申请后不会立即开设店铺，我们会先审核每一份申请。"
+
+msgid "Submit application"
+msgstr "提交申请"
+
+msgid "Pending"
+msgstr "待审核"
+
+msgid "Approved"
+msgstr "已通过"
+
+msgid "Rejected"
+msgstr "已拒绝"
+
+msgid "Seller applications"
+msgstr "卖家申请审核"
+
+msgid "Review requests to open a shop. Pending applications are listed oldest first."
+msgstr "审核开设店铺的申请。待审核的申请按提交时间从早到晚排列。"
+
+msgid "Filter by status"
+msgstr "按状态筛选"
+
+#, python-format
+msgid "Submitted %(date)s"
+msgstr "提交于 %(date)s"
+
+msgid "No applications here"
+msgstr "暂无申请"
+
+msgid "Applications with this status will appear here."
+msgstr "该状态的申请将显示在这里。"
+
+msgid "Pages"
+msgstr "分页"
+
+msgid "Previous"
+msgstr "上一页"
+
+#, python-format
+msgid "Page %(number)s of %(total)s"
+msgstr "第 %(number)s 页，共 %(total)s 页"
+
+msgid "Next"
+msgstr "下一页"
+
+msgid "Needs manual reconciliation"
+msgstr "需要人工核对"
+
+msgid "Approval and rejection are unavailable until the account is reconciled by hand. Nothing has been changed."
+msgstr "在人工核对该账户之前，无法通过或拒绝此申请。系统未做任何更改。"
+
+msgid "This is your own application. Another administrator must review it."
+msgstr "这是您本人的申请，须由其他管理员审核。"
+
+msgid "Application"
+msgstr "申请"
+
+msgid "Shop name"
+msgstr "店铺名称"
+
+msgid "What they make"
+msgstr "制作的作品"
+
+msgid "Where they work"
+msgstr "工作地点"
+
+msgid "About their work"
+msgstr "作品介绍"
+
+msgid "Submitted"
+msgstr "提交时间"
+
+msgid "Applicant"
+msgstr "申请人"
+
+msgid "Account active"
+msgstr "账户已启用"
+
+msgid "Yes"
+msgstr "是"
+
+msgid "No"
+msgstr "否"
+
+msgid "Seller role"
+msgstr "卖家身份"
+
+msgid "Shops owned"
+msgstr "名下店铺"
+
+msgid "inactive"
+msgstr "已停用"
+
+msgid "None"
+msgstr "无"
+
+msgid "Shop from this application"
+msgstr "本申请开设的店铺"
+
+msgid "Decision"
+msgstr "审核结果"
+
+msgid "Outcome"
+msgstr "结果"
+
+msgid "Reviewed by"
+msgstr "审核人"
+
+msgid "A deleted account"
+msgstr "已删除的账户"
+
+msgid "Reviewed"
+msgstr "审核时间"
+
+msgid "Reason shown to the applicant"
+msgstr "向申请人展示的理由"
+
+msgid "Decide"
+msgstr "审核"
+
+msgid "Approving creates the applicant's shop and gives them seller access."
+msgstr "通过后将为申请人开设店铺并授予卖家权限。"
+
+msgid "Approve application"
+msgstr "通过申请"
+
+msgid "The applicant's account is inactive, so this application can't be approved."
+msgstr "申请人的账户已停用，因此无法通过此申请。"
+
+msgid "The applicant will see this reason on their application page."
+msgstr "申请人将在其申请页面看到此理由。"
+
+#, python-format
+msgid "Up to %(limit)s characters."
+msgstr "最多 %(limit)s 个字符。"
+
+msgid "Reject application"
+msgstr "拒绝申请"
+
+msgid "You have already applied. Your application's status is below."
+msgstr "您已提交过申请，申请状态见下方。"
+
+msgid "Thank you. Your application has been sent for review."
+msgstr "谢谢，您的申请已提交审核。"
+
+msgid "This application has already been decided, so that decision can't be made. Nothing was changed."
+msgstr "此申请已有审核结果，无法再作出该决定。系统未做任何更改。"
+
+msgid "The applicant's account is inactive, so it can't be approved. Nothing was changed."
+msgstr "申请人的账户已停用，因此无法通过。系统未做任何更改。"
+
+msgid "The applicant's seller role or shop doesn't match this application. Nothing was changed: reconcile the account by hand first."
+msgstr "申请人的卖家身份或店铺与此申请不符。系统未做任何更改，请先人工核对该账户。"
+
+msgid "Please give a reason for the rejection."
+msgstr "请填写拒绝理由。"
+
+msgid "The reason is too long."
+msgstr "理由过长。"
+
+msgid "The shop linked to this application is not owned by the applicant."
+msgstr "与此申请关联的店铺不属于申请人。"
+
+msgid "The applicant owns a shop other than the one linked to this application."
+msgstr "申请人名下的店铺并非与此申请关联的店铺。"
+
+msgid "The applicant no longer has the seller role."
+msgstr "申请人已不再具有卖家身份。"
+
+msgid "The applicant already has the seller role."
+msgstr "申请人已具有卖家身份。"
+
+msgid "The applicant already owns a shop."
+msgstr "申请人名下已有店铺。"
+
+msgid "You can't review your own application."
+msgstr "您不能审核自己的申请。"
+
+msgid "This decision couldn't be made. Nothing was changed."
+msgstr "无法作出此决定。系统未做任何更改。"
+
+msgid "This application was already approved. Nothing was changed."
+msgstr "此申请此前已通过，系统未做任何更改。"
+
+msgid "Approved. The applicant now has a shop and seller access."
+msgstr "已通过。申请人现已拥有店铺和卖家权限。"
+
+msgid "This application was already rejected. The original reason was kept."
+msgstr "此申请此前已被拒绝，原有理由保持不变。"
+
+msgid "Rejected. The applicant can now see your reason."
+msgstr "已拒绝。申请人现在可以看到您填写的理由。"
+
+msgid "About your work"
+msgstr "作品介绍"
+
+msgid "e.g. Ceramics, weaving"
+msgstr "例如：陶瓷、编织"
+
+msgid "e.g. Jingdezhen"
+msgstr "例如：景德镇"
+
+msgid "Reason for the applicant"
+msgstr "给申请人的理由"

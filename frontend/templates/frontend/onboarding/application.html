@@ -1,0 +1,59 @@
+{% extends "frontend/account/base.html" %}
+{% load i18n %}
+
+{% block account_title %}{% translate "Seller application" %}{% endblock %}
+{% block account_lede %}<p class="lede">{% translate "Apply to open a shop on Atelier Form." %}</p>{% endblock %}
+
+{% block account_content %}
+{% if inconsistent %}
+  <section class="panel" data-application-state="inconsistent">
+    <div class="panel__head"><h3>{% translate "We need to check your account" %}</h3></div>
+    <p>{% translate "Your account's seller details need attention from our team before anything else can happen. Please contact us and we will sort it out." %}</p>
+    <p class="form-note" style="margin-top:0.8rem"><a class="text-link" href="{% url 'contact' %}">{% translate "Contact the studio" %}</a></p>
+  </section>
+
+{% elif application %}
+  <section class="panel" data-application-state="{{ application.status }}">
+    <div class="panel__head">
+      <h3>{{ application.shop_name }}</h3>
+      {% if application.status == "pending" %}
+        <span class="badge badge--quiet">{% translate "Under review" %}</span>
+      {% elif application.status == "rejected" %}
+        <span class="badge">{% translate "Not approved" %}</span>
+      {% endif %}
+    </div>
+    {% if application.status == "pending" %}
+      <p>{% translate "Thank you for applying. We review every application and will let you know the outcome here." %}</p>
+    {% elif application.status == "rejected" %}
+      <p>{% translate "We're not able to approve this application." %}</p>
+      {% if application.review_note %}
+        <p class="form-note" style="margin-top:0.8rem">{{ application.review_note }}</p>
+      {% endif %}
+    {% endif %}
+    <dl class="form-note" style="margin-top:1.2rem;display:grid;grid-template-columns:auto 1fr;gap:0.3rem 1rem">
+      <dt>{% translate "What you make" %}</dt><dd>{{ application.discipline }}</dd>
+      <dt>{% translate "Where you work" %}</dt><dd>{{ application.location }}</dd>
+    </dl>
+  </section>
+
+{% else %}
+  <form class="panel" method="post" action="{% url 'seller_application' %}" novalidate>
+    {% csrf_token %}
+    <div class="panel__head"><h3>{% translate "About your shop" %}</h3></div>
+    {% for error in form.non_field_errors %}
+      <p class="field-error" role="alert">{{ error }}</p>
+    {% endfor %}
+    {% for field in form %}
+      <div class="field">
+        <label class="label" for="{{ field.id_for_label }}">{{ field.label }}{% if not field.field.required %} <span class="muted">{% translate "(optional)" %}</span>{% endif %}</label>
+        {{ field }}
+        {% if field.errors %}
+          <div role="alert">{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+    <p class="form-note" style="margin-top:1rem">{% translate "Applying does not open a shop straight away. We review every application first." %}</p>
+    <p style="margin-top:1.4rem"><button class="btn" type="submit">{% translate "Submit application" %}</button></p>
+  </form>
+{% endif %}
+{% endblock %}

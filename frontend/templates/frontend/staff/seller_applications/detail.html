@@ -1,0 +1,104 @@
+{% extends "frontend/base.html" %}
+{% load i18n %}
+
+{% block newsletter %}{% endblock %}
+
+{% block content %}
+<div class="shell page-head">
+  <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+    <a href="{% url 'account_overview' %}">{% translate "Account" %}</a><span class="sep">/</span><a href="{% url 'staff_seller_applications' %}?status={{ application.status }}">{% translate "Seller applications" %}</a><span class="sep">/</span><span aria-current="page">{{ application.shop_name }}</span>
+  </nav>
+  <h1 style="font-size:var(--step-3)">{{ application.shop_name }}</h1>
+  <p style="margin-top:0.8rem" data-review-status="{{ application.status }}">{% include "frontend/staff/seller_applications/_status.html" %}</p>
+</div>
+
+<div class="shell shell--narrow" style="padding-bottom:var(--section)">
+  {% if problems %}
+    <section class="panel" data-review-state="inconsistent" style="border-color:var(--clay-deep)">
+      <div class="panel__head"><h3>{% translate "Needs manual reconciliation" %}</h3></div>
+      <ul style="padding-left:1.2rem;display:grid;gap:0.4rem">
+        {% for problem in problems %}<li>{{ problem }}</li>{% endfor %}
+      </ul>
+      <p class="form-note" style="margin-top:0.8rem">{% translate "Approval and rejection are unavailable until the account is reconciled by hand. Nothing has been changed." %}</p>
+    </section>
+  {% endif %}
+
+  {% if own_application %}
+    <section class="panel" data-review-state="own">
+      <p>{% translate "This is your own application. Another administrator must review it." %}</p>
+    </section>
+  {% endif %}
+
+  <section class="panel">
+    <div class="panel__head"><h3>{% translate "Application" %}</h3></div>
+    <dl style="display:grid;grid-template-columns:auto 1fr;gap:0.4rem 1.2rem">
+      <dt class="muted">{% translate "Shop name" %}</dt><dd>{{ application.shop_name }}</dd>
+      <dt class="muted">{% translate "What they make" %}</dt><dd>{{ application.discipline }}</dd>
+      <dt class="muted">{% translate "Where they work" %}</dt><dd>{{ application.location }}</dd>
+      <dt class="muted">{% translate "About their work" %}</dt><dd style="white-space:pre-line">{{ application.description|default:"—" }}</dd>
+      <dt class="muted">{% translate "Submitted" %}</dt><dd>{{ application.created_at|date:"j M Y, H:i" }}</dd>
+    </dl>
+  </section>
+
+  <section class="panel" data-applicant>
+    <div class="panel__head"><h3>{% translate "Applicant" %}</h3></div>
+    <dl style="display:grid;grid-template-columns:auto 1fr;gap:0.4rem 1.2rem">
+      <dt class="muted">{% translate "Email" %}</dt><dd>{{ applicant.email }}</dd>
+      <dt class="muted">{% translate "Name" %}</dt><dd>{{ applicant.get_full_name }}</dd>
+      <dt class="muted">{% translate "Account active" %}</dt><dd data-flag="active">{% if applicant.is_active %}{% translate "Yes" %}{% else %}{% translate "No" %}{% endif %}</dd>
+      <dt class="muted">{% translate "Seller role" %}</dt><dd data-flag="seller">{% if applicant.is_seller %}{% translate "Yes" %}{% else %}{% translate "No" %}{% endif %}</dd>
+      <dt class="muted">{% translate "Shops owned" %}</dt>
+      <dd data-owned-makers>
+        {% for maker in owned_makers %}
+          {{ maker.name }} <span class="muted">({{ maker.slug }}{% if not maker.is_active %}, {% translate "inactive" %}{% endif %})</span>{% if not forloop.last %}<br>{% endif %}
+        {% empty %}{% translate "None" %}{% endfor %}
+      </dd>
+      <dt class="muted">{% translate "Shop from this application" %}</dt>
+      <dd data-linked-maker>{% if application.maker %}{{ application.maker.name }} <span class="muted">({{ application.maker.slug }}{% if not application.maker.is_active %}, {% translate "inactive" %}{% endif %})</span>{% else %}{% translate "None" %}{% endif %}</dd>
+    </dl>
+  </section>
+
+  {% if application.status != "pending" %}
+    <section class="panel" data-decision>
+      <div class="panel__head"><h3>{% translate "Decision" %}</h3></div>
+      <dl style="display:grid;grid-template-columns:auto 1fr;gap:0.4rem 1.2rem">
+        <dt class="muted">{% translate "Outcome" %}</dt><dd>{% include "frontend/staff/seller_applications/_status.html" %}</dd>
+        <dt class="muted">{% translate "Reviewed by" %}</dt><dd>{% if application.reviewed_by %}{{ application.reviewed_by.email }}{% else %}{% translate "A deleted account" %}{% endif %}</dd>
+        <dt class="muted">{% translate "Reviewed" %}</dt><dd>{{ application.reviewed_at|date:"j M Y, H:i" }}</dd>
+        {% if application.status == "rejected" %}
+          <dt class="muted">{% translate "Reason shown to the applicant" %}</dt><dd style="white-space:pre-line">{{ application.review_note }}</dd>
+        {% endif %}
+      </dl>
+    </section>
+  {% endif %}
+
+  {% if can_approve or can_reject %}
+    <section class="panel" data-review-controls>
+      <div class="panel__head"><h3>{% translate "Decide" %}</h3></div>
+      {% if can_approve %}
+        <form method="post" action="{% url 'staff_seller_application_approve' application.uuid %}">
+          {% csrf_token %}
+          <p class="form-note">{% translate "Approving creates the applicant's shop and gives them seller access." %}</p>
+          <p style="margin-top:0.8rem"><button class="btn" type="submit">{% translate "Approve application" %}</button></p>
+        </form>
+      {% elif application.status == "pending" and not applicant.is_active %}
+        <p class="form-note">{% translate "The applicant's account is inactive, so this application can't be approved." %}</p>
+      {% endif %}
+      {% if can_reject %}
+        <form method="post" action="{% url 'staff_seller_application_reject' application.uuid %}" style="margin-top:1.6rem" novalidate>
+          {% csrf_token %}
+          <div class="field">
+            <label class="label" for="{{ rejection_form.reason.id_for_label }}">{{ rejection_form.reason.label }}</label>
+            {{ rejection_form.reason }}
+            <p class="form-note" style="margin-top:0.4rem"><strong>{% translate "The applicant will see this reason on their application page." %}</strong> {% blocktranslate with limit=rejection_form.reason.field.max_length %}Up to {{ limit }} characters.{% endblocktranslate %}</p>
+            {% if rejection_form.reason.errors %}
+              <div role="alert">{% for error in rejection_form.reason.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+            {% endif %}
+          </div>
+          <p style="margin-top:1rem"><button class="btn btn--outline" type="submit">{% translate "Reject application" %}</button></p>
+        </form>
+      {% endif %}
+    </section>
+  {% endif %}
+</div>
+{% endblock %}

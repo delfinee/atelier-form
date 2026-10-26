@@ -1,0 +1,36 @@
+{% extends "frontend/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="shell page-head">
+  <nav class="breadcrumbs" aria-label="{% translate "Breadcrumb" %}">
+    <a href="{% url 'home' %}">{% translate "Home" %}</a><span class="sep">/</span><span aria-current="page">{% translate "Sell with us" %}</span>
+  </nav>
+  <h1>{% translate "Sell with us" %}</h1>
+  <p class="lede">{% translate "Atelier Form is a short list of makers we know by name. If you make by hand in small batches, apply to open a shop here." %}</p>
+</div>
+
+<div class="shell shell--text" style="padding-bottom:var(--section)">
+  <section class="panel">
+    <div class="panel__head"><h3>{% translate "How it works" %}</h3></div>
+    <ol style="padding-left:1.2rem;display:grid;gap:0.6rem">
+      <li>{% translate "Sign in, or create an account with your email." %}</li>
+      <li>{% translate "Tell us about your shop: its name, what you make and where you work." %}</li>
+      <li>{% translate "We review every application. Once approved, you can add your products and manage your shop." %}</li>
+    </ol>
+  </section>
+
+  <p style="margin-top:1.6rem" data-onboarding-cta>
+    {% if state == "seller" %}
+      <a class="btn" href="{% url 'seller_product_list' %}">{% translate "Manage your products" %}</a>
+    {% elif application %}
+      <a class="btn" href="{{ apply_url }}">{% translate "View your application" %}</a>
+    {% elif user.is_authenticated %}
+      <a class="btn" href="{{ apply_url }}">{% translate "Start your application" %}</a>
+    {% else %}
+      <a class="btn" href="{{ register_url }}">{% translate "Create an account to apply" %}</a>
+      <span class="form-note" style="margin-left:1rem">{% translate "Already have an account?" %} <a class="text-link" href="{{ login_url }}">{% translate "Sign in" %}</a></span>
+    {% endif %}
+  </p>
+</div>
+{% endblock %}

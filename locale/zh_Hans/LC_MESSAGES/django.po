@@ -4281,7 +4281,7 @@ msgid "Rejected"
 msgstr "已拒绝"
 
 msgid "Seller applications"
-msgstr "卖家申请"
+msgstr "卖家申请审核"
 
 msgid "Review requests to open a shop. Pending applications are listed oldest first."
 msgstr "审核开设店铺的申请。待审核的申请按提交时间从早到晚排列。"

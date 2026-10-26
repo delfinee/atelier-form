@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path, reverse_lazy
 
-from frontend import views, views_onboarding, views_seller
+from frontend import views, views_onboarding, views_seller, views_seller_review
 from concierge import buyer_views
 
 urlpatterns = [
@@ -86,6 +86,18 @@ urlpatterns = [
     path("sell/", views_onboarding.sell_landing, name="sell"),
     path("account/seller-application/", views_onboarding.seller_application,
          name="seller_application"),
+
+    # Administrator review of seller applications. "staff/" is not a prefix the
+    # marketplace URLConf filters out; each view admits active administrators
+    # only and returns 404 to everyone else.
+    path("staff/seller-applications/", views_seller_review.application_list,
+         name="staff_seller_applications"),
+    path("staff/seller-applications/<uuid:uuid>/", views_seller_review.application_detail,
+         name="staff_seller_application_detail"),
+    path("staff/seller-applications/<uuid:uuid>/approve/", views_seller_review.application_approve,
+         name="staff_seller_application_approve"),
+    path("staff/seller-applications/<uuid:uuid>/reject/", views_seller_review.application_reject,
+         name="staff_seller_application_reject"),
 
     # Seller surface
     path("seller/", views.seller_dashboard, name="seller_dashboard"),

@@ -48,6 +48,11 @@ def _require_reviewer(reviewer) -> None:
         raise PermissionDenied("Only an administrator can review seller applications.")
 
 
+def require_reviewer(reviewer) -> None:
+    """Public form of the reviewer check, so review pages gate on the same rule."""
+    _require_reviewer(reviewer)
+
+
 def _lock_for_review(application_id, reviewer):
     """Authorise, then lock the application and its applicant in the fixed order."""
     _require_reviewer(reviewer)

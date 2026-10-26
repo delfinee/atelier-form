@@ -1,3 +1,5 @@
+> Historical branch review, archived 26 October 2026. Findings and test counts describe the original snapshot, not the current release. See [current status](../../OUTSTANDING_TASKS.md) and [documentation index](../README.md). Source paths below are relative to the repository root.
+
 # Jun Jie Localisation Code Review & Handover
 
 **Project:** Atelier Form — NTU EE3180 DIP E006  

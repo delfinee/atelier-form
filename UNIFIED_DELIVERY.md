@@ -27,8 +27,10 @@ and replies for buyer chat, including English/Chinese follow-ups, gift suggestio
 and comparisons. `DEEPSEEK_MODEL` defaults to `deepseek-flash`; the shared daily
 provider-call allowance is set by `BUYER_AI_DAILY_LIMIT` (default 500).
 Only messages, limited conversation context and public catalogue facts are sent.
-The sample environment enables the buyer AI switch; supply the key privately on
-the server. An explicit `BUYER_AI_USE_LLM=0` still selects catalogue-only mode.
+Base settings default the buyer AI switch off, while the tracked `.env.example`
+enables it. Configure the switch explicitly and supply the key privately on the
+server. `BUYER_AI_USE_LLM=0`
+selects catalogue-only mode.
 The price, colour, review and comparison buttons use their exact catalogue actions;
 free-text questions and conversational follow-ups use DeepSeek when enabled.
 The widget discloses model processing and shows the active mode. Model-selected

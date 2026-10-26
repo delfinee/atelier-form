@@ -1,3 +1,5 @@
+> Historical branch review, archived 26 October 2026. Findings and test counts describe the original snapshot, not the current release. See [current status](../../OUTSTANDING_TASKS.md) and [documentation index](../README.md). Source paths below are relative to the repository root.
+
 # HANDOVER — Min: Seller Dashboard Frontend Integration
 
 ## 0. Context & Handover Summary

@@ -1,5 +1,7 @@
 # Seller Mini Program phone preview
 
+> The acceptance results and temporary origin below are dated 16 October evidence, not a current availability guarantee. Use your own approved origin and environment. See [development setup](BEGINNER_SETUP.md) for a fresh checkout.
+
 Status on 16 October 2026: the official DevTools preview command generated a
 26,726-byte Mini Program preview and its QR code for `wx8cb01bd3c9f16e2a`
 (卖家智能X助手). No release or experience-version upload was performed.
@@ -50,7 +52,7 @@ computer the tunnel executable is `D:\CodexWork\DIP\runtime\cloudflared.exe`.
 Then run from this repository using the existing Python environment:
 
 ```powershell
-& '..\runtime\venv\Scripts\python.exe' run_seller_phone.py --env-file '..\dip-new-repo-test\.env' --origin 'https://YOUR-APPROVED-HOST'
+& '.\.venv\Scripts\python.exe' run_seller_phone.py --env-file '.\.env' --origin 'https://YOUR-APPROVED-HOST'
 ```
 
 This generates `.seller-agent-runtime/phone-miniprogram` with real WeChat login

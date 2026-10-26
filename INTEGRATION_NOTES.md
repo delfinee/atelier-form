@@ -1,5 +1,7 @@
 # Buyer and seller integration for team review
 
+> Integration provenance: the base commit and change claims below describe the original integration. Current implementation and validation are summarised in [OUTSTANDING_TASKS.md](OUTSTANDING_TASKS.md) and [the cleanup report](docs/CLEANUP_REPORT.md).
+
 This work is based on `delfinee/dip-new-repo-test` main at
 `83e1a9e2c9b5adee209e78bc1a4b8dd1a52a14d8`. Review the feature branch against main;
 do not replace main with an exported folder or the older customer-service branch.

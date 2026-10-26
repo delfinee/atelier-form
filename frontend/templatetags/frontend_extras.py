@@ -13,6 +13,7 @@ from frontend.catalogue_i18n import (
     localize_order_status, localize_order_timeline, localize_payment_status,
     localize_size_label,
 )
+from frontend.order_progress import buyer_order_progress
 from imagery.models import RATIOS as PIXEL_RATIOS
 from imagery.resolver import image_url
 
@@ -116,6 +117,12 @@ def order_estimated(order):
 @register.simple_tag
 def order_timeline(order):
     return localize_order_timeline(order)
+
+
+@register.simple_tag
+def buyer_progress(order):
+    """Buyer-facing status, timeline and shipments (see frontend.order_progress)."""
+    return buyer_order_progress(order)
 
 
 @register.simple_tag

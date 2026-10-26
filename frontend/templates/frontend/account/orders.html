@@ -14,7 +14,7 @@
           {% order_date order as placed_date %}{% blocktranslate count n=order.items.all|length with date=placed_date total=order.total|money %}Placed {{ date }} · {{ n }} item · {{ total }}{% plural %}Placed {{ date }} · {{ n }} items · {{ total }}{% endblocktranslate %}
         </p>
       </div>
-      <span class="status status--{{ order.status }}">{% order_status order.status_label %}</span>
+      {% buyer_progress order as progress %}<span class="status status--{{ progress.status }}">{{ progress.label }}</span>
     </div>
 
     <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem">

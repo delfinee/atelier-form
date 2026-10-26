@@ -283,9 +283,14 @@ def order_confirmation(request, uuid):
 
 # -- Account & auth ------------------------------------------------------
 
+# Everything the buyer progress tag reads (frontend.order_progress), loaded
+# once per page rather than once per order.
+BUYER_ORDER_PREFETCH = ("items", "seller_fulfillments__maker")
+
+
 @login_required
 def account_overview(request):
-    orders = Order.objects.filter(user=request.user).prefetch_related("items")
+    orders = Order.objects.filter(user=request.user).prefetch_related(*BUYER_ORDER_PREFETCH)
     return render(request, "frontend/account/overview.html", {
         "customer": request.user,
         "recent_order": orders.first(),
@@ -300,7 +305,7 @@ def account_overview(request):
 def account_orders(request):
     return render(request, "frontend/account/orders.html", {
         "customer": request.user,
-        "orders": Order.objects.filter(user=request.user).prefetch_related("items"),
+        "orders": Order.objects.filter(user=request.user).prefetch_related(*BUYER_ORDER_PREFETCH),
         "meta_title": f"{_('Orders')} — {SITE['brand']}",
     })
 
@@ -309,7 +314,7 @@ def account_orders(request):
 def account_order_detail(request, order_id):
     # Scoped to the signed-in user: another customer's order number 404s.
     order = Order.objects.filter(user=request.user, order_number=order_id) \
-        .prefetch_related("items").first()
+        .prefetch_related(*BUYER_ORDER_PREFETCH).first()
     if not order:
         raise Http404("Unknown order")
     return render(request, "frontend/account/order_detail.html", {

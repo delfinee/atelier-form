@@ -2,28 +2,34 @@
 {% load i18n frontend_extras %}
 
 {% block account_title %}{% blocktranslate with number=order.order_number %}Order {{ number }}{% endblocktranslate %}{% endblock %}
-{% block account_lede %}<p class="lede">{% order_date order as placed_date %}{% order_status order.status_label as status_label %}{% blocktranslate with date=placed_date status=status_label %}Placed {{ date }} · {{ status }}{% endblocktranslate %}</p>{% endblock %}
+{% block account_lede %}<p class="lede">{% order_date order as placed_date %}{% buyer_progress order as progress %}{% blocktranslate with date=placed_date status=progress.label %}Placed {{ date }} · {{ status }}{% endblocktranslate %}</p>{% endblock %}
 
 {% block account_content %}
 <p style="margin-bottom:var(--gap)">
   <a class="link" href="{% url 'account_orders' %}">{% icon "chevron-left" 16 %} {% translate "All orders" %}</a>
 </p>
 
+{% buyer_progress order as progress %}
 <div class="panel">
   <div class="panel__head">
     <h3>{% translate "Progress" %}</h3>
-    <span class="status status--{{ order.status }}">{% order_status order.status_label %}</span>
+    <span class="status status--{{ progress.status }}">{{ progress.label }}</span>
   </div>
   <ul class="timeline">
-    {% order_timeline order as timeline %}
-    {% for step in timeline %}
+    {% for step in progress.timeline %}
       <li class="{% if step.done %}is-done{% endif %}">
         <span class="mark">{% icon "check" 12 %}</span>
         <span>{{ step.label }}<br><span class="when">{{ step.date }}</span></span>
       </li>
     {% endfor %}
   </ul>
-  {% if order.tracking_number %}
+  {% if progress.shipments %}
+    <div style="margin-top:1.2rem">
+      {% for shipment in progress.shipments %}
+        <p class="muted">{{ shipment.maker }}{% if shipment.dispatched %} · {% translate "Dispatched" %}{% if shipment.date %} {{ shipment.date }}{% endif %}{% endif %}{% if shipment.tracking_number %} · {% if shipment.carrier %}{% blocktranslate with carrier=shipment.carrier number=shipment.tracking_number %}{{ carrier }} · Tracking {{ number }}{% endblocktranslate %}{% else %}{{ shipment.tracking_number }}{% endif %}{% elif shipment.carrier %} · {{ shipment.carrier }}{% endif %}</p>
+      {% endfor %}
+    </div>
+  {% elif order.tracking_number %}
     <p class="muted" style="margin-top:1.2rem">{% blocktranslate with carrier=order.carrier number=order.tracking_number %}{{ carrier }} · Tracking {{ number }}{% endblocktranslate %}</p>
   {% endif %}
 </div>

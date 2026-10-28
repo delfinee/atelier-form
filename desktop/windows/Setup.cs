@@ -23,7 +23,7 @@ internal sealed class SellerSetup : Form
 
     private SellerSetup()
     {
-        Text = "Install Atelier Seller Coursework Demo";
+        Text = "Install Atelier Seller";
         ClientSize = new Size(620, 345);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -31,8 +31,8 @@ internal sealed class SellerSetup : Form
         Font = new Font("Segoe UI", 9F);
         BackColor = Color.FromArgb(244, 247, 242);
         var flow = new FlowLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(28), FlowDirection = FlowDirection.TopDown, WrapContents = false };
-        flow.Controls.Add(new Label { Text = "Atelier Seller 1.2.0", AutoSize = true, Font = new Font(Font.FontFamily, 20, FontStyle.Bold), ForeColor = Color.FromArgb(37, 79, 62) });
-        flow.Controls.Add(new Label { Text = "Coursework demo · Products, orders and DeepSeek AI.\nNo account needed. Payment and shipping are simulated.", Width = 530, Height = 60, Padding = new Padding(0, 12, 0, 0) });
+        flow.Controls.Add(new Label { Text = "Atelier Seller 1.3.2", AutoSize = true, Font = new Font(Font.FontFamily, 20, FontStyle.Bold), ForeColor = Color.FromArgb(37, 79, 62) });
+        flow.Controls.Add(new Label { Text = "Products, orders and AI in one seller workspace.\nShared school demo builds open directly without sign-in.", Width = 530, Height = 60, Padding = new Padding(0, 12, 0, 0) });
         flow.Controls.Add(new Label { Text = "Install location (no administrator access required)", AutoSize = true });
         folder.Text = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "AtelierSeller");
         if (Directory.Exists(@"D:\")) folder.Text = @"D:\Apps\AtelierSeller";

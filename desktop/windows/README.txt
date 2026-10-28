@@ -1,37 +1,38 @@
-Atelier Seller 1.2.0 - Coursework Demo (English, Windows x64)
+Atelier Seller 1.3.2 (English, Windows x64)
 
-GET STARTED
-1. Run AtelierSeller.exe, or use the Setup installer to choose an installation folder and create a desktop shortcut.
-2. Windows opens the workspace directly. On the website, click "Open demo". No account, password or shop-mode selection is required.
-3. Use AI assistant, Products, and Orders & shipping in the left sidebar.
-4. Inspect the sample products, request a stock/price change, or create an unpublished sample listing.
-5. Review the exact proposed change and confirm it before it is saved.
-6. Open My orders, enter a sample carrier and tracking number, and confirm a simulated shipment.
+SHARED SCHOOL DEMO
+Website: https://dip-new-repo.vercel.app
+Open AtelierSeller.exe and use Assistant or Products immediately. No login,
+seller verification or WeChat linking is needed in this school workspace.
+The app uses the original website catalogue, including its existing product
+photos, makers and stock. Changes use that website database; no products are
+copied from another demo database.
 
-WHAT THE DEMO DOES
-The website and Windows app use the same demo service.
-Each browser session gets its own sample shop with three products and one simulated paid order.
-DeepSeek interprets free-form messages on the server. Shortcut commands read the database directly.
-Products, orders, conversations and confirmed changes are stored in the demo database.
-Payments and shipping are simulated: nothing is charged and no parcel is sent.
-This edition has no Live shop selector or production account setup.
+CREATE A PRODUCT
+Tell Assistant the name, category, description, price and stock quantity.
+Review and confirm the proposed draft. Open its product editor, add a photo,
+select Is active, and Save product to publish it on the main website.
+Teammates can refresh the website to see it. Confirmed stock and price changes
+also update the same existing catalogue records.
 
 REQUIREMENTS
-Windows 10 or 11 (64-bit), .NET Framework 4.8, Microsoft Edge WebView2 Runtime, and internet access.
-Official WebView2 download: https://developer.microsoft.com/microsoft-edge/webview2/
-The cloud-hosted demonstration service must remain online; the developer's PC can be switched off.
-Website: https://demo.maijiax.cn
-app-settings.json contains only the demo service address. No API keys or passwords are bundled.
-Use invented test information only. Messages and relevant sample product/order data may be processed by DeepSeek.
+Windows 10 or 11 (64-bit), .NET Framework 4.8, Microsoft Edge WebView2 Runtime,
+and internet access. WebView2: https://developer.microsoft.com/microsoft-edge/webview2/
+The website is hosted online; this PC does not host the database.
+app-settings.json contains the website origin and mode=shared-demo.
+No database passwords or API keys are included in the app.
+DeepSeek runs on the website if a server-side API key is configured;
+guided commands remain available if the provider cannot respond.
 
-SESSIONS AND REMOVAL
-"New demo" starts a fresh sample shop by clearing this computer's current demo login cookies.
-Each browser or device has a separate sample workspace.
-Close the app to remove its installation folder and desktop shortcut.
+SCHOOL WORKSPACE
+Everyone visiting the shared workspace can manage its catalogue. Use test
+information for this coursework demo. Existing buyer accounts and historical
+customer orders are not exposed by the shared workspace.
+Messages and catalogue facts may be processed by DeepSeek when enabled.
+This unsigned coursework build is not a Microsoft Store release.
+WebView2 SDK 1.0.4314.35. License and third-party notices are included.
+
+REMOVAL
+Close the app, then remove its installation folder and desktop shortcut.
 Local browser data is stored at %LOCALAPPDATA%\AtelierSeller\WebView.
-Saved records on the demo server remain until its administrator removes or resets them.
-
-RELEASE STATUS
-This is an unsigned coursework build, not a Microsoft Store release.
-Follow your device's security policy if Windows blocks execution; the web demo provides the same functions.
-WebView2 SDK 1.0.4314.35. Microsoft license and third-party notices are included.
+Removing the app does not delete any website products.

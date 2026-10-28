@@ -3,7 +3,7 @@
 <body {% if request.seller_public_demo %}class="simple-workspace"{% endif %}>{% if request.seller_public_demo %}{% include 'seller_agent/demo_nav.html' %}{% endif %}<main class="product-editor">{% if not request.seller_public_demo %}<p class="eyebrow">ATELIER FORM · SELLER</p>{% endif %}<nav><a href="{% url 'seller_ai' %}">Seller assistant</a> · <a href="{% url 'seller_product_list' %}">My products</a></nav>
 <h1>{% if is_edit %}Edit {{ product.name }}{% else %}New product{% endif %}</h1>
 
-{% if not request.seller_public_demo %}<p>Save your photos, options and product details here. Select “Is active” when the product is ready to appear in your shop.</p>{% endif %}
+{% if request.seller_shared_demo %}<p>Select “Is active” and save to publish this product on the main website for everyone.</p>{% endif %}{% if not request.seller_public_demo %}<p>Save your photos, options and product details here. Select “Is active” when the product is ready to appear in your shop.</p>{% endif %}
 {% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
 <form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
 <section class="panel info"><h2>Product details</h2>{{ form.as_p }}</section>

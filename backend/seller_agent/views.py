@@ -12,10 +12,12 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 def desk(request):
     if not settings.SELLER_AGENT_ENABLED:
         raise Http404
-    template = "seller_agent/demo_desk.html" if getattr(settings, "SELLER_PUBLIC_DEMO", False) else "seller_agent/desk.html"
+    shared_demo = getattr(request, "seller_shared_demo", False)
+    public_demo = shared_demo or getattr(settings, "SELLER_PUBLIC_DEMO", False)
+    template = "seller_agent/demo_desk.html" if public_demo else "seller_agent/desk.html"
     return render(request, template, {"mode":"web", "csrf_cookie_name":settings.CSRF_COOKIE_NAME,
         "phone_preview":getattr(settings, "SELLER_PHONE_PREVIEW", False),
-        "public_demo":getattr(settings, "SELLER_PUBLIC_DEMO", False),
+        "public_demo":public_demo, "shared_demo":shared_demo,
         "seller_only":getattr(settings, "SELLER_PHONE_PREVIEW", False) or getattr(settings, "SELLER_PRODUCTION", False) or getattr(settings, "SELLER_PUBLIC_DEMO", False)})
 
 

@@ -1,7 +1,8 @@
 param(
     [Parameter(Mandatory=$true)][string]$WebViewPackage,
     [Parameter(Mandatory=$true)][string]$OutputDirectory,
-    [string]$DemoOrigin = 'https://demo.maijiax.cn'
+    [Alias('DemoOrigin')][string]$Origin = 'https://demo.maijiax.cn',
+    [ValidateSet('demo','live','shared-demo')][string]$Mode = 'demo'
 )
 $ErrorActionPreference = 'Stop'
 $source = $PSScriptRoot
@@ -24,9 +25,9 @@ Copy-Item -LiteralPath (Join-Path $source 'AtelierSeller.exe.config') -Destinati
 Copy-Item -LiteralPath (Join-Path $source 'README.txt') -Destination $portable -Force
 Copy-Item -LiteralPath (Join-Path $package 'LICENSE.txt') -Destination (Join-Path $portable 'WebView2-LICENSE.txt') -Force
 Copy-Item -LiteralPath (Join-Path $package 'NOTICE.txt') -Destination (Join-Path $portable 'WebView2-NOTICE.txt') -Force
-@{demoOrigin=$DemoOrigin.TrimEnd('/')} |
+@{origin=$Origin.TrimEnd('/');mode=$Mode} |
     ConvertTo-Json | Set-Content -LiteralPath (Join-Path $portable 'app-settings.json') -Encoding UTF8
-'AtelierSeller 1.2.0 coursework en-US' | Set-Content -LiteralPath (Join-Path $portable '.atelier-seller')
+"AtelierSeller 1.3.2 $Mode en-US" | Set-Content -LiteralPath (Join-Path $portable '.atelier-seller')
 & $compiler /nologo /target:exe /platform:x64 "/out:$portable\DesktopPolicyTests.exe" `
     "/r:$portable\AtelierSeller.exe" "$source\PolicyTests.cs"
 if ($LASTEXITCODE -ne 0) { throw 'Policy test compilation failed.' }

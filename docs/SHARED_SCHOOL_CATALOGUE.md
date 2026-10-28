@@ -17,8 +17,11 @@ Existing browser login sessions are preserved; writes still require CSRF.
 `SELLER_SHARED_DEMO_ENABLED=1` also enables the mode on another deployment.
 To turn the school workspace off, set `SELLER_SHARED_DEMO_ENABLED=0` and
 `SELLER_SHARED_DEMO_HOSTS=`. Other hosts retain the normal seller permissions.
-No database migration is required. The dedicated account and maker are created
-on the first shared workspace request; no existing rows are reassigned.
+The production Vercel build applies any missing existing `seller_agent`
+migration before publishing the app. This adds the conversation/change tables;
+it does not migrate or seed the product catalogue. Preview builds skip schema
+changes. The dedicated account and maker are created on the first shared
+workspace request; no existing rows are reassigned.
 
 The assistant reads current products and prepares stock, price and listing
 changes. The visitor must confirm each preview. New listings start as drafts;

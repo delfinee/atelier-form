@@ -104,7 +104,7 @@ See [development setup](BEGINNER_SETUP.md) for isolation, targeted checks and tr
 
 ## Deployment and external dependencies
 
-- **Vercel storefront:** `api/index.py` exposes Django WSGI; `vercel.json` selects `sin1`. Configure PostgreSQL, production secrets, hosts and trusted origins. Static collection and schema preparation must be handled by the deployment process; the checked-in Vercel configuration has no build command.
+- **Vercel storefront:** `api/index.py` exposes Django WSGI; `vercel.json` selects `sin1`. Configure PostgreSQL, production secrets, hosts and trusted origins. The build collects static assets and applies missing seller-assistant migrations on production deployments. Other application schema migrations remain an operator step.
 - **Combined server deployment:** [RELEASE.md](RELEASE.md) describes Docker/PostgreSQL/Gunicorn/Caddy using `config.marketplace_production`.
 - **Separate hosted seller demo:** [WINDOWS_SELLER.md](WINDOWS_SELLER.md) describes `config.seller_hosted_demo`, isolated sample shops and the Windows client.
 - **WeChat:** [SELLER_WECHAT.md](SELLER_WECHAT.md) and [SELLER_PHONE.md](SELLER_PHONE.md) describe local integration and phone preview. Public publication requires the platform release process.

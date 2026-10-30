@@ -101,6 +101,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "seller_agent.shared_demo.SharedSchoolDemoMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -273,6 +274,10 @@ COMMERCE = {
 
 PAYMENT_BACKEND = env("PAYMENT_BACKEND")
 SELLER_AGENT_ENABLED = env.bool("SELLER_AGENT_ENABLED", default=True)
+SELLER_SHARED_DEMO_ENABLED = env.bool("SELLER_SHARED_DEMO_ENABLED", default=False)
+SELLER_SHARED_DEMO_HOSTS = env.list("SELLER_SHARED_DEMO_HOSTS", default=["dip-new-repo.vercel.app"])
+SELLER_SHARED_DEMO_EMAIL = env.str("SELLER_SHARED_DEMO_EMAIL", default="shared-school-demo@atelierform.invalid")
+SELLER_SHARED_DEMO_SHOP = env.str("SELLER_SHARED_DEMO_SHOP", default="shared-school-demo")
 SELLER_AGENT_USE_LLM = env.bool("SELLER_AGENT_USE_LLM", default=False)
 SELLER_AGENT_MODEL = env.str("SELLER_AGENT_MODEL", default="deepseek-flash")
 SELLER_AGENT_API_KEY = env.str("SELLER_AGENT_API_KEY", default="") or DEEPSEEK_API_KEY

@@ -62,8 +62,9 @@ class Status(Public):
     def get(self, request):
         return Response({"wechat_configured": bool(settings.WECHAT_SELLER_ENABLED and settings.WECHAT_APP_ID and settings.WECHAT_APP_SECRET),
             "developer_login": bool(settings.WECHAT_SELLER_ENABLED and wechat.local_developer_allowed(request)),
-            "onboarding": conversation.DEMO_GUIDE if getattr(settings, "SELLER_PUBLIC_DEMO", False) else conversation.ONBOARDING,
-            "engine": "deepseek" if settings.SELLER_AGENT_USE_LLM and settings.SELLER_AGENT_API_KEY else "guided"})
+            "onboarding": conversation.onboarding_guide(getattr(request, "seller_shared_demo", False)),
+            "shared_demo": getattr(request, "seller_shared_demo", False),
+            "engine": "deepseek" if planner.enabled(getattr(request, "seller_shared_demo", False)) else "guided"})
 
 
 class LoginInput(serializers.Serializer):
@@ -94,7 +95,7 @@ class Me(Base):
         linked = not isinstance(request.auth, WechatSession) or bool(request.auth.identity.user_id)
         return Response({"linked": linked, "is_seller": services.has_shop(request.user) if linked else False,
             "account": request.user.email if linked else None, "channel": channel(request),
-            "onboarding": conversation.ONBOARDING})
+            "onboarding": conversation.onboarding_guide(getattr(request, "seller_shared_demo", False))})
 
 
 class LinkStart(Base):
@@ -173,7 +174,8 @@ class Chat(Linked):
             return Response(old.response)
         catalog = conversation.get_catalog(request.user)
         model_context = {}
-        if planner.enabled():
+        shared_demo = getattr(request, "seller_shared_demo", False)
+        if planner.enabled(shared_demo):
             history = []
             for message in reversed(list(c.messages.order_by("-id")[:6])):
                 response = message.response
@@ -187,7 +189,7 @@ class Chat(Linked):
                 "categories": list(Category.objects.filter(is_active=True).values("slug", "name")[:50]),
                 "history": history,
             }
-        intent = planner.plan(data.validated_data["text"], c.context, catalog, **model_context)
+        intent = planner.plan(data.validated_data["text"], c.context, catalog, shared_demo=shared_demo, **model_context)
         return Response(conversation.respond(request.user, c.uuid, channel=channel(request), plan=intent,
             **data.validated_data))
 

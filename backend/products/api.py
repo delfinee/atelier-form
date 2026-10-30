@@ -127,7 +127,9 @@ class SellerProductViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False) or not self.request.user.is_authenticated:
             return Product.objects.none()
-        return Product.objects.filter(maker__owner=self.request.user).select_related(
+        catalogue = (Product.objects.all() if getattr(self.request, "seller_shared_demo", False)
+                     else Product.objects.filter(maker__owner=self.request.user))
+        return catalogue.select_related(
             "category", "maker",
         ).prefetch_related("collections")
 

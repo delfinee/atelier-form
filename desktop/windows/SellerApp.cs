@@ -12,7 +12,7 @@ using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 
 [assembly: System.Reflection.AssemblyTitle("Atelier Seller")]
-[assembly: System.Reflection.AssemblyVersion("1.2.0.0")]
+[assembly: System.Reflection.AssemblyVersion("1.3.2.0")]
 
 namespace AtelierSeller
 {
@@ -62,12 +62,40 @@ namespace AtelierSeller
         }
     }
 
+    public sealed class ConnectionSettings
+    {
+        public readonly string Origin;
+        public readonly bool IsDemo;
+        public readonly bool IsSharedDemo;
+        public string StartPath { get { return IsDemo ? "/" : "/seller/ai/"; } }
+
+        public ConnectionSettings(string origin, string mode)
+        {
+            if (!ConnectionPolicy.IsAllowedOrigin(origin))
+                throw new ArgumentException("Configure a valid HTTPS website origin (or local development address).");
+            if (mode != "demo" && mode != "live" && mode != "shared-demo")
+                throw new ArgumentException("Connection mode must be demo, live or shared-demo.");
+            Origin = origin.TrimEnd('/');
+            IsDemo = mode == "demo";
+            IsSharedDemo = mode == "shared-demo";
+        }
+
+        public static ConnectionSettings FromValues(IDictionary<string, string> values)
+        {
+            string origin = "https://demo.maijiax.cn", mode = "demo";
+            if (values.ContainsKey("origin")) origin = values["origin"];
+            else if (values.ContainsKey("demoOrigin")) origin = values["demoOrigin"];
+            if (values.ContainsKey("mode")) mode = values["mode"];
+            return new ConnectionSettings(origin, mode);
+        }
+    }
+
     internal sealed class SellerWindow : Form
     {
         private readonly Color green = Color.FromArgb(37, 79, 62);
         private readonly Panel surface = new Panel { Dock = DockStyle.Fill, BackColor = Color.White };
         private readonly Label status = new Label { Dock = DockStyle.Bottom, Height = 30, TextAlign = ContentAlignment.MiddleLeft };
-        private readonly string demoOrigin;
+        private readonly ConnectionSettings connection;
         private WebView2 browser;
         private Uri origin;
         private bool switching;
@@ -82,7 +110,8 @@ namespace AtelierSeller
             Font = new Font("Segoe UI", 9F);
             BackColor = Color.FromArgb(243, 246, 242);
             try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
-            demoOrigin = LoadDemoOrigin();
+            connection = LoadConnection();
+            if (!connection.IsDemo) Text = connection.IsSharedDemo ? "Atelier Seller - School demo" : "Atelier Seller - Main website";
             for (int i = 0; i + 1 < args.Length; i++)
                 if (args[i] == "--url" && ConnectionPolicy.IsAllowedOrigin(args[i + 1])) overrideOrigin = args[i + 1];
 
@@ -97,12 +126,22 @@ namespace AtelierSeller
             var web = NavButton("Open in browser");
             web.Click += delegate { if (origin != null) OpenExternal(browser != null && browser.Source != null ? browser.Source.ToString() : origin.ToString()); };
             nav.Controls.Add(web);
-            var clear = NavButton("New demo");
-            clear.Click += delegate { NewDemo(); };
-            nav.Controls.Add(clear);
+            if (connection.IsDemo) {
+                var clear = NavButton("New demo");
+                clear.Click += delegate { NewDemo(); };
+                nav.Controls.Add(clear);
+            } else {
+                var website = NavButton("Main website");
+                website.Click += delegate { OpenExternal(connection.Origin + "/"); };
+                nav.Controls.Add(website);
+            }
             var about = NavButton("Help");
             about.Click += delegate {
-                MessageBox.Show("This coursework demo uses sample products and orders. No account is required.\n\nThe website and Windows app use the same demo service. Each browser session has its own sample shop.\n\nDeepSeek interprets natural-language requests. Review and confirm each proposed change before it is saved to the demo database.\n\nPayments and shipments are simulated. Nothing is charged and no parcel is sent.\n\nTry My products, New listing, and My orders. Internet access and the demo server are required.",
+                MessageBox.Show(connection.IsDemo
+                    ? "This coursework demo uses sample products and orders. No account is required.\n\nThe website and Windows app use the same demo service. Each browser session has its own sample shop.\n\nDeepSeek interprets natural-language requests. Review and confirm each proposed change before it is saved to the demo database.\n\nPayments and shipments are simulated. Nothing is charged and no parcel is sent.\n\nTry My products, New listing, and My orders. Internet access and the demo server are required."
+                    : connection.IsSharedDemo
+                    ? "Shared school demo at " + connection.Origin + ".\n\nNo sign-in or seller verification is required. Everyone uses the existing main website catalogue.\n\nConfirm a new product draft, then publish it in the product editor. Published products are visible to teammates on the main website.\n\nUse test data only. API keys and database credentials are never stored in this app."
+                    : "Connected to " + connection.Origin + ".\n\nSign in using your main website seller account. Products, orders and confirmed AI changes use that website's database and your existing shop permissions.\n\nNew products are saved as unpublished drafts after you confirm the preview. Add photos and publish in the product editor to make them visible to buyers.\n\nYour earlier demo products remain in the separate demo service. This app does not copy them into your main shop. API keys and database credentials are never stored in this app.",
                     "Help", MessageBoxButtons.OK, MessageBoxIcon.Information);
             };
             nav.Controls.Add(about);
@@ -112,7 +151,7 @@ namespace AtelierSeller
             back.Click += delegate { if (browser != null && browser.CanGoBack) browser.GoBack(); };
             var refresh = new Button { Text = "Refresh", Size = new Size(60, 32), FlatStyle = FlatStyle.Flat };
             refresh.Click += delegate { if (browser != null && browser.CoreWebView2 != null) { HideError(); browser.Reload(); } else StartBrowser(); };
-            var demoLabel = new Label { Text = "Demo", AutoSize = false, Width = 75, Height = 36,
+            var demoLabel = new Label { Text = connection.IsDemo ? "Demo" : connection.IsSharedDemo ? "School demo" : "Main website", AutoSize = false, Width = 115, Height = 36,
                 TextAlign = ContentAlignment.MiddleCenter, ForeColor = green };
             top.Controls.Add(back); top.Controls.Add(refresh); top.Controls.Add(demoLabel);
             var center = new Panel { Dock = DockStyle.Fill };
@@ -125,16 +164,14 @@ namespace AtelierSeller
             FormClosed += delegate { if (browser != null) browser.Dispose(); };
         }
 
-        private static string LoadDemoOrigin()
+        private static ConnectionSettings LoadConnection()
         {
-            string result = "https://demo.maijiax.cn";
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app-settings.json");
-            try {
-                var parsed = new JavaScriptSerializer().Deserialize<Dictionary<string, string>>(File.ReadAllText(path));
-                if (parsed.ContainsKey("demoOrigin") && ConnectionPolicy.IsAllowedOrigin(parsed["demoOrigin"]))
-                    result = parsed["demoOrigin"].TrimEnd('/');
-            } catch { }
-            return result;
+            if (!File.Exists(path))
+                return ConnectionSettings.FromValues(new Dictionary<string, string>());
+            var parsed = new JavaScriptSerializer().Deserialize<Dictionary<string, string>>(File.ReadAllText(path));
+            if (parsed == null) throw new ArgumentException("app-settings.json must contain a connection configuration.");
+            return ConnectionSettings.FromValues(parsed);
         }
 
         private Button NavButton(string text)
@@ -163,9 +200,11 @@ namespace AtelierSeller
             if (switching) return;
             switching = true;
             try {
-                string url = overrideOrigin ?? demoOrigin;
+                string url = overrideOrigin ?? connection.Origin;
                 origin = new Uri(url.TrimEnd('/') + "/");
-                status.Text = "Demo data · Payment and shipping are simulated";
+                status.Text = connection.IsDemo ? "Demo data · Payment and shipping are simulated"
+                    : connection.IsSharedDemo ? "Shared school demo · No login · Products sync to the main website"
+                    : "Main website: " + origin.Host + " · Sign in with your seller account";
                 if (browser != null) { browser.Dispose(); browser = null; }
                 surface.Controls.Clear();
                 browser = new WebView2 { Dock = DockStyle.Fill, DefaultBackgroundColor = Color.White };
@@ -185,7 +224,7 @@ namespace AtelierSeller
                 core.Settings.AreBrowserAcceleratorKeysEnabled = false;
                 core.Settings.IsPasswordAutosaveEnabled = false;
                 core.Settings.IsGeneralAutofillEnabled = false;
-                core.Settings.UserAgent += " AtelierSeller/1.2.0";
+                core.Settings.UserAgent += " AtelierSeller/1.3.2";
                 core.PermissionRequested += delegate(object sender, CoreWebView2PermissionRequestedEventArgs e) {
                     e.State = CoreWebView2PermissionState.Deny;
                 };
@@ -207,10 +246,10 @@ namespace AtelierSeller
                 };
                 core.NavigationCompleted += delegate(object sender, CoreWebView2NavigationCompletedEventArgs e) {
                     if (!e.IsSuccess && e.WebErrorStatus != CoreWebView2WebErrorStatus.OperationCanceled)
-                        ShowError("Cannot connect to the seller service", "Check your connection, then choose Refresh. The demo server must remain online.\nError: " + e.WebErrorStatus);
+                        ShowError("Cannot connect to the seller service", "Check your connection, then choose Refresh. The website must remain online.\nError: " + e.WebErrorStatus);
                 };
                 core.ProcessFailed += delegate { ShowError("The page stopped responding", "Choose Refresh to reconnect. Your server records are unaffected."); };
-                core.Navigate(origin.ToString());
+                core.Navigate(new Uri(origin, connection.StartPath).ToString());
             }
             catch (WebView2RuntimeNotFoundException) {
                 ShowError("Microsoft Edge WebView2 is required", "Install Microsoft WebView2 Runtime, then reopen the app.\nSee README.txt for the official download link.");

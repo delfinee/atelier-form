@@ -4,6 +4,7 @@
 <body class="simple-workspace {% if request.GET.view == 'orders' %}records-only{% endif %}" data-public-demo="true" data-mode="web" data-csrf-cookie="{{ csrf_cookie_name }}">
 {% include 'seller_agent/demo_nav.html' %}
 <main>
+{% if shared_demo %}<p class="notice">Shared school demo · No login needed. Published products appear on the main website for everyone.</p>{% endif %}
 <div class="workspace-status"><strong id="account-name">Demo shop</strong><span id="account-status" hidden></span><span id="engine-label"></span><button id="refresh" class="subtle">Refresh</button></div>
 <div id="error" class="notice error" role="alert" hidden></div>
 <div class="layout assistant-grid">

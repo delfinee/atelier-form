@@ -91,8 +91,8 @@ Do not output HTML, links, secrets, code or additional JSON keys.
 """
 
 
-def enabled():
-    return bool(settings.SELLER_AGENT_USE_LLM and settings.SELLER_AGENT_API_KEY)
+def enabled(shared_demo=False):
+    return bool((settings.SELLER_AGENT_USE_LLM or shared_demo) and settings.SELLER_AGENT_API_KEY)
 
 
 def _quota_available():
@@ -163,16 +163,23 @@ def _validated(data, catalog, orders, categories, context):
     return result
 
 
-def plan(text, context, catalog, *, orders=None, categories=None, history=None):
+def plan(text, context, catalog, *, orders=None, categories=None, history=None, shared_demo=False):
     fallback = local_plan(text, context)
     # Keep exact quick actions deterministic, but do not swallow free-form requests
     # merely because they contain words such as "inventory" or "商品".
     canonical = text.casefold().strip() in GUIDED_COMMANDS
     exact_write = fallback["intent"] in ("stock", "price", "fulfillment")
-    if not enabled() or canonical or exact_write:
+    if not enabled(shared_demo) or canonical or exact_write:
         return {**fallback, "engine":"guided"}
     orders, categories = orders or [], categories or []
     system_prompt = SYSTEM_PROMPT
+    if shared_demo:
+        system_prompt += (
+            "\nThis is a shared school demo shop on the main website. No login, seller verification "
+            "or account linking is required. The catalogue contains the existing storefront products; all visitors use that same database. "
+            "Confirmed new listings start unpublished; the product editor publishes them for everyone. "
+            "Use test data only. Never ask the visitor to sign in or verify a seller account."
+        )
     if getattr(settings, "SELLER_PUBLIC_DEMO", False):
         system_prompt += (
             "\nThis is a coursework demonstration, not a live business. The visitor already has "

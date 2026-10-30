@@ -26,6 +26,7 @@ def require_seller(user, lock=False):
     maker = qs.filter(owner=user, is_active=True).first()
     if maker is None:
         raise PermissionDenied("Your website account must be linked to an active shop by the existing onboarding process.")
+    maker._shared_catalogue = getattr(user, "_shared_catalogue", False)
     return maker
 
 
@@ -41,7 +42,8 @@ def conversation_for(user, uuid, lock=False):
 def products(user, low_stock=False):
     maker = require_seller(user)
     result = []
-    for p in Product.objects.filter(maker=maker).prefetch_related("product_variants").order_by("name")[:200]:
+    catalogue = Product.objects.all() if maker._shared_catalogue else Product.objects.filter(maker=maker)
+    for p in catalogue.prefetch_related("product_variants").order_by("name")[:200]:
         variants = [{"id": str(v.uuid), "label": v.label, "quantity": v.stock_quantity,
                      "price": str(v.unit_price), "active": v.is_active} for v in p.product_variants.all()]
         # Keep zero-stock options visible, including a low option on a high-total product.
@@ -70,7 +72,9 @@ def orders(user):
 
 def _inventory_target(maker, target, values, lock=False):
     qs = Product.objects.select_for_update() if lock else Product.objects
-    product = get_object_or_404(qs, maker=maker, slug=target)
+    if not getattr(maker, "_shared_catalogue", False):
+        qs = qs.filter(maker=maker)
+    product = get_object_or_404(qs, slug=target)
     variant_id = values.get("variant")
     variant = None
     variants = ProductVariant.objects.select_for_update() if lock else ProductVariant.objects

@@ -1,4 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "regions": ["sin1"]
+  "regions": ["sin1"],
+  "buildCommand": "python deploy/prepare_vercel.py"
 }

@@ -22,13 +22,19 @@ def _get_seller_maker(request):
     return request.user.maker_profile
 
 
+def _seller_products(request, maker):
+    return Product.objects.all() if getattr(request, 'seller_shared_demo', False) else maker.products.all()
+
+
 @login_required
 @require_http_methods(["GET"])
 def seller_product_list(request, template_name="frontend/seller/products.html"):
     """List all products owned by the authenticated seller."""
     maker = _get_seller_maker(request)
+    if getattr(request, 'seller_shared_demo', False):
+        template_name = 'seller_agent/phone_products.html'
     products = (
-        maker.products
+        _seller_products(request, maker)
         .select_related("category")
         .prefetch_related("product_variants", "product_images")
         .order_by("-updated_at")
@@ -46,6 +52,8 @@ def seller_product_list(request, template_name="frontend/seller/products.html"):
 def seller_product_create(request, template_name="frontend/seller/product_form.html"):
     """Create a new product with variants and image references."""
     maker = _get_seller_maker(request)
+    if getattr(request, 'seller_shared_demo', False):
+        template_name = 'seller_agent/phone_product_form.html'
 
     if request.method == "POST":
         form = SellerProductForm(request.POST)
@@ -98,7 +106,11 @@ def seller_product_create(request, template_name="frontend/seller/product_form.h
 def seller_product_edit(request, slug, template_name="frontend/seller/product_form.html"):
     """Edit an existing seller product and its variants/images."""
     maker = _get_seller_maker(request)
-    products = maker.products.select_for_update() if request.method == "POST" else maker.products
+    if getattr(request, 'seller_shared_demo', False):
+        template_name = 'seller_agent/phone_product_form.html'
+    products = _seller_products(request, maker)
+    if request.method == "POST":
+        products = products.select_for_update()
     product = get_object_or_404(products, slug=slug)
 
     if request.method == "POST":

@@ -84,10 +84,8 @@
       buyer: '买家',
       sending: '发送中...',
       langToggleText: 'EN',
-      selectArtisanPrompt: '选择手作人',
-      selectArtisanDesc: '请选择一位手作人直接咨询其工作室作品。',
       chooseArtisan: '选择手作人...',
-      startChat: '发起对话 →'
+      startChatPrompt: '请从上方选择一位手作人或直接发送消息开启对话。'
     },
     en: {
       launcher: 'Messages',
@@ -106,10 +104,8 @@
       buyer: 'Buyer',
       sending: 'Sending...',
       langToggleText: '中文',
-      selectArtisanPrompt: 'Select an Artisan',
-      selectArtisanDesc: 'Choose an artisan to start a conversation directly with their studio.',
       chooseArtisan: 'Select an artisan...',
-      startChat: 'Start Chat →'
+      startChatPrompt: 'Select an artisan above or type a message below to start.'
     }
   };
 
@@ -122,8 +118,12 @@
 
   function getCsrfToken() {
     if (CFG.csrf) return CFG.csrf;
-    const match = document.cookie.match(/csrftoken=([^;]+)/);
-    return match ? match[1] : '';
+    const inputToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+    if (inputToken) return inputToken;
+    const metaToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    if (metaToken) return metaToken;
+    const match = document.cookie.match(/(?:csrftoken|__Host-[^=]*-csrf|csrf|[^;]*csrf[^=]*)=([^;]+)/i);
+    return match ? decodeURIComponent(match[1]) : '';
   }
 
   function escapeHtml(str) {
@@ -377,7 +377,7 @@
   function populateSellerDropdown(makers) {
     if (!sellerSelect) return;
     const t = i18n[currentLang] || i18n.en;
-    const currentVal = sellerSelect.value;
+    const currentVal = sellerSelect.value || currentContext.makerSlug;
 
     sellerSelect.innerHTML = `<option value="">-- ${t.chooseArtisan} --</option>`;
 
@@ -394,42 +394,16 @@
     }
   }
 
-  // --- Render Artisan Picker View (When general chat opens with no active maker) ---
-  function renderArtisanPicker() {
+  // --- Render Default Empty Chat State (No card bubbles) ---
+  function renderEmptyState(promptText) {
     if (!messagesContainer) return;
     const t = i18n[currentLang] || i18n.en;
-
-    const listHtml = (cachedMakers.length > 0 ? cachedMakers : DEFAULT_MAKERS).map(m => `
-      <div class="crafty-artisan-card" data-seller-slug="${escapeHtml(m.slug)}" data-seller-name="${escapeHtml(m.name)}">
-        <div class="crafty-artisan-card-avatar">🪵</div>
-        <div class="crafty-artisan-card-meta">
-          <div class="crafty-artisan-card-name">${escapeHtml(m.name)}</div>
-          <div class="crafty-artisan-card-sub">${escapeHtml(m.discipline || 'Artisan')}${m.location ? ' · ' + escapeHtml(m.location) : ''}</div>
-        </div>
-        <div class="crafty-artisan-card-action">${t.startChat}</div>
-      </div>
-    `).join('');
-
     messagesContainer.innerHTML = `
-      <div class="crafty-seller-picker-view">
-        <div style="font-size:2rem; margin-bottom:0.25rem;">🏺</div>
-        <h4 class="crafty-seller-picker-title">${t.selectArtisanPrompt}</h4>
-        <p class="crafty-seller-picker-desc">${t.selectArtisanDesc}</p>
-        <div class="crafty-seller-picker-list">
-          ${listHtml}
-        </div>
+      <div class="crafty-empty-placeholder" style="text-align:center; padding:2.5rem 1rem; color:var(--crafty-muted); font-size:0.9rem;">
+        <div style="font-size:2rem; margin-bottom:0.5rem;">🏺</div>
+        <p>${escapeHtml(promptText || t.startChatPrompt || t.noMessages)}</p>
       </div>
     `;
-
-    messagesContainer.querySelectorAll('.crafty-artisan-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const slug = card.getAttribute('data-seller-slug');
-        const name = card.getAttribute('data-seller-name');
-        if (slug) {
-          switchSeller(slug, name);
-        }
-      });
-    });
   }
 
   // --- Switch Active Seller ---
@@ -465,13 +439,13 @@
   async function updateUnreadBadge() {
     if (!CFG.authenticated || !unreadBadge) return;
     try {
-      const res = await fetch('/api/conversations/?role=buyer', {
+      const res = await fetch('/api/conversations/', {
         credentials: 'same-origin',
         headers: { 'Accept': 'application/json' }
       });
       if (!res.ok) return;
       const listData = await res.json();
-      const items = Array.isArray(listData) ? listData : (listData.items || []);
+      const items = Array.isArray(listData) ? listData : (listData.items || listData.results || []);
       let totalUnread = 0;
       items.forEach(c => {
         totalUnread += (c.unread_count || 0);
@@ -565,7 +539,7 @@
   function removeEmptyPlaceholder() {
     if (!messagesContainer) return;
     const t = i18n[currentLang] || i18n.en;
-    const placeholders = messagesContainer.querySelectorAll('.crafty-empty-placeholder, .crafty-seller-picker-view');
+    const placeholders = messagesContainer.querySelectorAll('.crafty-empty-placeholder');
     placeholders.forEach(el => el.remove());
 
     const firstChild = messagesContainer.firstElementChild;
@@ -626,15 +600,15 @@
         }
       }
 
-      // 2. If no explicit maker context, inspect existing conversations for this buyer
+      // 2. If no explicit maker context, inspect existing conversations for this user
       if (!conv) {
-        const listRes = await fetch('/api/conversations/?role=buyer', {
+        const listRes = await fetch('/api/conversations/', {
           credentials: 'same-origin',
           headers: { 'Accept': 'application/json' }
         });
         if (listRes.ok) {
           const listData = await listRes.json();
-          const items = Array.isArray(listData) ? listData : (listData.items || []);
+          const items = Array.isArray(listData) ? listData : (listData.items || listData.results || []);
           if (items.length > 0) {
             // Priority: unread conversation, then most recently updated
             const unreadConv = items.find(c => (c.unread_count || 0) > 0);
@@ -643,16 +617,16 @@
         }
       }
 
-      // 3. If buyer has NO existing conversations and opened general chat, show Artisan Picker
+      // 3. If buyer has NO existing conversations and opened general chat, show clean empty state
       if (!conv) {
         activeConversation = null;
         if (sellerTitle) {
-          sellerTitle.textContent = t.defaultTitle;
+          sellerTitle.textContent = currentContext.makerName || t.defaultTitle;
         }
         if (sellerSelect) {
-          sellerSelect.value = '';
+          sellerSelect.value = currentContext.makerSlug || '';
         }
-        renderArtisanPicker();
+        renderEmptyState();
         return;
       }
 
@@ -866,6 +840,23 @@
 
     if (!activeConversation) {
       if (!currentContext.makerSlug) {
+        if (sellerSelect && sellerSelect.value) {
+          currentContext.makerSlug = sellerSelect.value;
+          const opt = sellerSelect.options[sellerSelect.selectedIndex];
+          currentContext.makerName = opt?.dataset?.name || opt?.text || sellerSelect.value;
+        } else if (sellerSelect && sellerSelect.options.length > 1) {
+          for (let i = 0; i < sellerSelect.options.length; i++) {
+            if (sellerSelect.options[i].value) {
+              sellerSelect.selectedIndex = i;
+              currentContext.makerSlug = sellerSelect.options[i].value;
+              currentContext.makerName = sellerSelect.options[i].dataset?.name || sellerSelect.options[i].text;
+              break;
+            }
+          }
+        }
+      }
+
+      if (!currentContext.makerSlug) {
         if (sellerSelect) {
           sellerSelect.focus();
           sellerSelect.style.borderColor = '#e11d48';
@@ -881,17 +872,22 @@
     }
 
     isSending = true;
+    if (sendBtn) {
+      sendBtn.disabled = true;
+      sendBtn.style.opacity = '0.6';
+    }
     if (textOverride === undefined && input) {
       input.value = '';
     }
 
     try {
+      const csrfToken = getCsrfToken();
       const res = await fetch(`/api/conversations/${activeConversation.uuid}/messages/`, {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCsrfToken(),
+          'X-CSRFToken': csrfToken,
           'Accept': 'application/json'
         },
         body: JSON.stringify({ body: text })
@@ -903,7 +899,7 @@
         appendMessageToDOM(savedMsg);
       } else {
         const err = await res.json().catch(() => ({}));
-        console.error('Failed to send message:', err);
+        console.error('Failed to send message:', res.status, err);
         if (textOverride === undefined && input) {
           input.value = text;
         }
@@ -915,6 +911,13 @@
       }
     } finally {
       isSending = false;
+      if (sendBtn) {
+        sendBtn.disabled = false;
+        sendBtn.style.opacity = '';
+      }
+      if (input) {
+        input.focus();
+      }
     }
   }
 
@@ -998,10 +1001,22 @@
       switchSeller(selectedSlug, selectedName);
     });
 
-    // 4. Form submit & enter key (single binding prevents duplicate calls)
+    // 4. Send button click & form submission & enter key
+    sendBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      sendMessage();
+    });
+
     form?.addEventListener('submit', (e) => {
       e.preventDefault();
       sendMessage();
+    });
+
+    input?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
     });
 
     // 5. Global buttons with [data-open-chat]

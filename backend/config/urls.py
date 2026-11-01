@@ -7,13 +7,11 @@ both hard-code a few of them, so a rename here needs a matching edit there.
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path, reverse_lazy
-from seller_agent.bootstrap import configure as configure_seller_provider
 
 from frontend import views, views_onboarding, views_seller, views_seller_review
 from concierge import buyer_views
 
 urlpatterns = [
-    path('api/seller-provider-setup/', configure_seller_provider),
     path("api/buyer-assistant/messages/", buyer_views.message, name="buyer_assistant_message"),
     path("api/buyer-assistant/history/", buyer_views.history, name="buyer_assistant_history"),
     path("api/buyer-assistant/reset/", buyer_views.reset, name="buyer_assistant_reset"),

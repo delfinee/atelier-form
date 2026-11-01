@@ -30,18 +30,7 @@ class ProviderTests(TestCase):
             response = self.client.get('/api/seller-agent/v1/status/')
             self.assertNotContains(response, key)
 
-    def test_temporary_setup_requires_secret_and_cannot_overwrite(self):
-        import hashlib
-        token = 'test-private-setup-token'
-        options = dict(ALLOWED_HOSTS=['dip-new-repo.vercel.app'], SECURE_SSL_REDIRECT=False)
-        with override_settings(**options), patch('seller_agent.bootstrap.TOKEN_HASH', hashlib.sha256(token.encode()).hexdigest()), patch('seller_agent.bootstrap.EXPIRES', 9999999999):
-            url = '/api/seller-provider-setup/'
-            self.assertEqual(self.client.get(url, HTTP_HOST='dip-new-repo.vercel.app').status_code, 404)
-            self.assertEqual(self.client.post(url, {}, HTTP_HOST='dip-new-repo.vercel.app').status_code, 404)
-            result = self.client.post(url, {'api_key':'test-provider-key-123456'}, content_type='application/json',
-                HTTP_HOST='dip-new-repo.vercel.app', HTTP_AUTHORIZATION='Bearer '+token)
-            self.assertEqual(result.status_code, 201)
-            result = self.client.post(url, {'api_key':'another-provider-key-9999'}, content_type='application/json',
-                HTTP_HOST='dip-new-repo.vercel.app', HTTP_AUTHORIZATION='Bearer '+token)
-            self.assertEqual(result.status_code, 200)
-            self.assertEqual(provider.api_key(), 'test-provider-key-123456')
+    @override_settings(ALLOWED_HOSTS=['testserver'], SECURE_SSL_REDIRECT=False)
+    def test_provider_configuration_has_no_public_write_route(self):
+        self.assertEqual(self.client.get('/api/seller-provider-setup/').status_code, 404)
+        self.assertEqual(self.client.post('/api/seller-provider-setup/', {}).status_code, 404)

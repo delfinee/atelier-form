@@ -136,7 +136,7 @@ def _validate(payload, facts, choices):
             'more': more, 'reply': reply.strip(), 'details': details}
 
 
-def interpret(text, previous, facts, history, choices):
+def interpret(text, previous, facts, history, choices, language=None):
     """One bounded model call per turn, with a deterministic read-only fallback."""
     if not enabled():
         return None, ''
@@ -150,7 +150,7 @@ def interpret(text, previous, facts, history, choices):
             json={'model': settings.DEEPSEEK_MODEL, 'temperature': 0, 'max_tokens': 1200,
                   'thinking': {'type': 'disabled'}, 'response_format': {'type': 'json_object'},
                   'messages': [{'role': 'system', 'content': PROMPT}, {'role': 'user', 'content': json.dumps({
-                      'request': text, 'reply_language': 'Chinese' if re.search(r'[\u4e00-\u9fff]', text) else 'English',
+                      'request': text, 'reply_language': ('Chinese' if language.lower().startswith('zh') else 'English') if language else ('Chinese' if re.search(r'[\u4e00-\u9fff]', text) else 'English'),
                       'previous_search': previous or {}, 'recent': recent,
                       'filter_choices': choices, 'public_catalogue': facts[:100]}, ensure_ascii=False)}]},
             timeout=(5, 25))

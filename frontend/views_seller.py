@@ -1,6 +1,7 @@
 """Seller portal views: product CRUD, variant/image management, and order list."""
 
 from decimal import Decimal
+from copy import copy
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -12,6 +13,7 @@ from django.views.decorators.http import require_http_methods
 
 from orders.models import Order, OrderItem
 from products.models import Product
+from frontend.catalogue_i18n import localize_product, localize_maker, localize_collection
 from .forms_seller import SellerImageFormSet, SellerProductForm, SellerVariantFormSet
 
 
@@ -35,13 +37,19 @@ def seller_product_list(request, template_name="frontend/seller/products.html"):
         template_name = 'seller_agent/phone_products.html'
     products = (
         _seller_products(request, maker)
-        .select_related("category")
+        .select_related("category", "maker")
         .prefetch_related("product_variants", "product_images")
         .order_by("-updated_at")
     )
+    displayed = []
+    for item in products:
+        item = localize_product(copy(item))
+        item.maker = localize_maker(copy(item.maker))
+        item.category = localize_collection(copy(item.category))
+        displayed.append(item)
     return render(request, template_name, {
         "maker": maker,
-        "products": products,
+        "products": displayed,
         "meta_title": f"Products — {maker.name}",
     })
 
@@ -81,7 +89,7 @@ def seller_product_create(request, template_name="frontend/seller/product_form.h
             image_formset.save()
 
             product.refresh_stock_status()
-            messages.success(request, _(f"Product '{product.name}' was created successfully."))
+            messages.success(request, _("Product {name} was created successfully.").format(name=product.name))
             return redirect("seller_product_list")
         else:
             messages.error(request, _("Please correct the errors below before saving."))
@@ -123,7 +131,7 @@ def seller_product_edit(request, slug, template_name="frontend/seller/product_fo
             variant_formset.save()
             image_formset.save()
             product.refresh_stock_status()
-            messages.success(request, _(f"Product '{product.name}' was updated successfully."))
+            messages.success(request, _("Product {name} was updated successfully.").format(name=product.name))
             return redirect("seller_product_list")
         else:
             messages.error(request, _("Please correct the errors below before saving."))

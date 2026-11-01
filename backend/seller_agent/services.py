@@ -10,6 +10,9 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.text import slugify
+from django.utils.translation import gettext as _
+from frontend.catalogue_i18n import (localize_product, localize_maker, localize_order_item_name,
+                                    localize_colour_label, PRODUCTS_BY_SLUG)
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from products.models import Maker, Product, ProductVariant, Category
 from products.serializers import SellerProductSerializer
@@ -22,11 +25,11 @@ from .serializers import InventoryInput, PriceInput, ListingInput, FulfillmentIn
 
 def require_seller(user, lock=False):
     if not get_user_model().objects.filter(pk=user.pk, is_active=True, is_seller=True).exists():
-        raise PermissionDenied("An active, verified seller account is required for this operation.")
+        raise PermissionDenied(_("An active, verified seller account is required for this operation."))
     qs = Maker.objects.select_for_update() if lock else Maker.objects
     maker = qs.filter(owner=user, is_active=True).first()
     if maker is None:
-        raise PermissionDenied("Your website account must be linked to an active shop by the existing onboarding process.")
+        raise PermissionDenied(_("Your website account must be linked to an active shop by the existing onboarding process."))
     maker._shared_catalogue = getattr(user, "_shared_catalogue", False)
     return maker
 
@@ -45,14 +48,15 @@ def products(user, low_stock=False):
     result = []
     catalogue = Product.objects.all() if maker._shared_catalogue else Product.objects.filter(maker=maker)
     for p in catalogue.prefetch_related("product_variants").order_by("name")[:200]:
-        variants = [{"id": str(v.uuid), "label": v.label, "quantity": v.stock_quantity,
+        variants = [{"id": str(v.uuid), "label": localize_colour_label(v.label), "quantity": v.stock_quantity,
                      "price": str(v.unit_price), "active": v.is_active} for v in p.product_variants.all()]
         # Keep zero-stock options visible, including a low option on a high-total product.
         low = not p.is_made_to_order and (
             any(v["active"] and v["quantity"] <= settings.COMMERCE["LOW_STOCK_THRESHOLD"] for v in variants)
             if variants else p.stock_quantity <= settings.COMMERCE["LOW_STOCK_THRESHOLD"])
         if not low_stock or low:
-            result.append({"slug": p.slug, "name": p.name, "price": str(p.price), "currency": p.currency,
+            result.append({"slug": p.slug, "name": localize_product(p).name, "canonical_name":p.name,
+                "price": str(p.price), "currency": p.currency,
                 "quantity": None if p.is_made_to_order else p.available_quantity, "variants": variants, "active": p.is_active,
                 "made_to_order": p.is_made_to_order, "low_stock": low,
                 "url": "/seller/products/" + p.slug + "/edit/"})
@@ -83,13 +87,13 @@ def _shared_orders():
         items = [item for item in order.items.all() if item.maker_id == parcel.maker_id]
         result.append({
             'uuid': str(parcel.uuid), 'order_uuid': str(order.uuid),
-            'order_number': order.order_number, 'shop': parcel.maker.name,
+            'order_number': order.order_number, 'shop': localize_maker(parcel.maker).name,
             'status': order.status, 'payment_status': order.payment_status,
             'fulfillment_status': parcel.status, 'carrier': parcel.carrier,
             'tracking_number': parcel.tracking_number,
             'placed_at': order.placed_at.isoformat(), 'currency': order.currency,
             'seller_subtotal': str(sum((item.line_total for item in items), Decimal('0.00'))),
-            'items': [{'product_name': item.product_name, 'quantity': item.quantity} for item in items],
+            'items': [{'product_name': localize_order_item_name(item), 'quantity': item.quantity} for item in items],
             'fulfillment': {'uuid': str(parcel.uuid), 'status': parcel.status,
                             'shipped_at': parcel.shipped_at.isoformat() if parcel.shipped_at else None},
             'can_ship': bool(items and is_dispatch_eligible(order) and not parcel.shipped_at),
@@ -108,9 +112,9 @@ def _inventory_target(maker, target, values, lock=False):
     if variant_id:
         variant = get_object_or_404(variants, product=product, uuid=variant_id, is_active=True)
     elif product.product_variants.exists() and "quantity" in values:
-        raise ValidationError("Select a product option; parent stock is not authoritative for products with options.")
+        raise ValidationError(_("Select a product option; parent stock is not authoritative for products with options."))
     if "quantity" in values and product.is_made_to_order:
-        raise ValidationError("Made-to-order availability is not controlled by stock quantity. Use the product editor.")
+        raise ValidationError(_("Made-to-order availability is not controlled by stock quantity. Use the product editor."))
     before = {"product": str(product.uuid), "name": product.name, "price": str(product.price),
               "quantity": product.stock_quantity, "active": product.is_active, "made_to_order": product.is_made_to_order}
     if variant:
@@ -123,7 +127,7 @@ def _fulfillment_target(maker, target, lock=False):
     try:
         order_id = UUID(target)
     except (ValueError, TypeError):
-        raise ValidationError("Select an order from your orders list.") from None
+        raise ValidationError(_("Select an order from your orders list.")) from None
     if getattr(maker, '_shared_catalogue', False):
         candidates = list(SellerFulfillment.objects.filter(
             Q(uuid=order_id) | Q(order__uuid=order_id)).values('pk', 'order_id')[:2])
@@ -131,7 +135,7 @@ def _fulfillment_target(maker, target, lock=False):
             from django.http import Http404
             raise Http404('Choose a parcel from the shared orders list.')
         if len(candidates) != 1:
-            raise ValidationError('This order has multiple makers. Select one parcel from Orders.')
+            raise ValidationError(_('This order has multiple makers. Select one parcel from Orders.'))
         order_qs = Order.objects.select_for_update() if lock else Order.objects
         order = order_qs.get(pk=candidates[0]['order_id'])
         parcel_qs = SellerFulfillment.objects.select_for_update() if lock else SellerFulfillment.objects
@@ -183,11 +187,11 @@ def prepare_change(user, conversation_id, request_id, action, target, values):
     maker = require_seller(user)
     values = _validate(action, values)
     if action in ("stock", "price"):
-        _, _, before = _inventory_target(maker, target, values)
+        target_product, target_variant, before = _inventory_target(maker, target, values)
     elif action == "fulfillment":
         fulfillment, before = _fulfillment_target(maker, target)
         if not is_dispatch_eligible(fulfillment.order) or fulfillment.shipped_at:
-            raise ValidationError("Only a paid, dispatch-eligible, unshipped order can be prepared for shipment here.")
+            raise ValidationError(_("Only a paid, dispatch-eligible, unshipped order can be prepared for shipment here."))
     else:
         _listing_serializer(values)
         before = {"shop": str(maker.uuid), "publication": "unpublished"}
@@ -201,19 +205,27 @@ def change_data(change):
     values, before = change.values, change.before
     if change.action in ("stock", "price"):
         variant = before.get("variant")
-        item = before["name"] + (" · " + variant["label"] if variant else "")
+        source = PRODUCTS_BY_SLUG.get(change.target)
+        name = _(before['name']) if source and source['name'] == before['name'] else before['name']
+        item = name + (" · " + localize_colour_label(variant["label"]) if variant else "")
         field = "quantity" if change.action == "stock" else "price"
         previous = variant[field] if variant else before[field]
-        summary = f"Product: {item}\n{'Available quantity' if field == 'quantity' else 'Price'}: {previous} → {values[field]}"
+        label = _('Available quantity') if field == 'quantity' else _('Price')
+        summary = f"{_('Product')}: {item}\n{label}: {previous} → {values[field]}"
     elif change.action == "listing":
-        summary = (f"Name: {values['name']}\nCategory: {values['category']}\nPrice: {settings.CURRENCY} {values['price']}\n"
-                   f"Available quantity: {values['quantity']}\nDescription: {values['description']}\nPublication: unpublished draft")
+        category = Category.objects.filter(slug=values['category']).values_list('name', flat=True).first()
+        summary = (f"{_('Name')}: {values['name']}\n{_('Category')}: {_(category or values['category'])}\n"
+                   f"{_('Price')}: {settings.CURRENCY} {values['price']}\n{_('Available quantity')}: {values['quantity']}\n"
+                   f"{_('Description')}: {values['description']}\n{_('Publication')}: {_('Unpublished')}")
     else:
-        summary = (f"Order: {before['number']}\nFulfillment: {before['status']} → fulfilled\n"
-                   f"Carrier: {values['carrier']}\nTracking number: {values['tracking_number']}")
+        summary = (f"{_('Order')}: {before['number']}\n{_('Fulfillment')}: {_({'unfulfilled':'Not shipped', 'partial':'Partially shipped', 'fulfilled':'Shipped'}.get(before['status'], 'Unknown'))} → {_('Shipped')}\n"
+                   f"{_('Carrier')}: {values['carrier']}\n{_('Tracking number')}: {values['tracking_number']}")
+    result = dict(change.result)
+    if result.get('message'):
+        result['message'] = _(result['message'])
     return {"id": str(change.uuid), "action": change.action, "target": change.target, "before": change.before,
         "values": change.values, "status": change.status, "expires_at": change.expires_at.isoformat(),
-        "expired": change.expires_at <= timezone.now(), "result": change.result,
+        "expired": change.expires_at <= timezone.now(), "result": result,
         "confirmed_channel": change.confirmed_channel, "summary": summary}
 
 
@@ -224,12 +236,12 @@ def confirm_change(user, uuid, channel):
     if change.status == "applied":
         return change
     if change.status != "pending" or change.expires_at <= timezone.now():
-        raise ValidationError("This preview is expired or superseded. Prepare a new one.")
+        raise ValidationError(_("This preview is expired or superseded. Prepare a new one."))
     values = _validate(change.action, change.values)
     if change.action in ("stock", "price"):
         product, variant, current = _inventory_target(maker, change.target, values, lock=True)
         if current != change.before:
-            raise ValidationError("Product or stock changed since this preview. Review a new preview.")
+            raise ValidationError(_("Product or stock changed since this preview. Review a new preview."))
         obj = variant or product
         field = "stock_quantity" if change.action == "stock" else ("price_override" if variant else "price")
         setattr(obj, field, values["quantity"] if change.action == "stock" else Decimal(values["price"]))
@@ -239,7 +251,7 @@ def confirm_change(user, uuid, channel):
                          "url": "/seller/products/" + product.slug + "/edit/"}
     elif change.action == "listing":
         if change.before["shop"] != str(maker.uuid):
-            raise ValidationError("Shop ownership changed. Prepare a new draft.")
+            raise ValidationError(_("Shop ownership changed. Prepare a new draft."))
         serializer = _listing_serializer(values)
         product = serializer.save(maker=maker)
         product.refresh_stock_status()
@@ -248,7 +260,7 @@ def confirm_change(user, uuid, channel):
     else:
         fulfillment, current = _fulfillment_target(maker, change.target, lock=True)
         if current != change.before:
-            raise ValidationError("Order or fulfillment changed. Review a new preview.")
+            raise ValidationError(_("Order or fulfillment changed. Review a new preview."))
         acting_maker = fulfillment.maker if getattr(maker, '_shared_catalogue', False) else maker
         update_seller_fulfillment(fulfillment, acting_maker=acting_maker, **values)
         change.result = {"message": "Your shop's fulfillment was updated.", "order": str(fulfillment.order.uuid),

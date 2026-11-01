@@ -1,6 +1,7 @@
 """Catalogue serializers."""
 
 from rest_framework import serializers
+from frontend.catalogue_i18n import localize_maker
 
 from .models import Category, Collection, Maker, Product, ProductImage, ProductVariant
 
@@ -46,6 +47,8 @@ class CollectionSerializer(serializers.ModelSerializer):
 
 
 class MakerListSerializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        return super().to_representation(localize_maker(instance))
     class Meta:
         model = Maker
         fields = ["uuid", "name", "slug", "discipline", "location", "since",

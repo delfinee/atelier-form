@@ -36,3 +36,6 @@ REMOVAL
 Close the app, then remove its installation folder and desktop shortcut.
 Local browser data is stored at %LOCALAPPDATA%\AtelierSeller\WebView.
 Removing the app does not delete any website products.
+
+LANGUAGE
+Choose English or 中文 in the left sidebar. The workspace and AI responses follow this selection. The website language switch also updates the app. Your choice is remembered.

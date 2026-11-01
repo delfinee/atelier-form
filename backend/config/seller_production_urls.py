@@ -1,9 +1,10 @@
 """No source download, development entry points or buyer checkout on this host."""
-from django.urls import path
+from django.urls import include, path
 from seller_agent import release_views
 from .seller_phone_urls import urlpatterns as phone_patterns, handler404, handler500
 
 urlpatterns = [
+    path("i18n/", include("django.conf.urls.i18n")),
     path('', release_views.home, name='seller_public_home'),
     path('privacy/', release_views.privacy, name='seller_privacy'),
     path('healthz/', release_views.health, name='seller_health'),

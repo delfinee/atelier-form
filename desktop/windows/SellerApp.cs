@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -12,7 +12,7 @@ using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 
 [assembly: System.Reflection.AssemblyTitle("Atelier Seller")]
-[assembly: System.Reflection.AssemblyVersion("1.3.2.0")]
+[assembly: System.Reflection.AssemblyVersion("1.4.0.0")]
 
 namespace AtelierSeller
 {
@@ -90,6 +90,31 @@ namespace AtelierSeller
         }
     }
 
+    public static class SellerLocale
+    {
+        public static string Normalize(string code) { return (code ?? "").StartsWith("zh", StringComparison.OrdinalIgnoreCase) ? "zh-hans" : "en"; }
+        private static readonly IDictionary<string, string> Chinese = new Dictionary<string, string> {
+            {"Atelier Seller", "Atelier 卖家助手"}, {"Atelier Seller - School demo", "Atelier 卖家助手 - 课程演示"},
+            {"Atelier Seller - Main website", "Atelier 卖家助手 - 主站"}, {"Products · Orders · AI", "商品 · 订单 · 智能助手"},
+            {"AI assistant", "智能助手"}, {"Products", "商品"}, {"Orders", "订单"}, {"Open in browser", "在浏览器中打开"},
+            {"Main website", "主站"}, {"Help", "帮助"}, {"Refresh", "刷新"}, {"Reconnect", "重新连接"},
+            {"New demo", "新建演示"}, {"Demo", "演示"}, {"School demo", "课程演示"},
+            {"Connecting to your seller workspace...", "正在连接卖家工作区…"},
+            {"Shared school demo · No login · Products sync to the main website", "课程共享演示 · 无需登录 · 商品与主站同步"},
+            {"Demo data · Payment and shipping are simulated", "演示数据 · 付款和发货均为模拟"},
+            {"Navigation to another website was blocked. Use your browser to view external links.", "请在浏览器中打开外部链接。"},
+            {"To download a file, choose Open in browser.", "下载文件时，请选择“在浏览器中打开”。"},
+            {"Cannot connect to the seller service", "无法连接卖家服务"}, {"The page stopped responding", "页面停止响应"},
+            {"Choose Refresh to reconnect. Your server records are unaffected.", "请选择“刷新”重新连接，服务器中的记录已保留。"},
+            {"Microsoft Edge WebView2 is required", "需要 Microsoft Edge WebView2"}, {"The app could not start", "应用无法启动"},
+            {"Start a new demo shop? Your current sample records will stay on the server.", "要新建演示店铺吗？现有演示记录仍会保留在服务器中。"}
+        };
+        public static string Text(string english, string language) {
+            string translated;
+            return Normalize(language) == "zh-hans" && Chinese.TryGetValue(english, out translated) ? translated : english;
+        }
+    }
+
     internal sealed class SellerWindow : Form
     {
         private readonly Color green = Color.FromArgb(37, 79, 62);
@@ -100,6 +125,13 @@ namespace AtelierSeller
         private Uri origin;
         private bool switching;
         private string overrideOrigin;
+        private string language = "en";
+        private bool hasLanguagePreference;
+        private bool settingLanguage;
+        private readonly ComboBox languagePicker = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 160 };
+        private readonly Dictionary<Control, string> originalLabels = new Dictionary<Control, string>();
+        private string LanguagePath { get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AtelierSeller", "language.txt"); } }
+        private string T(string value) { return SellerLocale.Text(value, language); }
 
         public SellerWindow(string[] args)
         {
@@ -111,6 +143,7 @@ namespace AtelierSeller
             BackColor = Color.FromArgb(243, 246, 242);
             try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
             connection = LoadConnection();
+            try { if (File.Exists(LanguagePath)) { language = SellerLocale.Normalize(File.ReadAllText(LanguagePath)); hasLanguagePreference = true; } } catch { }
             if (!connection.IsDemo) Text = connection.IsSharedDemo ? "Atelier Seller - School demo" : "Atelier Seller - Main website";
             for (int i = 0; i + 1 < args.Length; i++)
                 if (args[i] == "--url" && ConnectionPolicy.IsAllowedOrigin(args[i + 1])) overrideOrigin = args[i + 1];
@@ -137,14 +170,21 @@ namespace AtelierSeller
             }
             var about = NavButton("Help");
             about.Click += delegate {
-                MessageBox.Show(connection.IsDemo
+                MessageBox.Show(language == "zh-hans"
+                    ? "可以查询商品和订单，用自然语言提出库存、价格或新商品需求。修改会先生成预览，确认后才写入主站。\n\n课程演示无需卖家登录。发布商品后，其他人可在主站查看。\n\n语言选择会同时应用到菜单、工作区和智能助手回复。"
+                    : connection.IsDemo
                     ? "This coursework demo uses sample products and orders. No account is required.\n\nThe website and Windows app use the same demo service. Each browser session has its own sample shop.\n\nDeepSeek interprets natural-language requests. Review and confirm each proposed change before it is saved to the demo database.\n\nPayments and shipments are simulated. Nothing is charged and no parcel is sent.\n\nTry My products, New listing, and My orders. Internet access and the demo server are required."
                     : connection.IsSharedDemo
                     ? "Shared school demo at " + connection.Origin + ".\n\nNo sign-in or seller verification is required. Everyone uses the existing main website catalogue.\n\nConfirm a new product draft, then publish it in the product editor. Published products are visible to teammates on the main website.\n\nUse test data only. API keys and database credentials are never stored in this app."
                     : "Connected to " + connection.Origin + ".\n\nSign in using your main website seller account. Products, orders and confirmed AI changes use that website's database and your existing shop permissions.\n\nNew products are saved as unpublished drafts after you confirm the preview. Add photos and publish in the product editor to make them visible to buyers.\n\nYour earlier demo products remain in the separate demo service. This app does not copy them into your main shop. API keys and database credentials are never stored in this app.",
-                    "Help", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    T("Help"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             };
             nav.Controls.Add(about);
+            languagePicker.Items.AddRange(new object[] { "English", "中文" });
+            languagePicker.SelectedIndexChanged += delegate {
+                if (!settingLanguage) SetLanguage(languagePicker.SelectedIndex == 1 ? "zh-hans" : "en", true);
+            };
+            nav.Controls.Add(languagePicker);
 
             var top = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 62, Padding = new Padding(16, 12, 4, 8), BackColor = Color.White };
             var back = new Button { Text = "←", Size = new Size(42, 32), FlatStyle = FlatStyle.Flat };
@@ -160,8 +200,42 @@ namespace AtelierSeller
             status.Text = "Connecting to your seller workspace...";
             center.Controls.Add(status);
             Controls.Add(center); Controls.Add(nav);
+            SetLanguage(language, false);
             Shown += delegate { StartBrowser(); };
             FormClosed += delegate { if (browser != null) browser.Dispose(); };
+        }
+
+        private void TranslateControls(Control control)
+        {
+            if ((control is Button || control is Label || control == this) && control != status) {
+                if (!originalLabels.ContainsKey(control)) originalLabels[control] = control.Text;
+                control.Text = T(originalLabels[control]);
+            }
+            foreach (Control child in control.Controls) TranslateControls(child);
+        }
+
+        private void SetLanguage(string code, bool navigate)
+        {
+            language = SellerLocale.Normalize(code);
+            System.Threading.Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.GetCultureInfo(language == "zh-hans" ? "zh-CN" : "en-US");
+            System.Threading.Thread.CurrentThread.CurrentCulture = System.Threading.Thread.CurrentThread.CurrentUICulture;
+            settingLanguage = true;
+            languagePicker.SelectedIndex = language == "zh-hans" ? 1 : 0;
+            settingLanguage = false;
+            TranslateControls(this);
+            status.Text = connection.IsSharedDemo ? T("Shared school demo · No login · Products sync to the main website") : T("Connecting to your seller workspace...");
+            try { Directory.CreateDirectory(Path.GetDirectoryName(LanguagePath)); File.WriteAllText(LanguagePath, language); hasLanguagePreference = true; } catch { }
+            if (navigate && browser != null && browser.CoreWebView2 != null) {
+                SetLanguageCookie(browser.CoreWebView2);
+                browser.Reload();
+            }
+        }
+
+        private void SetLanguageCookie(CoreWebView2 core)
+        {
+            var cookie = core.CookieManager.CreateCookie("django_language", language, origin.Host, "/");
+            cookie.IsSecure = origin.Scheme == "https";
+            core.CookieManager.AddOrUpdateCookie(cookie);
         }
 
         private static ConnectionSettings LoadConnection()
@@ -202,8 +276,8 @@ namespace AtelierSeller
             try {
                 string url = overrideOrigin ?? connection.Origin;
                 origin = new Uri(url.TrimEnd('/') + "/");
-                status.Text = connection.IsDemo ? "Demo data · Payment and shipping are simulated"
-                    : connection.IsSharedDemo ? "Shared school demo · No login · Products sync to the main website"
+                status.Text = connection.IsDemo ? T("Demo data · Payment and shipping are simulated")
+                    : connection.IsSharedDemo ? T("Shared school demo · No login · Products sync to the main website")
                     : "Main website: " + origin.Host + " · Sign in with your seller account";
                 if (browser != null) { browser.Dispose(); browser = null; }
                 surface.Controls.Clear();
@@ -211,7 +285,7 @@ namespace AtelierSeller
                 surface.Controls.Add(browser);
                 string data = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "AtelierSeller", "WebView", ConnectionPolicy.ProfileName(origin));
-                var options = new CoreWebView2EnvironmentOptions { Language = "en-US" };
+                var options = new CoreWebView2EnvironmentOptions { Language = language == "zh-hans" ? "zh-CN" : "en-US" };
                 var environment = await CoreWebView2Environment.CreateAsync(null, data, options);
                 await browser.EnsureCoreWebView2Async(environment);
                 var core = browser.CoreWebView2;
@@ -224,7 +298,8 @@ namespace AtelierSeller
                 core.Settings.AreBrowserAcceleratorKeysEnabled = false;
                 core.Settings.IsPasswordAutosaveEnabled = false;
                 core.Settings.IsGeneralAutofillEnabled = false;
-                core.Settings.UserAgent += " AtelierSeller/1.3.2";
+                core.Settings.UserAgent += " AtelierSeller/1.4.0";
+                if (hasLanguagePreference) SetLanguageCookie(core);
                 core.PermissionRequested += delegate(object sender, CoreWebView2PermissionRequestedEventArgs e) {
                     e.State = CoreWebView2PermissionState.Deny;
                 };
@@ -237,14 +312,20 @@ namespace AtelierSeller
                 core.NavigationStarting += delegate(object sender, CoreWebView2NavigationStartingEventArgs e) {
                     if (!ConnectionPolicy.SameOrigin(origin, e.Uri)) {
                         e.Cancel = true;
-                        status.Text = "Navigation to another website was blocked. Use your browser to view external links.";
+                        status.Text = T("Navigation to another website was blocked. Use your browser to view external links.");
                     }
                 };
                 core.DownloadStarting += delegate(object sender, CoreWebView2DownloadStartingEventArgs e) {
                     e.Cancel = true;
-                    status.Text = "To download a file, choose Open in browser.";
+                    status.Text = T("To download a file, choose Open in browser.");
                 };
-                core.NavigationCompleted += delegate(object sender, CoreWebView2NavigationCompletedEventArgs e) {
+                core.NavigationCompleted += async delegate(object sender, CoreWebView2NavigationCompletedEventArgs e) {
+                    if (e.IsSuccess) {
+                        try {
+                            string pageLanguage = new JavaScriptSerializer().Deserialize<string>(await core.ExecuteScriptAsync("document.documentElement.lang"));
+                            SetLanguage(pageLanguage, false);
+                        } catch { }
+                    }
                     if (!e.IsSuccess && e.WebErrorStatus != CoreWebView2WebErrorStatus.OperationCanceled)
                         ShowError("Cannot connect to the seller service", "Check your connection, then choose Refresh. The website must remain online.\nError: " + e.WebErrorStatus);
                 };
@@ -261,8 +342,8 @@ namespace AtelierSeller
         private void NewDemo()
         {
             if (browser == null || browser.CoreWebView2 == null) return;
-            if (MessageBox.Show("Start a new demo shop? Your current sample records will stay on the server.",
-                "New demo", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
+            if (MessageBox.Show(T("Start a new demo shop? Your current sample records will stay on the server."),
+                T("New demo"), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
             browser.CoreWebView2.CookieManager.DeleteAllCookies();
             browser.CoreWebView2.Navigate(origin.ToString());
         }
@@ -280,9 +361,9 @@ namespace AtelierSeller
             if (browser != null) browser.Visible = false;
             var panel = new FlowLayoutPanel { Name = "connection-error", Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown,
                 WrapContents = false, Padding = new Padding(40, 60, 25, 25), BackColor = Color.White };
-            panel.Controls.Add(new Label { Text = title, AutoSize = true, Font = new Font(Font.FontFamily, 20F, FontStyle.Bold), ForeColor = green });
-            panel.Controls.Add(new Label { Text = details, AutoSize = true, MaximumSize = new Size(700, 0), Margin = new Padding(0, 24, 0, 24) });
-            var retry = new Button { Text = "Reconnect", Size = new Size(130, 42) };
+            panel.Controls.Add(new Label { Text = T(title), AutoSize = true, Font = new Font(Font.FontFamily, 20F, FontStyle.Bold), ForeColor = green });
+            panel.Controls.Add(new Label { Text = language == "zh-hans" ? "请检查网络连接后重试。服务器中的商品和订单会保留。" : details, AutoSize = true, MaximumSize = new Size(700, 0), Margin = new Padding(0, 24, 0, 24) });
+            var retry = new Button { Text = T("Reconnect"), Size = new Size(130, 42) };
             retry.Click += delegate { StartBrowser(); };
             panel.Controls.Add(retry);
             surface.Controls.Add(panel);

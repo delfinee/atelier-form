@@ -1,3 +1,4 @@
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: Atelier Form 1.0\n"
@@ -13,8 +14,8 @@ msgstr "手作之物，日常之用。"
 
 #: .\frontend\mockdata\content.py:16
 msgid ""
-"Small-batch ceramics, textiles and homeware, made by hand by a short list of "
-"makers we know by name."
+"Small-batch ceramics, textiles and homeware, made by hand by a short list of"
+" makers we know by name."
 msgstr "陶器、织物与器物，由五位我们熟识的匠人一件一件手工制成。"
 
 #: .\frontend\mockdata\content.py:20
@@ -85,11 +86,12 @@ msgstr "逐件拉坯、修整与烧制。"
 
 #: .\frontend\mockdata\collections.py:25
 msgid ""
-"Stoneware and porcelain for the table, made in a Jingdezhen studio where "
-"the clay is quarried an hour away and the glazes are mixed from ash and "
-"iron. Expect small variations in colour and rim -- they are the record of a "
-"hand, not a fault."
-msgstr "为餐桌而作的炻器与瓷器，来自景德镇的一间工作室。泥料取自一小时车程外，釉料则由灰烬与铁调配而成。颜色与器口会有细微差异，那是手作留下的痕迹，而非瑕疵。"
+"Stoneware and porcelain for the table, made in a Jingdezhen studio where the"
+" clay is quarried an hour away and the glazes are mixed from ash and iron. "
+"Expect small variations in colour and rim -- they are the record of a hand, "
+"not a fault."
+msgstr ""
+"为餐桌而作的炻器与瓷器，来自景德镇的一间工作室。泥料取自一小时车程外，釉料则由灰烬与铁调配而成。颜色与器口会有细微差异，那是手作留下的痕迹，而非瑕疵。"
 
 #: .\frontend\mockdata\collections.py:35
 msgid "Woven, dyed and washed until they soften."
@@ -97,8 +99,8 @@ msgstr "经编织、染色与水洗，直至柔软。"
 
 #: .\frontend\mockdata\collections.py:36
 msgid ""
-"Linen and handwoven cotton, dyed with indigo grown in Yunnan and finished "
-"so that nothing arrives stiff. These are pieces meant to be used daily and "
+"Linen and handwoven cotton, dyed with indigo grown in Yunnan and finished so"
+" that nothing arrives stiff. These are pieces meant to be used daily and "
 "washed often."
 msgstr "亚麻与手织棉布，以云南种植的蓝靛染色，并经过处理，不会以僵硬的状态抵达。适合每日使用，也经得起频繁清洗。"
 
@@ -137,7 +139,8 @@ msgid ""
 "with what our makers can source within a day's drive of their own studios. "
 "Put together, they sit in a single tonal range -- bone, ash, clay and a "
 "green that comes from grass rather than a pigment jar."
-msgstr "九件作品取自同一份精简的材料清单，以匠人工作室一日车程内能够找到的材料上釉与染色。组合在一起，它们呈现出骨白、灰烬、泥土与草色组成的统一色调。"
+msgstr ""
+"九件作品取自同一份精简的材料清单，以匠人工作室一日车程内能够找到的材料上釉与染色。组合在一起，它们呈现出骨白、灰烬、泥土与草色组成的统一色调。"
 
 #: .\frontend\mockdata\collections.py:80
 msgid "Quiet Mornings"
@@ -163,8 +166,8 @@ msgstr "我们自己每天使用的作品。"
 
 #: .\frontend\mockdata\collections.py:91
 msgid ""
-"What is actually in daily use in the studio: an apron that has been washed "
-"a hundred times, boards that get cut on, towels that get used."
+"What is actually in daily use in the studio: an apron that has been washed a"
+" hundred times, boards that get cut on, towels that get used."
 msgstr "工作室真正用于日常的物件：洗过一百次的围裙、反复切割使用的木板，以及每天都会用到的毛巾。"
 
 #: .\frontend\services.py:33
@@ -371,25 +374,19 @@ msgstr "工作室礼品套装"
 msgid "Beeswax Taper Pair"
 msgstr "蜂蜡长烛一对"
 
-#: .\frontend\mockdata\products.py:101
-#: .\frontend\mockdata\products.py:114
-#: .\frontend\mockdata\products.py:135
-#: .\frontend\mockdata\products.py:145
-#: .\frontend\mockdata\products.py:155
-#: .\frontend\mockdata\products.py:255
+#: .\frontend\mockdata\products.py:101 .\frontend\mockdata\products.py:114
+#: .\frontend\mockdata\products.py:135 .\frontend\mockdata\products.py:145
+#: .\frontend\mockdata\products.py:155 .\frontend\mockdata\products.py:255
 msgid "Stoneware · Chen Meilin"
 msgstr "炻器 · 陈梅琳"
 
-#: .\frontend\mockdata\products.py:125
-#: .\frontend\mockdata\products.py:165
+#: .\frontend\mockdata\products.py:125 .\frontend\mockdata\products.py:165
 #: .\frontend\mockdata\products.py:297
 msgid "Porcelain · Chen Meilin"
 msgstr "瓷器 · 陈梅琳"
 
-#: .\frontend\mockdata\products.py:175
-#: .\frontend\mockdata\products.py:198
-#: .\frontend\mockdata\products.py:209
-#: .\frontend\mockdata\products.py:230
+#: .\frontend\mockdata\products.py:175 .\frontend\mockdata\products.py:198
+#: .\frontend\mockdata\products.py:209 .\frontend\mockdata\products.py:230
 msgid "Washed linen · Ye Ruolan"
 msgstr "水洗亚麻 · 叶若兰"
 
@@ -426,15 +423,21 @@ msgid "Pure beeswax · Xu Anying"
 msgstr "纯蜂蜡 · 徐安莹"
 
 #: .\frontend\mockdata\products.py:62
-msgid "Dishwasher safe, though hand washing keeps the glaze bright. Avoid thermal shock -- let a hot piece cool before rinsing. Not for direct flame."
+msgid ""
+"Dishwasher safe, though hand washing keeps the glaze bright. Avoid thermal "
+"shock -- let a hot piece cool before rinsing. Not for direct flame."
 msgstr "可用洗碗机清洗，但手洗更能保持釉色明亮。避免骤冷骤热——热器皿应冷却后再冲洗。不可直接接触明火。"
 
 #: .\frontend\mockdata\products.py:64
-msgid "Machine wash cool on a gentle cycle with a mild detergent. Line dry in shade. Warm iron while slightly damp if you want a crisper finish."
+msgid ""
+"Machine wash cool on a gentle cycle with a mild detergent. Line dry in "
+"shade. Warm iron while slightly damp if you want a crisper finish."
 msgstr "使用温和洗涤剂，以低温轻柔机洗。置于阴凉处晾干。如需更挺括的质感，可在织物尚微湿时用中温熨烫。"
 
 #: .\frontend\mockdata\products.py:66
-msgid "Wipe with a soft, barely damp cloth. Keep out of prolonged direct sun. Re-oil natural wood two or three times a year to keep it from drying out."
+msgid ""
+"Wipe with a soft, barely damp cloth. Keep out of prolonged direct sun. Re-"
+"oil natural wood two or three times a year to keep it from drying out."
 msgstr "用柔软、仅微微湿润的布擦拭。避免长时间阳光直射。天然木材每年重新上油两到三次，以免过度干燥。"
 
 #: .\frontend\mockdata\products.py:68
@@ -446,35 +449,55 @@ msgid "Ships in 2–4 working days"
 msgstr "2–4 个工作日内发货"
 
 #: .\frontend\mockdata\products.py:105
-msgid "A mug with a little weight to it, thrown to sit low in the hand. The glaze pools slightly where the wall meets the base, so the colour is never quite even across a set."
+msgid ""
+"A mug with a little weight to it, thrown to sit low in the hand. The glaze "
+"pools slightly where the wall meets the base, so the colour is never quite "
+"even across a set."
 msgstr "一只略有分量的马克杯，拉坯成低矮杯身，握在手中安稳贴合。釉料会在杯壁与杯底交接处略微积聚，因此同一套杯子的色泽也不会完全一致。"
 
 #: .\frontend\mockdata\products.py:108
-msgid "Meilin threw the first of these for herself, then kept making them because visitors to the studio would not put them down. The handle is pulled by hand rather than cast, which is why the curve is a fraction different on every one."
-msgstr "梅琳最初为自己拉坯制作了这只杯子，后来到访工作室的人总是爱不释手，她便一直做了下去。杯把由手工拉制而非模具浇铸，因此每一只的弧度都会有细微差异。"
+msgid ""
+"Meilin threw the first of these for herself, then kept making them because "
+"visitors to the studio would not put them down. The handle is pulled by hand"
+" rather than cast, which is why the curve is a fraction different on every "
+"one."
+msgstr ""
+"梅琳最初为自己拉坯制作了这只杯子，后来到访工作室的人总是爱不释手，她便一直做了下去。杯把由手工拉制而非模具浇铸，因此每一只的弧度都会有细微差异。"
 
 #: .\frontend\mockdata\products.py:118
-msgid "Wide enough for oats and deep enough for soup. The iron in the clay breaks through the glaze as fine dark flecks during firing."
+msgid ""
+"Wide enough for oats and deep enough for soup. The iron in the clay breaks "
+"through the glaze as fine dark flecks during firing."
 msgstr "宽度足以盛燕麦粥，深度也适合盛汤。烧制时，陶土中的铁质会透过釉面，形成细小的深色斑点。"
 
 #: .\frontend\mockdata\products.py:120
-msgid "The speckle is not added. It is iron already present in the local clay, which surfaces only above 1250°C -- a firing Meilin holds for nine hours."
+msgid ""
+"The speckle is not added. It is iron already present in the local clay, "
+"which surfaces only above 1250°C -- a firing Meilin holds for nine hours."
 msgstr "斑点并非额外添加，而是当地陶土中原有的铁质，在温度超过 1250°C 时才会显现；梅琳会将这一烧制温度保持九小时。"
 
 #: .\frontend\mockdata\products.py:128
-msgid "A single-piece dripper with three ribs turned into the cone, so water moves evenly through the bed rather than channelling down one side."
+msgid ""
+"A single-piece dripper with three ribs turned into the cone, so water moves "
+"evenly through the bed rather than channelling down one side."
 msgstr "一体成型的滤杯，锥形内壁设有三道导流凸棱，让水流均匀通过咖啡粉层，避免沿一侧集中流下。"
 
 #: .\frontend\mockdata\products.py:130
-msgid "Six prototypes went into the angle of the cone. Meilin brewed on every one of them for a fortnight before settling on this shape."
+msgid ""
+"Six prototypes went into the angle of the cone. Meilin brewed on every one "
+"of them for a fortnight before settling on this shape."
 msgstr "为了确定锥体角度，前后做了六个原型。梅琳连续两周用这六个原型逐一冲煮测试，最终才选定现在的形状。"
 
 #: .\frontend\mockdata\products.py:138
-msgid "A everyday plate with a low, generous rim. The ash glaze moves in the kiln, so the edge is usually a shade lighter than the well."
+msgid ""
+"A everyday plate with a low, generous rim. The ash glaze moves in the kiln, "
+"so the edge is usually a shade lighter than the well."
 msgstr "一只适合日常使用的餐盘，盘沿低而宽。灰釉在窑中流动，因此边缘通常比盘心浅一个色调。"
 
 #: .\frontend\mockdata\products.py:140
-msgid "The glaze is mixed from ash swept out of the studio's own kiln -- a practice old enough in Jingdezhen that nobody there thinks of it as unusual."
+msgid ""
+"The glaze is mixed from ash swept out of the studio's own kiln -- a practice"
+" old enough in Jingdezhen that nobody there thinks of it as unusual."
 msgstr "釉料由工作室自家窑炉中清扫出的灰烬调制而成——这项做法在景德镇由来已久，当地人并不觉得稀奇。"
 
 #: .\frontend\mockdata\products.py:147
@@ -482,107 +505,159 @@ msgid "Made to order · ships in 3–4 weeks"
 msgstr "按订单制作 · 3–4 周内发货"
 
 #: .\frontend\mockdata\products.py:149
-msgid "An oval platter for bread, roasted vegetables or a whole fish. Thrown, then pressed gently out of round while still soft."
+msgid ""
+"An oval platter for bread, roasted vegetables or a whole fish. Thrown, then "
+"pressed gently out of round while still soft."
 msgstr "椭圆形餐盘，适合盛放面包、烤蔬菜或整条鱼。先拉坯成型，再趁陶土尚软时轻轻压成略不规则的形状。"
 
 #: .\frontend\mockdata\products.py:151
-msgid "Made only in small runs, when the large kiln is fired. Meilin will not fire it half empty, so these appear a few times a year."
+msgid ""
+"Made only in small runs, when the large kiln is fired. Meilin will not fire "
+"it half empty, so these appear a few times a year."
 msgstr "只有在大型窑炉烧制时才会小批量制作。梅琳不会让窑炉半空着烧，因此这种餐盘一年只会出现几次。"
 
 #: .\frontend\mockdata\products.py:158
-msgid "A tall, narrow-necked vase that holds a few stems upright without propping. Matte outside, glossed inside so it holds water."
+msgid ""
+"A tall, narrow-necked vase that holds a few stems upright without propping. "
+"Matte outside, glossed inside so it holds water."
 msgstr "高挑的细颈花瓶，无需支撑便能让几枝花材直立。外壁为哑光质感，内壁施亮釉，可以盛水。"
 
 #: .\frontend\mockdata\products.py:160
-msgid "Meilin keeps one on the windowsill of the studio with whatever is in season. Most of the year that means a single branch."
+msgid ""
+"Meilin keeps one on the windowsill of the studio with whatever is in season."
+" Most of the year that means a single branch."
 msgstr "梅琳在工作室窗台上放着一只，插上当季的花材。一年中的大部分时候，那意味着一根枝条。"
 
 #: .\frontend\mockdata\products.py:168
-msgid "Two handleless cups, thin at the lip and thicker at the base. Pale celadon that shifts towards green where the glaze gathers."
+msgid ""
+"Two handleless cups, thin at the lip and thicker at the base. Pale celadon "
+"that shifts towards green where the glaze gathers."
 msgstr "两只无柄茶杯，杯口较薄，杯底较厚。淡青瓷釉在釉料积聚处会呈现更深的绿色。"
 
 #: .\frontend\mockdata\products.py:170
-msgid "Thrown in pairs and fired side by side, so the two cups in a set carry the same marks from the same corner of the kiln."
+msgid ""
+"Thrown in pairs and fired side by side, so the two cups in a set carry the "
+"same marks from the same corner of the kiln."
 msgstr "成对拉坯，并排烧制，因此一套中的两只杯子会留下来自窑炉同一角落的相同痕迹。"
 
 #: .\frontend\mockdata\products.py:179
-msgid "A flat-bottomed tote in heavyweight linen, with an inside pocket and handles long enough to carry over a shoulder."
+msgid ""
+"A flat-bottomed tote in heavyweight linen, with an inside pocket and handles"
+" long enough to carry over a shoulder."
 msgstr "采用厚实亚麻制成的平底托特包，设有内袋，提手长度足以肩背。"
 
 #: .\frontend\mockdata\products.py:181
-msgid "Ruolan made the first one because nothing she owned would hold a week of vegetables and still look like something she wanted to carry."
+msgid ""
+"Ruolan made the first one because nothing she owned would hold a week of "
+"vegetables and still look like something she wanted to carry."
 msgstr "若兰之所以做出第一只，是因为她手头没有一款包，既能装下一周采购的蔬菜，又好看得让她愿意随身携带。"
 
 #: .\frontend\mockdata\products.py:190
-msgid "Woven in two panels and joined by hand down the centre. Heavy enough for a bed, soft enough for a chair."
+msgid ""
+"Woven in two panels and joined by hand down the centre. Heavy enough for a "
+"bed, soft enough for a chair."
 msgstr "由两幅织片拼成，中间以手工缝合。厚实得可铺在床上，也柔软得适合搭在椅上。"
 
 #: .\frontend\mockdata\products.py:192
-msgid "Wenjing dips the yarn before it is ever woven, which is why the colour sits inside the cloth rather than on it, and deepens rather than fades."
+msgid ""
+"Wenjing dips the yarn before it is ever woven, which is why the colour sits "
+"inside the cloth rather than on it, and deepens rather than fades."
 msgstr "文静在织造之前就将纱线浸染，因此色彩深入织物内部而非停留在表面，并会随着使用加深而不是褪去。"
 
 #: .\frontend\mockdata\products.py:202
-msgid "A simple envelope cover with a buttoned back. Washed twice before it leaves the studio so it arrives already soft."
+msgid ""
+"A simple envelope cover with a buttoned back. Washed twice before it leaves "
+"the studio so it arrives already soft."
 msgstr "简洁的信封式靠垫套，背面以纽扣开合。离开工作室前经过两次水洗，送到手中时已柔软舒适。"
 
 #: .\frontend\mockdata\products.py:204
-msgid "The buttons are coconut shell, cut and drilled by a workshop two streets from Ruolan's own -- the last of its kind in the neighbourhood."
+msgid ""
+"The buttons are coconut shell, cut and drilled by a workshop two streets "
+"from Ruolan's own -- the last of its kind in the neighbourhood."
 msgstr "纽扣由椰壳制成，在距离若兰工作室两条街的一家作坊切割并钻孔——那是附近最后一家这样的作坊。"
 
 #: .\frontend\mockdata\products.py:213
-msgid "A long runner with a deep hand-turned hem. Creases readily, which is rather the point."
+msgid ""
+"A long runner with a deep hand-turned hem. Creases readily, which is rather "
+"the point."
 msgstr "一条长桌旗，饰有宽大的手工折边。它很容易留下褶皱，而这正是设计的本意。"
 
 #: .\frontend\mockdata\products.py:215
-msgid "Ruolan does not press these flat before packing. A runner that arrives perfectly smooth, she says, has been finished by a machine."
+msgid ""
+"Ruolan does not press these flat before packing. A runner that arrives "
+"perfectly smooth, she says, has been finished by a machine."
 msgstr "若兰在包装前不会把它们熨平。她说，一条到手时平整无痕的桌旗，是机器加工出来的。"
 
 #: .\frontend\mockdata\products.py:223
-msgid "Loosely woven so it dries fast, with a hanging loop set into the corner. Gets better with washing."
+msgid ""
+"Loosely woven so it dries fast, with a hanging loop set into the corner. "
+"Gets better with washing."
 msgstr "织法疏松，干得快，角落设有挂环。越洗越好用。"
 
 #: .\frontend\mockdata\products.py:225
-msgid "Woven on the narrow loom Wenjing keeps for offcuts, using yarn left over from the throws. No two runs are quite the same colour."
+msgid ""
+"Woven on the narrow loom Wenjing keeps for offcuts, using yarn left over "
+"from the throws. No two runs are quite the same colour."
 msgstr "使用文静专门处理余料的窄幅织机织成，纱线来自盖毯制作剩余的材料。每一批的颜色都不完全相同。"
 
 #: .\frontend\mockdata\products.py:234
-msgid "A cross-back apron with a lightly quilted front panel and two deep pockets. Adjustable at the neck, ties at the waist."
+msgid ""
+"A cross-back apron with a lightly quilted front panel and two deep pockets. "
+"Adjustable at the neck, ties at the waist."
 msgstr "交叉背带式围裙，前片带轻薄绗缝，设有两个深口袋。颈带可调节，腰间系带固定。"
 
 #: .\frontend\mockdata\products.py:236
-msgid "Designed with a baker in Hangzhou who wanted something that would take flour, heat and a hot pan handle without falling apart in a year."
+msgid ""
+"Designed with a baker in Hangzhou who wanted something that would take "
+"flour, heat and a hot pan handle without falling apart in a year."
 msgstr "与杭州的一位烘焙师共同设计；她想要一件能经受面粉、高温和滚烫锅柄，又不会在一年内散架的围裙。"
 
 #: .\frontend\mockdata\products.py:246
-msgid "Cedar, dry earth and a little green fig. Poured into a stoneware vessel worth keeping once the wax is gone."
+msgid ""
+"Cedar, dry earth and a little green fig. Poured into a stoneware vessel "
+"worth keeping once the wax is gone."
 msgstr "雪松、干燥泥土与一丝青无花果的香气。蜡烛浇注在炻器容器中，蜡燃尽后仍值得继续使用。"
 
 #: .\frontend\mockdata\products.py:248
-msgid "Anying built this scent around the smell of her workshop after rain -- wet stone, cut wood, and the fig tree in the courtyard next door."
+msgid ""
+"Anying built this scent around the smell of her workshop after rain -- wet "
+"stone, cut wood, and the fig tree in the courtyard next door."
 msgstr "安莹以雨后工作室的气味为灵感调制这款香气——潮湿的石头、切开的木材，以及隔壁庭院里的无花果树。"
 
 #: .\frontend\mockdata\products.py:258
-msgid "A shallow dish with an off-centre hole, sized for standard incense sticks. Unglazed outside so it keeps a little grip on the table."
+msgid ""
+"A shallow dish with an off-centre hole, sized for standard incense sticks. "
+"Unglazed outside so it keeps a little grip on the table."
 msgstr "浅盘设有偏离中心的小孔，适配标准线香。外壁不施釉，与桌面接触时能增加一些摩擦力。"
 
 #: .\frontend\mockdata\products.py:260
-msgid "Meilin makes these from the clay left at the end of a throwing session -- too little for a bowl, exactly enough for one of these."
+msgid ""
+"Meilin makes these from the clay left at the end of a throwing session -- "
+"too little for a bowl, exactly enough for one of these."
 msgstr "梅琳用每次拉坯结束时剩下的陶土制作这些香座——做一只碗太少，做一个香座却刚刚好。"
 
 #: .\frontend\mockdata\products.py:269
-msgid "A long board with a shaped handle and a lip cut into the underside so it lifts easily off a flat table."
+msgid ""
+"A long board with a shaped handle and a lip cut into the underside so it "
+"lifts easily off a flat table."
 msgstr "一块带造型手柄的长餐板，底部切出一道托边，方便从平坦桌面上拿起。"
 
 #: .\frontend\mockdata\products.py:271
-msgid "Cut from beams salvaged during the restoration of a Huizhou courtyard house. The grain, and occasionally an old nail hole, comes with the timber."
+msgid ""
+"Cut from beams salvaged during the restoration of a Huizhou courtyard house."
+" The grain, and occasionally an old nail hole, comes with the timber."
 msgstr "取材自修复一座徽州院落时回收的梁木。木纹，以及偶尔可见的旧钉孔，都是木材本身留下的痕迹。"
 
 #: .\frontend\mockdata\products.py:279
-msgid "An unlacquered brass bell on a turned oak handle. The brass will darken with handling, which is how it is meant to go."
+msgid ""
+"An unlacquered brass bell on a turned oak handle. The brass will darken with"
+" handling, which is how it is meant to go."
 msgstr "旋制橡木手柄上装有一只未上漆的黄铜钟罩。黄铜会随着触摸逐渐变暗，这正是它应有的变化。"
 
 #: .\frontend\mockdata\products.py:281
-msgid "Hesheng turns the handles from oak offcuts and has the bells spun by a metalworker he has used for eleven years."
+msgid ""
+"Hesheng turns the handles from oak offcuts and has the bells spun by a "
+"metalworker he has used for eleven years."
 msgstr "和生用橡木余料车制手柄，钟罩则由一位与他合作了十一年的金工匠人旋压成型。"
 
 #: .\frontend\mockdata\products.py:287
@@ -590,35 +665,51 @@ msgid "Made to order · ships in 2–3 weeks"
 msgstr "按订单制作 · 2–3 周内发货"
 
 #: .\frontend\mockdata\products.py:289
-msgid "A deep round basket with soft rope handles, woven closely enough to hold its shape when empty."
+msgid ""
+"A deep round basket with soft rope handles, woven closely enough to hold its"
+" shape when empty."
 msgstr "深圆形篮筐配柔软绳把手，编织紧密，即使空着也能保持形状。"
 
 #: .\frontend\mockdata\products.py:291
-msgid "Woven by a group of five weavers in a village outside Dali, in the weeks between planting and harvest."
+msgid ""
+"Woven by a group of five weavers in a village outside Dali, in the weeks "
+"between planting and harvest."
 msgstr "由大理郊外一个村庄的五位编织匠人在播种与收获之间的农闲时节编成。"
 
 #: .\frontend\mockdata\products.py:300
-msgid "A small pinched dish for rings, earrings or the change in your pocket. Pinched rather than thrown, so the rim is deliberately uneven."
+msgid ""
+"A small pinched dish for rings, earrings or the change in your pocket. "
+"Pinched rather than thrown, so the rim is deliberately uneven."
 msgstr "一只用于放置戒指、耳环或口袋零钱的手捏小碟。采用手捏而非拉坯成型，因此碟沿特意保留不规则感。"
 
 #: .\frontend\mockdata\products.py:302
-msgid "The first of these were made as thank-you gifts for the studio's earliest customers. Enough people asked to buy one that they became a product."
+msgid ""
+"The first of these were made as thank-you gifts for the studio's earliest "
+"customers. Enough people asked to buy one that they became a product."
 msgstr "最初一批是为感谢工作室早期顾客而制作的礼物。后来有足够多的人询问能否购买，它们便成为了正式商品。"
 
 #: .\frontend\mockdata\products.py:311
-msgid "A mug, a small candle and a tea towel, wrapped in unbleached paper and tied with cotton string. A card can be written at checkout."
+msgid ""
+"A mug, a small candle and a tea towel, wrapped in unbleached paper and tied "
+"with cotton string. A card can be written at checkout."
 msgstr "一只马克杯、一支小蜡烛和一条茶巾，以未漂白纸张包裹，并用棉绳系好。可在结账时填写卡片内容。"
 
 #: .\frontend\mockdata\products.py:313
-msgid "The set we send most often, and the one the studio sends to its own suppliers at the end of every year."
+msgid ""
+"The set we send most often, and the one the studio sends to its own "
+"suppliers at the end of every year."
 msgstr "这是我们最常寄出的礼盒，也是工作室每年年末寄给自家供应商的那一款。"
 
 #: .\frontend\mockdata\products.py:321
-msgid "Two hand-dipped tapers in unbleached beeswax. They smell faintly of honey when lit and drip very little."
+msgid ""
+"Two hand-dipped tapers in unbleached beeswax. They smell faintly of honey "
+"when lit and drip very little."
 msgstr "两支以未漂白蜂蜡手工浸制的长烛。点燃时带有淡淡蜂蜜香，且极少滴蜡。"
 
 #: .\frontend\mockdata\products.py:323
-msgid "Dipped forty times each, one layer at a time, over the course of an afternoon."
+msgid ""
+"Dipped forty times each, one layer at a time, over the course of an "
+"afternoon."
 msgstr "每支都要分层浸制四十次，整个过程用去一个下午。"
 
 #: .\frontend\mockdata\content.py:48
@@ -678,12 +769,10 @@ msgstr "设计"
 
 #: .\frontend\mockdata\content.py:66
 msgid ""
-"Each piece begins with an idea, a sketch or -- more often -- a material that "
-"turned up and suggested something. Nothing goes into production until the "
+"Each piece begins with an idea, a sketch or -- more often -- a material that"
+" turned up and suggested something. Nothing goes into production until the "
 "maker has lived with a sample for a season."
-msgstr ""
-"每件作品都始于一个念头、一张草图，或者更常见的——一块偶然遇见、自己提出想法的"
-"材料。在匠人与样品共处一季之前，任何东西都不会投入制作。"
+msgstr "每件作品都始于一个念头、一张草图，或者更常见的——一块偶然遇见、自己提出想法的材料。在匠人与样品共处一季之前，任何东西都不会投入制作。"
 
 #: .\frontend\mockdata\content.py:70
 msgid "Crafted"
@@ -694,9 +783,7 @@ msgid ""
 "Made individually, on a wheel, a loom or a bench. A mug takes about forty "
 "minutes to throw and trim; a throw takes the better part of three days on "
 "the loom. There is no version of this that is faster."
-msgstr ""
-"在拉坯机、织机或工作台上逐件完成。一只杯子拉坯与修坯约需四十分钟；一条盖毯要"
-"在织机上花去将近三天。这件事没有更快的做法。"
+msgstr "在拉坯机、织机或工作台上逐件完成。一只杯子拉坯与修坯约需四十分钟；一条盖毯要在织机上花去将近三天。这件事没有更快的做法。"
 
 #: .\frontend\mockdata\content.py:75
 msgid "Finished"
@@ -707,11 +794,10 @@ msgid ""
 "Checked by hand, wrapped in unbleached paper, and packed with a card naming "
 "the person who made it. Anything that does not pass goes back to the studio "
 "shelf, not into a box."
-msgstr ""
-"逐件手工检查，以本色纸包裹，并附上写有制作者姓名的卡片。未通过检查的作品会回"
-"到工作室的架子上，而不是装进箱子。"
+msgstr "逐件手工检查，以本色纸包裹，并附上写有制作者姓名的卡片。未通过检查的作品会回到工作室的架子上，而不是装进箱子。"
 
-#: .\frontend\mockdata\content.py:83 .\frontend\templates\frontend\home.html:16
+#: .\frontend\mockdata\content.py:83
+#: .\frontend\templates\frontend\home.html:16
 msgid "Our story"
 msgstr "品牌故事"
 
@@ -721,12 +807,10 @@ msgstr "手工制成，值得长久留用。"
 
 #: .\frontend\mockdata\content.py:85
 msgid ""
-"Atelier Form began in 2019 with one kiln, one loom and a stubborn conviction "
-"that the objects people use every day deserve more attention than they "
+"Atelier Form began in 2019 with one kiln, one loom and a stubborn conviction"
+" that the objects people use every day deserve more attention than they "
 "usually get."
-msgstr ""
-"Atelier Form 始于 2019 年，起点是一座窑、一台织机，以及一个固执的信念：人们日"
-"常使用的器物，值得比通常得到的更多用心。"
+msgstr "Atelier Form 始于 2019 年，起点是一座窑、一台织机，以及一个固执的信念：人们日常使用的器物，值得比通常得到的更多用心。"
 
 #: .\frontend\mockdata\content.py:89
 msgid "How it started"
@@ -734,24 +818,20 @@ msgstr "制作过程"
 
 #: .\frontend\mockdata\content.py:91
 msgid ""
-"We started by buying a single firing from a ceramicist in Jingdezhen who was "
-"about to close her studio because wholesale prices had fallen below what the "
-"clay cost her. That firing sold out in nine days. She is still with us, and "
-"she now works with two apprentices."
+"We started by buying a single firing from a ceramicist in Jingdezhen who was"
+" about to close her studio because wholesale prices had fallen below what "
+"the clay cost her. That firing sold out in nine days. She is still with us, "
+"and she now works with two apprentices."
 msgstr ""
-"我们的开始，是向景德镇一位陶艺师买下一整窑作品——当时批发价已低于她的泥料成"
-"本，工作室濒临关门。那一窑在九天内售罄。她至今仍与我们合作，如今还带着两名学"
-"徒。"
+"我们的开始，是向景德镇一位陶艺师买下一整窑作品——当时批发价已低于她的泥料成本，工作室濒临关门。那一窑在九天内售罄。她至今仍与我们合作，如今还带着两名学徒。"
 
 #: .\frontend\mockdata\content.py:95
 msgid ""
 "That set the shape of everything since. We do not commission from factories "
 "or buy from agents. We work with five makers, we know what each of them can "
-"produce in a month, and we build the range around that rather than the other "
-"way round."
-msgstr ""
-"此后的一切都由此定形。我们不向工厂下单，也不从中间商采购。我们与五位匠人合"
-"作，清楚每个人一个月能做多少，再据此安排产品线，而不是反过来。"
+"produce in a month, and we build the range around that rather than the other"
+" way round."
+msgstr "此后的一切都由此定形。我们不向工厂下单，也不从中间商采购。我们与五位匠人合作，清楚每个人一个月能做多少，再据此安排产品线，而不是反过来。"
 
 #: .\frontend\mockdata\content.py:100
 msgid "The materials we use"
@@ -759,22 +839,19 @@ msgstr "我们使用的材料"
 
 #: .\frontend\mockdata\content.py:102
 msgid ""
-"Stoneware and porcelain from clay quarried within an hour of the studio that "
-"throws it. Flax linen from a single European mill. Cotton spun in Yunnan and "
-"dyed with indigo grown in the same valley. Timber reclaimed from Huizhou "
-"houses under restoration."
+"Stoneware and porcelain from clay quarried within an hour of the studio that"
+" throws it. Flax linen from a single European mill. Cotton spun in Yunnan "
+"and dyed with indigo grown in the same valley. Timber reclaimed from Huizhou"
+" houses under restoration."
 msgstr ""
-"炻器与瓷器所用的泥料，采自距拉坯工作室一小时车程之内。亚麻来自欧洲的一家纺"
-"厂。棉纱在云南纺成，并以同一山谷种植的蓝靛染色。木料取自正在修缮的徽州老宅。"
+"炻器与瓷器所用的泥料，采自距拉坯工作室一小时车程之内。亚麻来自欧洲的一家纺厂。棉纱在云南纺成，并以同一山谷种植的蓝靛染色。木料取自正在修缮的徽州老宅。"
 
 #: .\frontend\mockdata\content.py:106
 msgid ""
 "The list is short on purpose. A short list means we can actually answer the "
-"question of where something came from, and it means the range holds together "
-"tonally without anyone having to art-direct it."
-msgstr ""
-"这份清单刻意保持简短。清单短，我们才真的答得出每样东西来自哪里；也正因如此，"
-"整个系列在色调上自然成立，无需刻意的视觉统筹。"
+"question of where something came from, and it means the range holds together"
+" tonally without anyone having to art-direct it."
+msgstr "这份清单刻意保持简短。清单短，我们才真的答得出每样东西来自哪里；也正因如此，整个系列在色调上自然成立，无需刻意的视觉统筹。"
 
 #: .\frontend\mockdata\content.py:110
 msgid "Why small batches"
@@ -785,25 +862,20 @@ msgid ""
 "We make roughly four hundred pieces a month across every category. That "
 "number has not changed much in three years, and we are not trying to change "
 "it."
-msgstr ""
-"我们各品类每月合计制作约四百件。这个数字三年来变化不大，我们也无意改变它。"
+msgstr "我们各品类每月合计制作约四百件。这个数字三年来变化不大，我们也无意改变它。"
 
 #: .\frontend\mockdata\content.py:114
 msgid ""
 "Volume would mean standardising the glazes, mechanising the finishing, and "
 "moving to a schedule the makers do not set. The pieces would survive that. "
 "The reason people like them would not."
-msgstr ""
-"扩大产量意味着釉色标准化、修整机械化，以及采用并非由匠人决定的排期。作品或许"
-"还能存续，但人们喜欢它们的理由会消失。"
+msgstr "扩大产量意味着釉色标准化、修整机械化，以及采用并非由匠人决定的排期。作品或许还能存续，但人们喜欢它们的理由会消失。"
 
 #: .\frontend\mockdata\content.py:117
 msgid ""
-"The trade-off is real and we would rather state it plainly: things sell out, "
-"restocks take weeks, and made-to-order means made to order."
-msgstr ""
-"这个取舍是真实的，我们宁愿直说：东西会售罄，补货要等上数周，而订制就是真的现"
-"做。"
+"The trade-off is real and we would rather state it plainly: things sell out,"
+" restocks take weeks, and made-to-order means made to order."
+msgstr "这个取舍是真实的，我们宁愿直说：东西会售罄，补货要等上数周，而订制就是真的现做。"
 
 #: .\frontend\mockdata\content.py:122
 msgid "makers, all known by name"
@@ -829,41 +901,34 @@ msgstr "配送与退货"
 msgid ""
 "Everything is packed by hand in the studio. Here is exactly what that means "
 "for timings, costs and sending something back."
-msgstr ""
-"所有商品均在工作室手工打包。以下说明这在时效、费用与退货方面究竟意味着什么。"
+msgstr "所有商品均在工作室手工打包。以下说明这在时效、费用与退货方面究竟意味着什么。"
 
 #: .\frontend\mockdata\content.py:135
 msgid ""
-"In-stock orders are dispatched within 2–4 working days. Made-to-order pieces "
-"carry their own lead time, stated clearly on the product page before you buy."
-msgstr ""
-"现货订单在 2–4 个工作日内发出。订制作品有各自的制作周期，购买前会在商品页面明"
-"确标注。"
+"In-stock orders are dispatched within 2–4 working days. Made-to-order pieces"
+" carry their own lead time, stated clearly on the product page before you "
+"buy."
+msgstr "现货订单在 2–4 个工作日内发出。订制作品有各自的制作周期，购买前会在商品页面明确标注。"
 
 #: .\frontend\mockdata\content.py:137
 msgid ""
 "Standard delivery is ¥8 and takes 3–6 working days domestically. It is "
 "complimentary on orders above ¥80. Express delivery is ¥18 and dispatches "
 "the next working day where stock allows."
-msgstr ""
-"标准配送费用为 ¥8，国内需 3–6 个工作日。订单满 ¥80 免运费。加急配送为 ¥18，在"
-"有货情况下次个工作日发出。"
+msgstr "标准配送费用为 ¥8，国内需 3–6 个工作日。订单满 ¥80 免运费。加急配送为 ¥18，在有货情况下次个工作日发出。"
 
 #: .\frontend\mockdata\content.py:140
 msgid ""
-"International delivery is available to most countries at cost, calculated at "
-"checkout. Duties and import taxes are not included and are payable by the "
+"International delivery is available to most countries at cost, calculated at"
+" checkout. Duties and import taxes are not included and are payable by the "
 "recipient on arrival."
-msgstr ""
-"我们按成本价寄送至大多数国家，运费在结算时计算。价格不含关税与进口税，由收件"
-"人在货物到达时承担。"
+msgstr "我们按成本价寄送至大多数国家，运费在结算时计算。价格不含关税与进口税，由收件人在货物到达时承担。"
 
 #: .\frontend\mockdata\content.py:143
 msgid ""
 "If an order contains both in-stock and made-to-order pieces, we ship them "
 "separately as they are ready and charge delivery only once."
-msgstr ""
-"若一笔订单同时包含现货与订制作品，我们会在各自备妥后分别寄出，运费只收一次。"
+msgstr "若一笔订单同时包含现货与订制作品，我们会在各自备妥后分别寄出，运费只收一次。"
 
 #: .\frontend\mockdata\content.py:146
 msgid "Packaging"
@@ -874,41 +939,32 @@ msgid ""
 "Ceramics travel wrapped in recycled tissue inside moulded pulp, in a double-"
 "walled box. We do not use plastic film, bubble wrap or polystyrene anywhere "
 "in the studio."
-msgstr ""
-"陶器以再生纸包裹，置于纸浆模塑中，再装入双层瓦楞纸箱。工作室的任何环节都不使"
-"用塑料膜、气泡膜或泡沫塑料。"
+msgstr "陶器以再生纸包裹，置于纸浆模塑中，再装入双层瓦楞纸箱。工作室的任何环节都不使用塑料膜、气泡膜或泡沫塑料。"
 
 #: .\frontend\mockdata\content.py:150
 msgid ""
 "Textiles are folded, wrapped in unbleached paper and tied with cotton "
 "string. The wrapping is the gift wrapping -- there is no upgrade to buy."
-msgstr ""
-"织物经折叠后以本色纸包裹，并以棉绳系好。这层包装本身就是礼品包装——无需另行付"
-"费升级。"
+msgstr "织物经折叠后以本色纸包裹，并以棉绳系好。这层包装本身就是礼品包装——无需另行付费升级。"
 
 #: .\frontend\mockdata\content.py:154
 msgid ""
-"You have thirty days from delivery to return an unused piece in its original "
-"packaging. Email the studio first and we will send you a return reference."
-msgstr ""
-"自收货起三十天内，未使用且保持原包装的作品可退。定制与订制作品仅在存在瑕疵时"
-"可退。详见"
+"You have thirty days from delivery to return an unused piece in its original"
+" packaging. Email the studio first and we will send you a return reference."
+msgstr "自收货起三十天内，未使用且保持原包装的作品可退。定制与订制作品仅在存在瑕疵时可退。详见"
 
 #: .\frontend\mockdata\content.py:156
 msgid ""
 "Refunds are issued to the original payment method within five working days "
 "of the parcel reaching us. Return postage is ours if the piece is faulty or "
 "not what you ordered, and yours for a change of mind."
-msgstr ""
-"包裹送达我们处后五个工作日内，退款将原路退回。若作品存在瑕疵或与所订不符，退"
-"货运费由我们承担；若因个人改变主意，则由您承担。"
+msgstr "包裹送达我们处后五个工作日内，退款将原路退回。若作品存在瑕疵或与所订不符，退货运费由我们承担；若因个人改变主意，则由您承担。"
 
 #: .\frontend\mockdata\content.py:159
 msgid ""
 "Made-to-order and commissioned pieces can only be returned if faulty, since "
 "they were made specifically for you. This is stated on the product page."
-msgstr ""
-"订制与定制作品因专为您制作，仅在存在瑕疵时可退。商品页面对此有明确说明。"
+msgstr "订制与定制作品因专为您制作，仅在存在瑕疵时可退。商品页面对此有明确说明。"
 
 #: .\frontend\mockdata\content.py:162
 msgid "If something arrives broken"
@@ -917,11 +973,9 @@ msgstr "如果收到时有破损"
 #: .\frontend\mockdata\content.py:163
 msgid ""
 "Send a photograph within 48 hours and we will replace the piece or refund "
-"you in full, whichever you prefer. You do not need to send the damaged piece "
-"back."
-msgstr ""
-"请在 48 小时内拍照发给我们，我们将按您的意愿补发或全额退款。破损的作品无需寄"
-"回。"
+"you in full, whichever you prefer. You do not need to send the damaged piece"
+" back."
+msgstr "请在 48 小时内拍照发给我们，我们将按您的意愿补发或全额退款。破损的作品无需寄回。"
 
 #: .\frontend\mockdata\content.py:165
 msgid ""
@@ -933,8 +987,7 @@ msgstr "这种情况约每两百单发生一次。比起您将就着用，我们
 msgid ""
 "Handmade pieces are more robust than most people expect. Nearly all of what "
 "shortens their life is heat, sunlight or impatience."
-msgstr ""
-"手作器物比多数人想象的更结实。真正缩短它们寿命的，几乎都是高温、日晒与急躁。"
+msgstr "手作器物比多数人想象的更结实。真正缩短它们寿命的，几乎都是高温、日晒与急躁。"
 
 #: .\frontend\mockdata\content.py:177
 msgid "High-fired stoneware and porcelain, fully vitrified."
@@ -950,24 +1003,19 @@ msgstr "可用洗碗机清洗。手洗能让哑光釉面更久保持如新，但
 msgid ""
 "Avoid thermal shock. Let a hot piece cool before rinsing, and never move a "
 "cold piece straight into a hot oven."
-msgstr ""
-"避免骤冷骤热。刚加热过的器物请先放凉再冲洗，也不要将冷的器物直接放入已预热的"
-"烤箱。"
+msgstr "避免骤冷骤热。刚加热过的器物请先放凉再冲洗，也不要将冷的器物直接放入已预热的烤箱。"
 
 #: .\frontend\mockdata\content.py:183
 msgid ""
-"Not suitable for direct flame or the microwave if the piece has any metallic "
-"detail. None of ours currently do."
-msgstr ""
-"不可直接明火加热；若器物带有金属装饰，则不可微波。我们目前的作品均无金属装"
-"饰。"
+"Not suitable for direct flame or the microwave if the piece has any metallic"
+" detail. None of ours currently do."
+msgstr "不可直接明火加热；若器物带有金属装饰，则不可微波。我们目前的作品均无金属装饰。"
 
 #: .\frontend\mockdata\content.py:185
 msgid ""
 "Unglazed feet may mark the table over time. A damp cloth with a little "
 "bicarbonate lifts most marks."
-msgstr ""
-"未施釉的底足日久可能在桌面留下痕迹。用湿布蘸少量小苏打即可去除大部分痕迹。"
+msgstr "未施釉的底足日久可能在桌面留下痕迹。用湿布蘸少量小苏打即可去除大部分痕迹。"
 
 #: .\frontend\mockdata\content.py:187
 msgid ""
@@ -983,9 +1031,7 @@ msgstr "水洗亚麻，以及手织的天然染色棉布。"
 msgid ""
 "Cool machine wash, gentle cycle, mild detergent. No fabric softener -- it "
 "coats the fibre and stops linen softening naturally."
-msgstr ""
-"冷水机洗，轻柔模式，使用温和洗涤剂。请勿使用柔顺剂——它会包覆纤维，妨碍亚麻自"
-"然变软。"
+msgstr "冷水机洗，轻柔模式，使用温和洗涤剂。请勿使用柔顺剂——它会包覆纤维，妨碍亚麻自然变软。"
 
 #: .\frontend\mockdata\content.py:195
 msgid ""
@@ -1002,8 +1048,7 @@ msgstr "天然染色的织物，前两三次请单独清洗。"
 msgid ""
 "Warm iron while slightly damp if you want a crisper finish. Most pieces are "
 "designed to be left alone."
-msgstr ""
-"若想要更挺括的效果，可在略带潮气时以温熨斗熨烫。不过多数作品本就无需打理。"
+msgstr "若想要更挺括的效果，可在略带潮气时以温熨斗熨烫。不过多数作品本就无需打理。"
 
 #: .\frontend\mockdata\content.py:200
 msgid ""
@@ -1023,16 +1068,13 @@ msgstr "大豆蜡与菜籽蜡，棉质烛芯。"
 msgid ""
 "Let the first burn run two to three hours, until the melt pool reaches the "
 "edge. Wax has a memory and the first burn sets the pattern."
-msgstr ""
-"第一次点燃请持续两到三小时，直至烛池扩至边缘。蜡是有记忆的，第一次燃烧决定了"
-"此后的形态。"
+msgstr "第一次点燃请持续两到三小时，直至烛池扩至边缘。蜡是有记忆的，第一次燃烧决定了此后的形态。"
 
 #: .\frontend\mockdata\content.py:208
 msgid ""
-"Trim the wick to about 5 mm before every burn. This is the single thing that "
-"most affects how cleanly a candle burns."
-msgstr ""
-"每次点燃前将烛芯修剪至约 5 毫米。这是影响蜡烛燃烧是否洁净的最关键一点。"
+"Trim the wick to about 5 mm before every burn. This is the single thing that"
+" most affects how cleanly a candle burns."
+msgstr "每次点燃前将烛芯修剪至约 5 毫米。这是影响蜡烛燃烧是否洁净的最关键一点。"
 
 #: .\frontend\mockdata\content.py:210
 msgid ""
@@ -1074,8 +1116,7 @@ msgstr "未涂漆的黄铜会随着使用而变深。这正是我们想要的质
 msgid ""
 "If you want the shine back, lemon juice and bicarbonate will do it in a "
 "minute. It will darken again, which is fine."
-msgstr ""
-"若想恢复光泽，用柠檬汁加小苏打一分钟即可。它之后还会再变深，这没有关系。"
+msgstr "若想恢复光泽，用柠檬汁加小苏打一分钟即可。它之后还会再变深，这没有关系。"
 
 #: .\frontend\templates\404.html:4
 msgid "Page not found"
@@ -1089,8 +1130,7 @@ msgstr "此页面已下架。"
 msgid ""
 "The link may be old, or a piece may have sold out and been retired. "
 "Everything we currently make is one click away."
-msgstr ""
-"链接可能已失效，或该件作品已售罄下架。我们目前在售的全部作品，一键即可浏览。"
+msgstr "链接可能已失效，或该件作品已售罄下架。我们目前在售的全部作品，一键即可浏览。"
 
 #: .\frontend\templates\404.html:15
 #: .\frontend\templates\frontend\account\orders.html:37
@@ -1515,7 +1555,8 @@ msgstr "若该邮箱对应的账户存在，您将很快收到一封密码重设
 
 #: .\frontend\templates\frontend\account\password_reset_done.html:11
 msgid ""
-"Check your spam folder. If no email arrives, check the address and try again."
+"Check your spam folder. If no email arrives, check the address and try "
+"again."
 msgstr "请检查垃圾邮件文件夹。若仍未收到邮件，请核对邮箱地址后重试。"
 
 #: .\frontend\templates\frontend\account\password_reset_done.html:13
@@ -1778,8 +1819,8 @@ msgstr "系统将显示二维码，请在微信中扫码支付。"
 
 #: .\frontend\templates\frontend\checkout.html:158
 msgid ""
-"Development mode: a mock payment provider is configured. An order is created "
-"and left"
+"Development mode: a mock payment provider is configured. An order is created"
+" and left"
 msgstr "开发模式：已配置模拟支付服务。订单会被创建并保持"
 
 #: .\frontend\templates\frontend\checkout.html:158
@@ -1993,9 +2034,7 @@ msgstr "五位匠人，每一位我们都叫得出名字。"
 msgid ""
 "We do not commission from factories or buy through agents. Everything on "
 "this site was made by one of these five people, in their own studio."
-msgstr ""
-"我们不向工厂下单，也不经由中间商采购。本站的每一件作品，都由这五位匠人之一在"
-"自己的工作室完成。"
+msgstr "我们不向工厂下单，也不经由中间商采购。本站的每一件作品，都由这五位匠人之一在自己的工作室完成。"
 
 #: .\frontend\templates\frontend\mock_payment.html:8
 msgid "WeChat Pay sandbox"
@@ -2009,9 +2048,7 @@ msgstr "扫码支付"
 msgid ""
 "This is a no-money simulator for the project demo. It exercises the same "
 "provider callback and order-state flow as a real payment."
-msgstr ""
-"这是用于项目演示的模拟支付，不涉及真实资金。它走的是与真实支付相同的回调与订"
-"单状态流程。"
+msgstr "这是用于项目演示的模拟支付，不涉及真实资金。它走的是与真实支付相同的回调与订单状态流程。"
 
 #: .\frontend\templates\frontend\mock_payment.html:13
 msgid "Simulated WeChat Pay QR code"
@@ -2056,11 +2093,9 @@ msgstr "支付状态："
 
 #: .\frontend\templates\frontend\order_confirmation.html:50
 msgid ""
-". This prototype uses a mock payment provider — an order is only marked paid "
-"by a verified provider webhook."
-msgstr ""
-"。本原型使用模拟支付服务——订单只有在收到经过验证的支付回调后才会标记为已支"
-"付。"
+". This prototype uses a mock payment provider — an order is only marked paid"
+" by a verified provider webhook."
+msgstr "。本原型使用模拟支付服务——订单只有在收到经过验证的支付回调后才会标记为已支付。"
 
 #: .\frontend\templates\frontend\order_confirmation.html:64
 msgid "Track this order"
@@ -2096,7 +2131,7 @@ msgstr "发送留言"
 
 #: .\frontend\templates\frontend\pages\contact.html:20
 msgid "Name"
-msgstr "姓名"
+msgstr "名称"
 
 #: .\frontend\templates\frontend\pages\contact.html:29
 msgid "What is it about?"
@@ -2209,9 +2244,7 @@ msgid ""
 "Your name, email address, delivery address and phone number, so that an "
 "order can be packed and sent. Payment details are handled by the payment "
 "provider and never reach our servers."
-msgstr ""
-"您的姓名、邮箱、收货地址与电话，用于打包与寄送订单。支付信息由支付服务商处"
-"理，绝不会进入我们的服务器。"
+msgstr "您的姓名、邮箱、收货地址与电话，用于打包与寄送订单。支付信息由支付服务商处理，绝不会进入我们的服务器。"
 
 #: .\frontend\templates\frontend\pages\legal.html:22
 msgid "How it is used"
@@ -2222,9 +2255,7 @@ msgid ""
 "To fulfil orders, answer questions about them, and — only if you asked for "
 "it — to send the studio newsletter. We do not sell or share customer data "
 "with advertisers."
-msgstr ""
-"用于履行订单、解答相关问题，以及在您主动订阅的前提下发送工作室通讯。我们不会"
-"向广告商出售或共享客户数据。"
+msgstr "用于履行订单、解答相关问题，以及在您主动订阅的前提下发送工作室通讯。我们不会向广告商出售或共享客户数据。"
 
 #: .\frontend\templates\frontend\pages\legal.html:24
 msgid "What this prototype stores"
@@ -2237,8 +2268,7 @@ msgid ""
 "wishlists are stored with the account; guest wishlists and recently viewed "
 "pieces remain in this browser."
 msgstr ""
-"原型数据库存储账户资料、已保存地址、服务端购物袋、订单、通讯订阅与联系留言。"
-"登录后的心愿单随账户保存；访客心愿单与最近浏览记录仅保留在本浏览器中。"
+"原型数据库存储账户资料、已保存地址、服务端购物袋、订单、通讯订阅与联系留言。登录后的心愿单随账户保存；访客心愿单与最近浏览记录仅保留在本浏览器中。"
 
 #: .\frontend\templates\frontend\pages\legal.html:26
 msgid "Your rights"
@@ -2259,9 +2289,7 @@ msgid ""
 "Placing an order is an offer to buy. A contract is formed when the studio "
 "confirms dispatch. Prices are shown inclusive of applicable tax and "
 "exclusive of any import duties, which are payable by the recipient."
-msgstr ""
-"下单即为购买要约。工作室确认发货时合同成立。标价含适用税费，不含进口关税，关"
-"税由收件人承担。"
+msgstr "下单即为购买要约。工作室确认发货时合同成立。标价含适用税费，不含进口关税，关税由收件人承担。"
 
 #: .\frontend\templates\frontend\pages\legal.html:31
 msgid "Handmade variation"
@@ -2269,20 +2297,17 @@ msgstr "手作差异"
 
 #: .\frontend\templates\frontend\pages\legal.html:32
 msgid ""
-"Every piece is made individually. Colour, glaze and dimensions vary within a "
-"normal range, and that variation is not a defect. Product photography shows "
-"a representative piece rather than the exact one you will receive."
-msgstr ""
-"每件作品均单独制作。颜色、釉面与尺寸在正常范围内会有差异，这并非瑕疵。商品照"
-"片展示的是代表性样品，而非您将收到的那一件。"
+"Every piece is made individually. Colour, glaze and dimensions vary within a"
+" normal range, and that variation is not a defect. Product photography shows"
+" a representative piece rather than the exact one you will receive."
+msgstr "每件作品均单独制作。颜色、釉面与尺寸在正常范围内会有差异，这并非瑕疵。商品照片展示的是代表性样品，而非您将收到的那一件。"
 
 #: .\frontend\templates\frontend\pages\legal.html:34
 msgid ""
 "Thirty days from delivery for unused pieces in their original packaging. "
-"Made-to-order and commissioned pieces can only be returned if faulty. See the"
-msgstr ""
-"自收货起三十天内，未使用且保持原包装的作品可退。定制与订制作品仅在存在瑕疵时"
-"可退。详见"
+"Made-to-order and commissioned pieces can only be returned if faulty. See "
+"the"
+msgstr "自收货起三十天内，未使用且保持原包装的作品可退。定制与订制作品仅在存在瑕疵时可退。详见"
 
 #: .\frontend\templates\frontend\pages\legal.html:35
 msgid "shipping and returns page"
@@ -2300,9 +2325,7 @@ msgstr "关于本原型"
 msgid ""
 "This site is a university project. No orders are fulfilled, no payments are "
 "taken and nothing here forms a real contract."
-msgstr ""
-"本站为大学课程项目。不会真实履行订单，不会实际收款，此处内容不构成任何真实合"
-"同。"
+msgstr "本站为大学课程项目。不会真实履行订单，不会实际收款，此处内容不构成任何真实合同。"
 
 #: .\frontend\templates\frontend\pages\legal.html:41
 msgid "Last reviewed:"
@@ -2366,7 +2389,7 @@ msgstr "关闭筛选"
 #: .\frontend\templates\frontend\shop\collection_detail.html:11
 #: .\frontend\templates\frontend\shop\collections.html:23
 msgid "Category"
-msgstr "品类"
+msgstr "分类"
 
 #: .\frontend\templates\frontend\partials\filters.html:25
 msgid "Material"
@@ -2486,11 +2509,11 @@ msgstr "新品"
 
 #: .\frontend\templates\frontend\partials\product_card.html:14
 msgid "Low stock"
-msgstr "库存紧张"
+msgstr "库存不足"
 
 #: .\frontend\templates\frontend\partials\product_card.html:15
 msgid "Made to order"
-msgstr "订制生产"
+msgstr "按需制作"
 
 #: .\frontend\templates\frontend\partials\product_card.html:19
 #: .\frontend\templates\frontend\product\detail.html:99
@@ -2743,8 +2766,7 @@ msgstr "没有与“%(term)s”匹配的结果"
 msgid ""
 "The catalogue is small — around twenty pieces — so specific searches often "
 "come up short. Try a material or a category."
-msgstr ""
-"本站商品不多——约二十件——因此过于具体的搜索常无结果。不妨试试材质或品类。"
+msgstr "本站商品不多——约二十件——因此过于具体的搜索常无结果。不妨试试材质或品类。"
 
 #: .\frontend\templates\frontend\search\results.html:41
 msgid "Products"
@@ -2798,7 +2820,8 @@ msgstr "该系列正处于两批之间。其余作品请见商店。"
 
 #: .\frontend\templates\frontend\shop\collections.html:11
 msgid ""
-"Explore our categories and editorial collections. Each one is small on purpose."
+"Explore our categories and editorial collections. Each one is small on "
+"purpose."
 msgstr "探索我们的品类与专题系列。每一个都刻意保持小而精。"
 
 #: .\frontend\templates\frontend\shop\collections.html:27
@@ -2855,7 +2878,9 @@ msgid "Creative Commons"
 msgstr "知识共享"
 
 #: .\backend\imagery\templates\imagery\credits.html:23
-msgid "Each of these is used under a licence permitting commercial use and modification. Images have been cropped and resized to fit the layout."
+msgid ""
+"Each of these is used under a licence permitting commercial use and "
+"modification. Images have been cropped and resized to fit the layout."
 msgstr "这些图片均依据允许商业使用与修改的许可协议使用，并已裁剪和调整尺寸以适应页面布局。"
 
 #: .\frontend\templates\frontend\account\auth.html:38
@@ -2863,7 +2888,9 @@ msgid "For your privacy, sign out on shared devices."
 msgstr "为了您的隐私，请在共享设备上退出登录。"
 
 #: .\backend\imagery\templates\imagery\credits.html:59
-msgid "Generated illustrations remain in place wherever no photograph could be found."
+msgid ""
+"Generated illustrations remain in place wherever no photograph could be "
+"found."
 msgstr "在找不到摄影图片的地方，将继续使用生成的插图。"
 
 #: .\backend\imagery\templates\imagery\credits.html:14
@@ -2871,7 +2898,9 @@ msgid "It stands in"
 msgstr "这些图片暂代"
 
 #: .\backend\imagery\templates\imagery\credits.html:55
-msgid "No photography has been fetched yet — every image on the site is still a generated placeholder. Run"
+msgid ""
+"No photography has been fetched yet — every image on the site is still a "
+"generated placeholder. Run"
 msgstr "尚未获取摄影图片——网站上的所有图片仍是生成的占位图。请运行"
 
 #: .\backend\imagery\templates\imagery\credits.html:42
@@ -2879,15 +2908,20 @@ msgid "Public domain"
 msgstr "公有领域"
 
 #: .\backend\imagery\templates\imagery\credits.html:13
-msgid "The photography on this prototype is openly licensed work found through"
+msgid ""
+"The photography on this prototype is openly licensed work found through"
 msgstr "本原型中的摄影图片均通过以下平台获取并采用开放许可："
 
 #: .\backend\imagery\templates\imagery\credits.html:43
-msgid "Used under CC0 or a public domain mark. No attribution is required; it is given anyway."
+msgid ""
+"Used under CC0 or a public domain mark. No attribution is required; it is "
+"given anyway."
 msgstr "依据 CC0 或公有领域标记使用。虽然无需署名，我们仍在此注明来源。"
 
 #: .\backend\imagery\templates\imagery\credits.html:15
-msgid "for studio photography that has not been commissioned yet, and it is credited here because most of these licences require it."
+msgid ""
+"for studio photography that has not been commissioned yet, and it is "
+"credited here because most of these licences require it."
 msgstr "尚未委托拍摄的工作室照片，并因多数许可协议要求而在此列出来源。"
 
 #: .\frontend\templates\frontend\journal\detail.html:20
@@ -2915,15 +2949,22 @@ msgid "Porcelain thrown thin enough to hold the light."
 msgstr "薄到足以承托光线的瓷器。"
 
 #: .\frontend\mockdata\makers.py:38
-msgid "Meilin trained for six years under a Jingdezhen master before opening a small studio on the eastern edge of the old kiln district. She works almost entirely in local porcelain stone, quarried an hour from her door."
+msgid ""
+"Meilin trained for six years under a Jingdezhen master before opening a "
+"small studio on the eastern edge of the old kiln district. She works almost "
+"entirely in local porcelain stone, quarried an hour from her door."
 msgstr "梅琳曾在景德镇一位陶艺大师门下学习六年，之后在古窑区东侧开设了一间小工作室。她几乎只使用本地瓷石，泥料取自离工作室一小时车程的地方。"
 
 #: .\frontend\mockdata\makers.py:41
-msgid "Her forms are quiet and slightly imperfect by design. A rim that dips a little, a foot left unglazed so you can read the clay -- these are the marks she leaves on purpose, and the reason no two pieces are alike."
+msgid ""
+"Her forms are quiet and slightly imperfect by design. A rim that dips a "
+"little, a foot left unglazed so you can read the clay -- these are the marks"
+" she leaves on purpose, and the reason no two pieces are alike."
 msgstr "她的器形安静而略带不完美，这是刻意为之。微微下沉的器口、露出泥土质感的素烧足部，都是她有意留下的痕迹，也正是每件作品各不相同的原因。"
 
 #: .\frontend\mockdata\makers.py:46
-msgid "Clay is wedged by hand each morning and rested overnight before throwing."
+msgid ""
+"Clay is wedged by hand each morning and rested overnight before throwing."
 msgstr "每天早晨手工揉泥，静置一夜后才开始拉坯。"
 
 #: .\frontend\mockdata\makers.py:47
@@ -2935,7 +2976,8 @@ msgid "Glazes are mixed in small batches from ash, feldspar and iron oxide."
 msgstr "釉料以灰烬、长石和氧化铁分批调配。"
 
 #: .\frontend\mockdata\makers.py:49
-msgid "A single gas firing to 1280°C, with the kiln cooled slowly over two days."
+msgid ""
+"A single gas firing to 1280°C, with the kiln cooled slowly over two days."
 msgstr "以 1280°C 进行一次燃气烧制，窑炉缓慢冷却两天。"
 
 #: .\frontend\mockdata\makers.py:55
@@ -2955,11 +2997,17 @@ msgid "Indigo that deepens with every wash."
 msgstr "每一次清洗，靛蓝都更深一层。"
 
 #: .\frontend\mockdata\makers.py:62
-msgid "Wenjing learned to dye from her grandmother, who kept an indigo vat behind the family house in Dali. She now grows her own indigo and works with three neighbouring households during the harvest."
+msgid ""
+"Wenjing learned to dye from her grandmother, who kept an indigo vat behind "
+"the family house in Dali. She now grows her own indigo and works with three "
+"neighbouring households during the harvest."
 msgstr "文静向祖母学习染色。祖母曾在大理的家屋后经营一口靛蓝染缸。如今她自己种植蓝靛，并在收获季与邻近的三户人家合作。"
 
 #: .\frontend\mockdata\makers.py:65
-msgid "She weaves on a floor loom her father built, in cotton and hemp spun within the province. Nothing in her studio is dyed twice the same way, and she has stopped apologising for it."
+msgid ""
+"She weaves on a floor loom her father built, in cotton and hemp spun within "
+"the province. Nothing in her studio is dyed twice the same way, and she has "
+"stopped apologising for it."
 msgstr "她使用父亲制作的木质地织机，以省内纺成的棉与麻织布。她工作室里的任何东西都不会以完全相同的方式染两次，她也不再为此道歉。"
 
 #: .\frontend\mockdata\makers.py:70
@@ -2967,7 +3015,9 @@ msgid "Indigo is fermented in clay vats and fed weekly through the season."
 msgstr "靛蓝在陶缸中发酵，并在整个季节每周补养。"
 
 #: .\frontend\mockdata\makers.py:71
-msgid "Cloth is dipped between six and fourteen times, depending on the depth wanted."
+msgid ""
+"Cloth is dipped between six and fourteen times, depending on the depth "
+"wanted."
 msgstr "布料浸染六至十四次，视所需深浅而定。"
 
 #: .\frontend\mockdata\makers.py:72
@@ -2995,11 +3045,16 @@ msgid "Working with the grain, never against it."
 msgstr "顺着木纹工作，从不与它对抗。"
 
 #: .\frontend\mockdata\makers.py:86
-msgid "Hesheng spent a decade restoring Huizhou timber houses before turning to smaller objects. He still sources most of his wood from those restorations -- beams and floorboards that have already lived a life."
+msgid ""
+"Hesheng spent a decade restoring Huizhou timber houses before turning to "
+"smaller objects. He still sources most of his wood from those restorations "
+"-- beams and floorboards that have already lived a life."
 msgstr "和生花了十年修复徽州木屋，之后才转向制作更小的器物。他的大部分木材仍来自这些修复工程，是已经度过一段岁月的梁木与地板。"
 
 #: .\frontend\mockdata\makers.py:89
-msgid "He cuts joinery by hand and finishes everything in raw linseed oil. Nothing leaves the bench until it feels right in the hand."
+msgid ""
+"He cuts joinery by hand and finishes everything in raw linseed oil. Nothing "
+"leaves the bench until it feels right in the hand."
 msgstr "他手工切削榫卯，所有作品都以生亚麻籽油完成。每件东西在握感恰到好处之前，都不会离开工作台。"
 
 #: .\frontend\mockdata\makers.py:93
@@ -3035,11 +3090,17 @@ msgid "Scent built the way a garden is planted."
 msgstr "像栽种花园一样构筑香气。"
 
 #: .\frontend\mockdata\makers.py:109
-msgid "Anying studied classical Chinese garden design before training in perfumery. She thinks about a scent the way she was taught to think about a courtyard: what you meet first, and what you find later."
+msgid ""
+"Anying studied classical Chinese garden design before training in perfumery."
+" She thinks about a scent the way she was taught to think about a courtyard:"
+" what you meet first, and what you find later."
 msgstr "安莹曾学习中国古典园林设计，之后接受调香训练。她以设计庭院的方式思考香气：首先遇见什么，之后又会发现什么。"
 
 #: .\frontend\mockdata\makers.py:112
-msgid "She pours in batches of forty, by hand, in a converted ground-floor workshop near the canal. Each batch is left to cure for two weeks before a wick is ever lit."
+msgid ""
+"She pours in batches of forty, by hand, in a converted ground-floor workshop"
+" near the canal. Each batch is left to cure for two weeks before a wick is "
+"ever lit."
 msgstr "她在运河附近一间改造的底层工作室里手工浇注，每批四十支。每批蜡烛会静置固化两周，之后才点燃烛芯。"
 
 #: .\frontend\mockdata\makers.py:117
@@ -3075,11 +3136,16 @@ msgid "Linen washed until it forgets it was ever stiff."
 msgstr "将亚麻洗到仿佛从未僵硬过。"
 
 #: .\frontend\mockdata\makers.py:133
-msgid "Ruolan works in European flax linen, finished in her own studio using a stone-washing process she spent two years refining. The point, she says, is for a new piece to feel like one you have owned for years."
+msgid ""
+"Ruolan works in European flax linen, finished in her own studio using a "
+"stone-washing process she spent two years refining. The point, she says, is "
+"for a new piece to feel like one you have owned for years."
 msgstr "若兰使用欧洲亚麻，在自己的工作室里以经过两年改良的石洗工艺完成整理。她说，理想状态是让新作品摸起来像已经陪伴你多年的旧物。"
 
 #: .\frontend\mockdata\makers.py:136
-msgid "She cuts and sews everything herself, with a single assistant during busy months, and keeps her ranges deliberately small."
+msgid ""
+"She cuts and sews everything herself, with a single assistant during busy "
+"months, and keeps her ranges deliberately small."
 msgstr "她亲自裁剪和缝制所有作品，忙碌月份会有一名助手，并始终刻意保持系列精简。"
 
 #: .\frontend\mockdata\makers.py:140
@@ -3107,15 +3173,22 @@ msgid "Can I change or cancel my order?"
 msgstr "我可以修改或取消订单吗？"
 
 #: .\frontend\mockdata\faqs.py:21
-msgid "Yes, within 12 hours of placing it, as long as it has not been packed. Email the studio with your order number and we will sort it out. After 12 hours a made-to-order piece may already be in production."
-msgstr "可以。下单后 12 小时内，且订单尚未打包时，您可以修改或取消订单。请将订单编号发送至工作室邮箱，我们会为您处理。超过 12 小时后，按订单制作的商品可能已经开始生产。"
+msgid ""
+"Yes, within 12 hours of placing it, as long as it has not been packed. Email"
+" the studio with your order number and we will sort it out. After 12 hours a"
+" made-to-order piece may already be in production."
+msgstr ""
+"可以。下单后 12 小时内，且订单尚未打包时，您可以修改或取消订单。请将订单编号发送至工作室邮箱，我们会为您处理。超过 12 "
+"小时后，按订单制作的商品可能已经开始生产。"
 
 #: .\frontend\mockdata\faqs.py:24
 msgid "I ordered several pieces. Will they arrive together?"
 msgstr "我订购了多件商品，它们会一起送达吗？"
 
 #: .\frontend\mockdata\faqs.py:25
-msgid "Not always. In-stock items ship immediately and made-to-order pieces follow when they are ready. You are only charged delivery once."
+msgid ""
+"Not always. In-stock items ship immediately and made-to-order pieces follow "
+"when they are ready. You are only charged delivery once."
 msgstr "不一定。现货商品会立即发出，按订单制作的商品则会在完成后寄出。您只需支付一次配送费。"
 
 #: .\frontend\mockdata\faqs.py:27
@@ -3123,7 +3196,10 @@ msgid "Do you take custom or commission requests?"
 msgstr "你们接受定制或委托制作吗？"
 
 #: .\frontend\mockdata\faqs.py:28
-msgid "For some pieces, yes. Use the enquiry link on the product page and the maker will reply with what is possible and a quotation. Commissions typically take four to eight weeks."
+msgid ""
+"For some pieces, yes. Use the enquiry link on the product page and the maker"
+" will reply with what is possible and a quotation. Commissions typically "
+"take four to eight weeks."
 msgstr "部分商品可以。请使用商品页面上的咨询链接，匠人会回复可行方案和报价。委托制作通常需要 4–8 周。"
 
 #: .\frontend\mockdata\faqs.py:31
@@ -3131,7 +3207,9 @@ msgid "Can I order a piece that is sold out?"
 msgstr "我可以订购已售罄的商品吗？"
 
 #: .\frontend\mockdata\faqs.py:32
-msgid "Sold-out pieces return when the maker next fires or weaves a batch. Add your email on the product page and you will hear when it does."
+msgid ""
+"Sold-out pieces return when the maker next fires or weaves a batch. Add your"
+" email on the product page and you will hear when it does."
 msgstr "已售罄的商品会在匠人下一次烧制或织造一批时重新上架。在商品页面留下您的电子邮箱，补货时我们会通知您。"
 
 #: .\frontend\mockdata\faqs.py:35
@@ -3143,7 +3221,10 @@ msgid "How long does delivery take?"
 msgstr "配送需要多长时间？"
 
 #: .\frontend\mockdata\faqs.py:38
-msgid "In-stock orders are dispatched in 2–4 working days and arrive within a week domestically. Made-to-order pieces state their own lead time on the product page."
+msgid ""
+"In-stock orders are dispatched in 2–4 working days and arrive within a week "
+"domestically. Made-to-order pieces state their own lead time on the product "
+"page."
 msgstr "现货订单会在 2–4 个工作日内发出，并在一周内送达国内地址。按订单制作的商品会在商品页面注明各自的交付周期。"
 
 #: .\frontend\mockdata\faqs.py:40
@@ -3151,7 +3232,9 @@ msgid "How much does delivery cost?"
 msgstr "配送费是多少？"
 
 #: .\frontend\mockdata\faqs.py:41
-msgid "Standard delivery is ¥8. It is complimentary on orders above ¥80. Express delivery is ¥18 and dispatches the next working day where stock allows."
+msgid ""
+"Standard delivery is ¥8. It is complimentary on orders above ¥80. Express "
+"delivery is ¥18 and dispatches the next working day where stock allows."
 msgstr "标准配送费为 ¥8。订单金额超过 ¥80 可免配送费。加急配送费为 ¥18，并会在库存允许的情况下于下一个工作日发出。"
 
 #: .\frontend\mockdata\faqs.py:43
@@ -3159,7 +3242,9 @@ msgid "Do you ship internationally?"
 msgstr "可以寄送到海外吗？"
 
 #: .\frontend\mockdata\faqs.py:44
-msgid "Yes, to most countries. Duties and import taxes are not included and are paid by the recipient on arrival."
+msgid ""
+"Yes, to most countries. Duties and import taxes are not included and are "
+"paid by the recipient on arrival."
 msgstr "可以，我们可寄送至大多数国家。关税和进口税不包含在费用中，需由收件人在收货时支付。"
 
 #: .\frontend\mockdata\faqs.py:46
@@ -3167,7 +3252,9 @@ msgid "How is fragile work packed?"
 msgstr "易碎作品如何包装？"
 
 #: .\frontend\mockdata\faqs.py:47
-msgid "Ceramics are wrapped in recycled tissue and moulded pulp, inside a double-walled box. No plastic, no polystyrene."
+msgid ""
+"Ceramics are wrapped in recycled tissue and moulded pulp, inside a double-"
+"walled box. No plastic, no polystyrene."
 msgstr "陶瓷会用再生薄纸和模塑纸浆包裹，再装入双层瓦楞纸箱。全程不使用塑料或聚苯乙烯泡沫。"
 
 #: .\frontend\mockdata\faqs.py:50
@@ -3179,7 +3266,9 @@ msgid "What is your returns window?"
 msgstr "退货期限是多久？"
 
 #: .\frontend\mockdata\faqs.py:53
-msgid "Thirty days from delivery, for unused pieces in their original packaging. Tell us before you send anything back so we can issue a return reference."
+msgid ""
+"Thirty days from delivery, for unused pieces in their original packaging. "
+"Tell us before you send anything back so we can issue a return reference."
 msgstr "自收货之日起 30 天内，未使用且保留原包装的商品可以退货。寄回任何商品前请先联系我们，以便我们提供退货编号。"
 
 #: .\frontend\mockdata\faqs.py:55
@@ -3187,7 +3276,9 @@ msgid "Something arrived broken."
 msgstr "收到的商品破损了。"
 
 #: .\frontend\mockdata\faqs.py:56
-msgid "Send a photograph within 48 hours of delivery and we will replace it or refund you in full. You do not need to return the damaged piece."
+msgid ""
+"Send a photograph within 48 hours of delivery and we will replace it or "
+"refund you in full. You do not need to return the damaged piece."
 msgstr "请在收货后 48 小时内发送照片，我们会为您更换商品或全额退款。您无需寄回破损商品。"
 
 #: .\frontend\mockdata\faqs.py:58
@@ -3195,7 +3286,9 @@ msgid "Can I return a made-to-order or commissioned piece?"
 msgstr "按订单制作或委托制作的商品可以退货吗？"
 
 #: .\frontend\mockdata\faqs.py:59
-msgid "Only if it is faulty. These are made specifically for you, so we cannot resell them. The product page says clearly when this applies."
+msgid ""
+"Only if it is faulty. These are made specifically for you, so we cannot "
+"resell them. The product page says clearly when this applies."
 msgstr "只有商品存在瑕疵时才可以。这些商品是专门为您制作的，无法再次销售。适用此规则时，商品页面会明确说明。"
 
 #: .\frontend\mockdata\faqs.py:61
@@ -3203,7 +3296,9 @@ msgid "Who pays return postage?"
 msgstr "退货邮费由谁承担？"
 
 #: .\frontend\mockdata\faqs.py:62
-msgid "We do, if the piece is faulty or not what you ordered. For a change of mind, return postage is yours."
+msgid ""
+"We do, if the piece is faulty or not what you ordered. For a change of mind,"
+" return postage is yours."
 msgstr "如果商品有瑕疵或与您订购的不符，退货邮费由我们承担。如果只是改变主意，退货邮费由您承担。"
 
 #: .\frontend\mockdata\faqs.py:65
@@ -3219,7 +3314,9 @@ msgid "Is your stoneware dishwasher safe?"
 msgstr "炻器可以用洗碗机清洗吗？"
 
 #: .\frontend\mockdata\faqs.py:68
-msgid "Yes. It is fired to full vitrification. Hand washing keeps a matte glaze looking its best for longer, but the machine will not harm it."
+msgid ""
+"Yes. It is fired to full vitrification. Hand washing keeps a matte glaze "
+"looking its best for longer, but the machine will not harm it."
 msgstr "可以。炻器已经烧至完全玻化。手洗能让哑光釉面更长久地保持最佳状态，但洗碗机不会损坏它。"
 
 #: .\frontend\mockdata\faqs.py:70
@@ -3227,7 +3324,9 @@ msgid "How should I wash linen?"
 msgstr "亚麻制品应该如何清洗？"
 
 #: .\frontend\mockdata\faqs.py:71
-msgid "Cool machine wash on a gentle cycle, mild detergent, no fabric softener. Line dry in shade. It softens with every wash."
+msgid ""
+"Cool machine wash on a gentle cycle, mild detergent, no fabric softener. "
+"Line dry in shade. It softens with every wash."
 msgstr "使用温和洗涤剂，以低温轻柔模式机洗，不要使用衣物柔顺剂。置于阴凉处晾干。每洗一次，它都会更加柔软。"
 
 #: .\frontend\mockdata\faqs.py:73
@@ -3235,7 +3334,9 @@ msgid "My candle is tunnelling."
 msgstr "我的蜡烛出现了隧道现象。"
 
 #: .\frontend\mockdata\faqs.py:74
-msgid "Let the first burn run until the melt pool reaches the edge -- usually two to three hours. Wax has a memory, and the first burn sets it."
+msgid ""
+"Let the first burn run until the melt pool reaches the edge -- usually two "
+"to three hours. Wax has a memory, and the first burn sets it."
 msgstr "第一次燃烧时，请让融蜡池延伸到容器边缘，通常需要两到三个小时。蜡具有记忆效应，第一次燃烧会决定之后的燃烧方式。"
 
 #: .\frontend\mockdata\faqs.py:76
@@ -3243,7 +3344,9 @@ msgid "The brass has darkened."
 msgstr "黄铜变暗了。"
 
 #: .\frontend\mockdata\faqs.py:77
-msgid "It is unlacquered, so that is expected and reversible. A little lemon juice and bicarbonate returns the shine if you want it back."
+msgid ""
+"It is unlacquered, so that is expected and reversible. A little lemon juice "
+"and bicarbonate returns the shine if you want it back."
 msgstr "黄铜没有上漆，因此变暗属于正常现象，也可以恢复。如果想让它重新亮起来，可使用少量柠檬汁和小苏打。"
 
 #: .\frontend\mockdata\faqs.py:80
@@ -3259,7 +3362,10 @@ msgid "My piece does not look exactly like the photograph."
 msgstr "我的商品看起来与照片不完全一样。"
 
 #: .\frontend\mockdata\faqs.py:84
-msgid "It will not. Glaze colour, speckle, and dye depth vary between firings and dye baths. We photograph a typical piece rather than the best one in a batch."
+msgid ""
+"It will not. Glaze colour, speckle, and dye depth vary between firings and "
+"dye baths. We photograph a typical piece rather than the best one in a "
+"batch."
 msgstr "本来就不会完全一样。不同批次的烧制和染浴会造成釉色、斑点和染色深浅的差异。我们拍摄的是具有代表性的作品，而不是一批中最好的一件。"
 
 #: .\frontend\mockdata\faqs.py:86
@@ -3267,7 +3373,9 @@ msgid "Are the dimensions exact?"
 msgstr "尺寸是完全准确的吗？"
 
 #: .\frontend\mockdata\faqs.py:87
-msgid "Within about 5%. Every piece is thrown or cut by hand, and clay shrinks by roughly a tenth in the firing."
+msgid ""
+"Within about 5%. Every piece is thrown or cut by hand, and clay shrinks by "
+"roughly a tenth in the firing."
 msgstr "误差约在 5% 以内。每件作品都由手工拉坯或裁切，陶土在烧制过程中还会收缩约十分之一。"
 
 #: .\frontend\mockdata\faqs.py:89
@@ -3275,7 +3383,9 @@ msgid "There are fine lines in the glaze."
 msgstr "釉面上有细纹。"
 
 #: .\frontend\mockdata\faqs.py:90
-msgid "That is crazing, and on a vitrified body it is cosmetic. It does not affect strength or whether the piece holds water."
+msgid ""
+"That is crazing, and on a vitrified body it is cosmetic. It does not affect "
+"strength or whether the piece holds water."
 msgstr "这是开片。对于已经玻化的坯体，这只是外观上的变化，不会影响强度或盛水性能。"
 
 #: .\frontend\mockdata\faqs.py:92
@@ -3283,7 +3393,9 @@ msgid "What actually counts as a fault?"
 msgstr "什么情况才算瑕疵？"
 
 #: .\frontend\mockdata\faqs.py:93
-msgid "A chip, a crack through the body, a piece that does not sit flat, or a seam that has failed. Any of those, tell us and we will replace it."
+msgid ""
+"A chip, a crack through the body, a piece that does not sit flat, or a seam "
+"that has failed. Any of those, tell us and we will replace it."
 msgstr "崩口、贯穿坯体的裂纹、无法平稳放置，或接缝开裂，都属于瑕疵。遇到任何一种情况，请告诉我们，我们会为您更换。"
 
 #: .\frontend\mockdata\faqs.py:96
@@ -3299,7 +3411,9 @@ msgid "Can you include a handwritten note?"
 msgstr "可以附上手写留言吗？"
 
 #: .\frontend\mockdata\faqs.py:99
-msgid "Yes. Add your message at checkout and it is written onto a card by hand, unsigned by us, and tucked into the parcel."
+msgid ""
+"Yes. Add your message at checkout and it is written onto a card by hand, "
+"unsigned by us, and tucked into the parcel."
 msgstr "可以。结账时填写留言，我们会将其手写在卡片上，不署工作室名，并放入包裹中。"
 
 #: .\frontend\mockdata\faqs.py:101
@@ -3315,7 +3429,9 @@ msgid "Is gift wrapping extra?"
 msgstr "礼品包装需要额外收费吗？"
 
 #: .\frontend\mockdata\faqs.py:104
-msgid "No. Everything is wrapped in unbleached paper and cotton string as standard. There is nothing extra to add."
+msgid ""
+"No. Everything is wrapped in unbleached paper and cotton string as standard."
+" There is nothing extra to add."
 msgstr "不需要。所有商品都会按标准使用未漂白纸张和棉绳包装，无需另行添加。"
 
 #: .\frontend\mockdata\faqs.py:106
@@ -3323,7 +3439,9 @@ msgid "Do you sell gift cards?"
 msgstr "你们销售礼品卡吗？"
 
 #: .\frontend\mockdata\faqs.py:107
-msgid "Yes, in ¥50, ¥100 and ¥200. They are emailed to the recipient on a date you choose and do not expire."
+msgid ""
+"Yes, in ¥50, ¥100 and ¥200. They are emailed to the recipient on a date you "
+"choose and do not expire."
 msgstr "有 ¥50、¥100 和 ¥200 三种面额。礼品卡会在您选择的日期通过电子邮件发送给收件人，且不会过期。"
 
 #: .\frontend\mockdata\journal.py
@@ -3331,7 +3449,9 @@ msgid "Why no two glazes match"
 msgstr "为什么没有两种釉色完全相同"
 
 #: .\frontend\mockdata\journal.py
-msgid "A wood-ash glaze is a record of the firing that made it. Here is why we stopped trying to make them identical."
+msgid ""
+"A wood-ash glaze is a record of the firing that made it. Here is why we "
+"stopped trying to make them identical."
 msgstr "手工灰釉记录着烧制它的过程。我们为什么不再追求完全一致？"
 
 #: .\frontend\mockdata\journal.py
@@ -3343,7 +3463,9 @@ msgid "6 min"
 msgstr "6 分钟"
 
 #: .\frontend\mockdata\journal.py
-msgid "Ask a factory to make five hundred mugs the same colour and it will. Ask a kiln to do it and you will get something more interesting and less obedient."
+msgid ""
+"Ask a factory to make five hundred mugs the same colour and it will. Ask a "
+"kiln to do it and you will get something more interesting and less obedient."
 msgstr "让工厂把五百只马克杯做成同一种颜色，它可以做到。让窑炉这样做，你得到的会是更有意思、也更不听话的东西。"
 
 #: .\frontend\mockdata\journal.py
@@ -3351,15 +3473,26 @@ msgid "What the kiln decides"
 msgstr "窑炉的决定"
 
 #: .\frontend\mockdata\journal.py
-msgid "Ash glaze is mixed from what is swept out of the kiln after a firing -- wood ash, feldspar, a little iron oxide, water. The proportions are consistent. What is not consistent is where a piece sits in the kiln, how the flame moves around it, and how fast that corner cools over the two days afterwards."
-msgstr "灰釉由每次烧制后从窑炉中清扫出的材料调配而成——木灰、长石、少量氧化铁和水。配比始终一致。无法保持一致的是器物在窑中的位置、火焰绕过它的方式，以及之后两天里那个角落冷却的速度。"
+msgid ""
+"Ash glaze is mixed from what is swept out of the kiln after a firing -- wood"
+" ash, feldspar, a little iron oxide, water. The proportions are consistent. "
+"What is not consistent is where a piece sits in the kiln, how the flame "
+"moves around it, and how fast that corner cools over the two days "
+"afterwards."
+msgstr ""
+"灰釉由每次烧制后从窑炉中清扫出的材料调配而成——木灰、长石、少量氧化铁和水。配比始终一致。无法保持一致的是器物在窑中的位置、火焰绕过它的方式，以及之后两天里那个角落冷却的速度。"
 
 #: .\frontend\mockdata\journal.py
-msgid "A mug on the top shelf near the flue will come out a shade greener than the same mug, from the same batch of glaze, on the bottom shelf. Neither is the correct one."
+msgid ""
+"A mug on the top shelf near the flue will come out a shade greener than the "
+"same mug, from the same batch of glaze, on the bottom shelf. Neither is the "
+"correct one."
 msgstr "靠近烟道的上层窑架上，一只马克杯出窑时会比下层窑架上那只使用同批釉料的同款杯子更偏绿一些。两者都不是唯一正确的样子。"
 
 #: .\frontend\mockdata\journal.py
-msgid "We fire to a range, not a number. The kiln finishes the piece, and it does not take instruction."
+msgid ""
+"We fire to a range, not a number. The kiln finishes the piece, and it does "
+"not take instruction."
 msgstr "我们烧制的是一个范围，而不是一个数字。器物由窑炉完成，它不听从指令。"
 
 #: .\frontend\mockdata\journal.py
@@ -3367,11 +3500,18 @@ msgid "Living with variation"
 msgstr "与差异共处"
 
 #: .\frontend\mockdata\journal.py
-msgid "This has a practical consequence for anyone buying a set. If you order four bowls, you will get four bowls that clearly belong together and are clearly not identical. Over a few years of use they diverge further -- the ones you reach for most develop a slightly different surface."
-msgstr "这会给购买成套器物的人带来一个实际结果。如果你订购四只碗，收到的四只显然属于一套，也显然并不完全相同。使用几年后，它们之间的差异还会加深——你最常拿取的那些，表面会逐渐呈现稍有不同的状态。"
+msgid ""
+"This has a practical consequence for anyone buying a set. If you order four "
+"bowls, you will get four bowls that clearly belong together and are clearly "
+"not identical. Over a few years of use they diverge further -- the ones you "
+"reach for most develop a slightly different surface."
+msgstr ""
+"这会给购买成套器物的人带来一个实际结果。如果你订购四只碗，收到的四只显然属于一套，也显然并不完全相同。使用几年后，它们之间的差异还会加深——你最常拿取的那些，表面会逐渐呈现稍有不同的状态。"
 
 #: .\frontend\mockdata\journal.py
-msgid "We used to photograph the most even piece of a batch. We now photograph a middling one, because it is closer to what arrives."
+msgid ""
+"We used to photograph the most even piece of a batch. We now photograph a "
+"middling one, because it is closer to what arrives."
 msgstr "过去，我们会拍摄一批中最均匀的那一件。现在，我们拍摄处于中间状态的一件，因为它更接近你实际收到的样子。"
 
 #: .\frontend\mockdata\journal.py
@@ -3379,7 +3519,9 @@ msgid "An indigo vat in Dali"
 msgstr "大理的一口靛蓝染缸"
 
 #: .\frontend\mockdata\journal.py
-msgid "Lu Wenjing keeps four fermenting vats behind her house. Feeding them is a weekly job that has no shortcut."
+msgid ""
+"Lu Wenjing keeps four fermenting vats behind her house. Feeding them is a "
+"weekly job that has no shortcut."
 msgstr "陆文静在家后院养着四口发酵染缸，每周照料，没有捷径。"
 
 #: .\frontend\mockdata\journal.py
@@ -3387,28 +3529,46 @@ msgid "8 min"
 msgstr "8 分钟"
 
 #: .\frontend\mockdata\journal.py
-msgid "The vats are clay, sunk to the rim in the ground behind the house, and they are alive in a fairly literal sense. Indigo does not dissolve in water. It has to be reduced by bacteria first, and those bacteria need feeding, warmth and time."
-msgstr "这些染缸由陶土制成，埋在屋后的地里，缸口与地面齐平；从相当直观的意义上说，它们是活的。靛蓝不溶于水，必须先由细菌还原，而这些细菌需要养料、温度和时间。"
+msgid ""
+"The vats are clay, sunk to the rim in the ground behind the house, and they "
+"are alive in a fairly literal sense. Indigo does not dissolve in water. It "
+"has to be reduced by bacteria first, and those bacteria need feeding, warmth"
+" and time."
+msgstr ""
+"这些染缸由陶土制成，埋在屋后的地里，缸口与地面齐平；从相当直观的意义上说，它们是活的。靛蓝不溶于水，必须先由细菌还原，而这些细菌需要养料、温度和时间。"
 
 #: .\frontend\mockdata\journal.py
 msgid "A weekly rhythm"
 msgstr "每周的节奏"
 
 #: .\frontend\mockdata\journal.py
-msgid "Every Monday Wenjing adds wheat bran and lime, stirs each vat and checks the surface for the coppery film that says the vat is working. A healthy vat smells sweet. An unhappy one smells of nothing at all, which is worse."
-msgstr "每逢星期一，文静都会加入麦麸和石灰，搅动每口染缸，并查看表面是否出现说明染缸运作正常的铜色薄膜。健康的染缸带着甜香；状态不佳的染缸则什么气味也没有，而这更糟。"
+msgid ""
+"Every Monday Wenjing adds wheat bran and lime, stirs each vat and checks the"
+" surface for the coppery film that says the vat is working. A healthy vat "
+"smells sweet. An unhappy one smells of nothing at all, which is worse."
+msgstr ""
+"每逢星期一，文静都会加入麦麸和石灰，搅动每口染缸，并查看表面是否出现说明染缸运作正常的铜色薄膜。健康的染缸带着甜香；状态不佳的染缸则什么气味也没有，而这更糟。"
 
 #: .\frontend\mockdata\journal.py
-msgid "Cloth goes in yellow-green and turns blue in the air, in front of you, over about twenty seconds. Six dips gives a pale sky. Fourteen gives the near-black indigo on our heaviest throws."
-msgstr "布料入缸时呈黄绿色，在你眼前接触空气后变成蓝色，整个过程约二十秒。浸染六次会得到浅淡的天蓝色；十四次则会得到我们最厚重盖毯上近乎黑色的靛蓝。"
+msgid ""
+"Cloth goes in yellow-green and turns blue in the air, in front of you, over "
+"about twenty seconds. Six dips gives a pale sky. Fourteen gives the near-"
+"black indigo on our heaviest throws."
+msgstr ""
+"布料入缸时呈黄绿色，在你眼前接触空气后变成蓝色，整个过程约二十秒。浸染六次会得到浅淡的天蓝色；十四次则会得到我们最厚重盖毯上近乎黑色的靛蓝。"
 
 #: .\frontend\mockdata\journal.py
 msgid "Why it fades the way it does"
 msgstr "为什么会这样褪色"
 
 #: .\frontend\mockdata\journal.py
-msgid "Indigo sits on the outside of the fibre rather than inside it. That is why indigo cloth wears at the folds and the edges first, and why a piece you use every week will look different from one kept in a cupboard. It is also why it will never look worse -- only more specific to you."
-msgstr "靛蓝附着在纤维外部，而非进入纤维内部。因此靛蓝织物会先在折叠处和边缘磨损，每周使用的织物也会与一直收在柜中的那件呈现不同面貌。也正因如此，它永远不会变得更糟——只会越来越带有属于你的痕迹。"
+msgid ""
+"Indigo sits on the outside of the fibre rather than inside it. That is why "
+"indigo cloth wears at the folds and the edges first, and why a piece you use"
+" every week will look different from one kept in a cupboard. It is also why "
+"it will never look worse -- only more specific to you."
+msgstr ""
+"靛蓝附着在纤维外部，而非进入纤维内部。因此靛蓝织物会先在折叠处和边缘磨损，每周使用的织物也会与一直收在柜中的那件呈现不同面貌。也正因如此，它永远不会变得更糟——只会越来越带有属于你的痕迹。"
 
 #: .\frontend\mockdata\journal.py
 msgid "How to care for handmade ceramics"
@@ -3423,19 +3583,33 @@ msgid "4 min"
 msgstr "4 分钟"
 
 #: .\frontend\mockdata\journal.py
-msgid "Our stoneware is fired high enough to be fully vitrified, which means it is dishwasher safe and will not absorb water or odours. You can put it in the machine without thinking about it."
+msgid ""
+"Our stoneware is fired high enough to be fully vitrified, which means it is "
+"dishwasher safe and will not absorb water or odours. You can put it in the "
+"machine without thinking about it."
 msgstr "我们的炻器以足够高的温度烧至完全玻化，这意味着它可以放入洗碗机，也不会吸收水分或气味。放进机器清洗时，无需多虑。"
 
 #: .\frontend\mockdata\journal.py
-msgid "The thing that will actually damage a piece is thermal shock -- a hot bowl into cold water, or a cold plate into a hot oven. Glaze and clay expand at slightly different rates, and a sharp change can craze the surface or, occasionally, crack the piece outright. Let things cool first."
-msgstr "真正会损坏器物的是热震——把热碗放入冷水，或把冷盘放进热烤箱。釉料与陶土的膨胀速度略有不同，温度骤变可能使釉面产生开片，偶尔甚至会让器物彻底开裂。先让它们冷却。"
+msgid ""
+"The thing that will actually damage a piece is thermal shock -- a hot bowl "
+"into cold water, or a cold plate into a hot oven. Glaze and clay expand at "
+"slightly different rates, and a sharp change can craze the surface or, "
+"occasionally, crack the piece outright. Let things cool first."
+msgstr ""
+"真正会损坏器物的是热震——把热碗放入冷水，或把冷盘放进热烤箱。釉料与陶土的膨胀速度略有不同，温度骤变可能使釉面产生开片，偶尔甚至会让器物彻底开裂。先让它们冷却。"
 
 #: .\frontend\mockdata\journal.py
-msgid "Unglazed feet will pick up marks from the table over time. That is normal and, in our view, an improvement. If it bothers you, a light rub with a damp cloth and a little bicarbonate lifts most of it."
+msgid ""
+"Unglazed feet will pick up marks from the table over time. That is normal "
+"and, in our view, an improvement. If it bothers you, a light rub with a damp"
+" cloth and a little bicarbonate lifts most of it."
 msgstr "未施釉的圈足会随时间从桌面沾上痕迹。这很正常，在我们看来反而更好看。如果你介意，用湿布蘸少量小苏打轻轻擦拭，就能去除大部分痕迹。"
 
 #: .\frontend\mockdata\journal.py
-msgid "Fine crazing -- a web of hairline lines in the glaze -- is not a crack and does not affect whether a piece holds water. In a vitrified body it is cosmetic."
+msgid ""
+"Fine crazing -- a web of hairline lines in the glaze -- is not a crack and "
+"does not affect whether a piece holds water. In a vitrified body it is "
+"cosmetic."
 msgstr "细密的开片——釉面上如网状分布的发丝纹——并不是裂缝，也不影响器物盛水。对于已经玻化的坯体，它只是外观上的变化。"
 
 #: .\frontend\mockdata\journal.py
@@ -3443,7 +3617,9 @@ msgid "The case for buying less"
 msgstr "少买一些的理由"
 
 #: .\frontend\mockdata\journal.py
-msgid "We make about four hundred pieces a month. Here is why we have no plans to make four thousand."
+msgid ""
+"We make about four hundred pieces a month. Here is why we have no plans to "
+"make four thousand."
 msgstr "我们每月制作约四百件作品，这就是不打算制作四千件的原因。"
 
 #: .\frontend\mockdata\journal.py
@@ -3451,19 +3627,32 @@ msgid "7 min"
 msgstr "7 分钟"
 
 #: .\frontend\mockdata\journal.py
-msgid "Every year we are asked why we do not scale. The honest answer is that the thing people like about the work is a direct consequence of how little of it there is."
+msgid ""
+"Every year we are asked why we do not scale. The honest answer is that the "
+"thing people like about the work is a direct consequence of how little of it"
+" there is."
 msgstr "每年都有人问我们为什么不扩大规模。坦率地说，人们喜欢这些作品，正是因为它们数量有限。"
 
 #: .\frontend\mockdata\journal.py
-msgid "A studio making four hundred pieces a month can afford to lose a firing. It can let a maker spend a season on a shape that may not sell. It can turn down the wholesale order that would have paid for a second kiln but required the glaze to be standardised first."
-msgstr "一家每月制作四百件作品的工作室，经得起一次烧制失败。它可以让匠人用一整个季节琢磨一种未必卖得出去的器形；也可以拒绝一笔本可支付第二座窑炉费用、却要求先把釉色标准化的批发订单。"
+msgid ""
+"A studio making four hundred pieces a month can afford to lose a firing. It "
+"can let a maker spend a season on a shape that may not sell. It can turn "
+"down the wholesale order that would have paid for a second kiln but required"
+" the glaze to be standardised first."
+msgstr ""
+"一家每月制作四百件作品的工作室，经得起一次烧制失败。它可以让匠人用一整个季节琢磨一种未必卖得出去的器形；也可以拒绝一笔本可支付第二座窑炉费用、却要求先把釉色标准化的批发订单。"
 
 #: .\frontend\mockdata\journal.py
-msgid "None of that survives contact with volume. The pieces would still be competent. They would stop being specific."
+msgid ""
+"None of that survives contact with volume. The pieces would still be "
+"competent. They would stop being specific."
 msgstr "一旦产量扩大，这些都无法维持。器物依然会做得合格，却不再具有鲜明的个性。"
 
 #: .\frontend\mockdata\journal.py
-msgid "This has a cost, and we would rather be plain about it: some things sell out and do not come back for months, and made-to-order items really do take three weeks. We think that is the better trade."
+msgid ""
+"This has a cost, and we would rather be plain about it: some things sell out"
+" and do not come back for months, and made-to-order items really do take "
+"three weeks. We think that is the better trade."
 msgstr "这会带来代价，我们愿意坦白说明：有些作品售罄后要几个月才会回来，按订单制作的商品也确实需要三周。我们认为，这样的取舍更好。"
 
 #: .\frontend\mockdata\journal.py
@@ -3483,19 +3672,35 @@ msgid "5 min"
 msgstr "5 分钟"
 
 #: .\frontend\mockdata\journal.py
-msgid "There is a particular cupboard, in a lot of houses, where the good things live. They come out twice a year and spend the rest of their life being protected from the very thing they were made for."
+msgid ""
+"There is a particular cupboard, in a lot of houses, where the good things "
+"live. They come out twice a year and spend the rest of their life being "
+"protected from the very thing they were made for."
 msgstr "许多家里都有一个专门的柜子，里面放着那些好东西。它们一年只拿出来两次，其余时间都被保护着，远离它们原本被制作出来要服务的用途。"
 
 #: .\frontend\mockdata\journal.py
-msgid "Handmade pieces are, counter-intuitively, better suited to daily use than to occasional display. They are not delicate. High-fired stoneware is tougher than most factory porcelain, and washed linen is at its best after fifty washes rather than five."
-msgstr "有些反直觉的是，手工作品比起偶尔陈列，其实更适合日常使用。它们并不娇贵。高温烧制的炻器比大多数工厂瓷器更坚实，水洗亚麻也要洗过五十次，而不是五次，才会呈现最好的状态。"
+msgid ""
+"Handmade pieces are, counter-intuitively, better suited to daily use than to"
+" occasional display. They are not delicate. High-fired stoneware is tougher "
+"than most factory porcelain, and washed linen is at its best after fifty "
+"washes rather than five."
+msgstr ""
+"有些反直觉的是，手工作品比起偶尔陈列，其实更适合日常使用。它们并不娇贵。高温烧制的炻器比大多数工厂瓷器更坚实，水洗亚麻也要洗过五十次，而不是五次，才会呈现最好的状态。"
 
 #: .\frontend\mockdata\journal.py
-msgid "The argument for using them is not really about the objects. It is that a weeknight dinner eaten off something someone made by hand is a different kind of evening, at no additional cost, on a day that had nothing else to recommend it."
-msgstr "使用它们的理由，其实不只关乎物件本身。在一个原本平淡无奇的工作日里，用某个人亲手制作的器皿吃一顿晚餐，不需增加任何花费，却会让那个夜晚变得不同。"
+msgid ""
+"The argument for using them is not really about the objects. It is that a "
+"weeknight dinner eaten off something someone made by hand is a different "
+"kind of evening, at no additional cost, on a day that had nothing else to "
+"recommend it."
+msgstr ""
+"使用它们的理由，其实不只关乎物件本身。在一个原本平淡无奇的工作日里，用某个人亲手制作的器皿吃一顿晚餐，不需增加任何花费，却会让那个夜晚变得不同。"
 
 #: .\frontend\mockdata\journal.py
-msgid "Our suggestion is unglamorous: take the good plates out of the high cupboard and put them where the everyday ones are. Within a month you will stop noticing, which is the point."
+msgid ""
+"Our suggestion is unglamorous: take the good plates out of the high cupboard"
+" and put them where the everyday ones are. Within a month you will stop "
+"noticing, which is the point."
 msgstr "我们的建议并不华丽：把好盘子从高处的柜子里拿出来，放到日常餐具的位置。一个月内，你就不会再特意注意它们，而这正是意义所在。"
 
 #: .\frontend\templates\frontend\product\detail.html
@@ -3507,7 +3712,8 @@ msgid "Review (optional)"
 msgstr "评价内容（可选）"
 
 #: .\frontend\templates\frontend\product\detail.html
-msgid "You can review this product after purchasing it and completing payment."
+msgid ""
+"You can review this product after purchasing it and completing payment."
 msgstr "购买并完成付款后，您可以评价此商品。"
 
 #: .\frontend\templates\frontend\product\detail.html
@@ -3515,11 +3721,14 @@ msgid "You have already submitted a review for this product."
 msgstr "您已经评价过此商品。"
 
 #: .\frontend\templates\frontend\product\detail.html
-msgid "to review a product you have purchased. Reviews are available after payment."
+msgid ""
+"to review a product you have purchased. Reviews are available after payment."
 msgstr "即可评价您已购买的商品。完成付款后方可评价。"
 
 #: .\frontend\templates\frontend\account\auth.html
-msgid "Use at least eight characters. Avoid common passwords, only numbers, or passwords similar to your name or email."
+msgid ""
+"Use at least eight characters. Avoid common passwords, only numbers, or "
+"passwords similar to your name or email."
 msgstr "请至少使用八个字符。请避免使用常见密码、纯数字密码，或与您的姓名或电子邮箱相似的密码。"
 
 #: .\frontend\views.py
@@ -3725,7 +3934,7 @@ msgstr "发生意外错误，请稍后重试。"
 
 #: backend/config/exceptions.py
 msgid "Validation failed."
-msgstr "输入内容验证失败。"
+msgstr "内容验证失败。"
 
 #: backend/orders/api.py backend/accounts/api.py
 msgid "Product not found."
@@ -3777,20 +3986,6 @@ msgstr "请提供 shipping_address_uuid 或 shipping_address。"
 msgid "That product is not in your wishlist."
 msgstr "该商品不在您的心愿单中。"
 
-#~ msgid ""
-#~ "Password reset email delivery is not connected yet — the request is "
-#~ "accepted and logged."
-#~ msgstr "重设密码邮件发送功能尚未接入——请求已受理并记录。"
-
-#~ msgid "Change your password through the API endpoint"
-#~ msgstr "通过 API 接口修改密码"
-
-#~ msgid "POST /api/auth/change-password/"
-#~ msgstr "POST /api/auth/change-password/"
-
-#~ msgid ". A frontend form for this is not built yet."
-#~ msgstr "。前台表单尚未开发。"
-
 #: frontend/catalogue_i18n.py:38
 msgctxt "order status"
 msgid "Awaiting confirmation"
@@ -3824,7 +4019,7 @@ msgstr "已取消"
 #: frontend/catalogue_i18n.py:49
 msgctxt "payment status"
 msgid "Unpaid"
-msgstr "未支付"
+msgstr "未付款"
 
 #: frontend/catalogue_i18n.py:50
 msgctxt "payment status"
@@ -3834,12 +4029,12 @@ msgstr "待支付"
 #: frontend/catalogue_i18n.py:51
 msgctxt "payment status"
 msgid "Paid"
-msgstr "已支付"
+msgstr "已付款"
 
 #: frontend/catalogue_i18n.py:52
 msgctxt "payment status"
 msgid "Failed"
-msgstr "支付失败"
+msgstr "失败"
 
 #: frontend/catalogue_i18n.py:53
 msgctxt "payment status"
@@ -3896,7 +4091,9 @@ msgid "Similar pieces based on this product."
 msgstr "根据当前商品为您推荐相似作品。"
 
 #: backend/recommendations/templatetags/recommendations.py
-msgid "Based on what you browse and add to your bag in this visit. No sign-in needed."
+msgid ""
+"Based on what you browse and add to your bag in this visit. No sign-in "
+"needed."
 msgstr "根据您本次浏览和加入购物袋的商品推荐，无需登录。"
 
 #: backend/recommendations/templatetags/recommendations.py
@@ -4138,20 +4335,6 @@ msgstr "商品图片、规格和发布可通过小程序提供的安全网页链
 msgid "Seller Mini Program"
 msgstr "卖家微信小程序"
 
-#~ msgid ""
-#~ "Password reset email delivery is not connected yet — the request is accepted"
-#~ " and logged."
-#~ msgstr "重设密码邮件发送功能尚未接入——请求已受理并记录。"
-
-#~ msgid "Change your password through the API endpoint"
-#~ msgstr "通过 API 接口修改密码"
-
-#~ msgid "POST /api/auth/change-password/"
-#~ msgstr "POST /api/auth/change-password/"
-
-#~ msgid ". A frontend form for this is not built yet."
-#~ msgstr "。前台表单尚未开发。"
-
 msgid "Help & messages"
 msgstr "帮助与消息"
 
@@ -4197,12 +4380,14 @@ msgstr "对比商品"
 msgid "Looking through the catalogue…"
 msgstr "正在查找商品…"
 
-# Seller onboarding: public application, applicant status and administrator review.
-
+# Seller onboarding: public application, applicant status and administrator
+# review.
 msgid "Sell with us"
 msgstr "成为卖家"
 
-msgid "Atelier Form is a short list of makers we know by name. If you make by hand in small batches, apply to open a shop here."
+msgid ""
+"Atelier Form is a short list of makers we know by name. If you make by hand "
+"in small batches, apply to open a shop here."
 msgstr "Atelier Form 只与我们叫得出名字的少数匠人合作。如果您以手工小批量制作，欢迎在这里申请开设店铺。"
 
 msgid "How it works"
@@ -4214,7 +4399,9 @@ msgstr "登录，或用邮箱创建账户。"
 msgid "Tell us about your shop: its name, what you make and where you work."
 msgstr "介绍您的店铺：店铺名称、您制作的作品以及工作地点。"
 
-msgid "We review every application. Once approved, you can add your products and manage your shop."
+msgid ""
+"We review every application. Once approved, you can add your products and "
+"manage your shop."
 msgstr "每一份申请我们都会审核。通过后，您即可添加商品并管理店铺。"
 
 msgid "Manage your products"
@@ -4241,7 +4428,9 @@ msgstr "申请在 Atelier Form 开设店铺。"
 msgid "We need to check your account"
 msgstr "我们需要核查您的账户"
 
-msgid "Your account's seller details need attention from our team before anything else can happen. Please contact us and we will sort it out."
+msgid ""
+"Your account's seller details need attention from our team before anything "
+"else can happen. Please contact us and we will sort it out."
 msgstr "您账户的卖家信息需要我们的团队先行处理，之后才能继续。请联系我们，我们会为您解决。"
 
 msgid "Under review"
@@ -4250,7 +4439,9 @@ msgstr "审核中"
 msgid "Not approved"
 msgstr "未通过"
 
-msgid "Thank you for applying. We review every application and will let you know the outcome here."
+msgid ""
+"Thank you for applying. We review every application and will let you know "
+"the outcome here."
 msgstr "感谢您的申请。每一份申请我们都会审核，结果将在此页面告知您。"
 
 msgid "We're not able to approve this application."
@@ -4265,14 +4456,16 @@ msgstr "工作地点"
 msgid "About your shop"
 msgstr "关于您的店铺"
 
-msgid "Applying does not open a shop straight away. We review every application first."
+msgid ""
+"Applying does not open a shop straight away. We review every application "
+"first."
 msgstr "提交申请后不会立即开设店铺，我们会先审核每一份申请。"
 
 msgid "Submit application"
 msgstr "提交申请"
 
 msgid "Pending"
-msgstr "待审核"
+msgstr "待确认"
 
 msgid "Approved"
 msgstr "已通过"
@@ -4283,7 +4476,9 @@ msgstr "已拒绝"
 msgid "Seller applications"
 msgstr "卖家申请审核"
 
-msgid "Review requests to open a shop. Pending applications are listed oldest first."
+msgid ""
+"Review requests to open a shop. Pending applications are listed oldest "
+"first."
 msgstr "审核开设店铺的申请。待审核的申请按提交时间从早到晚排列。"
 
 msgid "Filter by status"
@@ -4315,7 +4510,9 @@ msgstr "下一页"
 msgid "Needs manual reconciliation"
 msgstr "需要人工核对"
 
-msgid "Approval and rejection are unavailable until the account is reconciled by hand. Nothing has been changed."
+msgid ""
+"Approval and rejection are unavailable until the account is reconciled by "
+"hand. Nothing has been changed."
 msgstr "在人工核对该账户之前，无法通过或拒绝此申请。系统未做任何更改。"
 
 msgid "This is your own application. Another administrator must review it."
@@ -4393,7 +4590,8 @@ msgstr "通过后将为申请人开设店铺并授予卖家权限。"
 msgid "Approve application"
 msgstr "通过申请"
 
-msgid "The applicant's account is inactive, so this application can't be approved."
+msgid ""
+"The applicant's account is inactive, so this application can't be approved."
 msgstr "申请人的账户已停用，因此无法通过此申请。"
 
 msgid "The applicant will see this reason on their application page."
@@ -4412,13 +4610,19 @@ msgstr "您已提交过申请，申请状态见下方。"
 msgid "Thank you. Your application has been sent for review."
 msgstr "谢谢，您的申请已提交审核。"
 
-msgid "This application has already been decided, so that decision can't be made. Nothing was changed."
+msgid ""
+"This application has already been decided, so that decision can't be made. "
+"Nothing was changed."
 msgstr "此申请已有审核结果，无法再作出该决定。系统未做任何更改。"
 
-msgid "The applicant's account is inactive, so it can't be approved. Nothing was changed."
+msgid ""
+"The applicant's account is inactive, so it can't be approved. Nothing was "
+"changed."
 msgstr "申请人的账户已停用，因此无法通过。系统未做任何更改。"
 
-msgid "The applicant's seller role or shop doesn't match this application. Nothing was changed: reconcile the account by hand first."
+msgid ""
+"The applicant's seller role or shop doesn't match this application. Nothing "
+"was changed: reconcile the account by hand first."
 msgstr "申请人的卖家身份或店铺与此申请不符。系统未做任何更改，请先人工核对该账户。"
 
 msgid "Please give a reason for the rejection."
@@ -4430,7 +4634,8 @@ msgstr "理由过长。"
 msgid "The shop linked to this application is not owned by the applicant."
 msgstr "与此申请关联的店铺不属于申请人。"
 
-msgid "The applicant owns a shop other than the one linked to this application."
+msgid ""
+"The applicant owns a shop other than the one linked to this application."
 msgstr "申请人名下的店铺并非与此申请关联的店铺。"
 
 msgid "The applicant no longer has the seller role."
@@ -4471,3 +4676,626 @@ msgstr "例如：景德镇"
 
 msgid "Reason for the applicant"
 msgstr "给申请人的理由"
+
+msgid "You"
+msgstr "你"
+
+msgid "Seller assistant"
+msgstr "卖家助手"
+
+msgid "Website"
+msgstr "网站"
+
+msgid "Mini Program"
+msgstr "小程序"
+
+msgid "Thinking…"
+msgstr "正在思考…"
+
+msgid "Refresh"
+msgstr "刷新"
+
+msgid "Conversation"
+msgstr "对话"
+
+msgid "How can I help with your shop?"
+msgstr "需要我帮你管理店铺吗？"
+
+msgid "How can I help?"
+msgstr "需要什么帮助？"
+
+msgid "Ask for your stock or orders, or start a new product draft."
+msgstr "可以查询库存和订单，也可以创建商品草稿。"
+
+msgid "Creates an unpublished draft"
+msgstr "创建未发布的商品草稿"
+
+msgid "Review these values carefully"
+msgstr "请仔细检查以下内容"
+
+msgid "I reviewed and approve this exact change."
+msgstr "我已检查并同意这项修改。"
+
+msgid "Confirm change"
+msgstr "确认修改"
+
+msgid "Open product editor"
+msgstr "打开商品编辑器"
+
+msgid "Prepare a fresh preview to make a change."
+msgstr "请重新生成修改预览。"
+
+msgid "Proposed changes appear here. Nothing is applied until you confirm."
+msgstr "修改预览显示在这里，确认后才会生效。"
+
+msgid "Guided mode"
+msgstr "指令模式"
+
+msgid "DeepSeek AI"
+msgstr "DeepSeek 智能助手"
+
+msgid "Main website catalogue"
+msgstr "主站商品目录"
+
+msgid "Main website products"
+msgstr "主站商品"
+
+msgid "Demo shop"
+msgstr "演示店铺"
+
+msgid "Verified seller"
+msgstr "已认证卖家"
+
+msgid "Unlinked account"
+msgstr "未关联账号"
+
+msgid "Active"
+msgstr "已启用"
+
+msgid "Unpublished"
+msgstr "未发布"
+
+msgid "{n} available"
+msgstr "可售 {n} 件"
+
+msgid "Option"
+msgstr "规格"
+
+msgid "Standard"
+msgstr "默认规格"
+
+msgid "Select an option for stock updates"
+msgstr "请选择要修改库存的规格"
+
+msgid "New available quantity"
+msgstr "新的可售库存"
+
+msgid "Preview stock change"
+msgstr "预览库存修改"
+
+msgid "New price"
+msgstr "新价格"
+
+msgid "Preview price change"
+msgstr "预览价格修改"
+
+msgid "Edit photos, options and publication"
+msgstr "编辑图片、规格和上架状态"
+
+msgid "No matching products."
+msgstr "没有符合条件的商品。"
+
+msgid "Carrier"
+msgstr "快递公司"
+
+msgid "Carrier name"
+msgstr "快递公司名称"
+
+msgid "Tracking number"
+msgstr "运单号"
+
+msgid "Preview shipment"
+msgstr "预览发货"
+
+msgid "No orders for your shop."
+msgstr "暂无店铺订单。"
+
+msgid "Review the exact change and tick the approval box first."
+msgstr "请先检查修改内容并勾选确认框。"
+
+msgid "The server could not complete this request."
+msgstr "服务器未能完成请求，请重试。"
+
+msgid "Refresh the page before continuing."
+msgstr "请刷新页面后继续。"
+
+msgid "Still needed"
+msgstr "还需要"
+
+msgid "Description"
+msgstr "描述"
+
+msgid "Stock"
+msgstr "库存"
+
+msgid "New product"
+msgstr "新商品"
+
+msgid "Shipment"
+msgstr "发货"
+
+msgid "Applied"
+msgstr "已应用"
+
+msgid "Replaced"
+msgstr "已替换"
+
+msgid "Expired"
+msgstr "已过期"
+
+msgid "Partially shipped"
+msgstr "部分发货"
+
+msgid "Not shipped"
+msgstr "未发货"
+
+msgid "Shipped"
+msgstr "已发货"
+
+msgid "Unknown"
+msgstr "未知"
+
+msgid "Product updated."
+msgstr "商品已更新。"
+
+msgid "Assistant"
+msgstr "助手"
+
+msgid "Ask about products or orders."
+msgstr "可以询问商品或订单。"
+
+msgid "Ask anything about your shop…"
+msgstr "询问店铺相关问题…"
+
+msgid "Message the seller assistant"
+msgstr "向卖家助手提问"
+
+msgid "Changes need your confirmation."
+msgstr "修改需要你确认。"
+
+msgid "Send"
+msgstr "发送"
+
+msgid "Review changes"
+msgstr "检查修改"
+
+msgid ""
+"Shared school demo · No login needed. Products and orders update "
+"automatically on the main website."
+msgstr "课程共享演示 · 无需登录 · 商品和订单会在主站自动更新。"
+
+msgid ""
+"Shared main-website data · Changes sync automatically · AI uses catalogue "
+"and order summaries."
+msgstr "共用主站数据 · 修改自动同步 · 智能助手使用商品和订单摘要。"
+
+msgid ""
+"Demo data · Payment and shipping are simulated. DeepSeek processes chat; use"
+" test details only."
+msgstr "演示数据 · 付款和发货均为模拟 · 对话由 DeepSeek 处理，请使用测试信息。"
+
+msgid "Workspace"
+msgstr "工作区"
+
+msgid "My products"
+msgstr "我的商品"
+
+msgid "No login needed"
+msgstr "无需登录"
+
+msgid "Updates automatically"
+msgstr "自动更新"
+
+msgid "No products yet. Start a listing with your seller assistant."
+msgstr "暂无商品，可以通过卖家助手创建商品草稿。"
+
+msgid "Product editor"
+msgstr "商品编辑器"
+
+msgid "Edit product"
+msgstr "编辑商品"
+
+msgid "Product details"
+msgstr "商品详情"
+
+msgid "Options"
+msgstr "规格"
+
+msgid "Photos"
+msgstr "图片"
+
+msgid "Photo"
+msgstr "图片"
+
+msgid ""
+"Select “Is active” and save to publish this product on the main website for "
+"everyone."
+msgstr "勾选“上架主站”并保存，所有人就能在主站看到这件商品。"
+
+msgid ""
+"Save your photos, options and product details here. Select “Is active” when "
+"the product is ready to appear in your shop."
+msgstr "在这里保存图片、规格和商品详情。准备发布时，请勾选“上架主站”。"
+
+msgid ""
+"Add sizes, colours or finishes. Each option has its own stock and a unique "
+"SKU. Save to add another row."
+msgstr "可添加尺寸、颜色或工艺规格。每种规格独立管理库存和商品编码，保存后可继续添加。"
+
+msgid "Choose a photo from your phone or computer. Save to add another photo."
+msgstr "从手机或电脑选择图片，保存后可继续添加。"
+
+msgid "Save product"
+msgstr "保存商品"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "Short description"
+msgstr "简短介绍"
+
+msgid "Story"
+msgstr "创作故事"
+
+msgid "Dimensions"
+msgstr "尺寸"
+
+msgid "Care instructions"
+msgstr "保养说明"
+
+msgid "Shipping information"
+msgstr "配送说明"
+
+msgid "Stock quantity"
+msgstr "库存数量"
+
+msgid "Is active"
+msgstr "上架主站"
+
+msgid "Option group"
+msgstr "规格类型"
+
+msgid "Option name"
+msgstr "规格名称"
+
+msgid "SKU"
+msgstr "商品编码"
+
+msgid "Option price"
+msgstr "规格价格"
+
+msgid "Image description"
+msgstr "图片描述"
+
+msgid "Sort order"
+msgstr "排序"
+
+msgid "Existing image reference (optional)"
+msgstr "已有图片标识（可选）"
+
+msgid "Upload photo"
+msgstr "上传图片"
+
+msgid "JPEG, PNG or WebP, up to 5 MB and 20 megapixels."
+msgstr "支持 JPEG、PNG 或 WebP，最大 5 MB、两千万像素。"
+
+msgid "e.g. Handcrafted Ceramic Mug"
+msgstr "例如：手工陶瓷杯"
+
+msgid "One-line summary for shop cards"
+msgstr "用于商品卡片的一句话简介"
+
+msgid "Full product description"
+msgstr "详细商品描述"
+
+msgid "Artisan craft story and inspiration"
+msgstr "制作故事和创作灵感"
+
+msgid "e.g. 12cm × 8cm, 350ml"
+msgstr "例如：12 厘米 × 8 厘米，350 毫升"
+
+msgid "e.g. Dishwasher and microwave safe"
+msgstr "例如：可使用洗碗机和微波炉"
+
+msgid "e.g. Ships within 2-3 business days"
+msgstr "例如：两至三个工作日内发货"
+
+msgid "e.g. Oatmeal / Small"
+msgstr "例如：米色 / 小号"
+
+msgid "Unique SKU code"
+msgstr "唯一的商品编码"
+
+msgid "Leave empty to use base price"
+msgstr "留空则使用商品基本价格"
+
+msgid "Price cannot be negative."
+msgstr "价格不能为负数。"
+
+msgid "Stock quantity cannot be negative."
+msgstr "库存不能为负数。"
+
+msgid "Choose an image smaller than 5 MB."
+msgstr "请选择小于 5 MB 的图片。"
+
+msgid "Choose a valid JPEG, PNG or WebP under 20 megapixels."
+msgstr "请选择两千万像素以内的有效 JPEG、PNG 或 WebP 图片。"
+
+msgid "Product"
+msgstr "商品"
+
+msgid "Available quantity"
+msgstr "可售库存"
+
+msgid "Publication"
+msgstr "发布状态"
+
+msgid "Order"
+msgstr "订单"
+
+msgid "Fulfillment"
+msgstr "履约状态"
+
+msgid "An active, verified seller account is required for this operation."
+msgstr "此操作需要有效的卖家账号。"
+
+msgid ""
+"Your website account must be linked to an active shop by the existing "
+"onboarding process."
+msgstr "请先将网站账号关联到有效店铺。"
+
+msgid ""
+"Select a product option; parent stock is not authoritative for products with"
+" options."
+msgstr "请选择具体规格，带规格商品的库存以各规格为准。"
+
+msgid ""
+"Made-to-order availability is not controlled by stock quantity. Use the "
+"product editor."
+msgstr "按需制作商品不由库存数量控制，请在商品编辑器中设置。"
+
+msgid "Select an order from your orders list."
+msgstr "请从订单列表中选择订单。"
+
+msgid "This order has multiple makers. Select one parcel from Orders."
+msgstr "此订单涉及多位制作者，请在订单列表中选择具体包裹。"
+
+msgid ""
+"Only a paid, dispatch-eligible, unshipped order can be prepared for shipment"
+" here."
+msgstr "只能为已付款、符合发货条件且尚未发货的订单生成预览。"
+
+msgid "This preview is expired or superseded. Prepare a new one."
+msgstr "此预览已过期或被替换，请重新生成。"
+
+msgid "Product or stock changed since this preview. Review a new preview."
+msgstr "商品或库存已变化，请重新检查修改预览。"
+
+msgid "Shop ownership changed. Prepare a new draft."
+msgstr "店铺归属已变化，请重新创建草稿。"
+
+msgid "Order or fulfillment changed. Review a new preview."
+msgstr "订单或发货状态已变化，请重新检查修改预览。"
+
+msgid "This draft changed in another channel. Refresh it before continuing."
+msgstr "此草稿已在另一端修改，请刷新后继续。"
+
+msgid ""
+"Choose one of your exact product names or slugs. Use 'my products' to see "
+"them."
+msgstr "请选择准确的商品名称或标识，可以先查看商品列表。"
+
+msgid "Today's AI demo allowance is used up; guided commands still work."
+msgstr "今日智能对话额度已用完，仍可使用指令操作。"
+
+msgid "AI is unavailable; guided commands still work."
+msgstr "智能对话暂不可用，仍可使用指令操作。"
+
+msgid ""
+"Unpublished product draft saved. Add images and options in the product "
+"editor before publishing."
+msgstr "未发布的商品草稿已保存，可以在商品编辑器中添加图片、规格并上架。"
+
+msgid "Your shop's fulfillment was updated."
+msgstr "店铺发货信息已更新。"
+
+msgid "Unsupported fields"
+msgstr "不支持的字段"
+
+msgid "Messages"
+msgstr "消息"
+
+msgid "Chat with Seller"
+msgstr "联系卖家"
+
+msgid "Artisan"
+msgstr "手作人"
+
+msgid "Artisan:"
+msgstr "手作人："
+
+msgid "Back"
+msgstr "返回"
+
+msgid "Switch Language"
+msgstr "切换语言"
+
+msgid "Select Artisan"
+msgstr "选择手作人"
+
+msgid "Select an artisan..."
+msgstr "选择手作人…"
+
+msgid "Send Item"
+msgstr "发送商品"
+
+msgid "My Order"
+msgstr "我的订单"
+
+msgid "More tools"
+msgstr "更多工具"
+
+msgid "Type a message..."
+msgstr "输入消息…"
+
+msgid "Faces"
+msgstr "表情"
+
+msgid "Gestures"
+msgstr "手势"
+
+msgid "Craft & Nature"
+msgstr "手作与自然"
+
+msgid "Objects & Hearts"
+msgstr "物品与爱心"
+
+msgid "Emoji"
+msgstr "表情"
+
+msgid "School Demo"
+msgstr "课程演示店铺"
+
+msgid "Product created successfully."
+msgstr "商品创建成功。"
+
+msgid "Product saved successfully."
+msgstr "商品保存成功。"
+
+msgid "Product {name} was created successfully."
+msgstr "商品 {name} 创建成功。"
+
+msgid "Product {name} was updated successfully."
+msgstr "商品 {name} 更新成功。"
+
+msgid "%(count)s product"
+msgid_plural "%(count)s products"
+msgstr[0] "%(count)s 件商品"
+
+msgid "%(quantity)s available"
+msgstr "可售 %(quantity)s 件"
+
+msgid ""
+"Use your website account to complete seller onboarding and shop "
+"verification. Linking WeChat never grants seller rights. I can help collect "
+"a listing draft now. Start with 'new listing', then provide name, category, "
+"description, price and quantity. Images, variants and publication are "
+"completed in the authenticated product editor."
+msgstr ""
+"请使用网站账号完成卖家入驻和店铺认证。关联微信不会授予卖家权限。你可以先整理商品草稿：提供名称、分类、描述、价格和库存，再在商品编辑器中添加图片、规格并发布。"
+
+msgid ""
+"This is a shared school demo. No login, seller verification or WeChat "
+"linking is needed. Try 'my products', 'new listing' or 'my orders'. Confirm "
+"a product draft, then publish it in the product editor so everyone can see "
+"it on the main website. Use test data only."
+msgstr ""
+"这是课程共享演示，无需登录、卖家认证或关联微信。可以查询商品、创建商品草稿或查看订单。确认草稿后，在商品编辑器中发布，所有人就能在主站看到。请使用测试信息。"
+
+msgid ""
+"This is a coursework demo with sample products and orders. No registration "
+"or shop verification is needed. Try 'my products', preview and confirm a "
+"stock change, create an unpublished sample with 'new listing', then inspect "
+"'my orders' and record a simulated shipment. Changes are saved to the demo "
+"database. Payments and shipping are simulated."
+msgstr ""
+"这是使用示例商品和订单的课程演示，无需注册或店铺认证。你可以查看商品、预览并确认库存修改、创建商品草稿、查询订单并记录模拟发货。修改会保存到演示数据库，付款和发货均为模拟。"
+
+msgid ""
+"I can show 'my products', 'low stock' or 'my orders', help with 'new "
+"listing', or prepare 'set stock EXACT PRODUCT NAME to 5'. Select a variant "
+"in the product card when needed. I do not process payments, refunds or "
+"ownership changes."
+msgstr ""
+"我可以查询商品、低库存商品和订单，帮助整理新商品草稿，或预览指定商品的库存修改。带规格的商品可以在卡片中选择规格。不支持处理付款、退款或店铺归属变更。"
+
+msgid ""
+"Your draft details are saved. Complete website seller verification before "
+"creating the product. No seller rights were granted."
+msgstr "草稿资料已保存。创建商品前，请完成网站的卖家认证，此操作未授予卖家权限。"
+
+msgid "Demo data · Payment and shipping are simulated."
+msgstr "演示数据 · 付款和发货均为模拟。"
+
+msgid "Changes are shared with your WeChat Mini Program."
+msgstr "修改会同步到你的微信小程序。"
+
+msgid "Please correct the errors below before saving."
+msgstr "请修正以下问题后再保存。"
+
+msgid "Color"
+msgstr "颜色"
+
+msgid "Finish"
+msgstr "工艺"
+
+msgid "No login needed · Shared main website data"
+msgstr "无需登录 · 共用主站数据"
+
+msgid "Sample shop · no account needed"
+msgstr "演示店铺 · 无需账号"
+
+msgid "Verified seller · the same shop is used by both channels"
+msgstr "已认证卖家 · 两端共用同一店铺"
+
+msgid "Account linked · seller verification is still required"
+msgstr "账号已关联 · 尚需卖家认证"
+
+msgid "Guided mode · no AI-provider calls"
+msgstr "指令模式"
+
+msgid "DeepSeek AI enabled · changes require your confirmation"
+msgstr "已启用 DeepSeek · 修改需要你确认"
+
+msgid "my products"
+msgstr "我的商品"
+
+msgid "low stock"
+msgstr "低库存"
+
+msgid "my orders"
+msgstr "我的订单"
+
+msgid "new listing"
+msgstr "新商品"
+
+msgid "help me start selling"
+msgstr "新卖家指南"
+
+#~ msgid ""
+#~ "Password reset email delivery is not connected yet — the request is accepted"
+#~ " and logged."
+#~ msgstr "重设密码邮件发送功能尚未接入——请求已受理并记录。"
+
+#~ msgid "Change your password through the API endpoint"
+#~ msgstr "通过 API 接口修改密码"
+
+#~ msgid "POST /api/auth/change-password/"
+#~ msgstr "POST /api/auth/change-password/"
+
+#~ msgid ". A frontend form for this is not built yet."
+#~ msgstr "。前台表单尚未开发。"
+
+#~ msgid ""
+#~ "Password reset email delivery is not connected yet — the request is accepted"
+#~ " and logged."
+#~ msgstr "重设密码邮件发送功能尚未接入——请求已受理并记录。"
+
+#~ msgid "Change your password through the API endpoint"
+#~ msgstr "通过 API 接口修改密码"
+
+#~ msgid "POST /api/auth/change-password/"
+#~ msgstr "POST /api/auth/change-password/"
+
+#~ msgid ". A frontend form for this is not built yet."
+#~ msgstr "。前台表单尚未开发。"

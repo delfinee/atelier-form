@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.utils.translation import get_language
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 from .shopping import discover, QUICK_ACTIONS
@@ -50,6 +51,22 @@ def reply(data, status=200):
     return response
 
 
+def _language():
+    return 'zh-hans' if (get_language() or '').startswith('zh') else 'en'
+
+
+def _state(request):
+    language = _language()
+    saved = request.session.get('buyer_assistant_languages', {})
+    if language in saved:
+        return saved[language]
+    legacy = request.session.get('buyer_assistant', {})
+    legacy_language = legacy.get('context', {}).get('language', 'en')
+    if legacy and (legacy_language.startswith('zh') == language.startswith('zh')):
+        return legacy
+    return {'history': [], 'context': {}, 'responses': {}}
+
+
 @require_POST
 @csrf_protect
 def message(request):
@@ -68,7 +85,7 @@ def message(request):
             raise ValueError()
     except (ValueError, TypeError, KeyError, AttributeError):
         return reply({'detail': 'Send a message of 1–2000 characters and a request UUID.'}, 400)
-    state = request.session.get('buyer_assistant', {'history': [], 'context': {}, 'responses': {}})
+    state = _state(request)
     if request_id in state['responses']:
         return reply(state['responses'][request_id])
     address = request.META.get('REMOTE_ADDR', '')
@@ -83,18 +100,21 @@ def message(request):
         count = 1
     if count > 30:
         return reply({'detail': 'Please wait a minute before sending more messages.'}, 429)
-    result = discover(text, state['context'], state['history'], action=action)
+    result = discover(text, state['context'], state['history'], action=action, language=_language())
     state['context'] = result.pop('context')
     state['history'] = (state['history'] + [{'text': text, 'response': result}])[-6:]
     state['responses'][request_id] = result
     state['responses'] = dict(list(state['responses'].items())[-12:])
     request.session['buyer_assistant'] = state
+    languages = request.session.get('buyer_assistant_languages', {})
+    languages[_language()] = state
+    request.session['buyer_assistant_languages'] = languages
     return reply(result)
 
 
 @require_GET
 def history(request):
-    state = request.session.get('buyer_assistant', {})
+    state = _state(request)
     return reply({'messages': state.get('history', []), 'ai_enabled': ai_enabled()})
 
 
@@ -102,6 +122,9 @@ def history(request):
 @csrf_protect
 def reset(request):
     request.session.pop('buyer_assistant', None)
+    languages = request.session.get('buyer_assistant_languages', {})
+    languages.pop(_language(), None)
+    request.session['buyer_assistant_languages'] = languages
     return reply({'reset': True})
 
 

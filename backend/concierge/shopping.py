@@ -264,13 +264,15 @@ def result_presentation(text, filters, rows, shown, comparing, action=None):
             'filters': tags, 'match_count': len(rows), 'shown_count': len(shown)}
 
 
-def discover(text, previous=None, history=(), action=None):
+def discover(text, previous=None, history=(), action=None, language=None):
     if action is not None and action not in QUICK_ACTIONS:
         raise ValueError('Unknown shopping action')
     # Buttons have an exact, server-owned meaning. Free-text conversations still
     # use the configured model; a price/filter button does not need an LLM call.
     query = QUICK_ACTIONS[action][bool(re.search(r'[\u4e00-\u9fff]', text))] if action else text
     filters = plan(query, previous)
+    if language is not None:
+        filters['language'] = 'zh' if language.lower().startswith('zh') else 'en'
     if action == 'reviews':
         filters.update(sort='rating', min_rating=4)
     zh = filters.get('language') == 'zh'
@@ -281,7 +283,7 @@ def discover(text, previous=None, history=(), action=None):
     products = list(catalogue()[:1000])
     model, problem = (None, '') if action else buyer_ai.interpret(
         text, previous, model_facts(products) if buyer_ai.enabled() else [],
-        history, {'types': list(TYPES), 'materials': list(MATERIALS), 'colours': list(COLOURS)})
+        history, {'types': list(TYPES), 'materials': list(MATERIALS), 'colours': list(COLOURS)}, language=language)
     engine, ai_reply, details = 'guided', '', []
     if model:
         engine, ai_reply, details = 'deepseek', model['reply'], model['details']

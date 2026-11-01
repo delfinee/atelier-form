@@ -7,11 +7,35 @@ from django import forms
 from django.db import transaction
 from django.forms import inlineformset_factory
 from PIL import Image, ImageOps
+from django.utils.translation import gettext as _
+from frontend.catalogue_i18n import localize_collection
 
 from products.models import Product, ProductImage, ProductVariant, VariantGroup
 
 
-class SellerProductForm(forms.ModelForm):
+class LocalizedSellerForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        labels = {'name':'Name', 'category':'Category', 'price':'Price',
+            'short_description':'Short description', 'description':'Description', 'story':'Story',
+            'dimensions':'Dimensions', 'care_instructions':'Care instructions',
+            'shipping_information':'Shipping information', 'stock_quantity':'Stock quantity',
+            'is_made_to_order':'Made to order', 'is_active':'Is active', 'group':'Option group',
+            'label':'Option name', 'sku':'SKU', 'price_override':'Option price',
+            'alt_text':'Image description', 'sort_order':'Sort order', 'DELETE':'Delete'}
+        for name, field in self.fields.items():
+            field.label = _(labels.get(name, str(field.label or name)))
+            if field.help_text:
+                field.help_text = _(str(field.help_text))
+            if field.widget.attrs.get('placeholder'):
+                field.widget.attrs['placeholder'] = _(field.widget.attrs['placeholder'])
+        if 'group' in self.fields:
+            self.fields['group'].choices = [(key, _(str(label))) for key, label in self.fields['group'].choices]
+        if 'category' in self.fields:
+            self.fields['category'].label_from_instance = lambda item: localize_collection(item).name
+
+
+class SellerProductForm(LocalizedSellerForm):
     """Product creation and editing form for sellers."""
 
     class Meta:
@@ -48,17 +72,17 @@ class SellerProductForm(forms.ModelForm):
     def clean_price(self):
         price = self.cleaned_data.get("price")
         if price is not None and price < Decimal("0.00"):
-            raise forms.ValidationError("Price cannot be negative.")
+            raise forms.ValidationError(_("Price cannot be negative."))
         return price
 
     def clean_stock_quantity(self):
         stock = self.cleaned_data.get("stock_quantity")
         if stock is not None and stock < 0:
-            raise forms.ValidationError("Stock quantity cannot be negative.")
+            raise forms.ValidationError(_("Stock quantity cannot be negative."))
         return stock
 
 
-class SellerProductVariantForm(forms.ModelForm):
+class SellerProductVariantForm(LocalizedSellerForm):
     """Variant row in inline formset."""
 
     class Meta:
@@ -85,7 +109,7 @@ SellerVariantFormSet = inlineformset_factory(
 )
 
 
-class SellerProductImageForm(forms.ModelForm):
+class SellerProductImageForm(LocalizedSellerForm):
     """Product image row in inline formset."""
 
     image = forms.CharField(required=False, label="Existing image reference (optional)")
@@ -98,7 +122,7 @@ class SellerProductImageForm(forms.ModelForm):
         if not upload:
             return None
         if upload.size > 5 * 1024 * 1024:
-            raise forms.ValidationError("Choose an image smaller than 5 MB.")
+            raise forms.ValidationError(_("Choose an image smaller than 5 MB."))
         try:
             upload.seek(0)
             with Image.open(upload) as source:
@@ -113,7 +137,7 @@ class SellerProductImageForm(forms.ModelForm):
                 clean.save(encoded, format="JPEG", quality=88)
                 self.photo_data = (encoded.getvalue(), clean.width, clean.height)
         except (OSError, ValueError, Image.DecompressionBombError) as exc:
-            raise forms.ValidationError("Choose a valid JPEG, PNG or WebP under 20 megapixels.") from exc
+            raise forms.ValidationError(_("Choose a valid JPEG, PNG or WebP under 20 megapixels.")) from exc
         return upload
 
     def clean(self):

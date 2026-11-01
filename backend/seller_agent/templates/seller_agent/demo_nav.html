@@ -1,1 +1,5 @@
-{% if 'AtelierSeller/' not in request.META.HTTP_USER_AGENT %}<header class="simple-header"><a class="simple-brand" href="/seller/ai/">Atelier Seller</a><nav aria-label="Workspace"><a href="/seller/ai/">Assistant</a><a href="/seller/products/">Products</a><a href="/seller/ai/?view=orders">Orders</a></nav><span class="demo-tag">Demo</span></header>{% endif %}
+{% load i18n frontend_extras %}
+<header class="simple-header">
+{% if 'AtelierSeller/' not in request.META.HTTP_USER_AGENT %}<a class="simple-brand" href="/seller/ai/">Atelier Seller</a><nav aria-label="{% translate 'Workspace' %}"><a href="/seller/ai/">{% translate 'Assistant' %}</a><a href="/seller/products/">{% translate 'Products' %}</a><a href="/seller/ai/?view=orders">{% translate 'Orders' %}</a></nav>{% endif %}
+{% language_toggle as lang %}<form action="/i18n/setlang/" method="post" class="seller-language">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><input type="hidden" name="language" value="{{ lang.target_code }}"><button type="submit" title="{{ lang.action }}" aria-label="{{ lang.action }}">{{ lang.current_label }}</button></form>
+</header>

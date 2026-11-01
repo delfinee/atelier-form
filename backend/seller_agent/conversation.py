@@ -1,5 +1,6 @@
 import re
 from django.conf import settings
+from django.utils.translation import get_language, gettext as _
 
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
@@ -23,8 +24,8 @@ DEMO_GUIDE = ("This is a coursework demo with sample products and orders. "
 
 def onboarding_guide(shared_demo=False):
     if shared_demo:
-        return SHARED_DEMO_GUIDE
-    return DEMO_GUIDE if getattr(settings, 'SELLER_PUBLIC_DEMO', False) else ONBOARDING
+        return _(SHARED_DEMO_GUIDE)
+    return _(DEMO_GUIDE if getattr(settings, 'SELLER_PUBLIC_DEMO', False) else ONBOARDING)
 
 
 def get_catalog(user):
@@ -37,7 +38,7 @@ def respond(user, conversation_id, request_id, text, channel, plan):
     old = conversation.messages.filter(request_id=request_id).first()
     if old:
         return old.response
-    chinese = bool(re.search(r"[\u3400-\u9fff]", text))
+    chinese = (get_language() or '').lower().startswith('zh')
     def say(english, translated):
         return translated if chinese else english
     intent = plan["intent"]
@@ -59,14 +60,14 @@ def respond(user, conversation_id, request_id, text, channel, plan):
         result["reply"] = onboarding_guide(getattr(user, "_shared_catalogue", False))
     elif intent == "listing":
         if plan.get("expected_field") and plan["expected_field"] != conversation.context.get("awaiting"):
-            raise ValidationError("This draft changed in another channel. Refresh it before continuing.")
+            raise ValidationError(_("This draft changed in another channel. Refresh it before continuing."))
         previous = {} if plan.get("reset") else conversation.context.get("listing", {})
         values = {**previous, **{k:v for k,v in plan.get("values", {}).items() if k in REQUIRED}}
         missing = [key for key in REQUIRED if not str(values.get(key, "")).strip()]
         conversation.context = {"listing":values, "awaiting":missing[0] if missing else None}
         conversation.save(update_fields=["context", "updated_at"])
         result.update(listing=values, missing=missing,
-            categories=[{"slug":c.slug,"name":c.name} for c in Category.objects.filter(is_active=True)])
+            categories=[{"slug":c.slug,"name":_(c.name)} for c in Category.objects.filter(is_active=True)])
         if missing:
             labels = {"name": "商品名称", "category": "分类", "description": "商品描述", "price": "价格", "quantity": "库存数量"}
             result["reply"] = say(
@@ -74,21 +75,21 @@ def respond(user, conversation_id, request_id, text, channel, plan):
                 "正在整理商品草稿，请提供" + labels[missing[0]] + "。还需要：" + "、".join(labels[key] for key in missing) + "。",
             )
         elif not services.has_shop(user):
-            result["reply"] = "Your draft details are saved. Complete website seller verification before creating the product. No seller rights were granted."
+            result["reply"] = _("Your draft details are saved. Complete website seller verification before creating the product. No seller rights were granted.")
         else:
             change = services.prepare_change(user, conversation.uuid, request_id, "listing", "", values)
             result.update(reply=say("Review this unpublished product draft. It will only be saved after you confirm.", "请检查商品草稿。你确认后才会保存，商品仍为未发布状态。"), change=services.change_data(change))
     elif intent in ("stock", "price", "fulfillment"):
         target = plan.get("target", "")
         if intent != "fulfillment":
-            matches = [p for p in get_catalog(user) if p["slug"].casefold()==target.casefold() or p["name"].casefold()==target.casefold()]
+            matches = [p for p in get_catalog(user) if p["slug"].casefold()==target.casefold() or (p["name"].casefold()==target.casefold() or p.get("canonical_name", "").casefold()==target.casefold())]
             if len(matches) != 1:
-                raise ValidationError("Choose one of your exact product names or slugs. Use 'my products' to see them.")
+                raise ValidationError(_("Choose one of your exact product names or slugs. Use 'my products' to see them."))
             target = matches[0]["slug"]
         change = services.prepare_change(user, conversation.uuid, request_id, intent, target, plan.get("values", {}))
         result.update(reply=say("Review the before and after values. Nothing changes until you explicitly confirm.", "请检查修改前后的内容。只有你确认后，才会更新店铺数据。"), change=services.change_data(change))
     else:
-        result["reply"] = ("I can show 'my products', 'low stock' or 'my orders', help with 'new listing', "
+        result["reply"] = _("I can show 'my products', 'low stock' or 'my orders', help with 'new listing', "
             "or prepare 'set stock EXACT PRODUCT NAME to 5'. Select a variant in the product card when needed. "
             "I do not process payments, refunds or ownership changes.")
         if plan.get("engine") == "deepseek" and plan.get("reply"):

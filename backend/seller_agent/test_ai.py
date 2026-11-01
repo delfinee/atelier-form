@@ -166,6 +166,7 @@ class SellerAIIntegrationTests(TestCase):
 
     @patch("seller_agent.planner.requests.post")
     def test_chinese_followup_gets_previous_target_without_auto_approval(self, post):
+        self.client.credentials(HTTP_ACCEPT_LANGUAGE="zh-hans")
         post.return_value = model_response({"intent": "stock", "target": "ai-blue-mug", "values": {"quantity": 12}})
         self.assertEqual(self.send("请把蓝色杯子的库存改成十二个").status_code, 200)
         post.return_value = model_response({"intent": "stock", "target": "ai-blue-mug", "values": {"quantity": 14}})

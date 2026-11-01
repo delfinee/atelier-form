@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from products.models import Category
 from . import services, planner, conversation, wechat
+from .i18n import language
 from .auth import WechatAuthentication, require_linked, channel
 from .models import Conversation, WechatSession, WechatIdentity
 from .serializers import MessageInput, ChangeInput, ConfirmInput
@@ -153,10 +154,10 @@ class Logout(Base):
 class Conversations(Linked):
     def get(self, request):
         return Response({"conversations":[{"id":str(c.uuid), "at":c.updated_at.isoformat()}
-            for c in Conversation.objects.filter(user=request.user).order_by("-id")[:30]]})
+            for c in Conversation.objects.filter(user=request.user, language=language()).order_by("-id")[:30]]})
 
     def post(self, request):
-        c = Conversation.objects.create(user=request.user)
+        c = Conversation.objects.create(user=request.user, language=language())
         return Response({"id":str(c.uuid)}, status=201)
 
 
@@ -199,7 +200,8 @@ class Chat(Linked):
                 "categories": list(Category.objects.filter(is_active=True).values("slug", "name")[:50]),
                 "history": history,
             }
-        intent = planner.plan(data.validated_data["text"], c.context, catalog, shared_demo=shared_demo, **model_context)
+        intent = planner.plan(data.validated_data["text"], c.context, catalog,
+                              shared_demo=shared_demo, language=language(), **model_context)
         return Response(conversation.respond(request.user, c.uuid, channel=channel(request), plan=intent,
             **data.validated_data))
 

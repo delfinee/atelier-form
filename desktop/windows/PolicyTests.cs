@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using AtelierSeller;
 
@@ -26,6 +26,10 @@ internal static class PolicyTests
             { "demoOrigin", "https://demo.maijiax.cn" }
         });
         Check(legacy.IsDemo && legacy.StartPath == "/", "Legacy demo remains compatible");
+        Check(SellerLocale.Normalize("zh-CN") == "zh-hans", "Chinese locale normalization");
+        Check(SellerLocale.Normalize("en-US") == "en", "English locale normalization");
+        Check(SellerLocale.Text("Orders", "zh-hans") == "订单", "Chinese native controls");
+        Check(SellerLocale.Text("Orders", "en") == "Orders", "English native controls");
         var shared = new ConnectionSettings("https://dip-new-repo.vercel.app", "shared-demo");
         Check(shared.IsSharedDemo && !shared.IsDemo && shared.StartPath == "/seller/ai/", "Shared school demo opens directly");
         foreach (var mode in new[] { "production", "", "LIVE" }) {
@@ -34,6 +38,6 @@ internal static class PolicyTests
             catch (ArgumentException) { rejected = true; }
             Check(rejected, "Reject ambiguous connection mode");
         }
-        Console.WriteLine("21 desktop connection and session policy checks passed.");
+        Console.WriteLine("25 desktop connection, language and session policy checks passed.");
     }
 }

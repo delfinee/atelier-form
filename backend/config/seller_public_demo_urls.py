@@ -20,6 +20,7 @@ handler403 = forbidden
 handler500 = failed
 
 urlpatterns = [
+    path("i18n/", include("django.conf.urls.i18n")),
     path('', public_demo.home, name='demo_home'),
     path('demo/start/', public_demo.start),
     path('healthz/', release_views.health),

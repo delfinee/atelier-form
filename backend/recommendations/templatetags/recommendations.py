@@ -19,7 +19,7 @@ def recommendation_block(context, limit=4):
         return {"recommendations": []}
 
     product = context.get("product") if url_name == "product_detail" else None
-    ranked = recommend(user=request.user, product=product, session=request.session, limit=limit)
+    ranked = recommend(user=request.user, product=product, session=getattr(request, "session", {}), limit=limit)
     guest = not request.user.is_authenticated
     has_activity = any(
         reason in {"recently viewed", "cart activity"}

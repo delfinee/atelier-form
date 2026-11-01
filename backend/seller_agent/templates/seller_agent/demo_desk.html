@@ -1,19 +1,20 @@
-{% load static %}
+{% load static i18n %}{% get_current_language as LANGUAGE_CODE %}
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Atelier Seller</title><link rel="stylesheet" href="{% static 'seller_agent/desk.css' %}"><link rel="stylesheet" href="{% static 'seller_agent/demo.css' %}"><script src="{% static 'seller_agent/desk.js' %}" defer></script></head>
+<html lang="{{ LANGUAGE_CODE }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Atelier Seller</title><link rel="stylesheet" href="{% static 'seller_agent/desk.css' %}"><link rel="stylesheet" href="{% static 'seller_agent/demo.css' %}"><script src="{% static 'seller_agent/desk.js' %}" defer></script></head>
 <body class="simple-workspace {% if request.GET.view == 'orders' %}records-only{% endif %}" data-public-demo="true" data-mode="web" data-csrf-cookie="{{ csrf_cookie_name }}">
 {% include 'seller_agent/demo_nav.html' %}
+{{ seller_ui|json_script:"seller-i18n" }}
 <main>
-{% if shared_demo %}<p class="notice">Shared school demo · No login needed. Products and orders update automatically on the main website.</p>{% endif %}
-<div class="workspace-status"><strong id="account-name">Demo shop</strong><span id="account-status" hidden></span><span id="engine-label"></span><button id="refresh" class="subtle">Refresh</button></div>
+{% if shared_demo %}<p class="notice">{% translate 'Shared school demo · No login needed. Products and orders update automatically on the main website.' %}</p>{% endif %}
+<div class="workspace-status"><strong id="account-name">{% translate 'Demo shop' %}</strong><span id="account-status" hidden></span><span id="engine-label"></span><button id="refresh" class="subtle">{% translate 'Refresh' %}</button></div>
 <div id="error" class="notice error" role="alert" hidden></div>
 <div class="layout assistant-grid">
-<section class="panel chat"><div class="panel-head"><h1>Assistant</h1><div><select id="conversation-select" aria-label="Conversation"></select><button id="new-conversation" class="subtle">＋ New</button></div></div>
-<div id="messages" aria-live="polite"><div class="empty"><h3>How can I help?</h3><p>Ask about products or orders.</p></div></div>
-<div class="quick"><button data-prompt="my products">Products</button><button data-prompt="low stock">Low stock</button><button data-prompt="my orders">Orders</button><button data-prompt="new listing">New product</button></div>
-<form id="chat-form"><label class="sr-only" for="message">Message the seller assistant</label><textarea id="message" rows="2" maxlength="2000" placeholder="Ask anything about your shop…" required></textarea><div><small>Changes need your confirmation.</small><button type="submit" class="primary">Send →</button></div></form></section>
-<aside id="change-panel" hidden><section class="panel"><div class="panel-head"><h2>Review changes</h2></div><div id="changes"></div></section></aside>
+<section class="panel chat"><div class="panel-head"><h1>{% translate 'Assistant' %}</h1><div><select id="conversation-select" aria-label="{% translate 'Conversation' %}"></select><button id="new-conversation" class="subtle">＋ {% translate 'New conversation' %}</button></div></div>
+<div id="messages" aria-live="polite"><div class="empty"><h3>{% translate 'How can I help?' %}</h3><p>{% translate 'Ask about products or orders.' %}</p></div></div>
+<div class="quick"><button data-prompt="{% translate 'my products' %}">{% translate 'Products' %}</button><button data-prompt="{% translate 'low stock' %}">{% translate 'Low stock' %}</button><button data-prompt="{% translate 'my orders' %}">{% translate 'Orders' %}</button><button data-prompt="{% translate 'new listing' %}">{% translate 'New product' %}</button></div>
+<form id="chat-form"><label class="sr-only" for="message">{% translate 'Message the seller assistant' %}</label><textarea id="message" rows="2" maxlength="2000" placeholder="{% translate 'Ask anything about your shop…' %}" required></textarea><div><small>{% translate 'Changes need your confirmation.' %}</small><button type="submit" class="primary">{% translate 'Send' %} →</button></div></form></section>
+<aside id="change-panel" hidden><section class="panel"><div class="panel-head"><h2>{% translate 'Review changes' %}</h2></div><div id="changes"></div></section></aside>
 </div>
-<section id="records" class="panel" hidden><div class="panel-head"><h1 id="records-title">Orders</h1></div><div id="records-body"></div></section>
-<footer class="simple-footer">{% if shared_demo %}Shared main-website data · Changes sync automatically · AI uses catalogue and order summaries.{% else %}Demo data · Payment and shipping are simulated. DeepSeek processes chat; use test details only.{% endif %}</footer>
+<section id="records" class="panel" hidden><div class="panel-head"><h1 id="records-title">{% translate 'Orders' %}</h1></div><div id="records-body"></div></section>
+<footer class="simple-footer">{% if shared_demo %}{% translate 'Shared main-website data · Changes sync automatically · AI uses catalogue and order summaries.' %}{% else %}{% translate 'Demo data · Payment and shipping are simulated. DeepSeek processes chat; use test details only.' %}{% endif %}</footer>
 </main></body></html>

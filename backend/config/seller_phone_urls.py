@@ -20,6 +20,7 @@ handler404 = not_found
 handler500 = server_error
 
 urlpatterns = [
+    path("i18n/", include("django.conf.urls.i18n")),
     path('', RedirectView.as_view(url='/seller/ai/', permanent=False)),
     path('api/seller-agent/v1/', include('seller_agent.urls')),
     path('seller/ai/', views.desk, name='seller_ai'),

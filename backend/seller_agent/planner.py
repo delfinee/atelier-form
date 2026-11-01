@@ -6,6 +6,7 @@ import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from . import provider
 
 logger = logging.getLogger(__name__)
@@ -56,7 +57,7 @@ def local_plan(text, context):
 GUIDED_COMMANDS = {
     "my products", "products", "my stock", "inventory", "low stock", "low-stock",
     "my orders", "orders", "pending orders", "new listing", "draft listing",
-    "help me start selling", "我的商品", "商品", "库存", "低库存", "我的订单", "待发货",
+    "help me start selling", "新商品", "新卖家指南", "我的商品", "商品", "库存", "低库存", "我的订单", "待发货",
 }
 VALUE_FIELDS = {
     "stock": {"quantity", "variant"}, "price": {"price", "variant"},
@@ -112,7 +113,7 @@ def _quota_available():
 def _facts(catalog, orders, categories):
     # Never send buyer addresses, email, phone, payment details or account identifiers.
     return {
-        "products": [{k: p[k] for k in ("slug", "name", "price", "currency", "quantity",
+        "products": [{k: p[k] for k in ("slug", "name", "canonical_name", "price", "currency", "quantity",
                         "variants", "active", "made_to_order", "low_stock") if k in p}
                      for p in catalog[:100]],
         "orders": [{"uuid": o["uuid"], "order_number": o["order_number"], "shop": o.get('shop', ''),
@@ -138,7 +139,7 @@ def _validated(data, catalog, orders, categories, context):
     if not isinstance(data.get("pending", False), bool) or not isinstance(data.get("reset", False), bool):
         raise ValueError("Invalid flags")
     if intent in ("stock", "price"):
-        matches = [p for p in catalog if target.casefold() in (p["slug"].casefold(), p["name"].casefold())]
+        matches = [p for p in catalog if target.casefold() in (p["slug"].casefold(), p["name"].casefold(), p.get("canonical_name", "").casefold())]
         if len(matches) != 1:
             raise ValueError("Unknown or ambiguous product")
         product = matches[0]
@@ -164,7 +165,7 @@ def _validated(data, catalog, orders, categories, context):
     return result
 
 
-def plan(text, context, catalog, *, orders=None, categories=None, history=None, shared_demo=False):
+def plan(text, context, catalog, *, orders=None, categories=None, history=None, shared_demo=False, language=None):
     fallback = local_plan(text, context)
     # Keep exact quick actions deterministic, but do not swallow free-form requests
     # merely because they contain words such as "inventory" or "商品".
@@ -173,7 +174,13 @@ def plan(text, context, catalog, *, orders=None, categories=None, history=None, 
     if not enabled(shared_demo) or canonical or exact_write:
         return {**fallback, "engine":"guided"}
     orders, categories = orders or [], categories or []
-    system_prompt = SYSTEM_PROMPT
+    reply_language = 'Simplified Chinese' if (language or '').lower().startswith('zh') else 'English'
+    system_prompt = SYSTEM_PROMPT + (
+        '\nThe interface language is ' + reply_language + '. Write every reply ONLY in this language, '
+        'even when the visitor writes another language. Do not mix translated and untranslated '
+        'UI phrases. Preserve exact product identifiers, proper names and JSON keys. '
+        'The language setting has priority over earlier conversation language.'
+    )
     if shared_demo:
         system_prompt += (
             "\nThis is a shared school demo shop on the main website. No login, seller verification "
@@ -194,7 +201,7 @@ def plan(text, context, catalog, *, orders=None, categories=None, history=None, 
         )
     try:
         if not _quota_available():
-            return {**fallback, "engine": "guided", "notice": "Today's AI demo allowance is used up; guided commands still work."}
+            return {**fallback, "engine": "guided", "notice": _("Today's AI demo allowance is used up; guided commands still work.")}
         response = requests.post("https://api.deepseek.com/chat/completions",
             headers={"Authorization":"Bearer "+provider.api_key()},
             json={"model":settings.SELLER_AGENT_MODEL, "temperature":0, "max_tokens":900,
@@ -209,4 +216,4 @@ def plan(text, context, catalog, *, orders=None, categories=None, history=None, 
         logger.info("Seller AI response validated (model=%s, intent=%s)", settings.SELLER_AGENT_MODEL, result["intent"])
         return result
     except (requests.RequestException, ValueError, KeyError, IndexError, TypeError):
-        return {**fallback, "engine":"guided", "notice":"AI is unavailable; guided commands still work."}
+        return {**fallback, "engine":"guided", "notice":_("AI is unavailable; guided commands still work.")}

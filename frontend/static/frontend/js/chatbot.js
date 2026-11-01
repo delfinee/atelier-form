@@ -724,9 +724,12 @@
     msgEl.setAttribute('data-msg-uuid', m.uuid);
 
     const timeStr = formatTime(m.created_at);
+    const sourceLang=/[\u4e00-\u9fff]/.test(m.body||'')?'zh':'en';
+    const automated=/^\[(Automated|自动回复)\]/i.test(m.body||'');
+    const displayBody=automated&&sourceLang!==currentLang?clientFallbackTranslate(m.body,sourceLang,currentLang,{maker_name:currentContext.makerName,product_name:currentContext.productName}):m.body;
     const translateBtnHtml = `
       <button type="button" class="crafty-translate-btn" data-translate-btn title="${currentLang === 'zh' ? '翻译此消息 (中英互译)' : 'Translate message (EN ⇄ ZH)'}">
-        🌐 文/A
+        🌐
       </button>
     `;
 
@@ -755,7 +758,7 @@
     msgEl.innerHTML = `
       ${metaHtml}
       <div class="crafty-bubble">
-        <p class="crafty-bubble-body" style="white-space:pre-wrap; margin:0;">${escapeHtml(m.body)}</p>
+        <p class="crafty-bubble-body" style="white-space:pre-wrap; margin:0;">${escapeHtml(displayBody)}</p>
         <div class="crafty-translation-box" style="display:none;"></div>
       </div>
     `;
@@ -792,20 +795,20 @@
           product_name: currentContext.productTitle || (pinnedTitle ? pinnedTitle.textContent.trim() : ''),
           is_sender: Boolean(m.is_sender)
         };
-        const result = await translateMessage(m.body, null, contextInfo);
+        const result = await translateMessage(m.body, currentLang, contextInfo);
         const isTargetZh = result.target_lang === 'zh';
-        const badgeLabel = isTargetZh ? '🌐 翻译 (中文)' : '🌐 Translation (English)';
+        const badgeLabel = currentLang==='zh'?'🌐 翻译':'🌐 Translation';
         const contextSummary = result.context_applied?.summary || (contextInfo.product_name ? `${contextInfo.maker_name || 'Artisan'} · ${contextInfo.product_name}` : '');
         const contextBadgeHtml = contextSummary ? `
-          <div class="crafty-context-badge" title="Contextually resolved with active artisan & product dialogue">
-            <span>📌 Context: ${escapeHtml(contextSummary)}</span>
+          <div class="crafty-context-badge" title="${currentLang==='zh'?'结合当前商品和对话':'Based on the current product and conversation'}">
+            <span>📌 ${currentLang==='zh'?'上下文':'Context'}: ${escapeHtml(contextSummary)}</span>
           </div>
         ` : '';
 
         translationBox.innerHTML = `
           <div class="crafty-translation-header">
             <span>${badgeLabel}</span>
-            <button type="button" class="crafty-translation-hide-btn" title="Hide">✕</button>
+            <button type="button" class="crafty-translation-hide-btn" title="${currentLang==='zh'?'收起':'Hide'}">✕</button>
           </div>
           ${contextBadgeHtml}
           <div class="crafty-translation-content">${escapeHtml(result.translated)}</div>
@@ -1048,16 +1051,16 @@
       if (currentContext.productName) {
         sendMessage(`Inquiring about ${currentContext.productName} (${currentContext.productPrice})`);
       } else {
-        sendMessage('Hello! I would like to inquire about your craft work.');
+        sendMessage(currentLang==='zh'?'你好，我想咨询你的手工作品。':'Hello! I would like to inquire about your craft work.');
       }
       if (toolsTray) toolsTray.style.display = 'none';
     });
 
     toolBtnOrder?.addEventListener('click', () => {
       if (currentContext.orderNumber) {
-        sendMessage(`Inquiring about order #${currentContext.orderNumber}`);
+        sendMessage(currentLang==='zh'?`咨询订单 #${currentContext.orderNumber}`:`Inquiring about order #${currentContext.orderNumber}`);
       } else {
-        sendMessage('Hello, could you help me check my order status?');
+        sendMessage(currentLang==='zh'?'你好，能帮我查一下订单状态吗？':'Hello, could you help me check my order status?');
       }
       if (toolsTray) toolsTray.style.display = 'none';
     });
@@ -1086,13 +1089,15 @@
     });
 
     // 8. Language toggle
-    langToggle?.addEventListener('click', () => {
-      currentLang = currentLang === 'zh' ? 'en' : 'zh';
-      const t = i18n[currentLang] || i18n.en;
-      if (langToggle) langToggle.textContent = t.langToggleText;
-      if (input) input.placeholder = t.inputPlaceholder;
-      if (sellerTitle && !currentContext.makerName) sellerTitle.textContent = t.defaultTitle;
-      populateSellerDropdown(cachedMakers.length > 0 ? cachedMakers : DEFAULT_MAKERS);
+    langToggle?.addEventListener('click', async () => {
+      langToggle.disabled = true;
+      const response = await fetch('/i18n/setlang/', {
+        method: 'POST', credentials: 'same-origin',
+        headers: {'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCsrfToken()},
+        body: new URLSearchParams({language:currentLang==='zh'?'en':'zh-hans',next:location.pathname+location.search})
+      });
+      if (response.ok) location.reload();
+      else langToggle.disabled = false;
     });
 
     // 9. Pre-fetch makers list

@@ -6,6 +6,7 @@ from config.mixins import TimeStampedModel, UUIDModel
 class Conversation(UUIDModel, TimeStampedModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     context = models.JSONField(default=dict)
+    language = models.CharField(max_length=16, default='en')
 
 
 class Message(TimeStampedModel):

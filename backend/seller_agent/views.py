@@ -5,6 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_GET
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
+from .i18n import ui_strings
 
 
 @login_required
@@ -17,7 +18,7 @@ def desk(request):
     template = "seller_agent/demo_desk.html" if public_demo else "seller_agent/desk.html"
     return render(request, template, {"mode":"web", "csrf_cookie_name":settings.CSRF_COOKIE_NAME,
         "phone_preview":getattr(settings, "SELLER_PHONE_PREVIEW", False),
-        "public_demo":public_demo, "shared_demo":shared_demo,
+        "public_demo":public_demo, "shared_demo":shared_demo, "seller_ui":ui_strings(),
         "seller_only":getattr(settings, "SELLER_PHONE_PREVIEW", False) or getattr(settings, "SELLER_PRODUCTION", False) or getattr(settings, "SELLER_PUBLIC_DEMO", False)})
 
 
@@ -32,7 +33,7 @@ def link(request):
 def mini_preview(request):
     if not settings.SELLER_AGENT_ENABLED:
         raise Http404
-    return render(request, "seller_agent/desk.html", {"mode":"mini", "csrf_cookie_name":settings.CSRF_COOKIE_NAME})
+    return render(request, "seller_agent/desk.html", {"mode":"mini", "csrf_cookie_name":settings.CSRF_COOKIE_NAME, "seller_ui":ui_strings()})
 
 
 @login_required

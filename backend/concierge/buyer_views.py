@@ -11,6 +11,7 @@ from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 from .shopping import discover, QUICK_ACTIONS
 from .buyer_ai import enabled as ai_enabled
+from .display import localize_result
 
 
 class DemoBoundaries:
@@ -87,7 +88,7 @@ def message(request):
         return reply({'detail': 'Send a message of 1–2000 characters and a request UUID.'}, 400)
     state = _state(request)
     if request_id in state['responses']:
-        return reply(state['responses'][request_id])
+        return reply(localize_result(state['responses'][request_id], _language()))
     address = request.META.get('REMOTE_ADDR', '')
     if getattr(settings, 'TRUST_PROXY_CLIENT_IP', False):
         address = request.META.get('HTTP_X_FORWARDED_FOR', address).split(',')[-1].strip()
@@ -115,7 +116,9 @@ def message(request):
 @require_GET
 def history(request):
     state = _state(request)
-    return reply({'messages': state.get('history', []), 'ai_enabled': ai_enabled()})
+    messages = [{**message, 'response': localize_result(message['response'], _language())}
+                for message in state.get('history', [])]
+    return reply({'messages': messages, 'ai_enabled': ai_enabled()})
 
 
 @require_POST

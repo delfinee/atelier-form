@@ -77,7 +77,7 @@
   function cards(products, mode) {
     return products.map(p => {
       const options = (p.options || []).map(option => option.label).join(' · ');
-      const excerpts = mode === 'reviews' ? (p.review_examples || []).map(review => `<blockquote class="buyer-review"><strong>${esc(review.rating)}/5${review.verified_purchase ? ' · ' + tr('Verified purchase','已验证购买') : ''}</strong>${review.title ? `<b>${esc(review.title)}</b>` : ''}<p>${esc(review.body || tr('Rating only; no written comment.','仅评分，未填写文字评价。'))}</p></blockquote>`).join('') : '';
+      const excerpts = mode === 'reviews' ? (p.review_examples || []).map(review => `<blockquote class="buyer-review"><strong>${esc(review.rating)}/5${review.verified_purchase ? ' · ' + tr('Verified purchase','已验证购买') : ''}</strong>${review.is_translation ? `<small>${tr('Translated review','评价译文')}</small>` : ''}${review.title ? `<b>${esc(review.title)}</b>` : ''}<p>${esc(review.body || tr('Rating only; no written comment.','仅评分，未填写文字评价。'))}</p></blockquote>`).join('') : '';
       return `<article class="buyer-product ${mode === 'reviews' ? 'buyer-product--reviews' : ''}"><a class="buyer-product-image" href="${esc(p.url)}" tabindex="-1" aria-hidden="true"><img src="${esc(p.image)}" alt="" loading="lazy"></a><div><strong>${productLink(p)}</strong><span>${esc(p.maker)}</span><span class="buyer-price">${price(p)}</span><span>${esc(availability(p))} · ${rating(p)}</span><span>${esc((p.materials || []).join(' · '))}</span>${options ? `<span class="buyer-options">${tr('Matching options: ','匹配规格：')}${esc(options)}</span>` : ''}${excerpts}<a class="buyer-product-link" href="${esc(p.url)}">${tr('View product →','查看商品 →')}</a></div></article>`;
     }).join('');
   }

@@ -11,6 +11,7 @@ from django.urls import reverse
 from imagery.resolver import image_url
 from products.models import Product
 from reviews.models import Review
+from .display import display_card, localize_reviews
 from . import buyer_ai
 
 QUICK_ACTIONS = {
@@ -136,7 +137,7 @@ def card(product, filters):
     average = product.review_average
     if filters.get('min_rating') and (not count or average < filters['min_rating']):
         return None
-    return {'slug': product.slug, 'name': product.name, 'price': str(price), 'currency': product.currency,
+    item = {'slug': product.slug, 'name': product.name, 'price': str(price), 'currency': product.currency,
         'price_label': 'from' if len({v.unit_price for v in chosen}) > 1 else 'item',
         'available': in_stock, 'made_to_order': product.is_made_to_order,
         'quantity': None if product.is_made_to_order else sum(v.stock_quantity for v in options) if variants else product.stock_quantity,
@@ -145,6 +146,7 @@ def card(product, filters):
         'url': reverse('product_detail', kwargs={'slug': product.slug}),
         'image': image_url(product.primary_image()),
         'options': [{'id': str(v.uuid), 'label': v.label, 'price': str(v.unit_price), 'available': v.available} for v in options]}
+    return display_card(item, product, 'zh-hans' if filters.get('language') == 'zh' else 'en')
 
 
 def model_facts(products):
@@ -260,6 +262,7 @@ def result_presentation(text, filters, rows, shown, comparing, action=None):
             item['review_examples'] = [{'rating': review['rating'],
                 'title': review['title'][:160], 'body': ' '.join(review['body'].split())[:280],
                 'verified_purchase': review['order_item_id'] is not None} for review in reviews]
+        localize_reviews(shown, 'zh-hans' if zh else 'en')
     return {'mode': mode, 'title': titles[mode][zh], 'summary': explanations[mode][zh] + ' ' + count,
             'filters': tags, 'match_count': len(rows), 'shown_count': len(shown)}
 

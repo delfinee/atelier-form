@@ -5272,6 +5272,15 @@ msgstr "新商品"
 msgid "help me start selling"
 msgstr "新卖家指南"
 
+msgid "True to listing"
+msgstr "与商品描述一致"
+
+msgid "Recommended!"
+msgstr "推荐！"
+
+msgid "Review translation is temporarily unavailable."
+msgstr "评价翻译暂不可用。"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is accepted"
 #~ " and logged."

@@ -11,7 +11,7 @@ from django.urls import reverse
 from imagery.resolver import image_url
 from products.models import Product
 from reviews.models import Review
-from .display import display_card, localize_reviews
+from .display import display_card, localize_catalogue_text, localize_reviews
 from . import buyer_ai
 
 QUICK_ACTIONS = {
@@ -334,6 +334,7 @@ def discover(text, previous=None, history=(), action=None, language=None):
     offset = previous.get('next_offset', 0) if filters.get('more') and previous else 0
     size = 2 if filters.get('more') else 4
     shown = rows[offset:offset + size]
+    localize_catalogue_text(shown, 'zh-hans' if zh else 'en')
     filters.update(shown=[p['slug'] for p in shown], next_offset=offset + len(shown))
     filters.pop('more', None)
     filters.pop('compare', None)

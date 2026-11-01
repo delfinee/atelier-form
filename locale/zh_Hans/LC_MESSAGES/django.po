@@ -5281,6 +5281,18 @@ msgstr "推荐！"
 msgid "Review translation is temporarily unavailable."
 msgstr "评价翻译暂不可用。"
 
+msgid "Product translation is temporarily unavailable."
+msgstr "商品名称暂时无法翻译。"
+
+msgid "Maker translation is temporarily unavailable."
+msgstr "制作者名称暂时无法翻译。"
+
+msgid "Material translation is temporarily unavailable."
+msgstr "材质信息暂时无法翻译。"
+
+msgid "Option translation is temporarily unavailable."
+msgstr "规格名称暂时无法翻译。"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is accepted"
 #~ " and logged."

@@ -11,7 +11,7 @@ from frontend.mockdata.products import PRODUCTS_BY_SLUG
 from orders.tests.factories import make_category, make_maker
 from products.models import Product, ProductVariant
 from reviews.models import Review
-from .display import localize_reviews
+from .display import localize_catalogue_text, localize_reviews
 from .shopping import discover
 
 
@@ -99,6 +99,20 @@ class ShoppingDisplayLanguageTests(TestCase):
         cards = [{'review_examples': [{'title': '', 'body': '织物柔软。', 'rating': 4}]}]
         self.assertEqual(localize_reviews(cards, 'en')[0]['review_examples'][0]['body'],
                          'The fabric is soft.')
+
+    @override_settings(DEEPSEEK_API_KEY='test-only-key')
+    @patch('concierge.display.requests.post')
+    def test_custom_product_labels_also_follow_the_selected_language(self, post):
+        post.return_value = Mock()
+        post.return_value.json.return_value = {'choices': [{'message': {'content': json.dumps({
+            'translations': ['窗帘布托特包', '测试工作室', '再生织物', '天空蓝']})}}]}
+        cards = [{'name': 'Curtain Tote Bag', 'maker': 'Test Studio',
+                  'materials': ['Reclaimed fabric'], 'options': [{'label': 'Sky blue'}]}]
+        localize_catalogue_text(cards, 'zh-hans')
+        self.assertEqual(cards[0]['name'], '窗帘布托特包')
+        self.assertEqual(cards[0]['maker'], '测试工作室')
+        self.assertEqual(cards[0]['materials'], ['再生织物'])
+        self.assertEqual(cards[0]['options'][0]['label'], '天空蓝')
 
     @override_settings(DEEPSEEK_API_KEY='test-only-key')
     @patch('concierge.display.requests.post')

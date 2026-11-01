@@ -51,7 +51,7 @@ def _translate(texts, language):
                   'temperature': 0, 'max_tokens': 2200, 'thinking': {'type': 'disabled'},
                   'response_format': {'type': 'json_object'},
                   'messages': [{'role': 'system', 'content':
-                      'Translate the supplied public customer review excerpts into '
+                      'Translate the supplied public product labels or customer review excerpts into '
                       + ('Simplified Chinese' if chinese else 'English')
                       + '. Return only JSON {"translations":["..."]}, in the same order. '
                       'Preserve meaning, sentiment, uncertainty and numbers. Never add claims. '
@@ -69,33 +69,51 @@ def _translate(texts, language):
         return {}
 
 
-def localize_reviews(cards, language):
+def _localize_fields(targets, language):
     chinese = language.startswith('zh')
     pending, fields = {}, []
     with override(language):
-        for card in cards:
-            for review in card.get('review_examples', []):
-                for field in ('title', 'body'):
-                    original = review.get(field, '')
-                    value = gettext(original) if original else ''
-                    if not _needs_translation(value, chinese):
-                        review[field] = value
-                        if value != original:
-                            review['is_translation'] = True
-                        continue
-                    digest = hashlib.sha256((language + '\0' + original).encode()).hexdigest()
-                    cache_key = 'public-review-translation:v1:' + digest
-                    cached = cache.get(cache_key)
-                    if cached is None:
-                        pending[original] = cache_key
-                    fields.append((review, field, original, cache_key, cached))
+        for target, field, fallback, mark_review in targets:
+            original = target[field]
+            value = gettext(original) if original else ''
+            if not _needs_translation(value, chinese):
+                target[field] = value
+                if mark_review and value != original:
+                    target['is_translation'] = True
+                continue
+            digest = hashlib.sha256((language + '\0' + original).encode()).hexdigest()
+            cache_key = 'public-review-translation:v1:' + digest
+            cached = cache.get(cache_key)
+            if cached is None:
+                pending[original] = cache_key
+            fields.append((target, field, original, cache_key, cached, fallback, mark_review))
         translated = _translate(list(pending)[:32], language)
         for original, cache_key in pending.items():
             cache.set(cache_key, translated.get(original, ''), 604800 if original in translated else 60)
-        for review, field, original, cache_key, cached in fields:
+        for target, field, original, cache_key, cached, fallback, mark_review in fields:
             value = cached if cached is not None else translated.get(original, '')
-            review[field] = value or ('' if field == 'title' else gettext('Review translation is temporarily unavailable.'))
-            review['is_translation'] = True
+            target[field] = value or gettext(fallback)
+            if mark_review:
+                target['is_translation'] = True
+
+
+def localize_reviews(cards, language):
+    targets = [(review, field, '' if field == 'title' else 'Review translation is temporarily unavailable.', True)
+               for card in cards for review in card.get('review_examples', []) for field in ('title', 'body')]
+    _localize_fields(targets, language)
+    return cards
+
+
+def localize_catalogue_text(cards, language):
+    targets = []
+    for card in cards:
+        targets.extend([(card, 'name', 'Product translation is temporarily unavailable.', False),
+                        (card, 'maker', 'Maker translation is temporarily unavailable.', False)])
+        targets.extend((card['materials'], index, 'Material translation is temporarily unavailable.', False)
+                       for index in range(len(card.get('materials', []))))
+        targets.extend((option, 'label', 'Option translation is temporarily unavailable.', False)
+                       for option in card.get('options', []))
+    _localize_fields(targets, language)
     return cards
 
 
@@ -109,5 +127,6 @@ def localize_result(result, language):
         product = products.get(item['slug'])
         if product:
             display_card(item, product, language)
+    localize_catalogue_text(cards, language)
     localize_reviews(cards, language)
     return result

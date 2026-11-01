@@ -29,6 +29,11 @@ class ChatThrottle(UserRateThrottle):
     rate = "15/min"
 
 
+class SnapshotThrottle(UserRateThrottle):
+    scope = "seller_agent_snapshot"
+    rate = "120/min"
+
+
 class Base(APIView):
     authentication_classes = [WechatAuthentication, SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -177,12 +182,17 @@ class Chat(Linked):
         shared_demo = getattr(request, "seller_shared_demo", False)
         if planner.enabled(shared_demo):
             history = []
-            for message in reversed(list(c.messages.order_by("-id")[:6])):
+            changes = {str(change.uuid): services.change_data(change) for change in c.changes.order_by('-id')[:20]}
+            for message in reversed(list(c.messages.order_by("-id")[:10])):
                 response = message.response
-                item = {"request": message.text, "intent": response.get("intent")}
+                item = {"request": message.text, "intent": response.get("intent"),
+                        "reply": response.get('reply', '')[:1600]}
                 if response.get("change"):
-                    change = response["change"]
+                    change = changes.get(response['change']['id'], response['change'])
                     item["preview"] = {k: change.get(k) for k in ("action", "target", "values")}
+                    item['preview']['status'] = change.get('status')
+                    if change.get('result'):
+                        item['result'] = {k: change['result'].get(k) for k in ('product', 'order') if k in change['result']}
                 history.append(item)
             model_context = {
                 "orders": services.orders(request.user) if services.has_shop(request.user) else [],
@@ -195,6 +205,8 @@ class Chat(Linked):
 
 
 class Snapshot(Linked):
+    # Active clients poll the shared snapshot; chat remains independently bounded.
+    throttle_classes = [SnapshotThrottle]
     def get(self, request):
         return Response({"products": services.products(request.user), "orders": services.orders(request.user)})
 

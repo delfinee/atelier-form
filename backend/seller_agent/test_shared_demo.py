@@ -9,7 +9,9 @@ from orders.tests.factories import (
     make_bare_order, make_buyer, make_category, make_maker,
     make_order_item, make_product, make_seller_user,
 )
-from products.models import Product, ProductImage
+from products.models import Product, ProductImage, ProductVariant
+from orders.models import FulfillmentStatus, OrderStatus, PaymentStatus
+from orders.services import create_seller_fulfillments
 
 BASE = '/api/seller-agent/v1/'
 
@@ -150,3 +152,80 @@ class SharedCatalogueTests(TestCase):
         actor.is_admin = True
         actor.save(update_fields=['is_admin'])
         self.assertEqual(self.client.get(BASE + 'snapshot/').status_code, 503)
+
+    def test_shared_order_parcels_omit_customer_identity(self):
+        order = make_bare_order(email='private-buyer@example.test',
+            payment_status=PaymentStatus.PAID, status=OrderStatus.CONFIRMED)
+        order.customer_phone = '+65 8000 9999'
+        order.shipping_address_snapshot = {'address_line_1': 'PRIVATE ADDRESS'}
+        order.save()
+        make_order_item(order=order, product=self.product)
+        make_order_item(order=order, product=self.other)
+        parcels = create_seller_fulfillments(order)
+        response = self.client.get(BASE + 'snapshot/')
+        records = response.json()['orders']
+        self.assertEqual({r['uuid'] for r in records}, {str(p.uuid) for p in parcels})
+        self.assertEqual({r['shop'] for r in records}, {'Original maker', 'Second maker'})
+        self.assertNotIn('private-buyer', response.content.decode())
+        self.assertNotIn('PRIVATE ADDRESS', response.content.decode())
+        self.assertNotIn('+65 8000', response.content.decode())
+        self.assertTrue(all(r['can_ship'] for r in records))
+
+    def test_confirmed_parcel_updates_same_order_for_other_client_and_buyer(self):
+        buyer = make_buyer('parcel-buyer@school.test')
+        order = make_bare_order(payment_status=PaymentStatus.PAID, status=OrderStatus.CONFIRMED)
+        order.user = buyer
+        order.save()
+        make_order_item(order=order, product=self.product)
+        make_order_item(order=order, product=self.other)
+        parcels = create_seller_fulfillments(order)
+        selected = next(p for p in parcels if p.maker_id == self.maker.pk)
+        conversation = self.conversation()
+        payload = {'request_id': str(uuid4()), 'action': 'fulfillment',
+                   'target': str(order.uuid), 'values': {'carrier': 'Demo carrier', 'tracking_number': 'DEMO123456'}}
+        ambiguous = self.post(BASE + f'conversations/{conversation}/changes/', payload)
+        self.assertEqual(ambiguous.status_code, 400)
+        payload.update(request_id=str(uuid4()), target=str(selected.uuid))
+        preview = self.post(BASE + f'conversations/{conversation}/changes/', payload)
+        self.assertEqual(preview.status_code, 200, preview.content)
+        selected.refresh_from_db()
+        self.assertEqual(selected.status, FulfillmentStatus.UNFULFILLED)
+        confirmed = self.post(BASE + f"changes/{preview.json()['id']}/confirm/", {'confirmed': True})
+        self.assertEqual(confirmed.status_code, 200, confirmed.content)
+        selected.refresh_from_db()
+        order.refresh_from_db()
+        self.assertEqual(selected.status, FulfillmentStatus.FULFILLED)
+        self.assertEqual(order.fulfillment_status, FulfillmentStatus.PARTIAL)
+        other = next(p for p in parcels if p.pk != selected.pk)
+        other.refresh_from_db()
+        self.assertEqual(other.status, FulfillmentStatus.UNFULFILLED)
+        records = Client(HTTP_HOST='school.test').get(BASE + 'snapshot/').json()['orders']
+        self.assertEqual(next(r for r in records if r['uuid'] == str(selected.uuid))['tracking_number'], 'DEMO123456')
+        buyer_client = Client(HTTP_HOST='testserver')
+        buyer_client.force_login(buyer)
+        buyer_record = buyer_client.get('/api/orders/' + str(order.uuid) + '/').json()
+        self.assertEqual(buyer_record['fulfillment_status'], FulfillmentStatus.PARTIAL)
+
+    def test_public_revisions_change_for_stock_and_keep_orders_private(self):
+        visitor = Client(HTTP_HOST='testserver')
+        before = visitor.get('/api/store-revisions/').json()
+        self.assertEqual(before['orders'], '')
+        variant = ProductVariant.objects.create(product=self.product, label='Blue', sku='LIVE-BLUE', stock_quantity=3)
+        changed = visitor.get('/api/store-revisions/').json()
+        self.assertNotEqual(before['catalogue'], changed['catalogue'])
+        ProductVariant.objects.filter(pk=variant.pk).update(stock_quantity=2)
+        self.assertNotEqual(changed['catalogue'], visitor.get('/api/store-revisions/').json()['catalogue'])
+        buyer = make_buyer('revision-buyer@school.test')
+        visitor.force_login(buyer)
+        private_before = visitor.get('/api/store-revisions/').json()['orders']
+        someone_else = make_bare_order()
+        self.assertEqual(private_before, visitor.get('/api/store-revisions/').json()['orders'])
+        someone_else.user = buyer
+        someone_else.save()
+        private_after = visitor.get('/api/store-revisions/').json()
+        self.assertNotEqual(private_before, private_after['orders'])
+        self.assertEqual(set(private_after), {'catalogue', 'orders'})
+
+    def test_live_refresh_script_is_in_school_catalogue_not_product_editor(self):
+        self.assertContains(self.client.get('/seller/products/'), 'seller_agent/live')
+        self.assertNotContains(self.client.get('/seller/products/original-mug/edit/'), 'seller_agent/live')

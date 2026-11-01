@@ -6,6 +6,7 @@ from uuid import UUID, uuid4
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.text import slugify
@@ -60,6 +61,8 @@ def products(user, low_stock=False):
 
 def orders(user):
     maker = require_seller(user)
+    if maker._shared_catalogue:
+        return _shared_orders()
     qs = Order.objects.filter(items__maker=maker).distinct().order_by("-placed_at").prefetch_related(
         "items", "items__maker", "seller_fulfillments")[:50]
     result = list(SellerOrderSerializer(qs, many=True, context={"request": SimpleNamespace(user=user)}).data)
@@ -67,6 +70,30 @@ def orders(user):
         row["seller_subtotal"] = str(row["seller_subtotal"])
         fulfillment = row.get("fulfillment")
         row["can_ship"] = bool(is_dispatch_eligible(order) and fulfillment and not fulfillment.get("shipped_at"))
+    return result
+
+
+def _shared_orders():
+    """Shared coursework operations, one row per parcel, without buyer identity."""
+    result = []
+    parcels = SellerFulfillment.objects.select_related('order', 'maker').prefetch_related(
+        'order__items').order_by('-order__placed_at', 'pk')[:100]
+    for parcel in parcels:
+        order = parcel.order
+        items = [item for item in order.items.all() if item.maker_id == parcel.maker_id]
+        result.append({
+            'uuid': str(parcel.uuid), 'order_uuid': str(order.uuid),
+            'order_number': order.order_number, 'shop': parcel.maker.name,
+            'status': order.status, 'payment_status': order.payment_status,
+            'fulfillment_status': parcel.status, 'carrier': parcel.carrier,
+            'tracking_number': parcel.tracking_number,
+            'placed_at': order.placed_at.isoformat(), 'currency': order.currency,
+            'seller_subtotal': str(sum((item.line_total for item in items), Decimal('0.00'))),
+            'items': [{'product_name': item.product_name, 'quantity': item.quantity} for item in items],
+            'fulfillment': {'uuid': str(parcel.uuid), 'status': parcel.status,
+                            'shipped_at': parcel.shipped_at.isoformat() if parcel.shipped_at else None},
+            'can_ship': bool(items and is_dispatch_eligible(order) and not parcel.shipped_at),
+        })
     return result
 
 
@@ -97,6 +124,25 @@ def _fulfillment_target(maker, target, lock=False):
         order_id = UUID(target)
     except (ValueError, TypeError):
         raise ValidationError("Select an order from your orders list.") from None
+    if getattr(maker, '_shared_catalogue', False):
+        candidates = list(SellerFulfillment.objects.filter(
+            Q(uuid=order_id) | Q(order__uuid=order_id)).values('pk', 'order_id')[:2])
+        if not candidates:
+            from django.http import Http404
+            raise Http404('Choose a parcel from the shared orders list.')
+        if len(candidates) != 1:
+            raise ValidationError('This order has multiple makers. Select one parcel from Orders.')
+        order_qs = Order.objects.select_for_update() if lock else Order.objects
+        order = order_qs.get(pk=candidates[0]['order_id'])
+        parcel_qs = SellerFulfillment.objects.select_for_update() if lock else SellerFulfillment.objects
+        fulfillment = parcel_qs.select_related('maker').get(pk=candidates[0]['pk'])
+        fulfillment.order = order
+        before = {'order': str(order.uuid), 'number': order.order_number,
+            'order_status': order.status, 'payment_status': order.payment_status,
+            'status': fulfillment.status, 'carrier': fulfillment.carrier,
+            'tracking_number': fulfillment.tracking_number,
+            'shipped_at': str(fulfillment.shipped_at or ''), 'shop': fulfillment.maker.name}
+        return fulfillment, before
     qs = Order.objects.select_for_update() if lock else Order.objects
     order = get_object_or_404(qs.filter(pk__in=OrderItem.objects.filter(maker=maker).values("order_id")), uuid=order_id)
     fs = SellerFulfillment.objects.select_for_update() if lock else SellerFulfillment.objects
@@ -203,8 +249,9 @@ def confirm_change(user, uuid, channel):
         fulfillment, current = _fulfillment_target(maker, change.target, lock=True)
         if current != change.before:
             raise ValidationError("Order or fulfillment changed. Review a new preview.")
-        update_seller_fulfillment(fulfillment, acting_maker=maker, **values)
-        change.result = {"message": "Your shop's fulfillment was updated.", "order": change.target,
+        acting_maker = fulfillment.maker if getattr(maker, '_shared_catalogue', False) else maker
+        update_seller_fulfillment(fulfillment, acting_maker=acting_maker, **values)
+        change.result = {"message": "Your shop's fulfillment was updated.", "order": str(fulfillment.order.uuid),
                          "tracking_number": fulfillment.tracking_number}
     change.status = "applied"
     change.confirmed_channel = channel

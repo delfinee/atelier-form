@@ -10,7 +10,7 @@ The shared workspace applies only to `/seller/ai/`, `/seller/products/`,
 host, visitors use a request-local, unprivileged account with an unusable
 password. It can manage all catalogue products. Existing product ownership
 is preserved. New products belong to the dedicated School Demo maker.
-Historical customer orders, administration and account linking are excluded.
+The shared order list contains parcel status, purchased product names and quantities, and tracking details. Buyer names, email, phone numbers and addresses are excluded. Administration and account linking remain excluded.
 Existing browser login sessions are preserved; writes still require CSRF.
 
 `SELLER_SHARED_DEMO_HOSTS` defaults to `dip-new-repo.vercel.app`. An explicit
@@ -26,8 +26,9 @@ workspace request; no existing rows are reassigned.
 The assistant reads current products and prepares stock, price and listing
 changes. The visitor must confirm each preview. New listings start as drafts;
 select **Is active** in the product editor and save to publish to the storefront.
-If the server has a DeepSeek key, shared-mode natural language uses it. Keys
-and database credentials are never shipped in the Windows app.
+Shared-mode natural language uses DeepSeek. A server environment key takes precedence; the deployment can also read an encrypted ProviderSecret stored in the database. The encryption key is derived from the deployment secret, with SECRET_KEY_FALLBACKS supported for rotation. ProviderSecret is never exposed by an API or shipped in the Windows app.
+
+Open seller lists poll every five seconds while visible. Public catalogue and buyer order pages check opaque revision markers and refresh when committed data changes. Active form edits are preserved. Multi-maker orders are shown as separate parcels, so confirming one shipment does not ship the other makers' items.
 
 Build the Windows package:
 

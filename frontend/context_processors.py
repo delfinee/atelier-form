@@ -14,6 +14,7 @@ from .services import POPULAR_SEARCHES
 
 
 def frontend(request) -> dict:
+    from seller_agent.shared_demo import enabled_for
     user = getattr(request, "user", None)
     authenticated = bool(user is not None and user.is_authenticated)
     site = {
@@ -33,6 +34,7 @@ def frontend(request) -> dict:
         )
 
     return {
+        'live_updates_enabled': enabled_for(request),
         "site": site,
         "primary_nav": PRIMARY_NAV,
         "footer_nav": FOOTER_NAV,

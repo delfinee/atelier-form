@@ -51,7 +51,10 @@ def respond(user, conversation_id, request_id, text, channel, plan):
         records = services.orders(user)
         if plan.get("pending"):
             records = [o for o in records if o["can_ship"]]
-        result.update(reply=say("These orders contain only your shop's items and fulfillment details.", "这是你店铺的订单商品和履约信息。"), orders=records)
+        reply = (say("These are the main website's order parcels and fulfillment details.", "这是主站当前的订单商品和发货状态。")
+                 if getattr(user, '_shared_catalogue', False) else
+                 say("These orders contain only your shop's items and fulfillment details.", "这是你店铺的订单商品和履约信息。"))
+        result.update(reply=reply, orders=records)
     elif intent == "onboarding":
         result["reply"] = onboarding_guide(getattr(user, "_shared_catalogue", False))
     elif intent == "listing":

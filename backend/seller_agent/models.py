@@ -62,3 +62,9 @@ class LinkTicket(UUIDModel, TimeStampedModel):
 class UsedLoginCode(models.Model):
     code_hash = models.CharField(max_length=64, unique=True)
     expires_at = models.DateTimeField()
+
+
+class ProviderSecret(TimeStampedModel):
+    """Server-only encrypted configuration; never included in API serializers."""
+    provider = models.CharField(max_length=32, primary_key=True)
+    encrypted_key = models.TextField()

@@ -20,6 +20,7 @@ from content import api as content_api
 from orders import api as orders_api
 from payments.api import PaymentWebhookView
 from products import api as products_api
+from products.live import revisions
 from reviews import api as reviews_api
 
 
@@ -72,6 +73,7 @@ admin_router.register("contact", content_api.AdminContactViewSet, basename="admi
 
 urlpatterns = [
     path("health/", health, name="api-health"),
+    path("store-revisions/", revisions, name="store-revisions"),
     path("recommendations/", include("recommendations.urls")),
     path("conversations/", include("messaging.urls")),
 

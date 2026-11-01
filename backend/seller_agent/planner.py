@@ -6,6 +6,7 @@ import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
+from . import provider
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +93,7 @@ Do not output HTML, links, secrets, code or additional JSON keys.
 
 
 def enabled(shared_demo=False):
-    return bool((settings.SELLER_AGENT_USE_LLM or shared_demo) and settings.SELLER_AGENT_API_KEY)
+    return bool((settings.SELLER_AGENT_USE_LLM or shared_demo) and provider.api_key())
 
 
 def _quota_available():
@@ -114,7 +115,7 @@ def _facts(catalog, orders, categories):
         "products": [{k: p[k] for k in ("slug", "name", "price", "currency", "quantity",
                         "variants", "active", "made_to_order", "low_stock") if k in p}
                      for p in catalog[:100]],
-        "orders": [{"uuid": o["uuid"], "order_number": o["order_number"],
+        "orders": [{"uuid": o["uuid"], "order_number": o["order_number"], "shop": o.get('shop', ''),
                     "payment_status": o["payment_status"], "can_ship": o["can_ship"],
                     "items": [{k: item[k] for k in ("product_name", "quantity") if k in item}
                               for item in o.get("items", [])[:30]]} for o in orders[:30]],
@@ -178,6 +179,10 @@ def plan(text, context, catalog, *, orders=None, categories=None, history=None, 
             "\nThis is a shared school demo shop on the main website. No login, seller verification "
             "or account linking is required. The catalogue contains the existing storefront products; all visitors use that same database. "
             "Confirmed new listings start unpublished; the product editor publishes them for everyone. "
+            "The supplied orders are individual maker parcels: use the supplied uuid, and ask which maker "
+            "when an order number matches multiple parcels. Never guess an identifier or tracking number. "
+            "Use recent replies and applied result identifiers to understand short follow-ups. "
+            "Reply naturally to greetings and questions in Chinese or English. "
             "Use test data only. Never ask the visitor to sign in or verify a seller account."
         )
     if getattr(settings, "SELLER_PUBLIC_DEMO", False):
@@ -191,13 +196,13 @@ def plan(text, context, catalog, *, orders=None, categories=None, history=None, 
         if not _quota_available():
             return {**fallback, "engine": "guided", "notice": "Today's AI demo allowance is used up; guided commands still work."}
         response = requests.post("https://api.deepseek.com/chat/completions",
-            headers={"Authorization":"Bearer "+settings.SELLER_AGENT_API_KEY},
+            headers={"Authorization":"Bearer "+provider.api_key()},
             json={"model":settings.SELLER_AGENT_MODEL, "temperature":0, "max_tokens":900,
                 "thinking": {"type": "disabled"},
                 "response_format":{"type":"json_object"}, "messages":[
                 {"role":"system", "content": system_prompt},
                 {"role":"user","content":json.dumps({"request": text, "draft": context,
-                    "facts": _facts(catalog, orders, categories), "recent": (history or [])[-6:]}, ensure_ascii=False)}]}, timeout=(5,25))
+                    "facts": _facts(catalog, orders, categories), "recent": (history or [])[-10:]}, ensure_ascii=False)}]}, timeout=(5,25))
         response.raise_for_status()
         data = json.loads(response.json()["choices"][0]["message"]["content"])
         result = _validated(data, catalog, orders, categories, context)

@@ -6,6 +6,12 @@ from django.http import JsonResponse
 from products.models import Maker
 
 
+def enabled_for(request):
+    return bool(getattr(settings, 'SELLER_SHARED_DEMO_ENABLED', False)
+                or getattr(request, 'get_host', lambda: '')().partition(':')[0].lower().rstrip('.')
+                in settings.SELLER_SHARED_DEMO_HOSTS)
+
+
 class SharedSchoolDemoMiddleware:
     prefixes = ('/seller/ai/', '/seller/products/', '/api/seller/products/',
                 '/api/seller-agent/v1/')
@@ -16,9 +22,7 @@ class SharedSchoolDemoMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        enabled = (getattr(settings, 'SELLER_SHARED_DEMO_ENABLED', False)
-                   or request.get_host().partition(':')[0].lower().rstrip('.') in settings.SELLER_SHARED_DEMO_HOSTS)
-        if not enabled or not request.path.startswith(self.prefixes):
+        if not enabled_for(request) or not request.path.startswith(self.prefixes):
             return self.get_response(request)
         if request.path.startswith(self.blocked):
             return JsonResponse({'detail': 'Account linking is not used in the shared school demo.'}, status=403)

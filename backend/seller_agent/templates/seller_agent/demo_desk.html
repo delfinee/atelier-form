@@ -4,7 +4,7 @@
 <body class="simple-workspace {% if request.GET.view == 'orders' %}records-only{% endif %}" data-public-demo="true" data-mode="web" data-csrf-cookie="{{ csrf_cookie_name }}">
 {% include 'seller_agent/demo_nav.html' %}
 <main>
-{% if shared_demo %}<p class="notice">Shared school demo · No login needed. Published products appear on the main website for everyone.</p>{% endif %}
+{% if shared_demo %}<p class="notice">Shared school demo · No login needed. Products and orders update automatically on the main website.</p>{% endif %}
 <div class="workspace-status"><strong id="account-name">Demo shop</strong><span id="account-status" hidden></span><span id="engine-label"></span><button id="refresh" class="subtle">Refresh</button></div>
 <div id="error" class="notice error" role="alert" hidden></div>
 <div class="layout assistant-grid">
@@ -15,5 +15,5 @@
 <aside id="change-panel" hidden><section class="panel"><div class="panel-head"><h2>Review changes</h2></div><div id="changes"></div></section></aside>
 </div>
 <section id="records" class="panel" hidden><div class="panel-head"><h1 id="records-title">Orders</h1></div><div id="records-body"></div></section>
-<footer class="simple-footer">Demo data · Payment and shipping are simulated. DeepSeek processes chat; use test details only.</footer>
+<footer class="simple-footer">{% if shared_demo %}Shared main-website data · Changes sync automatically · AI uses catalogue and order summaries.{% else %}Demo data · Payment and shipping are simulated. DeepSeek processes chat; use test details only.{% endif %}</footer>
 </main></body></html>

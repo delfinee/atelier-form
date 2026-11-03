@@ -1905,12 +1905,12 @@ msgstr "探索该系列"
 #: .\frontend\templates\frontend\home.html:84
 #: .\frontend\templates\frontend\pages\our_story.html:55
 msgid "How it is made"
-msgstr "制作过程"
+msgstr "匠心工序"
 
 #: .\frontend\templates\frontend\home.html:85
 #: .\frontend\templates\frontend\pages\our_story.html:55
 msgid "Three steps, none of them quick."
-msgstr "三个步骤，没有一步是快的。"
+msgstr "手作三部曲"
 
 #: .\frontend\templates\frontend\home.html:103
 #: .\frontend\templates\frontend\makers\index.html:9

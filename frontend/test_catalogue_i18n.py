@@ -2475,7 +2475,7 @@ PUBLIC_PAGE_TITLE_EXPECTED = {
     },
     "zh-hans": {
         "shop": "甄选商店", "collections": "系列探索", "search": "搜索",
-        "story": "品牌故事", "makers": "驻店匠人", "journal": "手作志",
+        "story": "品牌故事", "makers": "驻店匠人", "journal": "手作日志",
         "contact": "联络我们", "faq": "常见问题",
         "shipping": "配送与退货", "care": "保养指南",
     },

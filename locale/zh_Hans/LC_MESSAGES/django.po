@@ -57,7 +57,7 @@ msgstr "品牌故事"
 #: .\frontend\templates\frontend\partials\mobile_nav.html:12
 #: .\frontend\templates\frontend\search\results.html:82
 msgid "Journal"
-msgstr "手作志"
+msgstr "手作日志"
 
 #: .\frontend\mockdata\content.py:40
 msgid "New Arrivals"

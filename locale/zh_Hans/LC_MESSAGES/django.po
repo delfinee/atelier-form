@@ -1916,7 +1916,7 @@ msgstr "手作三部曲"
 #: .\frontend\templates\frontend\makers\index.html:9
 #: .\frontend\templates\frontend\pages\our_story.html:71
 msgid "The people"
-msgstr "匠人"
+msgstr "合作匠人"
 
 #: .\frontend\templates\frontend\home.html:106
 msgid "Meet everyone"

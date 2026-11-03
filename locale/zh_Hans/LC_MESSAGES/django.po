@@ -4333,7 +4333,7 @@ msgid ""
 msgstr "商品图片、规格和发布可通过小程序提供的安全网页链接完成。"
 
 msgid "Seller Mini Program"
-msgstr "卖家微信小程序"
+msgstr "微信小程序"
 
 msgid "Help & messages"
 msgstr "帮助与消息"

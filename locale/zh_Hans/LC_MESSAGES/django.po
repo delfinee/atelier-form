@@ -2481,11 +2481,11 @@ msgstr "移动端导航"
 
 #: .\frontend\templates\frontend\partials\newsletter.html:5
 msgid "Studio notes"
-msgstr "工作室随笔"
+msgstr "订阅匠心手记"
 
 #: .\frontend\templates\frontend\partials\newsletter.html:6
 msgid "A note when something new comes out of the kiln."
-msgstr "每逢窑门初启，寄奉手记一份。"
+msgstr "每逢新作出窑，第一时间邮件通知您"
 
 #: .\frontend\templates\frontend\partials\newsletter.html:10
 msgid "Email address"
@@ -2501,7 +2501,7 @@ msgstr "订阅"
 
 #: .\frontend\templates\frontend\partials\newsletter.html:16
 msgid "About one email a month. Unsubscribe whenever you like."
-msgstr "每月一期，可随时退订。"
+msgstr "每月发刊一期，随时可取消订阅"
 
 #: .\frontend\templates\frontend\partials\product_card.html:13
 msgid "New"

@@ -292,11 +292,11 @@ msgstr "蜡"
 
 #: .\frontend\mockdata\products.py:100
 msgid "Hand-thrown Stoneware Mug"
-msgstr "手作粗陶马克杯"
+msgstr "粗陶马克杯"
 
 #: .\frontend\mockdata\products.py:113
 msgid "Speckled Breakfast Bowl"
-msgstr "斑驳星点粗陶晨食碗"
+msgstr "斑点早餐碗"
 
 #: .\frontend\mockdata\products.py:124
 msgid "Ceramic Pour-Over Dripper"
@@ -320,7 +320,7 @@ msgstr "双人茶杯套装"
 
 #: .\frontend\mockdata\products.py:174
 msgid "Linen Market Tote"
-msgstr "水洗亚麻托特包"
+msgstr "亚麻购物包"
 
 #: .\frontend\mockdata\products.py:185
 msgid "Woven Cotton Throw"
@@ -328,7 +328,7 @@ msgstr "手织纯棉四季毯"
 
 #: .\frontend\mockdata\products.py:197
 msgid "Linen Cushion Cover"
-msgstr "亚麻靠垫套"
+msgstr "亚麻抱枕套"
 
 #: .\frontend\mockdata\products.py:208
 msgid "Stonewashed Table Runner"
@@ -5323,7 +5323,7 @@ msgstr "规格名称暂时无法翻译。"
 
 
 msgid "Curtain Tote Bag"
-msgstr "棉麻垂感托特包"
+msgstr "亚麻抱枕套"
 
 msgid "Cotton linen · Chen Meilin"
 msgstr "棉麻 · 陈美林"

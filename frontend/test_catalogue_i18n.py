@@ -74,16 +74,16 @@ EDITORIAL_EXPECTED = (
 )
 
 PRODUCT_EXPECTED = (
-    ("hand-thrown-stoneware-mug", "Hand-thrown Stoneware Mug", "Stoneware · Chen Meilin", "手作粗陶马克杯", "粗陶 · 陈美林"),
-    ("speckled-breakfast-bowl", "Speckled Breakfast Bowl", "Stoneware · Chen Meilin", "斑驳星点粗陶晨食碗", "粗陶 · 陈美林"),
+    ("hand-thrown-stoneware-mug", "Hand-thrown Stoneware Mug", "Stoneware · Chen Meilin", "粗陶马克杯", "粗陶 · 陈美林"),
+    ("speckled-breakfast-bowl", "Speckled Breakfast Bowl", "Stoneware · Chen Meilin", "斑点早餐碗", "粗陶 · 陈美林"),
     ("ceramic-pour-over-dripper", "Ceramic Pour-Over Dripper", "Porcelain · Chen Meilin", "手工白瓷滤杯", "景德镇高白瓷 · 陈美林"),
     ("ash-glazed-dinner-plate", "Ash-Glazed Dinner Plate", "Stoneware · Chen Meilin", "灰釉餐盘", "粗陶 · 陈美林"),
     ("stoneware-serving-platter", "Stoneware Serving Platter", "Stoneware · Chen Meilin", "炻器餐盘", "粗陶 · 陈美林"),
     ("matte-ceramic-vase", "Matte Ceramic Vase", "Stoneware · Chen Meilin", "哑光陶瓷花瓶", "粗陶 · 陈美林"),
     ("tea-cup-set-of-two", "Tea Cup Set of Two", "Porcelain · Chen Meilin", "双人茶杯套装", "景德镇高白瓷 · 陈美林"),
-    ("linen-market-tote", "Linen Market Tote", "Washed linen · Ye Ruolan", "水洗亚麻托特包", "水洗亚麻 · 叶若兰"),
+    ("linen-market-tote", "Linen Market Tote", "Washed linen · Ye Ruolan", "亚麻购物包", "水洗亚麻 · 叶若兰"),
     ("woven-cotton-throw", "Woven Cotton Throw", "Handwoven cotton · Lu Wenjing", "手织纯棉四季毯", "手织棉 · 陆文静"),
-    ("linen-cushion-cover", "Linen Cushion Cover", "Washed linen · Ye Ruolan", "亚麻靠垫套", "水洗亚麻 · 叶若兰"),
+    ("linen-cushion-cover", "Linen Cushion Cover", "Washed linen · Ye Ruolan", "亚麻抱枕套", "水洗亚麻 · 叶若兰"),
     ("stonewashed-table-runner", "Stonewashed Table Runner", "Washed linen · Ye Ruolan", "石洗亚麻桌旗", "水洗亚麻 · 叶若兰"),
     ("hand-loomed-tea-towel", "Hand-loomed Tea Towel", "Cotton & linen · Lu Wenjing", "手织茶巾", "棉与亚麻 · 陆文静"),
     ("quilted-linen-apron", "Quilted Linen Apron", "Washed linen · Ye Ruolan", "绗缝亚麻围裙", "水洗亚麻 · 叶若兰"),
@@ -4152,7 +4152,7 @@ class OrderDisplayLocalizationTests(SimpleTestCase):
                     self.assertIn('href="/account/orders/AF-2026-000071/"', html)
                 if template_name.endswith(("order_confirmation.html", "order_detail.html")):
                     self.assertIn('href="/products/hand-thrown-stoneware-mug/"', html)
-                    self.assertIn("手作粗陶马克杯" if chinese else "Hand-thrown Stoneware Mug", html)
+                    self.assertIn("粗陶马克杯" if chinese else "Hand-thrown Stoneware Mug", html)
                     self.assertIn("白胚" if chinese else "Bone", html)
                     self.assertIn("Custom &lt;engraved&gt;", html)
                     self.assertIn("Bone &lt;special&gt;", html)
@@ -4161,7 +4161,7 @@ class OrderDisplayLocalizationTests(SimpleTestCase):
                     self.assertIn("1 Studio Road", html)
                     self.assertIn("Singapore 123456", html)
                 if template_name == "frontend/account/orders.html":
-                    self.assertIn('alt="手作粗陶马克杯"' if chinese
+                    self.assertIn('alt="粗陶马克杯"' if chinese
                                   else 'alt="Hand-thrown Stoneware Mug"', html)
                 if template_name == "frontend/order_confirmation.html":
                     self.assertIn("<strong>已支付</strong>" if chinese
@@ -4554,7 +4554,7 @@ class RecommendationAndOrderCountLocalizationTests(SimpleTestCase):
                     if language == "zh-hans":
                         title, eyebrow = (("猜你喜欢", "根据这件作品推荐")
                                           if page == "product_detail" else ("为您推荐", "为您精选"))
-                        names = ["Custom piece", "手作粗陶马克杯", "Engraved mug"]
+                        names = ["Custom piece", "粗陶马克杯", "Engraved mug"]
                         self.assertIsNot(result["recommendations"][1], seeded)
                     else:
                         title, eyebrow = (("You may also like", "Based on this piece")
@@ -4607,7 +4607,7 @@ class RecommendationAndOrderCountLocalizationTests(SimpleTestCase):
                 html = get_template("frontend/components/recommendations.html").render(result)
             self.assertIn("<h2>猜你喜欢</h2>" if language == "zh-hans"
                           else "<h2>You may also like</h2>", html)
-            self.assertIn("手作粗陶马克杯" if language == "zh-hans" else "Hand-thrown Stoneware Mug", html)
+            self.assertIn("粗陶马克杯" if language == "zh-hans" else "Hand-thrown Stoneware Mug", html)
             self.assertIn('href="/products/hand-thrown-stoneware-mug/"', html)
             self.assertIn(f'{settings.COMMERCE["CURRENCY_SYMBOL"]}42', html)
             self.assertEqual(product.name, "Hand-thrown Stoneware Mug")

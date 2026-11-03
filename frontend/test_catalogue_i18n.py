@@ -61,10 +61,10 @@ from frontend.templatetags.frontend_extras import colour_label, stock_label
 
 # Approved Chinese copy is fixed here, independent of the runtime translation source.
 CATEGORY_EXPECTED = (
-    ('ceramics', '陶器', '逐件拉坯、修整与烧制。', '为餐桌而作的炻器与瓷器，来自景德镇的一间工作室。泥料取自一小时车程外，釉料则由灰烬与铁调配而成。颜色与器口会有细微差异，那是手作留下的痕迹，而非瑕疵。'),
-    ('textiles', '织物', '经编织、染色与水洗，直至柔软。', '亚麻与手织棉布，以云南种植的蓝靛染色，并经过处理，不会以僵硬的状态抵达。适合每日使用，也经得起频繁清洗。'),
-    ('home', '家居', '为房间里安静的角落而作。', '蜡烛每批浇注四十支，木板取自回收的庭院梁木，黄铜则有意让它逐渐变深。这些小物件虽不大，却比尺寸所暗示的更能改变房间的气息。'),
-    ('gifts', '礼品', '以本色纸与棉绳包裹。', '适合作为礼物寄送的作品，手工装盒，并附有可在结算时书写的卡片。这里的任何东西都不会以塑料密封。'),
+    ('ceramics', '陶艺器皿', '揉泥、拉坯与慢火烘焙，将手心的温度凝固成陪伴一日三餐的日常器物。', '为餐桌而作的炻器与瓷器，来自景德镇的一间工作室。泥料取自一小时车程外，釉料则由灰烬与铁调配而成。颜色与器口会有细微差异，那是手作留下的痕迹，而非瑕疵。'),
+    ('textiles', '织物软装', '天然草木慢染，柔软包裹四季，随岁月沉淀温润的触感。', '亚麻与手织棉布，以云南种植的蓝靛染色，并经过处理，不会以僵硬的状态抵达。适合每日使用，也经得起频繁清洗。'),
+    ('home', '日常居所', '伫立于居室一角的实用静物，滋养清雅安宁的生活意趣。', '蜡烛每批浇注四十支，木板取自回收的庭院梁木，黄铜则有意让它逐渐变深。这些小物件虽不大，却比尺寸所暗示的更能改变房间的气息。'),
+    ('gifts', '心意礼赠', '以朴素的原纸与纯棉绳细心包裹，将诚挚的祝福奉送给珍重之人。', '适合作为礼物寄送的作品，手工装盒，并附有可在结算时书写的卡片。这里的任何东西都不会以塑料密封。'),
 )
 
 EDITORIAL_EXPECTED = (
@@ -74,36 +74,36 @@ EDITORIAL_EXPECTED = (
 )
 
 PRODUCT_EXPECTED = (
-    ("hand-thrown-stoneware-mug", "Hand-thrown Stoneware Mug", "Stoneware · Chen Meilin", "手拉炻器马克杯", "炻器 · 陈梅琳"),
-    ("speckled-breakfast-bowl", "Speckled Breakfast Bowl", "Stoneware · Chen Meilin", "斑点早餐碗", "炻器 · 陈梅琳"),
-    ("ceramic-pour-over-dripper", "Ceramic Pour-Over Dripper", "Porcelain · Chen Meilin", "陶瓷手冲滤杯", "瓷器 · 陈梅琳"),
-    ("ash-glazed-dinner-plate", "Ash-Glazed Dinner Plate", "Stoneware · Chen Meilin", "灰釉餐盘", "炻器 · 陈梅琳"),
-    ("stoneware-serving-platter", "Stoneware Serving Platter", "Stoneware · Chen Meilin", "炻器餐盘", "炻器 · 陈梅琳"),
-    ("matte-ceramic-vase", "Matte Ceramic Vase", "Stoneware · Chen Meilin", "哑光陶瓷花瓶", "炻器 · 陈梅琳"),
-    ("tea-cup-set-of-two", "Tea Cup Set of Two", "Porcelain · Chen Meilin", "双人茶杯套装", "瓷器 · 陈梅琳"),
-    ("linen-market-tote", "Linen Market Tote", "Washed linen · Ye Ruolan", "亚麻购物袋", "水洗亚麻 · 叶若兰"),
-    ("woven-cotton-throw", "Woven Cotton Throw", "Handwoven cotton · Lu Wenjing", "手织棉盖毯", "手织棉 · 陆文静"),
+    ("hand-thrown-stoneware-mug", "Hand-thrown Stoneware Mug", "Stoneware · Chen Meilin", "手作粗陶马克杯", "粗陶 · 陈美林"),
+    ("speckled-breakfast-bowl", "Speckled Breakfast Bowl", "Stoneware · Chen Meilin", "斑驳星点粗陶晨食碗", "粗陶 · 陈美林"),
+    ("ceramic-pour-over-dripper", "Ceramic Pour-Over Dripper", "Porcelain · Chen Meilin", "手工白瓷滤杯", "景德镇高白瓷 · 陈美林"),
+    ("ash-glazed-dinner-plate", "Ash-Glazed Dinner Plate", "Stoneware · Chen Meilin", "灰釉餐盘", "粗陶 · 陈美林"),
+    ("stoneware-serving-platter", "Stoneware Serving Platter", "Stoneware · Chen Meilin", "炻器餐盘", "粗陶 · 陈美林"),
+    ("matte-ceramic-vase", "Matte Ceramic Vase", "Stoneware · Chen Meilin", "哑光陶瓷花瓶", "粗陶 · 陈美林"),
+    ("tea-cup-set-of-two", "Tea Cup Set of Two", "Porcelain · Chen Meilin", "双人茶杯套装", "景德镇高白瓷 · 陈美林"),
+    ("linen-market-tote", "Linen Market Tote", "Washed linen · Ye Ruolan", "水洗亚麻托特包", "水洗亚麻 · 叶若兰"),
+    ("woven-cotton-throw", "Woven Cotton Throw", "Handwoven cotton · Lu Wenjing", "手织纯棉四季毯", "手织棉 · 陆文静"),
     ("linen-cushion-cover", "Linen Cushion Cover", "Washed linen · Ye Ruolan", "亚麻靠垫套", "水洗亚麻 · 叶若兰"),
     ("stonewashed-table-runner", "Stonewashed Table Runner", "Washed linen · Ye Ruolan", "石洗亚麻桌旗", "水洗亚麻 · 叶若兰"),
     ("hand-loomed-tea-towel", "Hand-loomed Tea Towel", "Cotton & linen · Lu Wenjing", "手织茶巾", "棉与亚麻 · 陆文静"),
     ("quilted-linen-apron", "Quilted Linen Apron", "Washed linen · Ye Ruolan", "绗缝亚麻围裙", "水洗亚麻 · 叶若兰"),
-    ("soy-wax-studio-candle", "Soy Wax Studio Candle", "Soy & rapeseed wax · Xu Anying", "大豆蜡工作室香薰蜡烛", "大豆蜡与菜籽蜡 · 徐安莹"),
-    ("handmade-incense-holder", "Handmade Incense Holder", "Stoneware · Chen Meilin", "手作香座", "炻器 · 陈梅琳"),
+    ("soy-wax-studio-candle", "Soy Wax Studio Candle", "Soy & rapeseed wax · Xu Anying", "特调大豆蜡香氛蜡烛", "大豆蜡与菜籽蜡 · 徐安迎"),
+    ("handmade-incense-holder", "Handmade Incense Holder", "Stoneware · Chen Meilin", "手作香座", "粗陶 · 陈美林"),
     ("olive-wood-serving-board", "Olive Wood Serving Board", "Reclaimed timber · Zhao Hesheng", "橄榄木餐板", "再生木料 · 赵和生"),
     ("brass-oak-candle-snuffer", "Brass & Oak Candle Snuffer", "Brass & oak · Zhao Hesheng", "黄铜橡木烛剪", "黄铜与橡木 · 赵和生"),
     ("rattan-storage-basket", "Rattan Storage Basket", "Woven rattan · Lu Wenjing", "藤编收纳篮", "藤编 · 陆文静"),
-    ("ceramic-ring-dish", "Ceramic Ring Dish", "Porcelain · Chen Meilin", "陶瓷首饰盘", "瓷器 · 陈梅琳"),
+    ("ceramic-ring-dish", "Ceramic Ring Dish", "Porcelain · Chen Meilin", "陶瓷首饰盘", "景德镇高白瓷 · 陈美林"),
     ("studio-gift-set", "Studio Gift Set", "Three pieces, wrapped · Multiple makers", "工作室礼品套装", "三件作品，手工包裹 · 多位匠人"),
-    ("beeswax-taper-pair", "Beeswax Taper Pair", "Pure beeswax · Xu Anying", "蜂蜡长烛一对", "纯蜂蜡 · 徐安莹"),
+    ("beeswax-taper-pair", "Beeswax Taper Pair", "Pure beeswax · Xu Anying", "蜂蜡长烛一对", "纯蜂蜡 · 徐安迎"),
 )
 
 PRODUCT_DETAIL_EXPECTED = (
-    ("hand-thrown-stoneware-mug", "A mug with a little weight to it, thrown to sit low in the hand. The glaze pools slightly where the wall meets the base, so the colour is never quite even across a set.", "Meilin threw the first of these for herself, then kept making them because visitors to the studio would not put them down. The handle is pulled by hand rather than cast, which is why the curve is a fraction different on every one.", "一只略有分量的马克杯，拉坯成低矮杯身，握在手中安稳贴合。釉料会在杯壁与杯底交接处略微积聚，因此同一套杯子的色泽也不会完全一致。", "梅琳最初为自己拉坯制作了这只杯子，后来到访工作室的人总是爱不释手，她便一直做了下去。杯把由手工拉制而非模具浇铸，因此每一只的弧度都会有细微差异。"),
-    ("speckled-breakfast-bowl", "Wide enough for oats and deep enough for soup. The iron in the clay breaks through the glaze as fine dark flecks during firing.", "The speckle is not added. It is iron already present in the local clay, which surfaces only above 1250°C -- a firing Meilin holds for nine hours.", "宽度足以盛燕麦粥，深度也适合盛汤。烧制时，陶土中的铁质会透过釉面，形成细小的深色斑点。", "斑点并非额外添加，而是当地陶土中原有的铁质，在温度超过 1250°C 时才会显现；梅琳会将这一烧制温度保持九小时。"),
-    ("ceramic-pour-over-dripper", "A single-piece dripper with three ribs turned into the cone, so water moves evenly through the bed rather than channelling down one side.", "Six prototypes went into the angle of the cone. Meilin brewed on every one of them for a fortnight before settling on this shape.", "一体成型的滤杯，锥形内壁设有三道导流凸棱，让水流均匀通过咖啡粉层，避免沿一侧集中流下。", "为了确定锥体角度，前后做了六个原型。梅琳连续两周用这六个原型逐一冲煮测试，最终才选定现在的形状。"),
+    ("hand-thrown-stoneware-mug", "A mug with a little weight to it, thrown to sit low in the hand. The glaze pools slightly where the wall meets the base, so the colour is never quite even across a set.", "Meilin threw the first of these for herself, then kept making them because visitors to the studio would not put them down. The handle is pulled by hand rather than cast, which is why the curve is a fraction different on every one.", "一只略有分量的马克杯，拉坯成低矮杯身，握在手中安稳贴合。釉料会在杯壁与杯底交接处略微积聚，因此同一套杯子的色泽也不会完全一致。", "美林最初为自己拉坯制作了这只杯子，后来到访工作室的人总是爱不释手，她便一直做了下去。杯把由手工拉制而非模具浇铸，因此每一只的弧度都会有细微差异。"),
+    ("speckled-breakfast-bowl", "Wide enough for oats and deep enough for soup. The iron in the clay breaks through the glaze as fine dark flecks during firing.", "The speckle is not added. It is iron already present in the local clay, which surfaces only above 1250°C -- a firing Meilin holds for nine hours.", "宽度足以盛燕麦粥，深度也适合盛汤。烧制时，陶土中的铁质会透过釉面，形成细小的深色斑点。", "斑点并非额外添加，而是当地陶土中原有的铁质，在温度超过 1250°C 时才会显现；美林会将这一烧制温度保持九小时。"),
+    ("ceramic-pour-over-dripper", "A single-piece dripper with three ribs turned into the cone, so water moves evenly through the bed rather than channelling down one side.", "Six prototypes went into the angle of the cone. Meilin brewed on every one of them for a fortnight before settling on this shape.", "一体成型的滤杯，锥形内壁设有三道导流凸棱，让水流均匀通过咖啡粉层，避免沿一侧集中流下。", "为了确定锥体角度，前后做了六个原型。美林连续两周用这六个原型逐一冲煮测试，最终才选定现在的形状。"),
     ("ash-glazed-dinner-plate", "A everyday plate with a low, generous rim. The ash glaze moves in the kiln, so the edge is usually a shade lighter than the well.", "The glaze is mixed from ash swept out of the studio's own kiln -- a practice old enough in Jingdezhen that nobody there thinks of it as unusual.", "一只适合日常使用的餐盘，盘沿低而宽。灰釉在窑中流动，因此边缘通常比盘心浅一个色调。", "釉料由工作室自家窑炉中清扫出的灰烬调制而成——这项做法在景德镇由来已久，当地人并不觉得稀奇。"),
-    ("stoneware-serving-platter", "An oval platter for bread, roasted vegetables or a whole fish. Thrown, then pressed gently out of round while still soft.", "Made only in small runs, when the large kiln is fired. Meilin will not fire it half empty, so these appear a few times a year.", "椭圆形餐盘，适合盛放面包、烤蔬菜或整条鱼。先拉坯成型，再趁陶土尚软时轻轻压成略不规则的形状。", "只有在大型窑炉烧制时才会小批量制作。梅琳不会让窑炉半空着烧，因此这种餐盘一年只会出现几次。"),
-    ("matte-ceramic-vase", "A tall, narrow-necked vase that holds a few stems upright without propping. Matte outside, glossed inside so it holds water.", "Meilin keeps one on the windowsill of the studio with whatever is in season. Most of the year that means a single branch.", "高挑的细颈花瓶，无需支撑便能让几枝花材直立。外壁为哑光质感，内壁施亮釉，可以盛水。", "梅琳在工作室窗台上放着一只，插上当季的花材。一年中的大部分时候，那意味着一根枝条。"),
+    ("stoneware-serving-platter", "An oval platter for bread, roasted vegetables or a whole fish. Thrown, then pressed gently out of round while still soft.", "Made only in small runs, when the large kiln is fired. Meilin will not fire it half empty, so these appear a few times a year.", "椭圆形餐盘，适合盛放面包、烤蔬菜或整条鱼。先拉坯成型，再趁陶土尚软时轻轻压成略不规则的形状。", "只有在大型窑炉烧制时才会小批量制作。美林不会让窑炉半空着烧，因此这种餐盘一年只会出现几次。"),
+    ("matte-ceramic-vase", "A tall, narrow-necked vase that holds a few stems upright without propping. Matte outside, glossed inside so it holds water.", "Meilin keeps one on the windowsill of the studio with whatever is in season. Most of the year that means a single branch.", "高挑的细颈花瓶，无需支撑便能让几枝花材直立。外壁为哑光质感，内壁施亮釉，可以盛水。", "美林在工作室窗台上放着一只，插上当季的花材。一年中的大部分时候，那意味着一根枝条。"),
     ("tea-cup-set-of-two", "Two handleless cups, thin at the lip and thicker at the base. Pale celadon that shifts towards green where the glaze gathers.", "Thrown in pairs and fired side by side, so the two cups in a set carry the same marks from the same corner of the kiln.", "两只无柄茶杯，杯口较薄，杯底较厚。淡青瓷釉在釉料积聚处会呈现更深的绿色。", "成对拉坯，并排烧制，因此一套中的两只杯子会留下来自窑炉同一角落的相同痕迹。"),
     ("linen-market-tote", "A flat-bottomed tote in heavyweight linen, with an inside pocket and handles long enough to carry over a shoulder.", "Ruolan made the first one because nothing she owned would hold a week of vegetables and still look like something she wanted to carry.", "采用厚实亚麻制成的平底托特包，设有内袋，提手长度足以肩背。", "若兰之所以做出第一只，是因为她手头没有一款包，既能装下一周采购的蔬菜，又好看得让她愿意随身携带。"),
     ("woven-cotton-throw", "Woven in two panels and joined by hand down the centre. Heavy enough for a bed, soft enough for a chair.", "Wenjing dips the yarn before it is ever woven, which is why the colour sits inside the cloth rather than on it, and deepens rather than fades.", "由两幅织片拼成，中间以手工缝合。厚实得可铺在床上，也柔软得适合搭在椅上。", "文静在织造之前就将纱线浸染，因此色彩深入织物内部而非停留在表面，并会随着使用加深而不是褪去。"),
@@ -111,8 +111,8 @@ PRODUCT_DETAIL_EXPECTED = (
     ("stonewashed-table-runner", "A long runner with a deep hand-turned hem. Creases readily, which is rather the point.", "Ruolan does not press these flat before packing. A runner that arrives perfectly smooth, she says, has been finished by a machine.", "一条长桌旗，饰有宽大的手工折边。它很容易留下褶皱，而这正是设计的本意。", "若兰在包装前不会把它们熨平。她说，一条到手时平整无痕的桌旗，是机器加工出来的。"),
     ("hand-loomed-tea-towel", "Loosely woven so it dries fast, with a hanging loop set into the corner. Gets better with washing.", "Woven on the narrow loom Wenjing keeps for offcuts, using yarn left over from the throws. No two runs are quite the same colour.", "织法疏松，干得快，角落设有挂环。越洗越好用。", "使用文静专门处理余料的窄幅织机织成，纱线来自盖毯制作剩余的材料。每一批的颜色都不完全相同。"),
     ("quilted-linen-apron", "A cross-back apron with a lightly quilted front panel and two deep pockets. Adjustable at the neck, ties at the waist.", "Designed with a baker in Hangzhou who wanted something that would take flour, heat and a hot pan handle without falling apart in a year.", "交叉背带式围裙，前片带轻薄绗缝，设有两个深口袋。颈带可调节，腰间系带固定。", "与杭州的一位烘焙师共同设计；她想要一件能经受面粉、高温和滚烫锅柄，又不会在一年内散架的围裙。"),
-    ("soy-wax-studio-candle", "Cedar, dry earth and a little green fig. Poured into a stoneware vessel worth keeping once the wax is gone.", "Anying built this scent around the smell of her workshop after rain -- wet stone, cut wood, and the fig tree in the courtyard next door.", "雪松、干燥泥土与一丝青无花果的香气。蜡烛浇注在炻器容器中，蜡燃尽后仍值得继续使用。", "安莹以雨后工作室的气味为灵感调制这款香气——潮湿的石头、切开的木材，以及隔壁庭院里的无花果树。"),
-    ("handmade-incense-holder", "A shallow dish with an off-centre hole, sized for standard incense sticks. Unglazed outside so it keeps a little grip on the table.", "Meilin makes these from the clay left at the end of a throwing session -- too little for a bowl, exactly enough for one of these.", "浅盘设有偏离中心的小孔，适配标准线香。外壁不施釉，与桌面接触时能增加一些摩擦力。", "梅琳用每次拉坯结束时剩下的陶土制作这些香座——做一只碗太少，做一个香座却刚刚好。"),
+    ("soy-wax-studio-candle", "Cedar, dry earth and a little green fig. Poured into a stoneware vessel worth keeping once the wax is gone.", "Anying built this scent around the smell of her workshop after rain -- wet stone, cut wood, and the fig tree in the courtyard next door.", "雪松、干燥泥土与一丝青无花果的香气。蜡烛浇注在炻器容器中，蜡燃尽后仍值得继续使用。", "安迎以雨后工作室的气味为灵感调制这款香气——潮湿的石头、切开的木材，以及隔壁庭院里的无花果树。"),
+    ("handmade-incense-holder", "A shallow dish with an off-centre hole, sized for standard incense sticks. Unglazed outside so it keeps a little grip on the table.", "Meilin makes these from the clay left at the end of a throwing session -- too little for a bowl, exactly enough for one of these.", "浅盘设有偏离中心的小孔，适配标准线香。外壁不施釉，与桌面接触时能增加一些摩擦力。", "美林用每次拉坯结束时剩下的陶土制作这些香座——做一只碗太少，做一个香座却刚刚好。"),
     ("olive-wood-serving-board", "A long board with a shaped handle and a lip cut into the underside so it lifts easily off a flat table.", "Cut from beams salvaged during the restoration of a Huizhou courtyard house. The grain, and occasionally an old nail hole, comes with the timber.", "一块带造型手柄的长餐板，底部切出一道托边，方便从平坦桌面上拿起。", "取材自修复一座徽州院落时回收的梁木。木纹，以及偶尔可见的旧钉孔，都是木材本身留下的痕迹。"),
     ("brass-oak-candle-snuffer", "An unlacquered brass bell on a turned oak handle. The brass will darken with handling, which is how it is meant to go.", "Hesheng turns the handles from oak offcuts and has the bells spun by a metalworker he has used for eleven years.", "旋制橡木手柄上装有一只未上漆的黄铜钟罩。黄铜会随着触摸逐渐变暗，这正是它应有的变化。", "和生用橡木余料车制手柄，钟罩则由一位与他合作了十一年的金工匠人旋压成型。"),
     ("rattan-storage-basket", "A deep round basket with soft rope handles, woven closely enough to hold its shape when empty.", "Woven by a group of five weavers in a village outside Dali, in the weeks between planting and harvest.", "深圆形篮筐配柔软绳把手，编织紧密，即使空着也能保持形状。", "由大理郊外一个村庄的五位编织匠人在播种与收获之间的农闲时节编成。"),
@@ -164,14 +164,14 @@ EXTRA_COLLECTIONS_BEFORE_MOVE = ({'slug': 'quiet-mornings',
 
 # Approved maker copy is fixed here, independent of the runtime translation source.
 MAKER_EXPECTED = ({'slug': 'chen-meilin',
-  'name': ('Chen Meilin', '陈梅琳'),
-  'discipline': ('Ceramicist', '陶艺师'),
+  'name': ('Chen Meilin', '陈美林'),
+  'discipline': ('Ceramicist', '陶瓷艺术家'),
   'location': ('Jingdezhen, Jiangxi', '江西景德镇'),
-  'tagline': ('Porcelain thrown thin enough to hold the light.', '薄到足以承托光线的瓷器。'),
+  'tagline': ('Porcelain thrown thin enough to hold the light.', '薄胎如玉，迎光而润。'),
   'biography': (('Meilin trained for six years under a Jingdezhen master before opening a small '
                  'studio on the eastern edge of the old kiln district. She works almost entirely '
                  'in local porcelain stone, quarried an hour from her door.',
-                 '梅琳曾在景德镇一位陶艺大师门下学习六年，之后在古窑区东侧开设了一间小工作室。她几乎只使用本地瓷石，泥料取自离工作室一小时车程的地方。'),
+                 '美林曾在景德镇一位陶艺大师门下学习六年，之后在古窑区东侧开设了一间小工作室。她几乎只使用本地瓷石，泥料取自离工作室一小时车程的地方。'),
                 ('Her forms are quiet and slightly imperfect by design. A rim that dips a little, '
                  'a foot left unglazed so you can read the clay -- these are the marks she leaves '
                  'on purpose, and the reason no two pieces are alike.',
@@ -186,9 +186,9 @@ MAKER_EXPECTED = ({'slug': 'chen-meilin',
                '以 1280°C 进行一次燃气烧制，窑炉缓慢冷却两天。'))},
  {'slug': 'lu-wenjing',
   'name': ('Lu Wenjing', '陆文静'),
-  'discipline': ('Weaver & natural dyer', '织工与天然染色师'),
+  'discipline': ('Weaver & natural dyer', '织染手艺人'),
   'location': ('Dali, Yunnan', '云南大理'),
-  'tagline': ('Indigo that deepens with every wash.', '每一次清洗，靛蓝都更深一层。'),
+  'tagline': ('Indigo that deepens with every wash.', '蓼蓝深蕴，历久弥新。'),
   'biography': (('Wenjing learned to dye from her grandmother, who kept an indigo vat behind the '
                  'family house in Dali. She now grows her own indigo and works with three '
                  'neighbouring households during the harvest.',
@@ -226,14 +226,14 @@ MAKER_EXPECTED = ({'slug': 'chen-meilin',
               ('Finished in food-safe linseed oil, reapplied three times over a week.',
                '使用食品级亚麻籽油完成表面处理，一周内重复涂刷三次。'))},
  {'slug': 'xu-anying',
-  'name': ('Xu Anying', '徐安莹'),
+  'name': ('Xu Anying', '徐安迎'),
   'discipline': ('Candlemaker & perfumer', '制烛师与调香师'),
   'location': ('Suzhou, Jiangsu', '江苏苏州'),
   'tagline': ('Scent built the way a garden is planted.', '像栽种花园一样构筑香气。'),
   'biography': (('Anying studied classical Chinese garden design before training in perfumery. She '
                  'thinks about a scent the way she was taught to think about a courtyard: what you '
                  'meet first, and what you find later.',
-                 '安莹曾学习中国古典园林设计，之后接受调香训练。她以设计庭院的方式思考香气：首先遇见什么，之后又会发现什么。'),
+                 '安迎曾学习中国古典园林设计，之后接受调香训练。她以设计庭院的方式思考香气：首先遇见什么，之后又会发现什么。'),
                 ('She pours in batches of forty, by hand, in a converted ground-floor workshop '
                  'near the canal. Each batch is left to cure for two weeks before a wick is ever '
                  'lit.',
@@ -1453,10 +1453,10 @@ class ShopLabelLocalizationTests(SimpleTestCase):
 
 class ColourAndMaterialLocalizationTests(SimpleTestCase):
     COLOURS = {
-        "Bone": "骨白", "Ash": "灰烬", "Clay": "泥土", "Olive": "橄榄绿",
-        "Sand": "沙色", "Smoke": "烟灰", "Natural": "本色", "Indigo": "靛蓝",
-        "Rust": "铁锈红", "Ink": "墨色", "Cedar & Fig": "雪松与无花果",
-        "Wild Grass": "野草", "Smoked Cypress": "烟熏柏木",
+        "Bone": "白胚", "Ash": "灰烬", "Clay": "陶土", "Olive": "草青",
+        "Sand": "沙色", "Smoke": "烟灰", "Natural": "本白", "Indigo": "蓼蓝",
+        "Rust": "铁锈红", "Ink": "墨色", "Cedar & Fig": "雪松无花果",
+        "Wild Grass": "原野青草", "Smoked Cypress": "烟熏扁柏",
     }
     MATERIALS = {
         "Stoneware": "炻器", "Porcelain": "瓷器", "Linen": "亚麻",
@@ -1549,7 +1549,7 @@ class ColourAndMaterialLocalizationTests(SimpleTestCase):
             {"value": "Custom Blue", "label": "Custom Blue", "swatch": "#123456"},
         ])
         self.assertEqual(chinese["colours"], [
-            {"value": "Bone", "label": "骨白", "swatch": "#EFE7DA"},
+            {"value": "Bone", "label": "白胚", "swatch": "#EFE7DA"},
             {"value": "Custom Blue", "label": "Custom Blue", "swatch": "#123456"},
         ])
 
@@ -1561,13 +1561,13 @@ class ColourAndMaterialLocalizationTests(SimpleTestCase):
                     SimpleNamespace(label="Olive", swatch="#6F7757", available=False)]
         with translation.override("zh-hans"):
             html = template.render(Context({"colours": variants}))
-        self.assertIn("data-variant-value>骨白</span>", html)
+        self.assertIn("data-variant-value>白胚</span>", html)
         self.assertIn('data-variant="Bone"', html)
-        self.assertIn('data-display-label="骨白"', html)
-        self.assertIn('aria-label="骨白"', html)
+        self.assertIn('data-display-label="白胚"', html)
+        self.assertIn('aria-label="白胚"', html)
         self.assertIn('data-variant="Olive"', html)
-        self.assertIn('data-display-label="橄榄绿"', html)
-        self.assertIn('aria-label="橄榄绿 — 已售罄"', html)
+        self.assertIn('data-display-label="草青"', html)
+        self.assertIn('aria-label="草青 — 已售罄"', html)
         size_section = source.split("{% if sizes %}", 1)[1].split("{% endwith %}", 1)[0]
         size_template = Template("{% load i18n frontend_extras %}{% if sizes %}" + size_section)
         size_html = size_template.render(Context({"sizes": [SimpleNamespace(label="45 cm", available=True)]}))
@@ -1592,14 +1592,14 @@ class ColourAndMaterialLocalizationTests(SimpleTestCase):
             return serializer.get_variant_label(item), item.variant.label
 
         with translation.override("en"):
-            self.assertEqual(display("colour", "Bone", "zh-hans"), ("骨白", "Bone"))
-            self.assertEqual(display("colour", "Bone", "zh-cn"), ("骨白", "Bone"))
+            self.assertEqual(display("colour", "Bone", "zh-hans"), ("白胚", "Bone"))
+            self.assertEqual(display("colour", "Bone", "zh-cn"), ("白胚", "Bone"))
         with translation.override("zh-hans"):
             self.assertEqual(display("colour", "Bone", "en"), ("Bone", "Bone"))
             self.assertEqual(display("colour", "Home", "zh-hans"), ("Home", "Home"))
             self.assertEqual(display("size", "Bone", "zh-hans"), ("Bone", "Bone"))
             self.assertEqual(display("finish", "Ash", "zh-hans"), ("Ash", "Ash"))
-        self.assertEqual(display("colour", "Bone", "zh-hans"), ("骨白", "Bone"))
+        self.assertEqual(display("colour", "Bone", "zh-hans"), ("白胚", "Bone"))
         self.assertIn("variant_uuid", CartItemSerializer().fields)
 
 
@@ -1613,7 +1613,7 @@ ARTICLE_EXPECTED = (
         ),
         "category": ("Craft", "工艺"),
         "read_time": ("6 min", "6 分钟"),
-        "author": ("Chen Meilin", "陈梅琳"),
+        "author": ("Chen Meilin", "陈美林"),
         "date": ("12 August 2026", "2026年8月12日"),
         "image": "journal-why-no-two-glazes-match",
         "featured": True,
@@ -1635,7 +1635,7 @@ ARTICLE_EXPECTED = (
             "Lu Wenjing keeps four fermenting vats behind her house. Feeding them is a weekly job that has no shortcut.",
             "陆文静在家后院养着四口发酵染缸，每周照料，没有捷径。",
         ),
-        "category": ("Makers", "匠人"),
+        "category": ("Makers", "驻店匠人"),
         "read_time": ("8 min", "8 分钟"),
         "author": ("Atelier Form", "Atelier Form"),
         "date": ("29 July 2026", "2026年7月29日"),
@@ -2474,9 +2474,9 @@ PUBLIC_PAGE_TITLE_EXPECTED = {
         "shipping": "Shipping & Returns", "care": "Care Guide",
     },
     "zh-hans": {
-        "shop": "商店", "collections": "系列", "search": "搜索",
-        "story": "品牌故事", "makers": "匠人", "journal": "日志",
-        "contact": "联系", "faq": "常见问题",
+        "shop": "甄选商店", "collections": "系列探索", "search": "搜索",
+        "story": "品牌故事", "makers": "驻店匠人", "journal": "手作志",
+        "contact": "联络我们", "faq": "常见问题",
         "shipping": "配送与退货", "care": "保养指南",
     },
 }
@@ -2928,7 +2928,7 @@ class ReviewRatingAndSearchLocalizationTests(SimpleTestCase):
 
 POPULAR_SEARCH_EXPECTED = (
     ("Stoneware mug", "炻器马克杯"),
-    ("Indigo", "靛蓝"),
+    ("Indigo", "蓼蓝"),
     ("Candle", "蜡烛"),
     ("Linen", "亚麻"),
     ("Gifts under ¥50", "50 元以下的礼物"),
@@ -2937,8 +2937,8 @@ POPULAR_SEARCH_EXPECTED = (
 JAVASCRIPT_I18N_EXPECTED = {
     "genericError": ("Something went wrong.", "出了点问题，请重试。"),
     "searchProducts": ("Products", "商品"),
-    "searchCollections": ("Collections", "系列"),
-    "searchMakers": ("Makers", "匠人"),
+    "searchCollections": ("Collections", "系列探索"),
+    "searchMakers": ("Makers", "驻店匠人"),
     "searchArticles": ("Articles", "文章"),
     "searchNoResults": (
         "Nothing matched that. Try a material, a maker or a room.",
@@ -3657,7 +3657,7 @@ class CommerceAPIErrorLocalizationTests(SimpleTestCase):
         cart = self.cart_fixture()
         snapshots = [dict(item.variant.__dict__) for item in cart.items]
         english = ["Medium", "Large", "Bone", "45 cm", "60 cm", "Custom size", "Custom blue"]
-        chinese = ["中号", "大号", "骨白", "45 cm", "60 cm", "Custom size", "Custom blue"]
+        chinese = ["中号", "大号", "白胚", "45 cm", "60 cm", "Custom size", "Custom blue"]
         baseline = None
         for language in ("en", "zh-hans", "zh-cn", "en"):
             with (self.subTest(language=language), translation.override(language),
@@ -4083,7 +4083,7 @@ class OrderDisplayLocalizationTests(SimpleTestCase):
 
     def test_snapshot_variants_are_product_specific_and_preserve_custom_values(self):
         cases = (
-            ("hand-thrown-stoneware-mug", "Bone", "骨白"),
+            ("hand-thrown-stoneware-mug", "Bone", "白胚"),
             ("rattan-storage-basket", "Medium", "中号"),
             ("rattan-storage-basket", "Large", "大号"),
             ("linen-cushion-cover", "45 cm", "45 cm"),
@@ -4152,8 +4152,8 @@ class OrderDisplayLocalizationTests(SimpleTestCase):
                     self.assertIn('href="/account/orders/AF-2026-000071/"', html)
                 if template_name.endswith(("order_confirmation.html", "order_detail.html")):
                     self.assertIn('href="/products/hand-thrown-stoneware-mug/"', html)
-                    self.assertIn("手拉炻器马克杯" if chinese else "Hand-thrown Stoneware Mug", html)
-                    self.assertIn("骨白" if chinese else "Bone", html)
+                    self.assertIn("手作粗陶马克杯" if chinese else "Hand-thrown Stoneware Mug", html)
+                    self.assertIn("白胚" if chinese else "Bone", html)
                     self.assertIn("Custom &lt;engraved&gt;", html)
                     self.assertIn("Bone &lt;special&gt;", html)
                     self.assertIn(f'{settings.COMMERCE["CURRENCY_SYMBOL"]}84', html)
@@ -4161,7 +4161,7 @@ class OrderDisplayLocalizationTests(SimpleTestCase):
                     self.assertIn("1 Studio Road", html)
                     self.assertIn("Singapore 123456", html)
                 if template_name == "frontend/account/orders.html":
-                    self.assertIn('alt="手拉炻器马克杯"' if chinese
+                    self.assertIn('alt="手作粗陶马克杯"' if chinese
                                   else 'alt="Hand-thrown Stoneware Mug"', html)
                 if template_name == "frontend/order_confirmation.html":
                     self.assertIn("<strong>已支付</strong>" if chinese
@@ -4554,7 +4554,7 @@ class RecommendationAndOrderCountLocalizationTests(SimpleTestCase):
                     if language == "zh-hans":
                         title, eyebrow = (("猜你喜欢", "根据这件作品推荐")
                                           if page == "product_detail" else ("为您推荐", "为您精选"))
-                        names = ["Custom piece", "手拉炻器马克杯", "Engraved mug"]
+                        names = ["Custom piece", "手作粗陶马克杯", "Engraved mug"]
                         self.assertIsNot(result["recommendations"][1], seeded)
                     else:
                         title, eyebrow = (("You may also like", "Based on this piece")
@@ -4569,7 +4569,7 @@ class RecommendationAndOrderCountLocalizationTests(SimpleTestCase):
                     self.assertEqual(result["recommendations"][2].short_description, "Personal commission")
                     self.assertIs(result["recommendations"][0], custom)
                     self.assertEqual(result["recommendations"][1].short_description,
-                                     "炻器 · 陈梅琳" if language == "zh-hans"
+                                     "粗陶 · 陈美林" if language == "zh-hans"
                                      else "Stoneware · Chen Meilin")
                     for original, displayed in zip(originals, result["recommendations"]):
                         for field in ("pk", "slug", "price", "currency", "stock_quantity", "category_id"):
@@ -4607,7 +4607,7 @@ class RecommendationAndOrderCountLocalizationTests(SimpleTestCase):
                 html = get_template("frontend/components/recommendations.html").render(result)
             self.assertIn("<h2>猜你喜欢</h2>" if language == "zh-hans"
                           else "<h2>You may also like</h2>", html)
-            self.assertIn("手拉炻器马克杯" if language == "zh-hans" else "Hand-thrown Stoneware Mug", html)
+            self.assertIn("手作粗陶马克杯" if language == "zh-hans" else "Hand-thrown Stoneware Mug", html)
             self.assertIn('href="/products/hand-thrown-stoneware-mug/"', html)
             self.assertIn(f'{settings.COMMERCE["CURRENCY_SYMBOL"]}42', html)
             self.assertEqual(product.name, "Hand-thrown Stoneware Mug")

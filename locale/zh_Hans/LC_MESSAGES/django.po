@@ -10,13 +10,13 @@ msgstr ""
 
 #: .\frontend\mockdata\content.py:15
 msgid "Handmade for everyday moments."
-msgstr "手作之物，日常之用。"
+msgstr "指间匠作，温润日常。"
 
 #: .\frontend\mockdata\content.py:16
 msgid ""
 "Small-batch ceramics, textiles and homeware, made by hand by a short list of"
 " makers we know by name."
-msgstr "陶器、织物与器物，由五位我们熟识的匠人一件一件手工制成。"
+msgstr "陶器、织物与生活器皿，皆由我们熟识的五位匠人悉心手造。"
 
 #: .\frontend\mockdata\content.py:20
 msgid "Unit 4, Lane 210 Taikang Road, Huangpu, Shanghai"
@@ -24,18 +24,18 @@ msgstr "上海市黄浦区泰康路210弄4号"
 
 #: .\frontend\mockdata\content.py:21
 msgid "Studio visits by appointment · Tuesday to Saturday, 10am–6pm"
-msgstr "到访需预约 · 周二至周六 10:00–18:00"
+msgstr "工作室探访实行预约制 · 周一至周五 10:00–18:00"
 
 #: .\frontend\mockdata\content.py:26
 msgid "Complimentary delivery on orders above ¥80"
-msgstr "订单满 ¥80 免运费"
+msgstr "单笔订单满 ¥80 尊享顺丰免运"
 
 #: .\frontend\mockdata\content.py:32 .\frontend\mockdata\content.py:39
 #: .\frontend\templates\frontend\partials\mobile_nav.html:8
 #: .\frontend\templates\frontend\product\detail.html:12
 #: .\frontend\templates\frontend\shop\shop.html:7
 msgid "Shop"
-msgstr "商店"
+msgstr "甄选商店"
 
 #: .\frontend\mockdata\content.py:33
 #: .\frontend\templates\frontend\partials\mobile_nav.html:9
@@ -44,7 +44,7 @@ msgstr "商店"
 #: .\frontend\templates\frontend\shop\collections.html:7
 #: .\frontend\templates\frontend\shop\collections.html:10
 msgid "Collections"
-msgstr "系列"
+msgstr "系列探索"
 
 #: .\frontend\mockdata\content.py:34 .\frontend\mockdata\content.py:49
 #: .\frontend\templates\frontend\partials\mobile_nav.html:11
@@ -57,7 +57,7 @@ msgstr "品牌故事"
 #: .\frontend\templates\frontend\partials\mobile_nav.html:12
 #: .\frontend\templates\frontend\search\results.html:82
 msgid "Journal"
-msgstr "日志"
+msgstr "手作志"
 
 #: .\frontend\mockdata\content.py:40
 msgid "New Arrivals"
@@ -65,24 +65,24 @@ msgstr "新品"
 
 #: .\frontend\mockdata\content.py:41 .\frontend\mockdata\content.py:176
 msgid "Ceramics"
-msgstr "陶器"
+msgstr "陶艺器皿"
 
 #: .\frontend\mockdata\content.py:42 .\frontend\mockdata\content.py:190
 msgid "Textiles"
-msgstr "织物"
+msgstr "织物软装"
 
 #: .\frontend\mockdata\content.py:45
 msgctxt "category"
 msgid "Home"
-msgstr "家居"
+msgstr "日常居所"
 
 #: .\frontend\mockdata\content.py:46
 msgid "Gifts"
-msgstr "礼品"
+msgstr "心意礼赠"
 
 #: .\frontend\mockdata\collections.py:24
 msgid "Thrown, trimmed and fired one at a time."
-msgstr "逐件拉坯、修整与烧制。"
+msgstr "揉泥、拉坯与慢火烘焙，将手心的温度凝固成陪伴一日三餐的日常器物。"
 
 #: .\frontend\mockdata\collections.py:25
 msgid ""
@@ -95,7 +95,7 @@ msgstr ""
 
 #: .\frontend\mockdata\collections.py:35
 msgid "Woven, dyed and washed until they soften."
-msgstr "经编织、染色与水洗，直至柔软。"
+msgstr "天然草木慢染，柔软包裹四季，随岁月沉淀温润的触感。"
 
 #: .\frontend\mockdata\collections.py:36
 msgid ""
@@ -106,7 +106,7 @@ msgstr "亚麻与手织棉布，以云南种植的蓝靛染色，并经过处理
 
 #: .\frontend\mockdata\collections.py:45
 msgid "Objects for the quieter corners of a room."
-msgstr "为房间里安静的角落而作。"
+msgstr "伫立于居室一角的实用静物，滋养清雅安宁的生活意趣。"
 
 #: .\frontend\mockdata\collections.py:46
 msgid ""
@@ -117,7 +117,7 @@ msgstr "蜡烛每批浇注四十支，木板取自回收的庭院梁木，黄铜
 
 #: .\frontend\mockdata\collections.py:55
 msgid "Wrapped in unbleached paper and cotton string."
-msgstr "以本色纸与棉绳包裹。"
+msgstr "以朴素的原纸与纯棉绳细心包裹，将诚挚的祝福奉送给珍重之人。"
 
 #: .\frontend\mockdata\collections.py:56
 msgid ""
@@ -208,7 +208,7 @@ msgstr "现货供应"
 
 #: .\frontend\mockdata\products.py:54
 msgid "Bone"
-msgstr "骨白"
+msgstr "白胚"
 
 #: .\frontend\mockdata\products.py:54
 msgid "Ash"
@@ -216,11 +216,11 @@ msgstr "灰烬"
 
 #: .\frontend\mockdata\products.py:55
 msgid "Clay"
-msgstr "泥土"
+msgstr "陶土"
 
 #: .\frontend\mockdata\products.py:55
 msgid "Olive"
-msgstr "橄榄绿"
+msgstr "草青"
 
 #: .\frontend\mockdata\products.py:56
 msgid "Sand"
@@ -232,11 +232,11 @@ msgstr "烟灰"
 
 #: .\frontend\mockdata\products.py:58
 msgid "Natural"
-msgstr "本色"
+msgstr "本白"
 
 #: .\frontend\mockdata\products.py:57
 msgid "Indigo"
-msgstr "靛蓝"
+msgstr "蓼蓝"
 
 #: .\frontend\mockdata\products.py:57
 msgid "Rust"
@@ -248,15 +248,15 @@ msgstr "墨色"
 
 #: .\frontend\mockdata\products.py:250
 msgid "Cedar & Fig"
-msgstr "雪松与无花果"
+msgstr "雪松无花果"
 
 #: .\frontend\mockdata\products.py:251
 msgid "Wild Grass"
-msgstr "野草"
+msgstr "原野青草"
 
 #: .\frontend\mockdata\products.py:252
 msgid "Smoked Cypress"
-msgstr "烟熏柏木"
+msgstr "烟熏扁柏"
 
 #: .\backend\products\models.py:387
 msgid "Stoneware"
@@ -292,15 +292,15 @@ msgstr "蜡"
 
 #: .\frontend\mockdata\products.py:100
 msgid "Hand-thrown Stoneware Mug"
-msgstr "手拉炻器马克杯"
+msgstr "手作粗陶马克杯"
 
 #: .\frontend\mockdata\products.py:113
 msgid "Speckled Breakfast Bowl"
-msgstr "斑点早餐碗"
+msgstr "斑驳星点粗陶晨食碗"
 
 #: .\frontend\mockdata\products.py:124
 msgid "Ceramic Pour-Over Dripper"
-msgstr "陶瓷手冲滤杯"
+msgstr "手工白瓷滤杯"
 
 #: .\frontend\mockdata\products.py:134
 msgid "Ash-Glazed Dinner Plate"
@@ -320,11 +320,11 @@ msgstr "双人茶杯套装"
 
 #: .\frontend\mockdata\products.py:174
 msgid "Linen Market Tote"
-msgstr "亚麻购物袋"
+msgstr "水洗亚麻托特包"
 
 #: .\frontend\mockdata\products.py:185
 msgid "Woven Cotton Throw"
-msgstr "手织棉盖毯"
+msgstr "手织纯棉四季毯"
 
 #: .\frontend\mockdata\products.py:197
 msgid "Linen Cushion Cover"
@@ -344,7 +344,7 @@ msgstr "绗缝亚麻围裙"
 
 #: .\frontend\mockdata\products.py:241
 msgid "Soy Wax Studio Candle"
-msgstr "大豆蜡工作室香薰蜡烛"
+msgstr "特调大豆蜡香氛蜡烛"
 
 #: .\frontend\mockdata\products.py:254
 msgid "Handmade Incense Holder"
@@ -378,12 +378,12 @@ msgstr "蜂蜡长烛一对"
 #: .\frontend\mockdata\products.py:135 .\frontend\mockdata\products.py:145
 #: .\frontend\mockdata\products.py:155 .\frontend\mockdata\products.py:255
 msgid "Stoneware · Chen Meilin"
-msgstr "炻器 · 陈梅琳"
+msgstr "粗陶 · 陈美林"
 
 #: .\frontend\mockdata\products.py:125 .\frontend\mockdata\products.py:165
 #: .\frontend\mockdata\products.py:297
 msgid "Porcelain · Chen Meilin"
-msgstr "瓷器 · 陈梅琳"
+msgstr "景德镇高白瓷 · 陈美林"
 
 #: .\frontend\mockdata\products.py:175 .\frontend\mockdata\products.py:198
 #: .\frontend\mockdata\products.py:209 .\frontend\mockdata\products.py:230
@@ -400,7 +400,7 @@ msgstr "棉与亚麻 · 陆文静"
 
 #: .\frontend\mockdata\products.py:242
 msgid "Soy & rapeseed wax · Xu Anying"
-msgstr "大豆蜡与菜籽蜡 · 徐安莹"
+msgstr "大豆蜡与菜籽蜡 · 徐安迎"
 
 #: .\frontend\mockdata\products.py:265
 msgid "Reclaimed timber · Zhao Hesheng"
@@ -420,7 +420,7 @@ msgstr "三件作品，手工包裹 · 多位匠人"
 
 #: .\frontend\mockdata\products.py:318
 msgid "Pure beeswax · Xu Anying"
-msgstr "纯蜂蜡 · 徐安莹"
+msgstr "纯蜂蜡 · 徐安迎"
 
 #: .\frontend\mockdata\products.py:62
 msgid ""
@@ -462,7 +462,7 @@ msgid ""
 " rather than cast, which is why the curve is a fraction different on every "
 "one."
 msgstr ""
-"梅琳最初为自己拉坯制作了这只杯子，后来到访工作室的人总是爱不释手，她便一直做了下去。杯把由手工拉制而非模具浇铸，因此每一只的弧度都会有细微差异。"
+"美林最初为自己拉坯制作了这只杯子，后来到访工作室的人总是爱不释手，她便一直做了下去。杯把由手工拉制而非模具浇铸，因此每一只的弧度都会有细微差异。"
 
 #: .\frontend\mockdata\products.py:118
 msgid ""
@@ -474,7 +474,7 @@ msgstr "宽度足以盛燕麦粥，深度也适合盛汤。烧制时，陶土中
 msgid ""
 "The speckle is not added. It is iron already present in the local clay, "
 "which surfaces only above 1250°C -- a firing Meilin holds for nine hours."
-msgstr "斑点并非额外添加，而是当地陶土中原有的铁质，在温度超过 1250°C 时才会显现；梅琳会将这一烧制温度保持九小时。"
+msgstr "斑点并非额外添加，而是当地陶土中原有的铁质，在温度超过 1250°C 时才会显现；美林会将这一烧制温度保持九小时。"
 
 #: .\frontend\mockdata\products.py:128
 msgid ""
@@ -486,7 +486,7 @@ msgstr "一体成型的滤杯，锥形内壁设有三道导流凸棱，让水流
 msgid ""
 "Six prototypes went into the angle of the cone. Meilin brewed on every one "
 "of them for a fortnight before settling on this shape."
-msgstr "为了确定锥体角度，前后做了六个原型。梅琳连续两周用这六个原型逐一冲煮测试，最终才选定现在的形状。"
+msgstr "为了确定锥体角度，前后做了六个原型。美林连续两周用这六个原型逐一冲煮测试，最终才选定现在的形状。"
 
 #: .\frontend\mockdata\products.py:138
 msgid ""
@@ -514,7 +514,7 @@ msgstr "椭圆形餐盘，适合盛放面包、烤蔬菜或整条鱼。先拉坯
 msgid ""
 "Made only in small runs, when the large kiln is fired. Meilin will not fire "
 "it half empty, so these appear a few times a year."
-msgstr "只有在大型窑炉烧制时才会小批量制作。梅琳不会让窑炉半空着烧，因此这种餐盘一年只会出现几次。"
+msgstr "只有在大型窑炉烧制时才会小批量制作。美林不会让窑炉半空着烧，因此这种餐盘一年只会出现几次。"
 
 #: .\frontend\mockdata\products.py:158
 msgid ""
@@ -526,7 +526,7 @@ msgstr "高挑的细颈花瓶，无需支撑便能让几枝花材直立。外壁
 msgid ""
 "Meilin keeps one on the windowsill of the studio with whatever is in season."
 " Most of the year that means a single branch."
-msgstr "梅琳在工作室窗台上放着一只，插上当季的花材。一年中的大部分时候，那意味着一根枝条。"
+msgstr "美林在工作室窗台上放着一只，插上当季的花材。一年中的大部分时候，那意味着一根枝条。"
 
 #: .\frontend\mockdata\products.py:168
 msgid ""
@@ -622,7 +622,7 @@ msgstr "雪松、干燥泥土与一丝青无花果的香气。蜡烛浇注在炻
 msgid ""
 "Anying built this scent around the smell of her workshop after rain -- wet "
 "stone, cut wood, and the fig tree in the courtyard next door."
-msgstr "安莹以雨后工作室的气味为灵感调制这款香气——潮湿的石头、切开的木材，以及隔壁庭院里的无花果树。"
+msgstr "安迎以雨后工作室的气味为灵感调制这款香气——潮湿的石头、切开的木材，以及隔壁庭院里的无花果树。"
 
 #: .\frontend\mockdata\products.py:258
 msgid ""
@@ -634,7 +634,7 @@ msgstr "浅盘设有偏离中心的小孔，适配标准线香。外壁不施釉
 msgid ""
 "Meilin makes these from the clay left at the end of a throwing session -- "
 "too little for a bowl, exactly enough for one of these."
-msgstr "梅琳用每次拉坯结束时剩下的陶土制作这些香座——做一只碗太少，做一个香座却刚刚好。"
+msgstr "美林用每次拉坯结束时剩下的陶土制作这些香座——做一只碗太少，做一个香座却刚刚好。"
 
 #: .\frontend\mockdata\products.py:269
 msgid ""
@@ -724,7 +724,7 @@ msgstr "关于"
 #: .\frontend\templates\frontend\partials\mobile_nav.html:10
 #: .\frontend\templates\frontend\search\results.html:67
 msgid "Makers"
-msgstr "匠人"
+msgstr "驻店匠人"
 
 #: .\frontend\mockdata\content.py:51
 msgid "Materials"
@@ -752,7 +752,7 @@ msgstr "保养指南"
 #: .\frontend\templates\frontend\pages\contact.html:7
 #: .\frontend\templates\frontend\partials\mobile_nav.html:13
 msgid "Contact"
-msgstr "联系"
+msgstr "联络我们"
 
 #: .\frontend\mockdata\content.py:59
 #: .\frontend\templates\frontend\pages\faq.html:7
@@ -765,41 +765,41 @@ msgstr "图片来源"
 
 #: .\frontend\mockdata\content.py:65
 msgid "Designed"
-msgstr "设计"
+msgstr "构形"
 
 #: .\frontend\mockdata\content.py:66
 msgid ""
 "Each piece begins with an idea, a sketch or -- more often -- a material that"
 " turned up and suggested something. Nothing goes into production until the "
 "maker has lived with a sample for a season."
-msgstr "每件作品都始于一个念头、一张草图，或者更常见的——一块偶然遇见、自己提出想法的材料。在匠人与样品共处一季之前，任何东西都不会投入制作。"
+msgstr "每件器物的诞生，始于灵光一现的草图，或偶得材料的天然呼应。在正式定版前，匠人都会与之共同度过一整个季节。"
 
 #: .\frontend\mockdata\content.py:70
 msgid "Crafted"
-msgstr "制作"
+msgstr "凝萃"
 
 #: .\frontend\mockdata\content.py:71
 msgid ""
 "Made individually, on a wheel, a loom or a bench. A mug takes about forty "
 "minutes to throw and trim; a throw takes the better part of three days on "
 "the loom. There is no version of this that is faster."
-msgstr "在拉坯机、织机或工作台上逐件完成。一只杯子拉坯与修坯约需四十分钟；一条盖毯要在织机上花去将近三天。这件事没有更快的做法。"
+msgstr "轮盘、织机与匠案前的专注守候。拉坯修坯需时四十分钟，而一席毯子更需织机上三日的往复推挽。慢工出细活，别无他途。"
 
 #: .\frontend\mockdata\content.py:75
 msgid "Finished"
-msgstr "刚刚完成"
+msgstr "封缄"
 
 #: .\frontend\mockdata\content.py:76
 msgid ""
 "Checked by hand, wrapped in unbleached paper, and packed with a card naming "
 "the person who made it. Anything that does not pass goes back to the studio "
 "shelf, not into a box."
-msgstr "逐件手工检查，以本色纸包裹，并附上写有制作者姓名的卡片。未通过检查的作品会回到工作室的架子上，而不是装进箱子。"
+msgstr "逐一手检，覆以原色手作纸包装，随盒附上制作者亲笔签名的名信片。未达标准的器物绝不入箱交付。"
 
 #: .\frontend\mockdata\content.py:83
 #: .\frontend\templates\frontend\home.html:16
 msgid "Our story"
-msgstr "品牌故事"
+msgstr "了解品牌故事"
 
 #: .\frontend\mockdata\content.py:84
 msgid "Made by hand, meant to be kept."
@@ -915,7 +915,7 @@ msgid ""
 "Standard delivery is ¥8 and takes 3–6 working days domestically. It is "
 "complimentary on orders above ¥80. Express delivery is ¥18 and dispatches "
 "the next working day where stock allows."
-msgstr "标准配送费用为 ¥8，国内需 3–6 个工作日。订单满 ¥80 免运费。加急配送为 ¥18，在有货情况下次个工作日发出。"
+msgstr "标准配送费用为 ¥8，国内需 3–6 个工作日。单笔订单满 ¥80 尊享顺丰免运。加急配送为 ¥18，在有货情况下次个工作日发出。"
 
 #: .\frontend\mockdata\content.py:140
 msgid ""
@@ -1329,7 +1329,7 @@ msgstr "至少八个字符。"
 
 #: .\frontend\templates\frontend\account\auth.html:82
 msgid "Send me studio notes, about once a month"
-msgstr "订阅工作室通讯，约每月一封"
+msgstr "订阅工作室随笔，约每月一封"
 
 #: .\frontend\templates\frontend\account\auth.html:85
 msgid "Create account"
@@ -1616,7 +1616,7 @@ msgstr "邮箱即登录账号，无法在此修改。"
 
 #: .\frontend\templates\frontend\account\profile.html:41
 msgid "Studio notes — roughly monthly"
-msgstr "工作室通讯——约每月一封"
+msgstr "工作室随笔——每月一期"
 
 #: .\frontend\templates\frontend\account\profile.html:44
 msgid "Save changes"
@@ -1857,17 +1857,17 @@ msgstr "摆放着手作陶器的工作室桌面"
 
 #: .\frontend\templates\frontend\home.html:11
 msgid "Small-batch homeware"
-msgstr "小批量家居器物"
+msgstr "小批量手作器物"
 
 #: .\frontend\templates\frontend\home.html:13
 msgid ""
 "Ceramics, textiles and objects made one at a time by five makers we know by "
 "name."
-msgstr "陶器、织物与器物，由五位我们熟识的匠人一件一件手工制成。"
+msgstr "陶器、织物与生活器皿，皆由我们熟识的五位匠人悉心手造。"
 
 #: .\frontend\templates\frontend\home.html:15
 msgid "Shop everything"
-msgstr "浏览全部"
+msgstr "探索全系作品"
 
 #: .\frontend\templates\frontend\home.html:25
 #: .\frontend\templates\frontend\shop\collections.html:9
@@ -1925,7 +1925,7 @@ msgstr "认识所有匠人"
 #: .\frontend\templates\frontend\home.html:118
 #, python-format
 msgid "%(location)s · Since %(since)s"
-msgstr "%(location)s · 始于 %(since)s"
+msgstr "%(location)s · 研造自 %(since)s"
 
 #: .\frontend\templates\frontend\home.html:129
 msgid "From the studio"
@@ -1985,7 +1985,7 @@ msgstr "阅读文章"
 #: .\frontend\templates\frontend\makers\detail.html:22
 #, python-format
 msgid "%(location)s · Working since %(since)s"
-msgstr "%(location)s · 自 %(since)s 年起创作"
+msgstr "%(location)s · 研造自 %(since)s"
 
 #: .\frontend\templates\frontend\makers\detail.html:28
 #, python-format
@@ -2255,7 +2255,7 @@ msgid ""
 "To fulfil orders, answer questions about them, and — only if you asked for "
 "it — to send the studio newsletter. We do not sell or share customer data "
 "with advertisers."
-msgstr "用于履行订单、解答相关问题，以及在您主动订阅的前提下发送工作室通讯。我们不会向广告商出售或共享客户数据。"
+msgstr "用于履行订单、解答相关问题，以及在您主动订阅的前提下发送工作室随笔。我们不会向广告商出售或共享客户数据。"
 
 #: .\frontend\templates\frontend\pages\legal.html:24
 msgid "What this prototype stores"
@@ -2427,7 +2427,7 @@ msgstr "Pinterest"
 
 #: .\frontend\templates\frontend\partials\footer.html:27
 msgid "Prototype frontend — no orders are fulfilled."
-msgstr "原型前端——不会实际履行订单。"
+msgstr "原型概念展示站点 — 暂不承接商业订单与履约配送。"
 
 #: .\frontend\templates\frontend\partials\footer.html:28
 msgid "Legal"
@@ -2481,11 +2481,11 @@ msgstr "移动端导航"
 
 #: .\frontend\templates\frontend\partials\newsletter.html:5
 msgid "Studio notes"
-msgstr "工作室通讯"
+msgstr "工作室随笔"
 
 #: .\frontend\templates\frontend\partials\newsletter.html:6
 msgid "A note when something new comes out of the kiln."
-msgstr "有新作出窑时，我们会写信告诉您。"
+msgstr "每逢窑门初启，寄奉手记一份。"
 
 #: .\frontend\templates\frontend\partials\newsletter.html:10
 msgid "Email address"
@@ -2501,7 +2501,7 @@ msgstr "订阅"
 
 #: .\frontend\templates\frontend\partials\newsletter.html:16
 msgid "About one email a month. Unsubscribe whenever you like."
-msgstr "约每月一封。可随时取消订阅。"
+msgstr "每月一期，可随时退订。"
 
 #: .\frontend\templates\frontend\partials\product_card.html:13
 msgid "New"
@@ -2934,11 +2934,11 @@ msgstr "以填充图片。"
 
 #: .\frontend\mockdata\makers.py:31
 msgid "Chen Meilin"
-msgstr "陈梅琳"
+msgstr "陈美林"
 
 #: .\frontend\mockdata\makers.py:32
 msgid "Ceramicist"
-msgstr "陶艺师"
+msgstr "陶瓷艺术家"
 
 #: .\frontend\mockdata\makers.py:33
 msgid "Jingdezhen, Jiangxi"
@@ -2946,14 +2946,14 @@ msgstr "江西景德镇"
 
 #: .\frontend\mockdata\makers.py:36
 msgid "Porcelain thrown thin enough to hold the light."
-msgstr "薄到足以承托光线的瓷器。"
+msgstr "薄胎如玉，迎光而润。"
 
 #: .\frontend\mockdata\makers.py:38
 msgid ""
 "Meilin trained for six years under a Jingdezhen master before opening a "
 "small studio on the eastern edge of the old kiln district. She works almost "
 "entirely in local porcelain stone, quarried an hour from her door."
-msgstr "梅琳曾在景德镇一位陶艺大师门下学习六年，之后在古窑区东侧开设了一间小工作室。她几乎只使用本地瓷石，泥料取自离工作室一小时车程的地方。"
+msgstr "美林曾在景德镇一位陶艺大师门下学习六年，之后在古窑区东侧开设了一间小工作室。她几乎只使用本地瓷石，泥料取自离工作室一小时车程的地方。"
 
 #: .\frontend\mockdata\makers.py:41
 msgid ""
@@ -2986,7 +2986,7 @@ msgstr "陆文静"
 
 #: .\frontend\mockdata\makers.py:56
 msgid "Weaver & natural dyer"
-msgstr "织工与天然染色师"
+msgstr "织染手艺人"
 
 #: .\frontend\mockdata\makers.py:57
 msgid "Dali, Yunnan"
@@ -2994,7 +2994,7 @@ msgstr "云南大理"
 
 #: .\frontend\mockdata\makers.py:60
 msgid "Indigo that deepens with every wash."
-msgstr "每一次清洗，靛蓝都更深一层。"
+msgstr "蓼蓝深蕴，历久弥新。"
 
 #: .\frontend\mockdata\makers.py:62
 msgid ""
@@ -3075,7 +3075,7 @@ msgstr "使用食品级亚麻籽油完成表面处理，一周内重复涂刷三
 
 #: .\frontend\mockdata\makers.py:102
 msgid "Xu Anying"
-msgstr "徐安莹"
+msgstr "徐安迎"
 
 #: .\frontend\mockdata\makers.py:103
 msgid "Candlemaker & perfumer"
@@ -3094,7 +3094,7 @@ msgid ""
 "Anying studied classical Chinese garden design before training in perfumery."
 " She thinks about a scent the way she was taught to think about a courtyard:"
 " what you meet first, and what you find later."
-msgstr "安莹曾学习中国古典园林设计，之后接受调香训练。她以设计庭院的方式思考香气：首先遇见什么，之后又会发现什么。"
+msgstr "安迎曾学习中国古典园林设计，之后接受调香训练。她以设计庭院的方式思考香气：首先遇见什么，之后又会发现什么。"
 
 #: .\frontend\mockdata\makers.py:112
 msgid ""
@@ -5320,3 +5320,10 @@ msgstr "规格名称暂时无法翻译。"
 
 #~ msgid ". A frontend form for this is not built yet."
 #~ msgstr "。前台表单尚未开发。"
+
+
+msgid "Curtain Tote Bag"
+msgstr "棉麻垂感托特包"
+
+msgid "Cotton linen · Chen Meilin"
+msgstr "棉麻 · 陈美林"

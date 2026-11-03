@@ -1857,7 +1857,7 @@ msgstr "摆放着手作陶器的工作室桌面"
 
 #: .\frontend\templates\frontend\home.html:11
 msgid "Small-batch homeware"
-msgstr "小批量手作器物"
+msgstr "小批量手工艺品"
 
 #: .\frontend\templates\frontend\home.html:13
 msgid ""

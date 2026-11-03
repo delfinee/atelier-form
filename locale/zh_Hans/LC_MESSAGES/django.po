@@ -765,36 +765,36 @@ msgstr "图片来源"
 
 #: .\frontend\mockdata\content.py:65
 msgid "Designed"
-msgstr "构形"
+msgstr "构思与定版"
 
 #: .\frontend\mockdata\content.py:66
 msgid ""
 "Each piece begins with an idea, a sketch or -- more often -- a material that"
 " turned up and suggested something. Nothing goes into production until the "
 "maker has lived with a sample for a season."
-msgstr "每件器物的诞生，始于灵光一现的草图，或偶得材料的天然呼应。在正式定版前，匠人都会与之共同度过一整个季节。"
+msgstr "从灵感构思、绘制草图到结合材料进行反复测试，最终完成产品的设计定版。"
 
 #: .\frontend\mockdata\content.py:70
 msgid "Crafted"
-msgstr "凝萃"
+msgstr "手工生产"
 
 #: .\frontend\mockdata\content.py:71
 msgid ""
 "Made individually, on a wheel, a loom or a bench. A mug takes about forty "
 "minutes to throw and trim; a throw takes the better part of three days on "
 "the loom. There is no version of this that is faster."
-msgstr "轮盘、织机与匠案前的专注守候。拉坯修坯需时四十分钟，而一席毯子更需织机上三日的往复推挽。慢工出细活，别无他途。"
+msgstr "由匠人通过手工设备进行精细的加工与制作，确保每一个细节的工艺质量。"
 
 #: .\frontend\mockdata\content.py:75
 msgid "Finished"
-msgstr "封缄"
+msgstr "质检与交付"
 
 #: .\frontend\mockdata\content.py:76
 msgid ""
 "Checked by hand, wrapped in unbleached paper, and packed with a card naming "
 "the person who made it. Anything that does not pass goes back to the studio "
 "shelf, not into a box."
-msgstr "逐一手检，覆以原色手作纸包装，随盒附上制作者亲笔签名的名信片。未达标准的器物绝不入箱交付。"
+msgstr "未达标的器物绝不入箱。我们会用原色包装，并附上匠人亲笔签名的明信片，让您的每一次开箱都充满温度与仪式感。"
 
 #: .\frontend\mockdata\content.py:83
 #: .\frontend\templates\frontend\home.html:16

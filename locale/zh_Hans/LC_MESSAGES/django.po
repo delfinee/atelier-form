@@ -65,20 +65,20 @@ msgstr "新品"
 
 #: .\frontend\mockdata\content.py:41 .\frontend\mockdata\content.py:176
 msgid "Ceramics"
-msgstr "陶艺器皿"
+msgstr "陶器"
 
 #: .\frontend\mockdata\content.py:42 .\frontend\mockdata\content.py:190
 msgid "Textiles"
-msgstr "织物软装"
+msgstr "织物"
 
 #: .\frontend\mockdata\content.py:45
 msgctxt "category"
 msgid "Home"
-msgstr "日常居所"
+msgstr "家居"
 
 #: .\frontend\mockdata\content.py:46
 msgid "Gifts"
-msgstr "心意礼赠"
+msgstr "礼品"
 
 #: .\frontend\mockdata\collections.py:24
 msgid "Thrown, trimmed and fired one at a time."

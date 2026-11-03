@@ -16,7 +16,7 @@ msgstr "指间匠作，温润日常。"
 msgid ""
 "Small-batch ceramics, textiles and homeware, made by hand by a short list of"
 " makers we know by name."
-msgstr "陶器、织物与生活器皿，皆由我们熟识的五位匠人悉心手造。"
+msgstr "陶器、织物与各类物件，由五位我们熟识的匠人逐件手工制成。"
 
 #: .\frontend\mockdata\content.py:20
 msgid "Unit 4, Lane 210 Taikang Road, Huangpu, Shanghai"
@@ -1863,7 +1863,7 @@ msgstr "小批量手作器物"
 msgid ""
 "Ceramics, textiles and objects made one at a time by five makers we know by "
 "name."
-msgstr "陶器、织物与生活器皿，皆由我们熟识的五位匠人悉心手造。"
+msgstr "陶器、织物与各类物件，由五位我们熟识的匠人逐件手工制成。"
 
 #: .\frontend\templates\frontend\home.html:15
 msgid "Shop everything"

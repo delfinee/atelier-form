@@ -1,4 +1,4 @@
-from django.utils.translation import get_language, gettext
+from django.utils.translation import get_language, gettext, pgettext
 
 
 def language():
@@ -45,4 +45,5 @@ TEXT = {
 
 
 def ui_strings():
-    return {key: gettext(value) for key, value in TEXT.items()}
+    return {key: pgettext('payment status', value) if key in ('paid', 'unpaid', 'failed', 'refunded')
+            else gettext(value) for key, value in TEXT.items()}

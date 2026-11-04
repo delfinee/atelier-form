@@ -10,6 +10,7 @@ from concierge.shopping import discover
 from frontend.forms_seller import SellerProductForm
 from orders.tests.factories import make_category, make_maker, make_product
 from . import planner
+from .i18n import ui_strings
 
 BASE = '/api/seller-agent/v1/'
 
@@ -59,6 +60,20 @@ class LanguageConsistencyTests(TestCase):
         self.assertEqual([row['id'] for row in response], [chinese])
         self.language('en')
         self.assertEqual([row['id'] for row in self.client.get(BASE + 'conversations/').json()['conversations']], [english])
+
+    def test_order_payment_and_delivery_labels_follow_selected_language(self):
+        with override('zh-hans'):
+            labels = ui_strings()
+            self.assertEqual(labels['paid'], '已付款')
+            self.assertEqual(labels['unpaid'], '未付款')
+            self.assertEqual(labels['delivered'], '已送达')
+            self.assertEqual(labels['deliveryPreview'], '预览确认送达')
+        with override('en'):
+            labels = ui_strings()
+            self.assertEqual(labels['paid'], 'Paid')
+            self.assertEqual(labels['unpaid'], 'Unpaid')
+            self.assertEqual(labels['delivered'], 'Delivered')
+            self.assertEqual(labels['deliveryPreview'], 'Preview delivery confirmation')
 
     def test_english_command_uses_chinese_selected_interface(self):
         self.language('zh-hans')

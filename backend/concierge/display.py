@@ -121,8 +121,10 @@ def localize_result(result, language):
     """Also repair old session-cached cards, so a reload fixes existing messages."""
     result = deepcopy(result)
     cards = result.get('products', [])
-    products = {p.slug: p for p in Product.objects.filter(
+    products = {p.slug: p for p in Product.objects.active().filter(
         slug__in=[card['slug'] for card in cards]).select_related('maker')}
+    cards = [card for card in cards if card['slug'] in products]
+    result['products'] = cards
     for item in cards:
         product = products.get(item['slug'])
         if product:

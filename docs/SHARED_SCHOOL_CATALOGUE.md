@@ -25,7 +25,7 @@ workspace request; no existing rows are reassigned.
 
 The assistant reads current products and prepares stock, price and listing
 changes. The visitor must confirm each preview. New listings start as drafts;
-select **Is active** in the product editor and save to publish to the storefront.
+the **Is active** flag remains editable inside the workspace, but products owned by the configured School Demo maker are always excluded from customer catalogue queries. School Demo remains active for assistant access and is excluded from public maker directories.
 Shared-mode natural language uses DeepSeek. A server environment key takes precedence; the deployment can also read an encrypted ProviderSecret stored in the database. The encryption key is derived from the deployment secret, with SECRET_KEY_FALLBACKS supported for rotation. ProviderSecret is never exposed by an API or shipped in the Windows app.
 
 Open seller lists poll every five seconds while visible. Public catalogue and buyer order pages check opaque revision markers and refresh when committed data changes. Active form edits are preserved. Multi-maker orders are shown as separate parcels, so confirming one shipment does not ship the other makers' items.

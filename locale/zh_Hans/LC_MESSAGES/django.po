@@ -5323,7 +5323,27 @@ msgstr "规格名称暂时无法翻译。"
 
 
 msgid "Curtain Tote Bag"
-msgstr "亚麻抱枕套"
+msgstr "窗帘布托特包"
 
 msgid "Cotton linen · Chen Meilin"
 msgstr "棉麻 · 陈美林"
+
+
+msgid "Curtain Tote Bag by Chen Meilin"
+msgstr "陈美林制作的窗帘布托特包"
+
+
+msgid "Using recycled materials from extra curtains to make a tote bag, customisation is allowed and please chat with me to tell me your ideas, thank you."
+msgstr "利用多余的窗帘布料制作托特包。支持定制，欢迎通过聊天告诉我您的想法，谢谢。"
+
+
+msgid "Making customised tote bag for 7 years ,using curtain material which my mom has passed down to me as she no longer can do the work."
+msgstr "我制作定制托特包已有七年。妈妈无法再继续这项工作后，将窗帘布料交给了我，我用这些布料制作包袋。"
+
+
+msgid "Washing Machine Proof"
+msgstr "可机洗"
+
+
+msgid "2-3 days"
+msgstr "2–3天"

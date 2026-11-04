@@ -63,6 +63,10 @@ def localize_delivery_label(label: str) -> str:
 
 def localize_order_item_name(item) -> str:
     """Only translate an exact canonical name in the saved order snapshot."""
+    from .catalogue_overrides import TOTE_SLUG, TOTE_COPY
+    if (item.product_slug == TOTE_SLUG and item.product_name == TOTE_COPY['name']
+            and getattr(item, 'maker_name', '') == 'Chen Meilin'):
+        return gettext(item.product_name)
     source = PRODUCTS_BY_SLUG.get(item.product_slug)
     if source and item.product_name == source["name"]:
         return gettext(item.product_name)
@@ -250,6 +254,14 @@ def _product_material_labels():
 def localize_product(product):
     if not _is_chinese():
         return product
+    from .catalogue_overrides import approved_copy
+    approved = approved_copy(product)
+    if approved:
+        localized = copy(product)
+        for field, original in approved.items():
+            if getattr(product, field) == original:
+                setattr(localized, field, gettext(original))
+        return localized
     source = PRODUCTS_BY_SLUG.get(product.slug)
     if source is None:
         return product

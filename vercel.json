@@ -1,5 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "regions": ["sin1"],
+  "git": {
+    "deploymentEnabled": {
+      "fix/catalogue-cleanup-localisation": false
+    }
+  },
   "buildCommand": "python deploy/prepare_vercel.py"
 }

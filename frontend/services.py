@@ -19,6 +19,8 @@ from typing import Any, Iterable, cast
 from django.db.models import Case, IntegerField, Q, When
 from django.utils.translation import gettext, gettext_noop
 
+from products.publication import public_makers
+
 from content.models import Article, ArticleQuerySet
 from .catalogue_i18n import (
     localize_article, localize_collection, localize_colour_label, localize_maker,
@@ -194,7 +196,7 @@ def shop_facets() -> dict[str, Any]:
     from django.db.models import Count
 
     category_rows = (Category.objects.filter(is_active=True)
-                     .annotate(count=Count("products", filter=Q(products__is_active=True)))
+                     .annotate(count=Count("products", filter=Q(products__in=Product.objects.active())))
                      .order_by("sort_order", "name"))
 
     # Material families are keyword sets, not stored values, so their counts
@@ -211,7 +213,7 @@ def shop_facets() -> dict[str, Any]:
                                   "count": count})
 
     colour_rows = (ProductVariant.objects
-                   .filter(group="colour", is_active=True, product__is_active=True)
+                   .filter(group="colour", is_active=True, product__in=Product.objects.active())
                    .values("label", "swatch").distinct().order_by("label"))
 
     price_max = _base_queryset().order_by("-price").values_list("price", flat=True).first()
@@ -259,11 +261,11 @@ def products_in_collection(slug: str, sort: str = "featured") -> list[Product]:
 # -- Makers --------------------------------------------------------------
 
 def all_makers() -> list[Maker]:
-    return [localize_maker(maker) for maker in Maker.objects.filter(is_active=True)]
+    return [localize_maker(maker) for maker in public_makers(Maker.objects.filter(is_active=True))]
 
 
 def get_maker(slug: str) -> Maker | None:
-    maker = Maker.objects.filter(slug=slug, is_active=True).first()
+    maker = public_makers(Maker.objects.filter(slug=slug, is_active=True)).first()
     return localize_maker(maker) if maker else None
 
 
@@ -305,9 +307,9 @@ def search(query: str) -> dict[str, list]:
     collections += list(Category.objects.filter(
         Q(name__icontains=q) | Q(tagline__icontains=q) | Q(description__icontains=q),
         is_active=True))
-    makers = list(Maker.objects.filter(
+    makers = list(public_makers(Maker.objects.filter(
         Q(name__icontains=q) | Q(discipline__icontains=q)
-        | Q(location__icontains=q) | Q(tagline__icontains=q), is_active=True))
+        | Q(location__icontains=q) | Q(tagline__icontains=q), is_active=True)))
 
     return {
         "products": [localize_product(product) for product in _base_queryset().search(q)],

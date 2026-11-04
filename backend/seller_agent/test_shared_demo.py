@@ -86,7 +86,7 @@ class SharedCatalogueTests(TestCase):
         self.assertEqual(self.product.maker, self.maker)
         self.assertEqual(Product.objects.count(), 2)
 
-    def test_new_draft_and_publication_are_visible_to_separate_visitor(self):
+    def test_new_shared_listing_stays_private_even_when_activated(self):
         conversation = self.conversation()
         response = self.post(BASE + f'conversations/{conversation}/changes/', {
             'request_id': str(uuid4()), 'action': 'listing', 'target': '',
@@ -104,7 +104,7 @@ class SharedCatalogueTests(TestCase):
         response = self.client.patch('/api/seller/products/' + product.slug + '/',
             {'is_active': True}, content_type='application/json')
         self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(public.get('/api/products/' + product.slug + '/').status_code, 200)
+        self.assertEqual(public.get('/api/products/' + product.slug + '/').status_code, 404)
         self.assertEqual(Client(HTTP_HOST='school.test').get(BASE + 'snapshot/').status_code, 200)
 
     def test_original_editor_and_product_api_preserve_maker(self):

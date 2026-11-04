@@ -259,7 +259,7 @@ def create_order(
     for item in items:
         product = locked_products[item.product_id]
         variant = locked_variants.get(item.variant_id)
-        if not product.is_active:
+        if not Product.objects.active().filter(pk=product.pk).exists():
             raise InsufficientStock(gettext("%(name)s is no longer available.") % {"name": product.name})
         available = MAX_LINE_QUANTITY if product.is_made_to_order else (
             variant.stock_quantity if variant else product.stock_quantity)

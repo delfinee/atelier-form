@@ -656,6 +656,12 @@ class CollectionLocalizationTests(SimpleTestCase):
 
 
 class MakerLocalizationTests(SimpleTestCase):
+    def setUp(self):
+        # Visibility is covered with real PostgreSQL queries in products.test_catalogue_cleanup.
+        privacy = patch.object(services, "public_makers", side_effect=lambda qs: qs)
+        privacy.start()
+        self.addCleanup(privacy.stop)
+
     @staticmethod
     def display_fields(expected, language_index):
         return (
@@ -1049,6 +1055,12 @@ class FAQLocalizationTests(SimpleTestCase):
 
 
 class ProductLocalizationTests(SimpleTestCase):
+    def setUp(self):
+        # Visibility is covered with real PostgreSQL queries in products.test_catalogue_cleanup.
+        privacy = patch.object(services, "public_makers", side_effect=lambda qs: qs)
+        privacy.start()
+        self.addCleanup(privacy.stop)
+
     def make_product(self, expected=PRODUCT_EXPECTED[0], **overrides):
         slug, name, short_description, _, _ = expected
         detail = next(item for item in PRODUCT_DETAIL_EXPECTED if item[0] == slug)
@@ -2679,6 +2691,12 @@ class PublicPageAndNewsletterLocalizationTests(SimpleTestCase):
 
 
 class ReviewRatingAndSearchLocalizationTests(SimpleTestCase):
+    def setUp(self):
+        # Visibility is covered with real PostgreSQL queries in products.test_catalogue_cleanup.
+        privacy = patch.object(services, "public_makers", side_effect=lambda qs: qs)
+        privacy.start()
+        self.addCleanup(privacy.stop)
+
     query_input = "  Clay  "
     filtered_query = "Clay"
 
@@ -3897,6 +3915,7 @@ class CommerceAPIErrorLocalizationTests(SimpleTestCase):
                 cart.items.select_related.return_value = [item]
                 cart.shipping_amount.return_value = Decimal("10.00")
                 with (self.subTest(language=language, failure=failure), translation.override(language),
+                      patch.object(order_services.Product.objects, "active") as public_products,
                       patch.object(order_services.Product.objects, "select_for_update") as products,
                       patch.object(order_services.ProductVariant.objects, "select_for_update") as variants,
                       patch.object(order_services.Order.objects, "create") as order_create,
@@ -3904,6 +3923,7 @@ class CommerceAPIErrorLocalizationTests(SimpleTestCase):
                       patch.object(order_services.OrderNumberSequence, "next_number", return_value="TEST-1"),
                       patch.object(order_services.Product.objects, "filter") as stock_update,
                       patch.object(order_services, "create_seller_fulfillments") as fulfilments):
+                    public_products.return_value.filter.return_value.exists.return_value = product.is_active
                     products.return_value.filter.return_value = [product]
                     variants.return_value.filter.return_value = []
                     stock_update.return_value.update.return_value = 0

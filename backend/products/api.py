@@ -9,6 +9,7 @@ from rest_framework.response import Response
 
 from accounts.permissions import IsAdminUserRole, IsSeller
 
+from .publication import public_makers
 from .filters import SORT_MAP, ProductFilter
 from .models import Category, Collection, Maker, Product, ProductVariant
 from .serializers import (
@@ -46,13 +47,13 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     def facets(self, request):
         products = Product.objects.active()
         colours = (ProductVariant.objects.filter(group="colour", is_active=True,
-                                                 product__is_active=True)
+                                                 product__in=Product.objects.active())
                    .values("label", "swatch").distinct().order_by("label"))
         return Response({
             "categories": [
                 {"value": c.slug, "label": c.name, "count": c.product_count}
                 for c in Category.objects.filter(is_active=True).annotate(
-                    product_count=Count("products", filter=Q(products__is_active=True)))
+                    product_count=Count("products", filter=Q(products__in=Product.objects.active())))
             ],
             "colours": [{"value": c["label"], "label": c["label"], "swatch": c["swatch"]}
                         for c in colours],
@@ -69,7 +70,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     # `.annotate()` adds a GROUP BY that drops the model's Meta ordering, which
     # makes paginated results non-deterministic -- so order explicitly.
     queryset = Category.objects.filter(is_active=True).annotate(
-        product_count=Count("products", filter=Q(products__is_active=True))
+        product_count=Count("products", filter=Q(products__in=Product.objects.active()))
     ).order_by("sort_order", "name")
 
     @extend_schema(summary="Products in a category", responses=ProductListSerializer(many=True))
@@ -83,7 +84,7 @@ class CollectionViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "slug"
     serializer_class = CollectionSerializer
     queryset = Collection.objects.filter(is_active=True).annotate(
-        product_count=Count("products", filter=Q(products__is_active=True))
+        product_count=Count("products", filter=Q(products__in=Product.objects.active()))
     ).order_by("sort_order", "name")
 
     @extend_schema(summary="Products in a collection", responses=ProductListSerializer(many=True))
@@ -95,7 +96,7 @@ class CollectionViewSet(viewsets.ReadOnlyModelViewSet):
 
 class MakerViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "slug"
-    queryset = Maker.objects.filter(is_active=True)
+    queryset = public_makers(Maker.objects.all())
 
     def get_serializer_class(self):
         return MakerDetailSerializer if self.action == "retrieve" else MakerListSerializer

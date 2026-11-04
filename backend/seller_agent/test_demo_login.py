@@ -27,7 +27,7 @@ class DemoSellerLoginTests(TestCase):
                                          category=category, slug='other-login-mug')
 
     def setUp(self):
-        self.client = Client(HTTP_HOST='school.test')
+        self.client = Client(HTTP_HOST='school.test', HTTP_USER_AGENT='Mozilla/5.0 AtelierSeller/1.4.0')
 
     def test_demo_login_is_prefilled_without_automatically_signing_in(self):
         response = self.client.get('/account/login/', HTTP_ACCEPT_LANGUAGE='zh-hans')
@@ -53,8 +53,11 @@ class DemoSellerLoginTests(TestCase):
         self.assertEqual(Product.objects.get(pk=self.own_product.pk).maker_id, self.maker.pk)
         self.assertContains(self.client.get('/seller/ai/'), DEMO_SELLER_NAME)
 
-    def test_prefill_is_not_exposed_on_other_hosts_or_registration(self):
-        for client, path in ((Client(HTTP_HOST='testserver'), '/account/login/'),
+    def test_prefill_is_not_exposed_on_website_other_hosts_or_registration(self):
+        for client, path in ((Client(HTTP_HOST='school.test'), '/account/login/'),
+                             (Client(HTTP_HOST='school.test'), '/account/login/?next=/seller/ai/'),
+                             (Client(HTTP_HOST='school.test'), '/account/login/?app=seller'),
+                             (Client(HTTP_HOST='testserver', HTTP_USER_AGENT='AtelierSeller/1.4.0'), '/account/login/'),
                              (self.client, '/account/register/')):
             response = client.get(path)
             self.assertNotContains(response, DEMO_SELLER['email'])
@@ -68,13 +71,18 @@ class DemoSellerLoginTests(TestCase):
         self.assertNotIn(SESSION_KEY, self.client.session)
 
     def test_login_still_requires_csrf(self):
-        client = Client(HTTP_HOST='school.test', enforce_csrf_checks=True)
+        client = Client(HTTP_HOST='school.test', HTTP_USER_AGENT='AtelierSeller/1.4.0', enforce_csrf_checks=True)
         credentials = {k: DEMO_SELLER[k] for k in ('email', 'password')}
         self.assertEqual(client.post('/account/login/', credentials).status_code, 403)
         client.get('/account/login/')
         credentials['csrfmiddlewaretoken'] = client.cookies[settings.CSRF_COOKIE_NAME].value
         self.assertEqual(client.post('/account/login/', credentials).status_code, 302)
         self.assertEqual(client.session[SESSION_KEY], str(self.seller.pk))
+
+    def test_demo_login_link_only_appears_in_seller_app(self):
+        browser = Client(HTTP_HOST='school.test')
+        self.assertNotContains(browser.get('/seller/ai/'), 'Sign in as demo seller')
+        self.assertContains(self.client.get('/seller/ai/'), 'Sign in as demo seller')
 
     def test_prefill_fails_closed_when_account_is_privileged_or_password_changed(self):
         for flag in ('is_staff', 'is_admin', 'is_superuser'):

@@ -13,6 +13,11 @@ DEMO_SELLER_NAME = 'chen mei lin'
 DEMO_SELLER_SHOP = 'chen-meilin'
 
 
+def is_seller_app(request):
+    # Presentation hint from the existing Windows client, not authentication.
+    return 'AtelierSeller/' in request.META.get('HTTP_USER_AGENT', '')
+
+
 def is_demo_seller(user):
     return bool(user.is_authenticated and user.email == DEMO_SELLER['email']
                 and user.is_active and user.is_seller
@@ -22,7 +27,7 @@ def is_demo_seller(user):
 
 def login_details(request):
     from seller_agent.shared_demo import enabled_for
-    if not enabled_for(request):
+    if not is_seller_app(request) or not enabled_for(request):
         return None
     user = get_user_model().objects.filter(email=DEMO_SELLER['email']).first()
     if user is None or not is_demo_seller(user) or not user.check_password(DEMO_SELLER['password']):

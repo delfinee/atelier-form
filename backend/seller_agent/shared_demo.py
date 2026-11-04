@@ -26,7 +26,8 @@ class SharedSchoolDemoMiddleware:
             return self.get_response(request)
         if request.path.startswith(self.blocked):
             return JsonResponse({'detail': 'Account linking is not used in the shared school demo.'}, status=403)
-        from accounts.demo import is_demo_seller
+        from accounts.demo import is_demo_seller, is_seller_app
+        request.seller_app = is_seller_app(request)
         request.seller_demo_login = request.user if is_demo_seller(request.user) else None
         with transaction.atomic():
             user, _ = get_user_model().objects.get_or_create(

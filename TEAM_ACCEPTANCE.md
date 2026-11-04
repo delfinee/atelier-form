@@ -15,10 +15,10 @@ production release. Buyer shopping AI was outside that earlier delivery.
 Open https://beans-summaries-brilliant-labs.trycloudflare.com/seller/ai/.
 Demo account: **seller@atelierform.test** / **demo-seller-2026**.
 
-The shared school demo login page pre-fills this existing seller account. The seller
-display name is **chen mei lin**. Click **Sign in** to open the seller assistant;
-the existing anonymous shared catalogue remains available. Other hosts do not
-pre-fill these credentials.
+Only the **Windows Seller App** pre-fills this existing seller account on the
+configured school-demo host. The seller display name is **chen mei lin**. Click
+**Sign in** inside the app to open the seller assistant. Ordinary website login
+pages stay blank, and the existing anonymous shared catalogue remains available.
 Download this build from https://beans-summaries-brilliant-labs.trycloudflare.com/seller/download/ after signing in.
 This is a shared demo shop: use uniquely named test products. Do not enter real
 customer details or treat demo orders as actual payments or deliveries.

@@ -62,6 +62,10 @@ class MakerDetailSerializer(MakerListSerializer):
 
 
 class ProductListSerializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        from frontend.catalogue_i18n import localize_product
+        return super().to_representation(localize_product(instance))
+
     category = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     maker = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     maker_name = serializers.CharField(source="maker.name", read_only=True)

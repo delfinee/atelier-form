@@ -105,7 +105,7 @@ def plan(text, previous):
 
 
 def catalogue():
-    return Product.objects.filter(is_active=True, maker__is_active=True, category__is_active=True).select_related(
+    return Product.objects.active().filter(category__is_active=True).select_related(
         'maker', 'category').prefetch_related('product_variants', 'product_images').annotate(
         review_count=Count('reviews', filter=Q(reviews__is_published=True)),
         review_average=Avg('reviews__rating', filter=Q(reviews__is_published=True))).order_by('name', 'pk')

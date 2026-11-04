@@ -8,6 +8,7 @@ from django.views.decorators.http import require_GET
 
 from imagery.models import SiteImage
 from orders.models import Order, SellerFulfillment
+from .publication import public_makers
 from .models import Maker, Product, ProductImage, ProductVariant
 
 
@@ -25,10 +26,10 @@ def _version(queryset, stock=False):
 @require_GET
 def revisions(request):
     catalogue = _fingerprint(
-        _version(Product.objects.filter(is_active=True), stock=True),
-        _version(ProductVariant.objects.filter(product__is_active=True), stock=True),
-        _version(ProductImage.objects.filter(product__is_active=True)),
-        _version(Maker.objects.filter(is_active=True)),
+        _version(Product.objects.active(), stock=True),
+        _version(ProductVariant.objects.filter(product__in=Product.objects.active()), stock=True),
+        _version(ProductImage.objects.filter(product__in=Product.objects.active())),
+        _version(public_makers(Maker.objects.all())),
         _version(SiteImage.objects.all()),
     )
     orders = ''

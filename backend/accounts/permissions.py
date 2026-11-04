@@ -31,5 +31,5 @@ class IsSeller(permissions.BasePermission):
 
     def has_permission(self, request, view):
         user = request.user
-        return bool(user and user.is_authenticated and user.is_seller
-                    and hasattr(user, "maker_profile"))
+        return bool(user and user.is_authenticated and user.is_active and user.is_seller
+                    and hasattr(user, "maker_profile") and user.maker_profile.is_active)

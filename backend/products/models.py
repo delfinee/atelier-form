@@ -149,7 +149,8 @@ class Maker(SluggedModel):
 
 class ProductQuerySet(models.QuerySet):
     def active(self):
-        return self.filter(is_active=True)
+        from .publication import public_products
+        return public_products(self)
 
     def with_related(self):
         return self.select_related("category", "maker").prefetch_related(

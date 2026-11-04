@@ -5351,6 +5351,10 @@ msgstr "卖家"
 msgid "Sign in to record changes under your seller account."
 msgstr "请先登录，修改才会记录在你的卖家账号名下。"
 
+msgid ""
+"Signed in as %(name)s · Changes are recorded under this seller account."
+msgstr "当前登录：%(name)s · 修改会记录在此卖家账号名下。"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is accepted"
 #~ " and logged."

@@ -52,6 +52,7 @@ class DemoSellerLoginTests(TestCase):
         self.assertEqual({p['slug'] for p in before['products']}, {p['slug'] for p in after['products']})
         self.assertEqual(Product.objects.get(pk=self.own_product.pk).maker_id, self.maker.pk)
         self.assertContains(self.client.get('/seller/ai/'), DEMO_SELLER_NAME)
+        self.assertContains(self.client.get('/seller/ai/'), 'Changes are recorded under this seller account.')
 
     def test_prefill_is_not_exposed_on_website_other_hosts_or_registration(self):
         for client, path in ((Client(HTTP_HOST='school.test'), '/account/login/'),

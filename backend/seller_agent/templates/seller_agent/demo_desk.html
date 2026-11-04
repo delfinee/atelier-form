@@ -5,7 +5,7 @@
 {% include 'seller_agent/demo_nav.html' %}
 {{ seller_ui|json_script:"seller-i18n" }}
 <main>
-{% if shared_demo %}<p class="notice">{% translate 'Shared school demo · No login needed. Products and orders update automatically on the main website.' %}</p>{% endif %}
+{% if shared_demo %}<p class="notice">{% if request.seller_app %}{% blocktranslate with name=request.seller_demo_login.full_name %}Signed in as {{ name }} · Changes are recorded under this seller account.{% endblocktranslate %}{% else %}{% translate 'Shared school demo · No login needed. Products and orders update automatically on the main website.' %}{% endif %}</p>{% endif %}
 <div class="workspace-status"><strong id="account-name">{% translate 'Demo shop' %}</strong><span id="account-status" hidden></span><span id="engine-label"></span><button id="refresh" class="subtle">{% translate 'Refresh' %}</button></div>
 <div id="error" class="notice error" role="alert" hidden></div>
 <div class="layout assistant-grid">

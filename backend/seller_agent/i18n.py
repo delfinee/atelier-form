@@ -23,6 +23,8 @@ TEXT = {
     'editProduct': 'Edit photos, options and publication', 'noProducts': 'No matching products.',
     'carrier': 'Carrier', 'carrierName': 'Carrier name', 'tracking': 'Tracking number',
     'shipPreview': 'Preview shipment', 'noOrders': 'No orders for your shop.',
+    'delivery': 'Confirm delivery', 'deliveryPreview': 'Preview delivery confirmation',
+    'delivered': 'Delivered',
     'approvalRequired': 'Review the exact change and tick the approval box first.',
     'serverError': 'The server could not complete this request.',
     'validation': 'Validation failed.', 'sessionExpired': 'Refresh the page before continuing.',

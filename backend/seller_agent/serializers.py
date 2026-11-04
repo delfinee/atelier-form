@@ -8,7 +8,7 @@ class MessageInput(serializers.Serializer):
 
 class ChangeInput(serializers.Serializer):
     request_id = serializers.UUIDField()
-    action = serializers.ChoiceField(choices=["stock", "price", "listing", "fulfillment"])
+    action = serializers.ChoiceField(choices=["stock", "price", "listing", "fulfillment", "delivery"])
     target = serializers.CharField(max_length=200, required=False, default="", allow_blank=True)
     values = serializers.DictField()
 
@@ -36,6 +36,10 @@ class FulfillmentInput(serializers.Serializer):
     carrier = serializers.CharField(max_length=80)
     tracking_number = serializers.RegexField(r"^[A-Za-z0-9-]{6,80}$")
     status = serializers.ChoiceField(choices=["fulfilled"], default="fulfilled")
+
+
+class DeliveryInput(serializers.Serializer):
+    pass
 
 
 class ListingInput(serializers.Serializer):

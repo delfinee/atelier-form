@@ -18,10 +18,11 @@ from products.models import Maker, Product, ProductVariant, Category
 from products.serializers import SellerProductSerializer
 from orders.models import Order, OrderItem, SellerFulfillment
 from orders.serializers import SellerOrderSerializer
-from orders.services import update_seller_fulfillment, is_dispatch_eligible
+from orders.services import (update_seller_fulfillment, is_dispatch_eligible,
+                             can_mark_order_delivered, mark_order_delivered)
 from products.descriptions import warm_product_content
 from .models import Conversation, Change
-from .serializers import InventoryInput, PriceInput, ListingInput, FulfillmentInput
+from .serializers import InventoryInput, PriceInput, ListingInput, FulfillmentInput, DeliveryInput
 
 
 def require_seller(user, lock=False):
@@ -77,6 +78,7 @@ def orders(user):
         row["seller_subtotal"] = str(row["seller_subtotal"])
         fulfillment = row.get("fulfillment")
         row["can_ship"] = bool(is_dispatch_eligible(order) and fulfillment and not fulfillment.get("shipped_at"))
+        row['can_deliver'] = can_mark_order_delivered(order, acting_maker=maker)
     return result
 
 
@@ -84,7 +86,7 @@ def _shared_orders():
     """Shared coursework operations, one row per parcel, without buyer identity."""
     result = []
     parcels = SellerFulfillment.objects.select_related('order', 'maker').prefetch_related(
-        'order__items').order_by('-order__placed_at', 'pk')[:100]
+        'order__items', 'order__seller_fulfillments').order_by('-order__placed_at', 'pk')[:100]
     for parcel in parcels:
         order = parcel.order
         items = [item for item in order.items.all() if item.maker_id == parcel.maker_id]
@@ -100,6 +102,7 @@ def _shared_orders():
             'fulfillment': {'uuid': str(parcel.uuid), 'status': parcel.status,
                             'shipped_at': parcel.shipped_at.isoformat() if parcel.shipped_at else None},
             'can_ship': bool(items and is_dispatch_eligible(order) and not parcel.shipped_at),
+            'can_deliver': can_mark_order_delivered(order, acting_maker=parcel.maker),
         })
     return result
 
@@ -161,7 +164,8 @@ def _fulfillment_target(maker, target, lock=False):
 
 
 def _validate(action, values):
-    schema = {"stock": InventoryInput, "price": PriceInput, "listing": ListingInput, "fulfillment": FulfillmentInput}[action]
+    schema = {"stock": InventoryInput, "price": PriceInput, "listing": ListingInput,
+              "fulfillment": FulfillmentInput, "delivery": DeliveryInput}[action]
     extra = set(values) - set(schema().fields)
     if extra:
         raise ValidationError("Unsupported fields: " + ", ".join(sorted(extra)))
@@ -195,6 +199,11 @@ def prepare_change(user, conversation_id, request_id, action, target, values):
         fulfillment, before = _fulfillment_target(maker, target)
         if not is_dispatch_eligible(fulfillment.order) or fulfillment.shipped_at:
             raise ValidationError(_("Only a paid, dispatch-eligible, unshipped order can be prepared for shipment here."))
+    elif action == 'delivery':
+        fulfillment, before = _fulfillment_target(maker, target)
+        acting_maker = fulfillment.maker if getattr(maker, '_shared_catalogue', False) else maker
+        if not can_mark_order_delivered(fulfillment.order, acting_maker=acting_maker):
+            raise ValidationError(_('Only a paid, shipped order whose items belong to one seller can be confirmed delivered.'))
     else:
         _listing_serializer(values)
         before = {"shop": str(maker.uuid), "publication": "unpublished"}
@@ -220,6 +229,9 @@ def change_data(change):
         summary = (f"{_('Name')}: {values['name']}\n{_('Category')}: {_(category or values['category'])}\n"
                    f"{_('Price')}: {settings.CURRENCY} {values['price']}\n{_('Available quantity')}: {values['quantity']}\n"
                    f"{_('Description')}: {values['description']}\n{_('Publication')}: {_('Unpublished')}")
+    elif change.action == 'delivery':
+        summary = (f"{_('Order')}: {before['number']}\n"
+                   f"{_('Status')}: {_('Shipped')} → {_('Delivered')}")
     else:
         summary = (f"{_('Order')}: {before['number']}\n{_('Fulfillment')}: {_({'unfulfilled':'Not shipped', 'partial':'Partially shipped', 'fulfilled':'Shipped'}.get(before['status'], 'Unknown'))} → {_('Shipped')}\n"
                    f"{_('Carrier')}: {values['carrier']}\n{_('Tracking number')}: {values['tracking_number']}")
@@ -265,9 +277,14 @@ def confirm_change(user, uuid, channel):
         if current != change.before:
             raise ValidationError(_("Order or fulfillment changed. Review a new preview."))
         acting_maker = fulfillment.maker if getattr(maker, '_shared_catalogue', False) else maker
-        update_seller_fulfillment(fulfillment, acting_maker=acting_maker, **values)
-        change.result = {"message": "Your shop's fulfillment was updated.", "order": str(fulfillment.order.uuid),
-                         "tracking_number": fulfillment.tracking_number}
+        if change.action == 'delivery':
+            order = mark_order_delivered(fulfillment.order, acting_maker=acting_maker)
+            change.result = {'message': 'Order marked as delivered.', 'order': str(order.uuid),
+                             'order_status': order.status}
+        else:
+            update_seller_fulfillment(fulfillment, acting_maker=acting_maker, **values)
+            change.result = {"message": "Your shop's fulfillment was updated.", "order": str(fulfillment.order.uuid),
+                             "tracking_number": fulfillment.tracking_number}
     change.status = "applied"
     change.confirmed_channel = channel
     change.save(update_fields=["status", "result", "confirmed_channel", "updated_at"])

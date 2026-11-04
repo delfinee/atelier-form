@@ -531,6 +531,17 @@ def _order_items_all_belong_to(order: Order, maker: Maker) -> bool:
         Q(maker__isnull=True) | ~Q(maker_id=maker.id)).exists()
 
 
+def can_mark_order_delivered(order: Order, *, acting_maker: Maker) -> bool:
+    """Read-only eligibility for the same single-seller delivery operation."""
+    if order.status == OrderStatus.DELIVERED or not is_dispatch_eligible(order):
+        return False
+    fulfillments = list(order.seller_fulfillments.all())
+    items = list(order.items.all())
+    return (len(fulfillments) == 1 and fulfillments[0].maker_id == acting_maker.pk
+            and fulfillments[0].status == FulfillmentStatus.FULFILLED
+            and bool(items) and all(item.maker_id == acting_maker.pk for item in items))
+
+
 @transaction.atomic
 def mark_order_delivered(order: Order, *, acting_maker: Maker) -> Order:
     """Confirm a single-seller order has arrived, and notify the buyer once.
@@ -558,20 +569,17 @@ def mark_order_delivered(order: Order, *, acting_maker: Maker) -> Order:
                         .filter(order=order).order_by("pk"))
     own = [f for f in fulfillments if f.maker_id == acting_maker.id]
     if not own:
-        raise PermissionDenied("You do not have access to this order.")
+        raise PermissionDenied(gettext("You do not have access to this order."))
     if len(fulfillments) != 1 or not _order_items_all_belong_to(order, acting_maker):
-        raise ValidationError({"status": "Only an order whose items all come from you "
-                                         "can be confirmed delivered by you."})
+        raise ValidationError({"status": gettext("Only an order whose items all come from you can be confirmed delivered by you.")})
 
     if order.status == OrderStatus.DELIVERED:
         return order  # already confirmed; do not notify again
 
     if not is_dispatch_eligible(order):
-        raise ValidationError({"status": "This order cannot be confirmed delivered: it must be "
-                                         "paid and not cancelled."})
+        raise ValidationError({"status": gettext("This order cannot be confirmed delivered: it must be paid and not cancelled.")})
     if own[0].status != FulfillmentStatus.FULFILLED:
-        raise ValidationError({"status": "Mark your fulfilment as fulfilled before confirming "
-                                         "delivery."})
+        raise ValidationError({"status": gettext("Mark your fulfilment as fulfilled before confirming delivery.")})
 
     order.status = OrderStatus.DELIVERED
     order.save(update_fields=["status", "updated_at"])

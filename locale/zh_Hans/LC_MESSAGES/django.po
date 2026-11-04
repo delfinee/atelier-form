@@ -5293,37 +5293,71 @@ msgstr "材质信息暂时无法翻译。"
 msgid "Option translation is temporarily unavailable."
 msgstr "规格名称暂时无法翻译。"
 
-#~ msgid ""
-#~ "Password reset email delivery is not connected yet — the request is accepted"
-#~ " and logged."
-#~ msgstr "重设密码邮件发送功能尚未接入——请求已受理并记录。"
-
-#~ msgid "Change your password through the API endpoint"
-#~ msgstr "通过 API 接口修改密码"
-
-#~ msgid "POST /api/auth/change-password/"
-#~ msgstr "POST /api/auth/change-password/"
-
-#~ msgid ". A frontend form for this is not built yet."
-#~ msgstr "。前台表单尚未开发。"
-
-#~ msgid ""
-#~ "Password reset email delivery is not connected yet — the request is accepted"
-#~ " and logged."
-#~ msgstr "重设密码邮件发送功能尚未接入——请求已受理并记录。"
-
-#~ msgid "Change your password through the API endpoint"
-#~ msgstr "通过 API 接口修改密码"
-
-#~ msgid "POST /api/auth/change-password/"
-#~ msgstr "POST /api/auth/change-password/"
-
-#~ msgid ". A frontend form for this is not built yet."
-#~ msgstr "。前台表单尚未开发。"
-
-
 msgid "Curtain Tote Bag"
 msgstr "亚麻抱枕套"
 
 msgid "Cotton linen · Chen Meilin"
 msgstr "棉麻 · 陈美林"
+
+msgid "Confirm delivery"
+msgstr "确认送达"
+
+msgid "Preview delivery confirmation"
+msgstr "预览确认送达"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Order marked as delivered."
+msgstr "订单已确认为送达。"
+
+msgid ""
+"Only a paid, shipped order whose items belong to one seller can be confirmed"
+" delivered."
+msgstr "只有已付款、已发货且全部商品属于同一卖家的订单，才能确认送达。"
+
+msgid "You do not have access to this order."
+msgstr "你无权操作此订单。"
+
+msgid ""
+"Only an order whose items all come from you can be confirmed delivered by "
+"you."
+msgstr "只能确认全部商品均属于你的订单已送达。"
+
+msgid ""
+"This order cannot be confirmed delivered: it must be paid and not cancelled."
+msgstr "只有已付款且未取消的订单才能确认送达。"
+
+msgid "Mark your fulfilment as fulfilled before confirming delivery."
+msgstr "请先完成发货，再确认送达。"
+
+msgid "Delivered"
+msgstr "已送达"
+
+#~ msgid ""
+#~ "Password reset email delivery is not connected yet — the request is accepted"
+#~ " and logged."
+#~ msgstr "重设密码邮件发送功能尚未接入——请求已受理并记录。"
+
+#~ msgid "Change your password through the API endpoint"
+#~ msgstr "通过 API 接口修改密码"
+
+#~ msgid "POST /api/auth/change-password/"
+#~ msgstr "POST /api/auth/change-password/"
+
+#~ msgid ". A frontend form for this is not built yet."
+#~ msgstr "。前台表单尚未开发。"
+
+#~ msgid ""
+#~ "Password reset email delivery is not connected yet — the request is accepted"
+#~ " and logged."
+#~ msgstr "重设密码邮件发送功能尚未接入——请求已受理并记录。"
+
+#~ msgid "Change your password through the API endpoint"
+#~ msgstr "通过 API 接口修改密码"
+
+#~ msgid "POST /api/auth/change-password/"
+#~ msgstr "POST /api/auth/change-password/"
+
+#~ msgid ". A frontend form for this is not built yet."
+#~ msgstr "。前台表单尚未开发。"

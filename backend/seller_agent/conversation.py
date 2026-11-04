@@ -79,9 +79,9 @@ def respond(user, conversation_id, request_id, text, channel, plan):
         else:
             change = services.prepare_change(user, conversation.uuid, request_id, "listing", "", values)
             result.update(reply=say("Review this unpublished product draft. It will only be saved after you confirm.", "请检查商品草稿。你确认后才会保存，商品仍为未发布状态。"), change=services.change_data(change))
-    elif intent in ("stock", "price", "fulfillment"):
+    elif intent in ("stock", "price", "fulfillment", "delivery"):
         target = plan.get("target", "")
-        if intent != "fulfillment":
+        if intent not in ("fulfillment", "delivery"):
             matches = [p for p in get_catalog(user) if p["slug"].casefold()==target.casefold() or (p["name"].casefold()==target.casefold() or p.get("canonical_name", "").casefold()==target.casefold())]
             if len(matches) != 1:
                 raise ValidationError(_("Choose one of your exact product names or slugs. Use 'my products' to see them."))

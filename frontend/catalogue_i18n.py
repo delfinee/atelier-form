@@ -251,43 +251,33 @@ def localize_product(product):
     if not hasattr(product, 'name'):
         return product
     from products.names import localized_product_name
-    display_name = localized_product_name(product)
-    if not _is_chinese():
-        if display_name == product.name:
-            return product
-        localized = copy(product)
-        localized.name = display_name
-        return localized
+    from products.descriptions import localized_product_descriptions
+    display = {'name': localized_product_name(product), **localized_product_descriptions(product)}
     source = PRODUCTS_BY_SLUG.get(product.slug)
-    if source is None:
-        if display_name == product.name:
+    if not _is_chinese() or source is None:
+        if all(getattr(product, key) == value for key, value in display.items()):
             return product
         localized = copy(product)
-        localized.name = display_name
+        for key, value in display.items():
+            setattr(localized, key, value)
         return localized
     localized = copy(product)
-    fields = (
-        ("name", "name"),
-        ("short_description", "short_description"),
-        ("description", "description"),
-        ("story", "story"),
-        ("care_instructions", "care"),
-        ("shipping_information", "dispatch"),
-    )
-    for field, source_field in fields:
+    for field, source_field in (("story", "story"), ("care_instructions", "care"),
+                                ("shipping_information", "dispatch")):
         current = getattr(product, field)
         if current == source[source_field]:
             setattr(localized, field, gettext(current))
     if getattr(product, "materials", None) == source["materials"]:
         labels = _product_material_labels()
         localized.materials = [labels[material] for material in product.materials]
-    localized.name = display_name
+    for key, value in display.items():
+        setattr(localized, key, value)
     return localized
 
 
 def localize_products(products):
-    from products.names import warm_product_names
-    return [localize_product(product) for product in warm_product_names(products)]
+    from products.descriptions import warm_product_content
+    return [localize_product(product) for product in warm_product_content(products)]
 
 
 class _LocalizedFAQGroup:

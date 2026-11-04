@@ -12,7 +12,7 @@ from imagery.resolver import image_url
 from products.models import Product
 from reviews.models import Review
 from .display import display_card, localize_catalogue_text, localize_reviews
-from products.names import warm_product_names
+from products.descriptions import warm_product_content
 from . import buyer_ai
 
 QUICK_ACTIONS = {
@@ -337,7 +337,7 @@ def discover(text, previous=None, history=(), action=None, language=None):
     shown = rows[offset:offset + size]
     shown_slugs = {item['slug'] for item in shown}
     language = 'zh-hans' if zh else 'en'
-    shown_products = {p.slug: p for p in warm_product_names(
+    shown_products = {p.slug: p for p in warm_product_content(
         [p for p in products if p.slug in shown_slugs], language)}
     for item in shown:
         display_card(item, shown_products[item['slug']], language)

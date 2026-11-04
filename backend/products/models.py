@@ -418,3 +418,15 @@ class ProductNameTranslation(models.Model):
     english = models.CharField(max_length=160, blank=True)
     chinese = models.CharField(max_length=160, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class ProductTextTranslation(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='text_translations')
+    field = models.CharField(max_length=32)
+    source_text = models.TextField()
+    english = models.TextField(blank=True)
+    chinese = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['product', 'field'], name='product_text_translation_once')]

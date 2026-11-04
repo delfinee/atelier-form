@@ -4,7 +4,8 @@ from rest_framework import serializers
 from frontend.catalogue_i18n import localize_maker
 
 from .models import Category, Collection, Maker, Product, ProductImage, ProductVariant
-from .names import localized_product_name, warm_product_names
+from .names import localized_product_name
+from .descriptions import localized_product_descriptions, warm_product_content
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -65,7 +66,7 @@ class MakerDetailSerializer(MakerListSerializer):
 class LocalizedProductListSerializer(serializers.ListSerializer):
     def to_representation(self, data):
         rows = data.all() if hasattr(data, 'all') else data
-        return super().to_representation(warm_product_names(rows))
+        return super().to_representation(warm_product_content(rows))
 
 
 class ProductListSerializer(serializers.ModelSerializer):
@@ -79,6 +80,10 @@ class ProductListSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         data['name'] = localized_product_name(instance)
         data['original_name'] = instance.name
+        for field, value in localized_product_descriptions(instance).items():
+            if field in data:
+                data[field] = value
+                data['original_' + field] = getattr(instance, field)
         return data
 
     class Meta:

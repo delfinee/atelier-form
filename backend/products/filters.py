@@ -3,11 +3,11 @@
 import django_filters as filters
 from django.db.models import Q
 
-from .models import MATERIAL_FAMILIES, MATERIAL_ALIASES, Product
+from .models import MATERIAL_FAMILIES, MATERIAL_ALIASES, Product, NEWEST_ORDER
 
 SORT_MAP = {
     "featured": ["-is_featured", "-sort_weight", "-created_at"],
-    "newest": ["-created_at"],
+    "newest": NEWEST_ORDER,
     "price_asc": ["price"],
     "price_desc": ["-price"],
     # Accept the frontend's hyphenated spellings too.

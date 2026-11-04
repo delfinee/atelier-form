@@ -11,11 +11,15 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
+from django.db.models.functions import Coalesce
+from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_noop
 
 from config.mixins import TimeStampedModel, UUIDModel
 from imagery.resolver import PLACEHOLDER_PREFIX, image_url
+
+NEWEST_ORDER = [Coalesce('published_at', 'created_at').desc(), '-created_at', '-pk']
 
 
 class StockStatus(models.TextChoices):
@@ -196,6 +200,7 @@ class Product(SluggedModel):
     is_active = models.BooleanField(default=True)
     is_featured = models.BooleanField(default=False)
     is_new_arrival = models.BooleanField(default=False)
+    published_at = models.DateTimeField(null=True, blank=True, editable=False, db_index=True)
 
     # -- inventory (authoritative) -----------------------------------------
     stock_quantity = models.PositiveIntegerField(
@@ -273,6 +278,13 @@ class Product(SluggedModel):
         return " \n".join(p for p in parts if p)
 
     def save(self, *args, **kwargs):
+        update_fields = kwargs.get('update_fields')
+        if self.is_active and (update_fields is None or 'is_active' in update_fields):
+            was_active = type(self).objects.filter(pk=self.pk).values_list('is_active', flat=True).first() if self.pk else False
+            if not was_active or self.published_at is None:
+                self.published_at = timezone.now()
+                if update_fields is not None:
+                    kwargs['update_fields'] = set(update_fields) | {'published_at'}
         self.search_blob = self.build_search_blob()
         super().save(*args, **kwargs)
 

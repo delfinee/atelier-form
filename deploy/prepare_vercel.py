@@ -23,14 +23,14 @@ if os.environ.get("VERCEL_ENV") == "production":
         with connection.cursor() as cursor:
             cursor.execute("SELECT pg_advisory_xact_lock(%s)", [74132026])
         executor = MigrationExecutor(connection)
-        targets = executor.loader.graph.leaf_nodes("seller_agent") + [('products', '0006_producttexttranslation')]
+        targets = executor.loader.graph.leaf_nodes("seller_agent") + [('products', '0007_product_published_at')]
         plan = executor.migration_plan(targets)
         if any(backwards or not (migration.app_label == "seller_agent" or
-                               (migration.app_label == 'products' and migration.name in {'0005_productnametranslation', '0006_producttexttranslation'}))
+                               (migration.app_label == 'products' and migration.name in {'0005_productnametranslation', '0006_producttexttranslation', '0007_product_published_at'}))
                for migration, backwards in plan):
             raise RuntimeError("Apply prerequisite schema migrations separately before deploying seller AI.")
         print("Pending additive migrations:", [(migration.app_label, migration.name) for migration, _ in plan])
-        call_command("migrate", "products", "0006_producttexttranslation", interactive=False)
+        call_command("migrate", "products", "0007_product_published_at", interactive=False)
         call_command("migrate", "seller_agent", interactive=False)
 
 call_command("collectstatic", interactive=False, verbosity=1)

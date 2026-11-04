@@ -27,6 +27,7 @@ from .catalogue_i18n import (
 from products.models import (
     MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product,
     ProductQuerySet, ProductVariant,
+    NEWEST_ORDER,
 )
 
 SORT_OPTIONS = [
@@ -58,7 +59,7 @@ POPULAR_SEARCHES = [
 ]
 
 _SORT_FIELDS = {
-    "newest": ["-sort_weight", "-created_at"],
+    "newest": NEWEST_ORDER,
     "price-asc": ["price"],
     "price-desc": ["-price"],
     "featured": ["-is_featured", "-sort_weight", "-created_at"],
@@ -100,8 +101,7 @@ def featured_products(limit: int | None = None) -> list[Product]:
 
 
 def new_arrivals(limit: int = 8) -> list[Product]:
-    products = list(_base_queryset().filter(is_new_arrival=True)
-                    .order_by("-sort_weight", "-created_at")[:limit])
+    products = list(_base_queryset().order_by(*NEWEST_ORDER)[:limit])
     return localize_products(products)
 
 
@@ -181,7 +181,7 @@ def filter_products(
 def sort_products(items: list[Product], sort: str) -> list[Product]:
     """In-memory sort, for lists that have already been fetched."""
     if sort == "newest":
-        return sorted(items, key=lambda p: (p.sort_weight, p.created_at), reverse=True)
+        return sorted(items, key=lambda p: (getattr(p, 'published_at', None) or p.created_at, p.created_at), reverse=True)
     if sort == "price-asc":
         return sorted(items, key=lambda p: p.price)
     if sort == "price-desc":

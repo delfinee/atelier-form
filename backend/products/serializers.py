@@ -91,7 +91,7 @@ class ProductListSerializer(serializers.ModelSerializer):
         list_serializer_class = LocalizedProductListSerializer
         fields = ["uuid", "slug", "name", "short_description", "price", "currency",
                   "category", "maker", "maker_name", "materials", "material_families",
-                  "is_featured", "is_new_arrival", "stock_status", "primary_image"]
+                  "is_featured", "is_new_arrival", "published_at", "stock_status", "primary_image"]
         read_only_fields = fields
 
     def get_primary_image(self, obj) -> str:

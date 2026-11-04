@@ -4241,14 +4241,14 @@ msgid "Pure beeswax"
 msgstr "纯蜂蜡"
 
 msgid "Your shopping assistant"
-msgstr "你的选购助手"
+msgstr "您的专属导购："
 
 msgid "Tell us what you are looking for."
-msgstr "告诉我，你在寻找什么。"
+msgstr "今天想找点什么？"
 
 msgid ""
 "Find real pieces, compare prices and reviews, then make the choice yours."
-msgstr "查找在售商品，对比价格与真实评价，由你决定购买。"
+msgstr "帮您搜罗好物、对比价格与真实评价，轻松做出最优选择。"
 
 msgid "What are you looking for?"
 msgstr "你想找什么商品？"

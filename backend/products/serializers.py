@@ -4,6 +4,7 @@ from rest_framework import serializers
 from frontend.catalogue_i18n import localize_maker
 
 from .models import Category, Collection, Maker, Product, ProductImage, ProductVariant
+from .names import localized_product_name, warm_product_names
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -61,6 +62,12 @@ class MakerDetailSerializer(MakerListSerializer):
         fields = MakerListSerializer.Meta.fields + ["short_bio", "biography", "process", "studio_images"]
 
 
+class LocalizedProductListSerializer(serializers.ListSerializer):
+    def to_representation(self, data):
+        rows = data.all() if hasattr(data, 'all') else data
+        return super().to_representation(warm_product_names(rows))
+
+
 class ProductListSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     maker = serializers.SlugRelatedField(slug_field="slug", read_only=True)
@@ -68,8 +75,15 @@ class ProductListSerializer(serializers.ModelSerializer):
     primary_image = serializers.SerializerMethodField()
     material_families = serializers.ListField(read_only=True)
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['name'] = localized_product_name(instance)
+        data['original_name'] = instance.name
+        return data
+
     class Meta:
         model = Product
+        list_serializer_class = LocalizedProductListSerializer
         fields = ["uuid", "slug", "name", "short_description", "price", "currency",
                   "category", "maker", "maker_name", "materials", "material_families",
                   "is_featured", "is_new_arrival", "stock_status", "primary_image"]

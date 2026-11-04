@@ -16,19 +16,21 @@ from django.db import connection, transaction
 from django.db.migrations.executor import MigrationExecutor
 
 # Preview builds may share production environment variables. They must not
-# migrate a database. The production deploy only applies the existing seller
-# assistant migration, which creates new tables without changing products.
+# migrate a database. Production may create the seller tables and the additive
+# product-name translation table. Other catalogue schema changes stay manual.
 if os.environ.get("VERCEL_ENV") == "production":
     with transaction.atomic():
         with connection.cursor() as cursor:
             cursor.execute("SELECT pg_advisory_xact_lock(%s)", [74132026])
         executor = MigrationExecutor(connection)
-        targets = executor.loader.graph.leaf_nodes("seller_agent")
+        targets = executor.loader.graph.leaf_nodes("seller_agent") + [('products', '0005_productnametranslation')]
         plan = executor.migration_plan(targets)
-        if any(backwards or migration.app_label != "seller_agent"
+        if any(backwards or not (migration.app_label == "seller_agent" or
+                               (migration.app_label, migration.name) == ('products', '0005_productnametranslation'))
                for migration, backwards in plan):
             raise RuntimeError("Apply prerequisite schema migrations separately before deploying seller AI.")
-        print("Pending seller assistant migrations:", [migration.name for migration, _ in plan])
+        print("Pending additive migrations:", [(migration.app_label, migration.name) for migration, _ in plan])
+        call_command("migrate", "products", "0005_productnametranslation", interactive=False)
         call_command("migrate", "seller_agent", interactive=False)
 
 call_command("collectstatic", interactive=False, verbosity=1)

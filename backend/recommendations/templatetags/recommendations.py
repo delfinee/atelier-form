@@ -1,7 +1,7 @@
 from django import template
 from django.utils.translation import gettext
 
-from frontend.catalogue_i18n import localize_product
+from frontend.catalogue_i18n import localize_products
 from recommendations.services import recommend
 
 register = template.Library()
@@ -33,7 +33,7 @@ def recommendation_block(context, limit=4):
     elif guest:
         note = gettext("Popular pieces to get you started. No sign-in needed.")
     return {
-        "recommendations": [localize_product(item.product) for item in ranked],
+        "recommendations": localize_products([item.product for item in ranked]),
         "recommendation_title": gettext("You may also like") if product else gettext("Recommended for you"),
         "recommendation_eyebrow": gettext("Based on this piece") if product else gettext("Picked for you"),
         "recommendation_note": note,

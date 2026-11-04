@@ -248,11 +248,23 @@ def _product_material_labels():
 
 
 def localize_product(product):
-    if not _is_chinese():
+    if not hasattr(product, 'name'):
         return product
+    from products.names import localized_product_name
+    display_name = localized_product_name(product)
+    if not _is_chinese():
+        if display_name == product.name:
+            return product
+        localized = copy(product)
+        localized.name = display_name
+        return localized
     source = PRODUCTS_BY_SLUG.get(product.slug)
     if source is None:
-        return product
+        if display_name == product.name:
+            return product
+        localized = copy(product)
+        localized.name = display_name
+        return localized
     localized = copy(product)
     fields = (
         ("name", "name"),
@@ -269,7 +281,13 @@ def localize_product(product):
     if getattr(product, "materials", None) == source["materials"]:
         labels = _product_material_labels()
         localized.materials = [labels[material] for material in product.materials]
+    localized.name = display_name
     return localized
+
+
+def localize_products(products):
+    from products.names import warm_product_names
+    return [localize_product(product) for product in warm_product_names(products)]
 
 
 class _LocalizedFAQGroup:

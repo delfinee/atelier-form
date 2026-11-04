@@ -13,6 +13,7 @@ from django.views.decorators.http import require_http_methods
 
 from orders.models import Order, OrderItem
 from products.models import Product
+from products.names import warm_product_names
 from frontend.catalogue_i18n import localize_product, localize_maker, localize_collection
 from .forms_seller import SellerImageFormSet, SellerProductForm, SellerVariantFormSet
 
@@ -41,6 +42,7 @@ def seller_product_list(request, template_name="frontend/seller/products.html"):
         .prefetch_related("product_variants", "product_images")
         .order_by("-updated_at")
     )
+    products = warm_product_names(products)
     displayed = []
     for item in products:
         item = localize_product(copy(item))

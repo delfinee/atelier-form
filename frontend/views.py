@@ -404,7 +404,7 @@ def account_wishlist(request):
              .prefetch_related("product__product_images"))
     return render(request, "frontend/account/wishlist.html", {
         "customer": request.user,
-        "wishlist_products": [services.localize_product(item.product) for item in items],
+        "wishlist_products": services.localize_products([item.product for item in items]),
         "meta_title": f"{_('Wishlist')} — {SITE['brand']}",
     })
 

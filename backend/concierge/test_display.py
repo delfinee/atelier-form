@@ -37,9 +37,9 @@ class ShoppingDisplayLanguageTests(TestCase):
         result = discover('只看蓝色的商品', action='blue', language='zh-hans')
         result = discover('看看评价', result['context'], action='reviews', language='zh-hans')
         card = result['products'][0]
-        self.assertEqual(card['name'], '手织棉盖毯')
+        self.assertEqual(card['name'], '手织纯棉四季毯')
         self.assertEqual(card['maker'], '陆文静')
-        self.assertEqual(card['options'][0]['label'], '靛蓝')
+        self.assertEqual(card['options'][0]['label'], '蓼蓝')
         self.assertTrue(all(not any(c.isascii() and c.isalpha() for c in material)
                             for material in card['materials']))
         review = card['review_examples'][0]
@@ -71,7 +71,7 @@ class ShoppingDisplayLanguageTests(TestCase):
         history = self.client.get('/api/buyer-assistant/history/').json()['messages']
         self.assertEqual(len(history), 1)
         self.assertEqual(history[0]['text'], '看看评价')
-        self.assertEqual(history[0]['response']['products'][0]['name'], '手织棉盖毯')
+        self.assertEqual(history[0]['response']['products'][0]['name'], '手织纯棉四季毯')
         self.assertEqual(history[0]['response']['products'][0]['review_examples'][0]['body'], '推荐！')
 
     @override_settings(DEEPSEEK_API_KEY='test-only-key', SELLER_AGENT_MODEL='deepseek-flash')
@@ -106,7 +106,7 @@ class ShoppingDisplayLanguageTests(TestCase):
         post.return_value = Mock()
         post.return_value.json.return_value = {'choices': [{'message': {'content': json.dumps({
             'translations': ['窗帘布托特包', '测试工作室', '再生织物', '天空蓝']})}}]}
-        cards = [{'name': 'Curtain Tote Bag', 'maker': 'Test Studio',
+        cards = [{'name': 'Custom Curtain Tote Bag', 'maker': 'Test Studio',
                   'materials': ['Reclaimed fabric'], 'options': [{'label': 'Sky blue'}]}]
         localize_catalogue_text(cards, 'zh-hans')
         self.assertEqual(cards[0]['name'], '窗帘布托特包')

@@ -12,6 +12,7 @@ from imagery.resolver import image_url
 from products.models import Product
 from reviews.models import Review
 from .display import display_card, localize_catalogue_text, localize_reviews
+from products.names import warm_product_names
 from . import buyer_ai
 
 QUICK_ACTIONS = {
@@ -111,7 +112,7 @@ def catalogue():
         review_average=Avg('reviews__rating', filter=Q(reviews__is_published=True))).order_by('name', 'pk')
 
 
-def card(product, filters):
+def card(product, filters, localize=True):
     variants = list(product.product_variants.all())
     active = [v for v in variants if v.is_active]
     colour_keys = filters.get('colours', [])
@@ -146,13 +147,13 @@ def card(product, filters):
         'url': reverse('product_detail', kwargs={'slug': product.slug}),
         'image': image_url(product.primary_image()),
         'options': [{'id': str(v.uuid), 'label': v.label, 'price': str(v.unit_price), 'available': v.available} for v in options]}
-    return display_card(item, product, 'zh-hans' if filters.get('language') == 'zh' else 'en')
+    return display_card(item, product, 'zh-hans' if filters.get('language') == 'zh' else 'en') if localize else item
 
 
 def model_facts(products):
     facts = []
     for product in products[:100]:
-        item = card(product, {})
+        item = card(product, {}, localize=False)
         if item:
             facts.append({'id': product.slug, 'name': product.name, 'category': product.category.name,
                 'description': (product.short_description or product.description or '')[:400],
@@ -318,7 +319,7 @@ def discover(text, previous=None, history=(), action=None, language=None):
             continue
         if filters.get('selection') and p.slug not in filters['selection']:
             continue
-        item = card(p, filters)
+        item = card(p, filters, localize=False)
         if item:
             rows.append(item)
     comparing = filters.get('compare')
@@ -334,6 +335,12 @@ def discover(text, previous=None, history=(), action=None, language=None):
     offset = previous.get('next_offset', 0) if filters.get('more') and previous else 0
     size = 2 if filters.get('more') else 4
     shown = rows[offset:offset + size]
+    shown_slugs = {item['slug'] for item in shown}
+    language = 'zh-hans' if zh else 'en'
+    shown_products = {p.slug: p for p in warm_product_names(
+        [p for p in products if p.slug in shown_slugs], language)}
+    for item in shown:
+        display_card(item, shown_products[item['slug']], language)
     localize_catalogue_text(shown, 'zh-hans' if zh else 'en')
     filters.update(shown=[p['slug'] for p in shown], next_offset=offset + len(shown))
     filters.pop('more', None)

@@ -19,6 +19,7 @@ from products.serializers import SellerProductSerializer
 from orders.models import Order, OrderItem, SellerFulfillment
 from orders.serializers import SellerOrderSerializer
 from orders.services import update_seller_fulfillment, is_dispatch_eligible
+from products.names import warm_product_names
 from .models import Conversation, Change
 from .serializers import InventoryInput, PriceInput, ListingInput, FulfillmentInput
 
@@ -47,7 +48,7 @@ def products(user, low_stock=False):
     maker = require_seller(user)
     result = []
     catalogue = Product.objects.all() if maker._shared_catalogue else Product.objects.filter(maker=maker)
-    for p in catalogue.prefetch_related("product_variants").order_by("name")[:200]:
+    for p in warm_product_names(catalogue.prefetch_related("product_variants").order_by("name")[:200]):
         variants = [{"id": str(v.uuid), "label": localize_colour_label(v.label), "quantity": v.stock_quantity,
                      "price": str(v.unit_price), "active": v.is_active} for v in p.product_variants.all()]
         # Keep zero-stock options visible, including a low option on a high-total product.

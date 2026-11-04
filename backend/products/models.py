@@ -169,7 +169,9 @@ class ProductQuerySet(models.QuerySet):
         query = (query or "").strip()
         if not query:
             return self.none()
-        return self.filter(search_blob__icontains=query)
+        return self.filter(Q(search_blob__icontains=query)
+                           | Q(name_translation__english__icontains=query)
+                           | Q(name_translation__chinese__icontains=query))
 
 
 class Product(SluggedModel):
@@ -406,3 +408,13 @@ def material_families(product) -> list:
     blob = blob.replace("wood-ash", "ash")
     return [family for family in MATERIAL_FAMILIES
             if any(re.search(rf"\b{alias}", blob) for alias in MATERIAL_ALIASES[family])]
+
+
+class ProductNameTranslation(models.Model):
+    """Names derived from an exact source name; inventory stays on Product."""
+    product = models.OneToOneField(Product, on_delete=models.CASCADE,
+                                  primary_key=True, related_name='name_translation')
+    source_name = models.CharField(max_length=160)
+    english = models.CharField(max_length=160, blank=True)
+    chinese = models.CharField(max_length=160, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)

@@ -22,7 +22,7 @@ from django.utils.translation import gettext, gettext_noop
 from content.models import Article, ArticleQuerySet
 from .catalogue_i18n import (
     localize_article, localize_collection, localize_colour_label, localize_maker,
-    localize_product,
+    localize_product, localize_products,
 )
 from products.models import (
     MATERIAL_ALIASES, MATERIAL_FAMILIES, Category, Collection, Maker, Product,
@@ -85,7 +85,7 @@ def _base_queryset():
 # -- Products ------------------------------------------------------------
 
 def all_products() -> list[Product]:
-    return [localize_product(product) for product in _base_queryset()]
+    return localize_products(_base_queryset())
 
 
 def get_product(slug: str) -> Product | None:
@@ -96,18 +96,18 @@ def get_product(slug: str) -> Product | None:
 def featured_products(limit: int | None = None) -> list[Product]:
     queryset = _base_queryset().filter(is_featured=True)
     products = list(queryset[:limit] if limit else queryset)
-    return [localize_product(product) for product in products]
+    return localize_products(products)
 
 
 def new_arrivals(limit: int = 8) -> list[Product]:
     products = list(_base_queryset().filter(is_new_arrival=True)
                     .order_by("-sort_weight", "-created_at")[:limit])
-    return [localize_product(product) for product in products]
+    return localize_products(products)
 
 
 def products_by_maker(maker_slug: str) -> list[Product]:
     products = list(_base_queryset().filter(maker__slug=maker_slug))
-    return [localize_product(product) for product in products]
+    return localize_products(products)
 
 
 def related_products(product: Product, limit: int = 4) -> list[Product]:
@@ -126,7 +126,7 @@ def related_products(product: Product, limit: int = 4) -> list[Product]:
         )
         .order_by("same_maker", "same_category", "-is_featured", "-sort_weight")[:limit]
     )
-    return [localize_product(item) for item in products]
+    return localize_products(products)
 
 
 def filter_products(
@@ -175,7 +175,7 @@ def filter_products(
         queryset = queryset.filter(clause)
 
     products = list(queryset.distinct().order_by(*_SORT_FIELDS.get(sort, _SORT_FIELDS["featured"])))
-    return [localize_product(product) for product in products]
+    return localize_products(products)
 
 
 def sort_products(items: list[Product], sort: str) -> list[Product]:
@@ -310,7 +310,7 @@ def search(query: str) -> dict[str, list]:
         | Q(location__icontains=q) | Q(tagline__icontains=q), is_active=True))
 
     return {
-        "products": [localize_product(product) for product in _base_queryset().search(q)],
+        "products": localize_products(_base_queryset().search(q)),
         "collections": [localize_collection(collection) for collection in collections],
         "makers": [localize_maker(maker) for maker in makers],
         "articles": [
@@ -344,5 +344,5 @@ def catalogue_payload() -> dict[str, dict]:
             "url": reverse("product_detail", args=[p.slug]),
             "stock": p.stock_status,
         }
-        for p in (localize_product(product) for product in _base_queryset())
+        for p in localize_products(_base_queryset())
     }

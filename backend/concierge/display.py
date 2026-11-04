@@ -13,12 +13,13 @@ from frontend.catalogue_i18n import (
     localize_colour_label, localize_maker, localize_product, localize_size_label,
 )
 from products.models import Product
+from products.names import warm_product_names
 
 
 def display_card(item, product, language):
     with override(language):
         localized = localize_product(product)
-        item.update(name=localized.name, maker=localize_maker(product.maker).name,
+        item.update(name=localized.name, canonical_name=product.name, maker=localize_maker(product.maker).name,
                     materials=list(localized.materials))
         for option in item.get('options', []):
             option['label'] = localize_size_label(localize_colour_label(option['label']))
@@ -87,7 +88,7 @@ def _localize_fields(targets, language):
             if cached is None:
                 pending[original] = cache_key
             fields.append((target, field, original, cache_key, cached, fallback, mark_review))
-        translated = _translate(list(pending)[:32], language)
+        translated = _translate(list(pending)[:32], language) if pending else {}
         for original, cache_key in pending.items():
             cache.set(cache_key, translated.get(original, ''), 604800 if original in translated else 60)
         for target, field, original, cache_key, cached, fallback, mark_review in fields:
@@ -107,8 +108,9 @@ def localize_reviews(cards, language):
 def localize_catalogue_text(cards, language):
     targets = []
     for card in cards:
-        targets.extend([(card, 'name', 'Product translation is temporarily unavailable.', False),
-                        (card, 'maker', 'Maker translation is temporarily unavailable.', False)])
+        if 'canonical_name' not in card:
+            targets.append((card, 'name', 'Product translation is temporarily unavailable.', False))
+        targets.append((card, 'maker', 'Maker translation is temporarily unavailable.', False))
         targets.extend((card['materials'], index, 'Material translation is temporarily unavailable.', False)
                        for index in range(len(card.get('materials', []))))
         targets.extend((option, 'label', 'Option translation is temporarily unavailable.', False)
@@ -123,6 +125,7 @@ def localize_result(result, language):
     cards = result.get('products', [])
     products = {p.slug: p for p in Product.objects.filter(
         slug__in=[card['slug'] for card in cards]).select_related('maker')}
+    products = {p.slug: p for p in warm_product_names(products.values(), language)}
     for item in cards:
         product = products.get(item['slug'])
         if product:

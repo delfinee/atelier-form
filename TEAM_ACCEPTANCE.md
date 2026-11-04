@@ -19,6 +19,14 @@ Only the **Windows Seller App** pre-fills this existing seller account on the
 configured school-demo host. The seller display name is **chen mei lin**. Click
 **Sign in** inside the app to open the seller assistant. Ordinary website login
 pages stay blank, and the existing anonymous shared catalogue remains available.
+After signing into this account, newly created products belong to its real maker
+profile. Successful product and order edits save an immutable operation record
+with the signed-in seller's name. The seller workspace and relevant storefront
+detail pages display the most recent operator. Existing product ownership and
+older order records are preserved; anonymous demo actions are not labelled as
+chen mei lin.
+The Windows app opens the pre-filled login page until the demo seller signs in,
+so app edits cannot accidentally be saved as anonymous shared-demo operations.
 Download this build from https://beans-summaries-brilliant-labs.trycloudflare.com/seller/download/ after signing in.
 This is a shared demo shop: use uniquely named test products. Do not enter real
 customer details or treat demo orders as actual payments or deliveries.

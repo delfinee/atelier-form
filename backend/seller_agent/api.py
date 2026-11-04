@@ -168,7 +168,7 @@ class Detail(Linked):
     def get(self, request, uuid):
         c = services.conversation_for(request.user, uuid)
         return Response({"id":str(c.uuid), "messages":[{"text":m.text,"response":m.response,"channel":m.channel}
-            for m in c.messages.all()], "changes":[services.change_data(d) for d in c.changes.order_by("id")]})
+            for m in c.messages.all()], "changes":[services.change_data(d) for d in c.changes.select_related('operation').order_by("id")]})
 
 
 class Chat(Linked):

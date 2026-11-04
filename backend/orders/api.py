@@ -16,7 +16,7 @@ from payments.services import get_payment_provider
 from products.models import Product, ProductVariant
 
 from . import services
-from .models import Order
+from .models import Order, OrderStatus
 from .serializers import (
     AddToCartSerializer, AdminOrderUpdateSerializer, CartSerializer,
     CheckoutSerializer, OrderSerializer, SellerFulfillmentUpdateSerializer,
@@ -212,13 +212,18 @@ class SellerOrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         serializer = SellerFulfillmentUpdateSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
 
-        services.update_seller_fulfillment(
-            fulfillment,
-            acting_maker=maker,
-            status=serializer.validated_data.get("status"),
-            carrier=serializer.validated_data.get("carrier"),
-            tracking_number=serializer.validated_data.get("tracking_number"),
-        )
+        from django.db import transaction
+        from seller_agent.audit import record_operation, operation_actor
+        with transaction.atomic():
+            operation_actor(request.user, lock=True)
+            services.update_seller_fulfillment(
+                fulfillment,
+                acting_maker=maker,
+                status=serializer.validated_data.get("status"),
+                carrier=serializer.validated_data.get("carrier"),
+                tracking_number=serializer.validated_data.get("tracking_number"),
+            )
+            record_operation(request.user, 'fulfillment', order=order)
         # Refresh the order so the serializer sees the updated fulfillment values.
         order.refresh_from_db()
         return Response(SellerOrderSerializer(order, context={"request": request}).data)
@@ -235,7 +240,15 @@ class SellerOrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         seller themselves."""
         order = self.get_object()
         maker = request.user.maker_profile
-        services.mark_order_delivered(order, acting_maker=maker)
+        from django.db import transaction
+        from seller_agent.audit import record_operation, operation_actor
+        with transaction.atomic():
+            operation_actor(request.user, lock=True)
+            order.refresh_from_db(from_queryset=Order.objects.select_for_update())
+            already_delivered = order.status == OrderStatus.DELIVERED
+            services.mark_order_delivered(order, acting_maker=maker)
+            if not already_delivered:
+                record_operation(request.user, 'delivery', order=order)
         order.refresh_from_db()
         return Response(SellerOrderSerializer(order, context={"request": request}).data)
  

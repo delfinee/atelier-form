@@ -1,8 +1,10 @@
 """Password-free school workspace over the existing storefront catalogue."""
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.views import redirect_to_login
 from django.db import transaction
 from django.http import JsonResponse
+from django.utils.translation import gettext
 from products.models import Maker
 
 
@@ -29,6 +31,10 @@ class SharedSchoolDemoMiddleware:
         from accounts.demo import is_demo_seller, is_seller_app
         request.seller_app = is_seller_app(request)
         request.seller_demo_login = request.user if is_demo_seller(request.user) else None
+        if request.seller_app and request.seller_demo_login is None:
+            if request.path.startswith('/api/'):
+                return JsonResponse({'detail': gettext('Sign in to record changes under your seller account.')}, status=401)
+            return redirect_to_login(request.get_full_path(), login_url='/account/login/')
         with transaction.atomic():
             user, _ = get_user_model().objects.get_or_create(
                 email=settings.SELLER_SHARED_DEMO_EMAIL,
@@ -46,6 +52,8 @@ class SharedSchoolDemoMiddleware:
         # SessionAuthentication still enforces CSRF for writes. Existing services
         # preserve existing catalogue records and their maker ownership.
         user._shared_catalogue = True
+        if request.seller_demo_login is not None:
+            user._seller_operation_user = request.seller_demo_login
         request.user = user
         request.seller_shared_demo = True
         request.seller_public_demo = True

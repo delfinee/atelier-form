@@ -39,7 +39,7 @@ class DemoSellerLoginTests(TestCase):
 
     def test_prefilled_values_sign_in_to_real_account_and_keep_shared_catalogue(self):
         sync_demo_seller_name()
-        before = self.client.get('/api/seller-agent/v1/snapshot/').json()
+        before = Client(HTTP_HOST='school.test').get('/api/seller-agent/v1/snapshot/').json()
         page = self.client.get('/account/login/')
         response = self.client.post('/account/login/', {
             'email': page.context['values']['email'], 'password': page.context['demo_password']})
@@ -79,10 +79,12 @@ class DemoSellerLoginTests(TestCase):
         self.assertEqual(client.post('/account/login/', credentials).status_code, 302)
         self.assertEqual(client.session[SESSION_KEY], str(self.seller.pk))
 
-    def test_demo_login_link_only_appears_in_seller_app(self):
+    def test_seller_app_opens_prefilled_login_while_website_stays_anonymous(self):
         browser = Client(HTTP_HOST='school.test')
         self.assertNotContains(browser.get('/seller/ai/'), 'Sign in as demo seller')
-        self.assertContains(self.client.get('/seller/ai/'), 'Sign in as demo seller')
+        response = self.client.get('/seller/ai/')
+        self.assertRedirects(response, '/account/login/?next=/seller/ai/', fetch_redirect_response=False)
+        self.assertEqual(self.client.post('/api/seller-agent/v1/conversations/', {}, content_type='application/json').status_code, 401)
 
     def test_prefill_fails_closed_when_account_is_privileged_or_password_changed(self):
         for flag in ('is_staff', 'is_admin', 'is_superuser'):

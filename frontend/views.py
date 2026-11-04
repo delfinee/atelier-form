@@ -30,6 +30,7 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _, pgettext
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
+from seller_agent.audit import latest_operation, record_operation, operation_actor
 
 from accounts.models import Address, WishlistItem
 from content.models import FAQGroup, NewsletterSubscriber
@@ -171,6 +172,7 @@ def product_detail(request, slug):
 
     return render(request, "frontend/product/detail.html", {
         "product": product,
+        "last_seller_operation": latest_operation(product=product),
         "maker": services.get_maker(product.maker.slug),
         "related": services.related_products(product),
         "reviews": reviews,
@@ -277,6 +279,7 @@ def order_confirmation(request, uuid):
         raise Http404("Unknown order")
     return render(request, "frontend/order_confirmation.html", {
         "order": order,
+        "last_seller_operation": latest_operation(order=order),
         "meta_title": f"{_('Order %(number)s') % {'number': order.order_number}} — {SITE['brand']}",
     })
 
@@ -319,6 +322,7 @@ def account_order_detail(request, order_id):
         raise Http404("Unknown order")
     return render(request, "frontend/account/order_detail.html", {
         "customer": request.user, "order": order,
+        "last_seller_operation": latest_operation(order=order),
         "current_path": reverse("account_orders"),
         "meta_title": f"{_('Order %(number)s') % {'number': order.order_number}} — {SITE['brand']}",
     })
@@ -694,7 +698,10 @@ def seller_order_detail(request, order_number):
             # Ownership, dispatch eligibility, shipped_at and the parent status
             # sync all live in the service; a rule it rejects is shown on the form.
             try:
-                update_seller_fulfillment(fulfillment, acting_maker=maker, **form.cleaned_data)
+                with transaction.atomic():
+                    operation_actor(request.user, lock=True)
+                    update_seller_fulfillment(fulfillment, acting_maker=maker, **form.cleaned_data)
+                    record_operation(request.user, 'fulfillment', order=order)
             except ValidationError as exc:
                 form.add_error(None, exc)
             else:
@@ -712,6 +719,7 @@ def seller_order_detail(request, order_number):
     return render(request, "frontend/seller/order_detail.html", {
         "maker": maker,
         "order": order,
+        "last_seller_operation": latest_operation(order=order),
         "items": items,
         "seller_subtotal": sum((item.line_total for item in items), ZERO),
         "fulfillment": fulfillment,

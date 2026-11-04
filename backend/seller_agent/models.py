@@ -37,6 +37,26 @@ class Change(UUIDModel, TimeStampedModel):
         constraints = [models.UniqueConstraint(fields=["conversation", "request_id"], name="seller_agent_change_once")]
 
 
+class SellerOperation(UUIDModel, TimeStampedModel):
+    """Immutable attribution for a successful seller write, separate from ownership."""
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                              related_name='seller_operations')
+    actor_name = models.CharField(max_length=200)
+    action = models.CharField(max_length=32)
+    channel = models.CharField(max_length=16)
+    product = models.ForeignKey('products.Product', null=True, blank=True,
+                                on_delete=models.SET_NULL, related_name='seller_operations')
+    order = models.ForeignKey('orders.Order', null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name='seller_operations')
+    product_slug = models.CharField(max_length=200, blank=True)
+    order_number = models.CharField(max_length=80, blank=True)
+    change = models.OneToOneField(Change, null=True, blank=True, on_delete=models.SET_NULL,
+                                  related_name='operation')
+
+    class Meta:
+        ordering = ['-created_at', '-pk']
+
+
 class WechatIdentity(UUIDModel, TimeStampedModel):
     app_id = models.CharField(max_length=80)
     openid_hash = models.CharField(max_length=64)

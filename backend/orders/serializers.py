@@ -131,6 +131,11 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     status_label = serializers.CharField(read_only=True)
+    last_operation = serializers.SerializerMethodField()
+
+    def get_last_operation(self, obj) -> dict | None:
+        from seller_agent.audit import latest_operation
+        return latest_operation(order=obj)
 
     class Meta:
         model = Order
@@ -138,7 +143,7 @@ class OrderSerializer(serializers.ModelSerializer):
                   "fulfillment_status", "subtotal", "shipping_amount", "discount_amount",
                   "total", "currency", "customer_email", "delivery_method",
                   "shipping_address_snapshot", "carrier", "tracking_number",
-                  "placed_at", "items"]
+                  "placed_at", "items", "last_operation"]
         read_only_fields = fields
 
 

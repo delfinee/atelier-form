@@ -14,14 +14,20 @@ from django.views.decorators.http import require_http_methods
 from orders.models import Order, OrderItem
 from products.models import Product
 from products.descriptions import warm_product_content
+from seller_agent.audit import record_operation, operation_actor
 from frontend.catalogue_i18n import localize_product, localize_maker, localize_collection
 from .forms_seller import SellerImageFormSet, SellerProductForm, SellerVariantFormSet
 
 
 def _get_seller_maker(request):
     """Enforce seller role and return linked Maker profile."""
+    if getattr(request, 'seller_shared_demo', False):
+        from seller_agent.services import require_seller
+        return require_seller(request.user, lock=request.method == 'POST')
     if not request.user.is_authenticated or not request.user.is_active or not getattr(request.user, "is_seller", False) or not hasattr(request.user, "maker_profile") or not request.user.maker_profile.is_active:
         raise PermissionDenied("A linked seller profile is required.")
+    if request.method == 'POST':
+        operation_actor(request.user, lock=True)
     return request.user.maker_profile
 
 
@@ -91,6 +97,7 @@ def seller_product_create(request, template_name="frontend/seller/product_form.h
             image_formset.save()
 
             product.refresh_stock_status()
+            record_operation(request.user, 'listing', product=product)
             messages.success(request, _("Product {name} was created successfully.").format(name=product.name))
             return redirect("seller_product_list")
         else:
@@ -133,6 +140,7 @@ def seller_product_edit(request, slug, template_name="frontend/seller/product_fo
             variant_formset.save()
             image_formset.save()
             product.refresh_stock_status()
+            record_operation(request.user, 'product_update', product=product)
             messages.success(request, _("Product {name} was updated successfully.").format(name=product.name))
             return redirect("seller_product_list")
         else:

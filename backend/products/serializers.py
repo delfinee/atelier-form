@@ -104,12 +104,17 @@ class ProductDetailSerializer(ProductListSerializer):
     variants = ProductVariantSerializer(source="product_variants", many=True, read_only=True)
     collections = serializers.SlugRelatedField(slug_field="slug", many=True, read_only=True)
     available_quantity = serializers.IntegerField(read_only=True)
+    last_operation = serializers.SerializerMethodField()
+
+    def get_last_operation(self, obj) -> dict | None:
+        from seller_agent.audit import latest_operation
+        return latest_operation(product=obj)
 
     class Meta(ProductListSerializer.Meta):
         fields = ProductListSerializer.Meta.fields + [
             "description", "story", "dimensions", "care_instructions",
             "shipping_information", "collections", "images", "variants",
-            "is_made_to_order", "available_quantity",
+            "is_made_to_order", "available_quantity", "last_operation",
         ]
         read_only_fields = fields
 

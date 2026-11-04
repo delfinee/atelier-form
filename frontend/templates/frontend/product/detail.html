@@ -47,6 +47,7 @@
       {% endif %}
 
       <p style="margin-top:1.4rem;color:var(--ink-soft)">{{ product.description }}</p>
+      {% include 'frontend/partials/seller_operation.html' %}
 
       {% with colours=product.variants|colour_variants sizes=product.variants|size_variants %}
         {% if colours %}

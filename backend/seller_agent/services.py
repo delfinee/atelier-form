@@ -22,6 +22,7 @@ from orders.services import (update_seller_fulfillment, is_dispatch_eligible,
                              can_mark_order_delivered, mark_order_delivered)
 from products.descriptions import warm_product_content
 from .models import Conversation, Change
+from .audit import operation_actor, record_operation, operation_data, latest_operations
 from .serializers import InventoryInput, PriceInput, ListingInput, FulfillmentInput, DeliveryInput
 
 
@@ -29,7 +30,8 @@ def require_seller(user, lock=False):
     if not get_user_model().objects.filter(pk=user.pk, is_active=True, is_seller=True).exists():
         raise PermissionDenied(_("An active, verified seller account is required for this operation."))
     qs = Maker.objects.select_for_update() if lock else Maker.objects
-    maker = qs.filter(owner=user, is_active=True).first()
+    actor = operation_actor(user, lock=lock)
+    maker = qs.filter(owner=actor, is_active=True).first()
     if maker is None:
         raise PermissionDenied(_("Your website account must be linked to an active shop by the existing onboarding process."))
     maker._shared_catalogue = getattr(user, "_shared_catalogue", False)
@@ -49,7 +51,9 @@ def products(user, low_stock=False):
     maker = require_seller(user)
     result = []
     catalogue = Product.objects.all() if maker._shared_catalogue else Product.objects.filter(maker=maker)
-    for p in warm_product_content(catalogue.prefetch_related("product_variants").order_by("name")[:200]):
+    catalogue = list(warm_product_content(catalogue.select_related('maker').prefetch_related("product_variants").order_by("name")[:200]))
+    recent = latest_operations(product_ids=[p.pk for p in catalogue])
+    for p in catalogue:
         variants = [{"id": str(v.uuid), "label": localize_colour_label(v.label), "quantity": v.stock_quantity,
                      "price": str(v.unit_price), "active": v.is_active} for v in p.product_variants.all()]
         # Keep zero-stock options visible, including a low option on a high-total product.
@@ -63,6 +67,7 @@ def products(user, low_stock=False):
                 "price": str(p.price), "currency": p.currency,
                 "quantity": None if p.is_made_to_order else p.available_quantity, "variants": variants, "active": p.is_active,
                 "made_to_order": p.is_made_to_order, "low_stock": low,
+                "seller_name": localize_maker(p.maker).name, "last_operation": recent.get(p.pk),
                 "url": "/seller/products/" + p.slug + "/edit/"})
     return result
 
@@ -74,19 +79,22 @@ def orders(user):
     qs = Order.objects.filter(items__maker=maker).distinct().order_by("-placed_at").prefetch_related(
         "items", "items__maker", "seller_fulfillments")[:50]
     result = list(SellerOrderSerializer(qs, many=True, context={"request": SimpleNamespace(user=user)}).data)
+    recent = latest_operations(order_ids=[order.pk for order in qs])
     for order, row in zip(qs, result):
         row["seller_subtotal"] = str(row["seller_subtotal"])
         fulfillment = row.get("fulfillment")
         row["can_ship"] = bool(is_dispatch_eligible(order) and fulfillment and not fulfillment.get("shipped_at"))
         row['can_deliver'] = can_mark_order_delivered(order, acting_maker=maker)
+        row['last_operation'] = recent.get(order.pk)
     return result
 
 
 def _shared_orders():
     """Shared coursework operations, one row per parcel, without buyer identity."""
     result = []
-    parcels = SellerFulfillment.objects.select_related('order', 'maker').prefetch_related(
-        'order__items', 'order__seller_fulfillments').order_by('-order__placed_at', 'pk')[:100]
+    parcels = list(SellerFulfillment.objects.select_related('order', 'maker').prefetch_related(
+        'order__items', 'order__seller_fulfillments').order_by('-order__placed_at', 'pk')[:100])
+    recent = latest_operations(order_ids=[p.order_id for p in parcels])
     for parcel in parcels:
         order = parcel.order
         items = [item for item in order.items.all() if item.maker_id == parcel.maker_id]
@@ -103,6 +111,7 @@ def _shared_orders():
                             'shipped_at': parcel.shipped_at.isoformat() if parcel.shipped_at else None},
             'can_ship': bool(items and is_dispatch_eligible(order) and not parcel.shipped_at),
             'can_deliver': can_mark_order_delivered(order, acting_maker=parcel.maker),
+            'last_operation': recent.get(order.pk),
         })
     return result
 
@@ -241,7 +250,8 @@ def change_data(change):
     return {"id": str(change.uuid), "action": change.action, "target": change.target, "before": change.before,
         "values": change.values, "status": change.status, "expires_at": change.expires_at.isoformat(),
         "expired": change.expires_at <= timezone.now(), "result": result,
-        "confirmed_channel": change.confirmed_channel, "summary": summary}
+        "confirmed_channel": change.confirmed_channel, "summary": summary,
+        "operation": operation_data(getattr(change, 'operation', None))}
 
 
 @transaction.atomic
@@ -253,6 +263,7 @@ def confirm_change(user, uuid, channel):
     if change.status != "pending" or change.expires_at <= timezone.now():
         raise ValidationError(_("This preview is expired or superseded. Prepare a new one."))
     values = _validate(change.action, change.values)
+    product, changed_order = None, None
     if change.action in ("stock", "price"):
         product, variant, current = _inventory_target(maker, change.target, values, lock=True)
         if current != change.before:
@@ -274,6 +285,7 @@ def confirm_change(user, uuid, channel):
                          "product": product.slug, "url": "/seller/products/" + product.slug + "/edit/"}
     else:
         fulfillment, current = _fulfillment_target(maker, change.target, lock=True)
+        changed_order = fulfillment.order
         if current != change.before:
             raise ValidationError(_("Order or fulfillment changed. Review a new preview."))
         acting_maker = fulfillment.maker if getattr(maker, '_shared_catalogue', False) else maker
@@ -288,4 +300,6 @@ def confirm_change(user, uuid, channel):
     change.status = "applied"
     change.confirmed_channel = channel
     change.save(update_fields=["status", "result", "confirmed_channel", "updated_at"])
+    record_operation(user, change.action, channel=channel, product=product,
+                     order=changed_order, change=change)
     return change

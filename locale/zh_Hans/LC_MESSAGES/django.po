@@ -5342,6 +5342,15 @@ msgstr "演示卖家：%(name)s。已预填演示账号，点击登录即可继�
 msgid "Sign in as demo seller"
 msgstr "登录演示卖家账号"
 
+msgid "Last operated by"
+msgstr "最近操作人"
+
+msgid "Seller"
+msgstr "卖家"
+
+msgid "Sign in to record changes under your seller account."
+msgstr "请先登录，修改才会记录在你的卖家账号名下。"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is accepted"
 #~ " and logged."

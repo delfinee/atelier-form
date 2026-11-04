@@ -134,7 +134,29 @@ class SellerProductViewSet(viewsets.ModelViewSet):
         ).prefetch_related("collections")
 
     def perform_create(self, serializer):
-        serializer.save(maker=self.request.user.maker_profile)
+        from django.db import transaction
+        from seller_agent.services import require_seller
+        from seller_agent.audit import record_operation
+        with transaction.atomic():
+            maker = require_seller(self.request.user, lock=True)
+            product = serializer.save(maker=maker)
+            record_operation(self.request.user, 'listing', product=product)
+
+    def perform_update(self, serializer):
+        from django.db import transaction
+        from seller_agent.audit import record_operation, operation_actor
+        with transaction.atomic():
+            operation_actor(self.request.user, lock=True)
+            product = serializer.save()
+            record_operation(self.request.user, 'product_update', product=product)
+
+    def perform_destroy(self, instance):
+        from django.db import transaction
+        from seller_agent.audit import record_operation, operation_actor
+        with transaction.atomic():
+            operation_actor(self.request.user, lock=True)
+            record_operation(self.request.user, 'product_delete', product=instance)
+            instance.delete()
 
 
 # -- admin ----------------------------------------------------------------

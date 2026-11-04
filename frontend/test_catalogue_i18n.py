@@ -1188,7 +1188,7 @@ class ProductLocalizationTests(SimpleTestCase):
 
             source = self.service_product()
             queryset = MagicMock()
-            queryset.filter.return_value.order_by.return_value.__getitem__.return_value = [source]
+            queryset.order_by.return_value.__getitem__.return_value = [source]
             with patch.object(services, "_base_queryset", return_value=queryset) as base:
                 assert_localized(services.new_arrivals(), source)
                 base.assert_called_once_with()

@@ -1876,7 +1876,7 @@ msgstr "浏览"
 
 #: .\frontend\templates\frontend\home.html:26
 msgid "Four things we make well."
-msgstr "我们擅长的四个门类。"
+msgstr "系列分类"
 
 #: .\frontend\templates\frontend\home.html:28
 msgid "All collections"

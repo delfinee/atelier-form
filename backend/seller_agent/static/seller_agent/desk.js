@@ -29,7 +29,7 @@
   async function refresh(){const status=await request('status/');if($('wechat-status'))$('wechat-status').textContent=status.wechat_configured?'WeChat login is configured. Link your Mini Program to this website account to access the same shop.':'WeChat is not connected. AppID, developer access and a configured HTTPS domain are still required.';$('engine-label').textContent=publicDemo?(status.engine==='guided'?t('guided'):t('deepseek')):(status.engine==='guided'?t('guidedStatus'):t('aiStatus'));
     if($('connect-mini'))$('connect-mini').hidden=mode!=='mini'||!status.developer_login||!!token;
     if(mode==='mini'&&!token){$('account-name').textContent='Local Mini Program preview';$('account-status').textContent='Start an unlinked session, then approve its link in your website account.';return;}
-    state.me=await request('me/');$('account-name').textContent=status.shared_demo?t('catalogue'):publicDemo?t('demoShop'):state.me.account||t('unlinked');$('account-status').textContent=status.shared_demo?t('sharedStatus'):publicDemo?t('sampleStatus'):state.me.linked?(state.me.is_seller?t('verifiedStatus'):t('verificationRequired')):state.me.onboarding;
+    state.me=await request('me/');$('account-name').textContent=status.shared_demo?(state.me.seller_name||t('catalogue')):publicDemo?t('demoShop'):state.me.account||t('unlinked');$('account-status').textContent=status.shared_demo?t('sharedStatus'):publicDemo?t('sampleStatus'):state.me.linked?(state.me.is_seller?t('verifiedStatus'):t('verificationRequired')):state.me.onboarding;
     if($('link-mini'))$('link-mini').hidden=mode!=='mini'||state.me.linked;
     if(!state.me.linked)return;
     if($('link-result'))$('link-result').hidden=true;

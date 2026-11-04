@@ -426,6 +426,10 @@ def auth_page(request, mode):
 
     errors: dict[str, str] = {}
     values: dict[str, str] = {}
+    from accounts.demo import login_details, is_demo_seller
+    demo_seller = login_details(request) if mode == 'login' else None
+    if request.method == 'GET' and demo_seller:
+        values['email'] = demo_seller['email']
     registration_form = (
         RegistrationForm(request.POST if request.method == "POST" else None)
         if mode == "register" else None
@@ -451,6 +455,8 @@ def auth_page(request, mode):
                     next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure(),
                 ) and urlsplit(next_url).path.startswith("/")):
                     return redirect(next_url)
+                if demo_seller and is_demo_seller(user):
+                    return redirect('seller_ai')
                 return redirect("account_overview")
 
         elif mode == "register" and registration_form is not None:
@@ -468,6 +474,8 @@ def auth_page(request, mode):
     return render(request, "frontend/account/auth.html", {
         "mode": mode, "heading": titles[mode], "errors": errors, "values": values,
         "registration_form": registration_form,
+        "demo_seller": demo_seller,
+        "demo_password": demo_seller['password'] if demo_seller and request.method == 'GET' else '',
         "switch_next": reverse("seller_application") if seller_next else "",
         "meta_title": f"{titles[mode]} — {SITE['brand']}",
     })

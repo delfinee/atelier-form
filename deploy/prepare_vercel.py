@@ -32,5 +32,7 @@ if os.environ.get("VERCEL_ENV") == "production":
         print("Pending additive migrations:", [(migration.app_label, migration.name) for migration, _ in plan])
         call_command("migrate", "products", "0007_product_published_at", interactive=False)
         call_command("migrate", "seller_agent", interactive=False)
+        from accounts.demo import sync_demo_seller_name
+        sync_demo_seller_name()
 
 call_command("collectstatic", interactive=False, verbosity=1)

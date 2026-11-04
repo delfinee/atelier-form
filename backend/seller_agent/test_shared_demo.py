@@ -68,7 +68,8 @@ class SharedCatalogueTests(TestCase):
         self.assertContains(page, 'Original Mug')
         self.assertContains(page, 'Original Bowl')
         self.assertContains(page, 'Main website products')
-        self.assertNotContains(page, 'Sign in')
+        self.assertContains(page, 'No login needed')
+        self.assertContains(page, 'Sign in as demo seller')
 
     def test_stock_confirmation_updates_same_original_row_and_preserves_owner(self):
         conversation = self.conversation()

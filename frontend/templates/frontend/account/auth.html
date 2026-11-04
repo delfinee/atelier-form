@@ -19,9 +19,15 @@
       {% endif %}
 
       {% if mode == "login" %}
+        {% if demo_password %}
+        <p class="lede" style="font-size:var(--step-0);margin-top:0.8rem">
+          {% blocktranslate with name=demo_seller.name %}Demo seller: {{ name }}. Your demo account is filled in; click Sign in to continue.{% endblocktranslate %}
+        </p>
+        {% else %}
         <p class="lede" style="font-size:var(--step-0);margin-top:0.8rem">
           {% translate "Sign in to see your orders and saved pieces." %}
         </p>
+        {% endif %}
         <form method="post" style="margin-top:2rem" novalidate>
           {% csrf_token %}
           <div class="field">
@@ -32,6 +38,7 @@
           <div class="field">
             <label class="label" for="au-pass">{% translate "Password" %}</label>
             <input class="input" id="au-pass" name="password" type="password" required
+                   {% if demo_password %}value="{{ demo_password }}"{% endif %}
                    autocomplete="current-password">
           </div>
           <div class="field" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">

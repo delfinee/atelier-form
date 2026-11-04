@@ -5334,6 +5334,14 @@ msgstr "请先完成发货，再确认送达。"
 msgid "Delivered"
 msgstr "已送达"
 
+msgid ""
+"Demo seller: %(name)s. Your demo account is filled in; click Sign in to "
+"continue."
+msgstr "演示卖家：%(name)s。已预填演示账号，点击登录即可继续。"
+
+msgid "Sign in as demo seller"
+msgstr "登录演示卖家账号"
+
 #~ msgid ""
 #~ "Password reset email delivery is not connected yet — the request is accepted"
 #~ " and logged."

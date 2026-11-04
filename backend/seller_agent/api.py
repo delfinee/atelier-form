@@ -99,8 +99,11 @@ class DeveloperLogin(Public):
 class Me(Base):
     def get(self, request):
         linked = not isinstance(request.auth, WechatSession) or bool(request.auth.identity.user_id)
+        demo_login = getattr(request, 'seller_demo_login', None)
         return Response({"linked": linked, "is_seller": services.has_shop(request.user) if linked else False,
-            "account": request.user.email if linked else None, "channel": channel(request),
+            "account": demo_login.email if demo_login else request.user.email if linked else None,
+            "seller_name": demo_login.full_name if demo_login else None,
+            "channel": channel(request),
             "onboarding": conversation.onboarding_guide(getattr(request, "seller_shared_demo", False))})
 
 

@@ -21,6 +21,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from accounts.models import Address, WishlistItem
+from accounts.demo import DEMO_SELLER, DEMO_SELLER_NAME
 from content.models import FAQ, Article, FAQGroup, NewsletterSubscriber
 from orders.models import (
     DeliveryMethod, FulfillmentStatus, Order, OrderItem, OrderNumberSequence,
@@ -40,14 +41,12 @@ from frontend.mockdata.products import PRODUCTS
 
 User = get_user_model()
 
-# Development-only credentials. Documented in the README and safe to publish
-# precisely because they only ever exist in a seeded local database.
+# Public coursework credentials. The seller prefill is restricted to the
+# explicitly configured school-demo hosts and a non-privileged demo account.
 DEMO_CUSTOMER = {"email": "customer@atelierform.test", "password": "demo-customer-2026",
                  "first_name": "Demo", "last_name": "User", "phone": "+65 8123 4567"}
 DEMO_ADMIN = {"email": "admin@atelierform.test", "password": "demo-admin-2026",
               "first_name": "Studio", "last_name": "Admin"}
-DEMO_SELLER = {"email": "seller@atelierform.test", "password": "demo-seller-2026",
-               "first_name": "Meilin", "last_name": "Chen"}
 
 STOCK_BY_STATUS = {"in-stock": (14, 46), "low-stock": (2, 4)}
 
@@ -341,9 +340,12 @@ class Command(BaseCommand):
         else:
             seller.set_password(DEMO_SELLER["password"])
             seller.is_seller = True
+            seller.first_name = DEMO_SELLER['first_name']
+            seller.last_name = DEMO_SELLER['last_name']
             seller.save()
         makers["chen-meilin"].owner = seller
-        makers["chen-meilin"].save(update_fields=["owner", "updated_at"])
+        makers["chen-meilin"].name = DEMO_SELLER_NAME
+        makers["chen-meilin"].save(update_fields=["owner", "name", "updated_at"])
 
         self.stdout.write("  users: 1 customer, 1 seller, 1 admin")
         return customer, admin

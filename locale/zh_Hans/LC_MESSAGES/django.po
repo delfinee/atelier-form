@@ -765,7 +765,7 @@ msgstr "图片来源"
 
 #: .\frontend\mockdata\content.py:65
 msgid "Designed"
-msgstr "构思与定版"
+msgstr "构思"
 
 #: .\frontend\mockdata\content.py:66
 msgid ""
@@ -776,7 +776,7 @@ msgstr "从灵感构思、绘制草图到结合材料进行反复测试，最终
 
 #: .\frontend\mockdata\content.py:70
 msgid "Crafted"
-msgstr "手工生产"
+msgstr "生产"
 
 #: .\frontend\mockdata\content.py:71
 msgid ""
@@ -787,14 +787,14 @@ msgstr "由匠人通过手工设备进行精细的加工与制作，确保每一
 
 #: .\frontend\mockdata\content.py:75
 msgid "Finished"
-msgstr "质检与交付"
+msgstr "交付"
 
 #: .\frontend\mockdata\content.py:76
 msgid ""
 "Checked by hand, wrapped in unbleached paper, and packed with a card naming "
 "the person who made it. Anything that does not pass goes back to the studio "
 "shelf, not into a box."
-msgstr "未达标的器物绝不入箱。我们会用原色包装，并附上匠人亲笔签名的明信片，让您的每一次开箱都充满温度与仪式感。"
+msgstr "我们会用原色包装，并附上匠人亲笔签名的明信片，让您的每一次开箱都充满温度与仪式感。"
 
 #: .\frontend\mockdata\content.py:83
 #: .\frontend\templates\frontend\home.html:16

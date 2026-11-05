@@ -259,7 +259,15 @@ def products_in_collection(slug: str, sort: str = "featured") -> list[Product]:
 # -- Makers --------------------------------------------------------------
 
 def all_makers() -> list[Maker]:
-    return [localize_maker(maker) for maker in Maker.objects.filter(is_active=True)]
+    return [
+        localize_maker(maker)
+        for maker in Maker.objects.filter(is_active=True).exclude(
+            Q(name__icontains="seller tester")
+            | Q(discipline__icontains="seller tester")
+            | Q(slug__icontains="seller-tester")
+            | Q(slug__startswith="acceptance-shop")
+        )
+    ]
 
 
 def get_maker(slug: str) -> Maker | None:

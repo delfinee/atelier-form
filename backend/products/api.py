@@ -95,7 +95,12 @@ class CollectionViewSet(viewsets.ReadOnlyModelViewSet):
 
 class MakerViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "slug"
-    queryset = Maker.objects.filter(is_active=True)
+    queryset = Maker.objects.filter(is_active=True).exclude(
+        Q(name__icontains="seller tester")
+        | Q(discipline__icontains="seller tester")
+        | Q(slug__icontains="seller-tester")
+        | Q(slug__startswith="acceptance-shop")
+    )
 
     def get_serializer_class(self):
         return MakerDetailSerializer if self.action == "retrieve" else MakerListSerializer

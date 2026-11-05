@@ -349,6 +349,18 @@
     };
   }
 
+  function isExcludedMaker(m) {
+    if (!m) return true;
+    const name = (m.name || '').toLowerCase();
+    const disc = (m.discipline || '').toLowerCase();
+    const slug = (m.slug || '').toLowerCase();
+    return name.includes('seller tester') ||
+           disc.includes('seller tester') ||
+           slug.includes('seller-tester') ||
+           slug.includes('seller_tester') ||
+           slug.startsWith('acceptance-shop');
+  }
+
   // --- Load Makers into Selector Dropdown ---
   async function loadMakersList() {
     if (cachedMakers.length > 0) return cachedMakers;
@@ -360,14 +372,15 @@
       });
       if (res.ok) {
         const data = await res.json();
-        cachedMakers = Array.isArray(data) ? data : (data.results || data.items || []);
+        const raw = Array.isArray(data) ? data : (data.results || data.items || []);
+        cachedMakers = raw.filter(m => !isExcludedMaker(m));
       }
     } catch (e) {
       console.warn('Failed to fetch makers via API; falling back to default list.', e);
     }
 
     if (!cachedMakers || cachedMakers.length === 0) {
-      cachedMakers = DEFAULT_MAKERS;
+      cachedMakers = DEFAULT_MAKERS.filter(m => !isExcludedMaker(m));
     }
 
     populateSellerDropdown(cachedMakers);
@@ -381,13 +394,15 @@
 
     sellerSelect.innerHTML = `<option value="">-- ${t.chooseArtisan} --</option>`;
 
-    makers.forEach(m => {
-      const opt = document.createElement('option');
-      opt.value = m.slug;
-      opt.dataset.name = m.name;
-      opt.textContent = `${m.name}${m.discipline ? ' (' + m.discipline + ')' : ''}`;
-      sellerSelect.appendChild(opt);
-    });
+    makers
+      .filter(m => !isExcludedMaker(m))
+      .forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.slug;
+        opt.dataset.name = m.name;
+        opt.textContent = `${m.name}${m.discipline ? ' (' + m.discipline + ')' : ''}`;
+        sellerSelect.appendChild(opt);
+      });
 
     if (currentVal) {
       sellerSelect.value = currentVal;

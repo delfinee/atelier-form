@@ -355,6 +355,9 @@
     const disc = (m.discipline || '').toLowerCase();
     const slug = (m.slug || '').toLowerCase();
     return name.includes('seller tester') ||
+           name === 'school demo' ||
+           slug === 'shared-school-demo' ||
+           slug === 'school-demo' ||
            disc.includes('seller tester') ||
            slug.includes('seller-tester') ||
            slug.includes('seller_tester') ||

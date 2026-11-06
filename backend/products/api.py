@@ -11,6 +11,7 @@ from accounts.permissions import IsAdminUserRole, IsSeller
 
 from .filters import SORT_MAP, ProductFilter
 from .models import Category, Collection, Maker, Product, ProductVariant
+from .makers import public_makers
 from .serializers import (
     AdminProductSerializer, AdminStockSerializer, CategorySerializer, CollectionSerializer,
     MakerDetailSerializer, MakerListSerializer, ProductDetailSerializer, ProductListSerializer,
@@ -95,12 +96,10 @@ class CollectionViewSet(viewsets.ReadOnlyModelViewSet):
 
 class MakerViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "slug"
-    queryset = Maker.objects.filter(is_active=True).exclude(
-        Q(name__icontains="seller tester")
-        | Q(discipline__icontains="seller tester")
-        | Q(slug__icontains="seller-tester")
-        | Q(slug__startswith="acceptance-shop")
-    )
+    queryset = Maker.objects.none()
+
+    def get_queryset(self):
+        return public_makers()
 
     def get_serializer_class(self):
         return MakerDetailSerializer if self.action == "retrieve" else MakerListSerializer
@@ -108,8 +107,9 @@ class MakerViewSet(viewsets.ReadOnlyModelViewSet):
     @extend_schema(summary="Products by a maker", responses=ProductListSerializer(many=True))
     @action(detail=True, methods=["get"])
     def products(self, request, slug=None):
+        maker = self.get_object()
         return _paginated_products(self, Product.objects.active().with_related()
-                                   .filter(maker__slug=slug))
+                                   .filter(maker=maker))
 
 
 def _paginated_products(view, queryset):

@@ -61,7 +61,7 @@ def home(request):
         "process_steps": PROCESS_STEPS,
         "featured_collection": services.get_collection("earth"),
         "featured_collection_products": services.products_in_collection("earth")[:3],
-        "makers": services.all_makers()[:2],
+        "makers": services.featured_makers(2),
         "gallery": [f"gallery-{i}" for i in range(1, 7)],
         "meta_title": f"{SITE['brand']} — {SITE['tagline']}",
     })

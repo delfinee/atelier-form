@@ -824,35 +824,36 @@ class MakerLocalizationTests(SimpleTestCase):
 
         with translation.override("zh-hans"):
             source = self.make_maker(expected)
-            with patch.object(services.Maker.objects, "filter", return_value=[source]) as query:
+            with patch.object(services, "public_makers", return_value=[source]) as query:
                 assert_localized(services.all_makers(), source)
-            query.assert_called_once_with(is_active=True)
+            query.assert_called_once_with()
 
             source = self.make_maker(expected)
             queryset = MagicMock()
-            queryset.first.return_value = source
-            with patch.object(services.Maker.objects, "filter", return_value=queryset) as query:
+            queryset.filter.return_value.first.return_value = source
+            with patch.object(services, "public_makers", return_value=queryset):
                 assert_localized(services.get_maker(source.slug), source)
-            query.assert_called_once_with(slug=source.slug, is_active=True)
+            queryset.filter.assert_called_once_with(slug=source.slug)
 
             source = self.make_maker(expected)
             product_queryset = MagicMock()
             product_queryset.search.return_value = []
+            maker_queryset = MagicMock()
+            maker_queryset.filter.return_value = [source]
             with (patch.object(services, "_base_queryset", return_value=product_queryset),
                   patch.object(services.Collection.objects, "filter", return_value=[]),
                   patch.object(services.Category.objects, "filter", return_value=[]),
-                  patch.object(services.Maker.objects, "filter", return_value=[source]) as query,
+                  patch.object(services, "public_makers", return_value=maker_queryset),
                   patch.object(services.Article.objects, "published") as articles):
                 articles.return_value.filter.return_value = []
                 results = services.search("Chen")
             assert_localized(results["makers"], source)
             product_queryset.search.assert_called_once_with("Chen")
-            query.assert_called_once_with(
+            maker_queryset.filter.assert_called_once_with(
                 services.Q(name__icontains="Chen")
                 | services.Q(discipline__icontains="Chen")
                 | services.Q(location__icontains="Chen")
                 | services.Q(tagline__icontains="Chen"),
-                is_active=True,
             )
 
 
@@ -1218,11 +1219,13 @@ class ProductLocalizationTests(SimpleTestCase):
         source = self.service_product()
         queryset = MagicMock()
         queryset.search.return_value = [source]
+        maker_queryset = MagicMock()
+        maker_queryset.filter.return_value = []
         with (translation.override("zh-hans"),
               patch.object(services, "_base_queryset", return_value=queryset),
               patch.object(services.Collection.objects, "filter", return_value=[]),
               patch.object(services.Category.objects, "filter", return_value=[]),
-              patch.object(services.Maker.objects, "filter", return_value=[]),
+              patch.object(services, "public_makers", return_value=maker_queryset),
               patch.object(services.Article.objects, "published") as articles):
             articles.return_value.filter.return_value = []
             results = services.search("Stoneware")
@@ -2719,6 +2722,8 @@ class ReviewRatingAndSearchLocalizationTests(SimpleTestCase):
         maker = SimpleNamespace(slug="maker-result")
         product_queryset = MagicMock()
         product_queryset.search.return_value = [product]
+        maker_queryset = MagicMock()
+        maker_queryset.filter.return_value = [maker]
         published = MagicMock()
         published.filter.return_value = [article]
 
@@ -2731,9 +2736,7 @@ class ReviewRatingAndSearchLocalizationTests(SimpleTestCase):
             patch.object(
                 services.Category.objects, "filter", return_value=[category],
             ) as category_filter,
-            patch.object(
-                services.Maker.objects, "filter", return_value=[maker],
-            ) as maker_filter,
+            patch.object(services, "public_makers", return_value=maker_queryset),
             patch.object(
                 services.Article.objects, "published", return_value=published,
             ) as article_published,
@@ -2745,7 +2748,7 @@ class ReviewRatingAndSearchLocalizationTests(SimpleTestCase):
             "sources": (product, editorial, category, maker, article),
             "queries": (
                 base, product_queryset, collection_filter, category_filter,
-                maker_filter, article_published, published,
+                maker_queryset.filter, article_published, published,
             ),
         }
 
@@ -2768,7 +2771,6 @@ class ReviewRatingAndSearchLocalizationTests(SimpleTestCase):
             | services.Q(discipline__icontains=self.filtered_query)
             | services.Q(location__icontains=self.filtered_query)
             | services.Q(tagline__icontains=self.filtered_query),
-            is_active=True,
         )
         article_published.assert_called_once_with()
         published.filter.assert_called_once_with(
@@ -2802,7 +2804,8 @@ class ReviewRatingAndSearchLocalizationTests(SimpleTestCase):
             {key: len(value) for key, value in results.items()},
             {"products": 1, "collections": 2, "makers": 1, "articles": 1},
         )
-        self.assertIs(results["products"][0], product)
+        self.assertEqual(results["products"][0].slug, product.slug)
+        self.assertEqual(vars(product), {"slug": "product-result"})
         self.assertIs(results["makers"][0], maker)
         self.assertEqual(
             [(item.slug, item.name, item.tagline, item.description)

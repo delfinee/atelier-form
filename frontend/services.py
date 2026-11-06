@@ -17,6 +17,7 @@ from decimal import Decimal
 from typing import Any, Iterable, cast
 
 from django.db.models import Case, IntegerField, Q, When
+from django.db.models.functions import Lower
 from django.utils.translation import gettext, gettext_noop
 
 from content.models import Article, ArticleQuerySet
@@ -29,6 +30,7 @@ from products.models import (
     ProductQuerySet, ProductVariant,
     NEWEST_ORDER,
 )
+from products.makers import public_makers
 
 SORT_OPTIONS = [
     ("featured", gettext_noop("Featured")),
@@ -259,19 +261,16 @@ def products_in_collection(slug: str, sort: str = "featured") -> list[Product]:
 # -- Makers --------------------------------------------------------------
 
 def all_makers() -> list[Maker]:
-    return [
-        localize_maker(maker)
-        for maker in Maker.objects.filter(is_active=True).exclude(
-            Q(name__icontains="seller tester")
-            | Q(discipline__icontains="seller tester")
-            | Q(slug__icontains="seller-tester")
-            | Q(slug__startswith="acceptance-shop")
-        )
-    ]
+    return [localize_maker(maker) for maker in public_makers()]
+
+
+def featured_makers(limit=2) -> list[Maker]:
+    makers = public_makers().order_by('-is_featured', Lower('name'), 'pk')[:limit]
+    return [localize_maker(maker) for maker in makers]
 
 
 def get_maker(slug: str) -> Maker | None:
-    maker = Maker.objects.filter(slug=slug, is_active=True).first()
+    maker = public_makers().filter(slug=slug).first()
     return localize_maker(maker) if maker else None
 
 
@@ -313,9 +312,9 @@ def search(query: str) -> dict[str, list]:
     collections += list(Category.objects.filter(
         Q(name__icontains=q) | Q(tagline__icontains=q) | Q(description__icontains=q),
         is_active=True))
-    makers = list(Maker.objects.filter(
+    makers = list(public_makers().filter(
         Q(name__icontains=q) | Q(discipline__icontains=q)
-        | Q(location__icontains=q) | Q(tagline__icontains=q), is_active=True))
+        | Q(location__icontains=q) | Q(tagline__icontains=q)))
 
     return {
         "products": localize_products(_base_queryset().search(q)),

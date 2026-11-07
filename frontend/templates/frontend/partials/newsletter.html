@@ -3,7 +3,8 @@
   <div class="shell section--tight newsletter__inner">
     <div>
       <p class="eyebrow">{% translate "Studio notes" %}</p>
-      <h2 id="newsletter-title">{% translate "A note when something new comes out of the kiln." %}</h2>
+      {% translate "A note when something new comes out of the kiln." as newsletter_title %}
+      <h2 id="newsletter-title" style="white-space: pre-line">{{ newsletter_title|linebreaksbr }}</h2>
     </div>
     <div>
       <form data-newsletter novalidate>

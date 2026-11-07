@@ -2485,7 +2485,9 @@ msgstr "订阅匠心手记"
 
 #: .\frontend\templates\frontend\partials\newsletter.html:6
 msgid "A note when something new comes out of the kiln."
-msgstr "每逢新作出窑，第一时间邮件通知您"
+msgstr ""
+"每逢新作出窑，\n"
+"第一时间邮件通知您"
 
 #: .\frontend\templates\frontend\partials\newsletter.html:10
 msgid "Email address"

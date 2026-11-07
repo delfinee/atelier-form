@@ -22,6 +22,20 @@ def site_image(request, name: str):
     column, and it is answered straight from the conditional-request headers
     whenever the browser already holds the file.
     """
+    from .sync import get_custom_image
+    custom = get_custom_image(name)
+    if custom is not None:
+        etag = f'"{custom.checksum}"'
+        if request.headers.get("If-None-Match") == etag:
+            response = HttpResponseNotModified()
+            response["ETag"] = etag
+            return response
+        response = HttpResponse(custom.data, content_type=custom.content_type)
+        response["ETag"] = etag
+        response["Cache-Control"] = f"public, max-age={MAX_AGE}, immutable"
+        response["X-Content-Type-Options"] = "nosniff"
+        return response
+
     try:
         image = SiteImage.objects.with_data().get(name=name)
     except SiteImage.DoesNotExist:

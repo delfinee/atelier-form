@@ -55,6 +55,11 @@ def image_url(name: str) -> str:
     """Photograph URL if one is stored, otherwise the generated placeholder."""
     if not name:
         return ""
+    from .sync import get_custom_checksum
+    custom_checksum = get_custom_checksum(name)
+    if custom_checksum:
+        return f"{reverse('site_image', args=[name])}?v={custom_checksum[:12]}"
+
     checksum = _index().get(name)
     if not checksum:
         try:
@@ -70,4 +75,5 @@ def image_url(name: str) -> str:
 
 
 def has_photo(name: str) -> bool:
-    return bool(name) and name in _index()
+    from .sync import get_custom_checksum
+    return bool(name) and (get_custom_checksum(name) is not None or name in _index())

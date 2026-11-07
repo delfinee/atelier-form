@@ -34,5 +34,7 @@ if os.environ.get("VERCEL_ENV") == "production":
         call_command("migrate", "seller_agent", interactive=False)
         from accounts.demo import sync_demo_seller_name
         sync_demo_seller_name()
+        from imagery.sync import sync_custom_images
+        sync_custom_images()
 
 call_command("collectstatic", interactive=False, verbosity=1)

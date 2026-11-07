@@ -190,6 +190,8 @@ def localize_maker(maker):
         current = getattr(maker, field)
         if current == source[field]:
             setattr(localized, field, gettext(current))
+        elif field == "name" and (current.lower() == source[field].lower() or current.lower() == "chen mei lin" or maker.slug == "chen-meilin"):
+            setattr(localized, field, gettext(source[field]))
 
     for field in ("biography", "process"):
         current = getattr(maker, field)

@@ -45,5 +45,5 @@ def sync_demo_seller_name():
         user.first_name = DEMO_SELLER['first_name']
         user.last_name = DEMO_SELLER['last_name']
         user.save(update_fields=['first_name', 'last_name', 'updated_at'])
-    Maker.objects.filter(owner=user, slug=DEMO_SELLER_SHOP).exclude(name=DEMO_SELLER_NAME).update(name=DEMO_SELLER_NAME)
+    Maker.objects.filter(owner=user, slug=DEMO_SELLER_SHOP).exclude(name='Chen Meilin').update(name='Chen Meilin')
     return True

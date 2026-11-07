@@ -94,6 +94,11 @@ class Command(BaseCommand):
         self._seed_orders(customer, products)
         self._seed_wishlist_and_reviews(customer, products)
         self._seed_newsletter()
+        try:
+            from imagery.sync import sync_custom_images
+            sync_custom_images()
+        except Exception:
+            pass
 
         self.stdout.write(self.style.SUCCESS(
             f"\nSeeded: {Category.objects.count()} categories · "

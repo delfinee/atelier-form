@@ -14,3 +14,5 @@ locale/*/LC_MESSAGES/*.po
 *.pdf
 *.jpeg
 *.jpg
+!backend/imagery/assets/*.jpg
+!frontend/static/frontend/img/placeholders/*.jpg

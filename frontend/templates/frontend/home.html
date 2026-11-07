@@ -113,7 +113,7 @@
   <div class="grid grid--2">
     {% for maker in makers %}
       <a class="split" href="{% url 'maker_detail' maker.slug %}" data-reveal style="gap:var(--gap)">
-        <div class="media media--hover" style="aspect-ratio:3/4">
+        <div class="media media--hover" style="aspect-ratio:3/4; width:60%; max-width:60%;">
           <img src="{% placeholder maker.portrait %}" alt="{{ maker.name }}" loading="lazy" width="750" height="1000">
         </div>
         <div>
